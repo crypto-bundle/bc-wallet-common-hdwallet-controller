@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package hdwallet_api;
+
+option go_package = "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc";
+
+message AddNewWalletRequest {
+  string Title = 1;
+  string Purpose = 2;
+  bool IsHot = 3;
+}
+
+message AddNewWalletResponse {
+  string WalletUUID = 1;
+}
+
+message DerivationAddressRequest {
+  uint32 AccountIndex = 2;
+  uint32 InternalIndex = 3;
+  uint32 AddressIndex = 4;
+}
+
+message DerivationAddressResponse {
+  string Address = 1;
+}
+
+service HdWalletApi {
+  rpc AddNewWallet                 (AddNewWalletRequest)           returns (AddNewWalletResponse) {}
+  rpc GetDerivationAddress                 (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+}

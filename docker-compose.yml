@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      PGDATA: /data/postgres
+    volumes:
+      - ./data/postgres/data/:/data/postgres
+    ports:
+      - "5434:5432"
+    networks:
+      - cryptowyze
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - ./data/pgadmin/data/:/var/lib/pgadmin
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    networks:
+      - cryptowyze
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  vault-server:
+    image: vault:latest
+    ports:
+      - "8201:8200"
+    environment:
+      VAULT_ADDR: "http://0.0.0.0:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: "vault-plaintext-root-token"
+    volumes:
+      - ./data/vault/data/:/vault/
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - cryptowyze
+
+networks:
+  cryptowyze:
+    driver: bridge
