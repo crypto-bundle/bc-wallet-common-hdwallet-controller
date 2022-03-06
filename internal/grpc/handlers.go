@@ -1,14 +1,16 @@
 package grpc
 
 import (
-	"bc-wallet-eth-hdwallet/internal/grpc/handlers"
 	"context"
 
 	"bc-wallet-eth-hdwallet/internal/app"
 	"bc-wallet-eth-hdwallet/internal/config"
+	"bc-wallet-eth-hdwallet/internal/grpc/handlers"
 	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api/proto"
 
 	"go.uber.org/zap"
+
+	"github.com/asaskevich/govalidator"
 )
 
 // grpcServerHandle is wrapper struct for implementation all grpc handlers
@@ -45,6 +47,8 @@ func NewGRPCHandler(ctx context.Context,
 
 	walletSrv walleter,
 ) (pbApi.HdWalletApiServer, error) {
+	govalidator.SetFieldsRequiredByDefault(true) //stupid hack for validator
+
 	l := loggerSrv.Named("grpc.server.handler").With(
 		zap.String(app.ApplicationNameTag, app.ApplicationName),
 		zap.String(app.BlockChainNameTag, app.BlockChainName))

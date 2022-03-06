@@ -10,7 +10,7 @@ import (
 type MnemonicWallet struct {
 	ID            uint32     `db:"id"`
 	Title         string     `db:"title"`
-	UUID          uuid.UUID  `db:"uuid"`
+	UUID          uuid.UUID  `db:"wallet_uuid"`
 	Hash          string     `db:"hash"`
 	Purpose       string     `db:"purpose"`
 	IsHotWallet   bool       `db:"is_hot"`

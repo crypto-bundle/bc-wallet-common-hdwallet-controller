@@ -18,6 +18,7 @@ func (f *AddNewWalletForm) LoadAndValidate(ctx context.Context,
 ) (valid bool, err error) {
 	f.Title = req.Title
 	f.Purpose = req.Purpose
+	f.IsHot = req.IsHot
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

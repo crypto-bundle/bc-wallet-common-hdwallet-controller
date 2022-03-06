@@ -34,7 +34,7 @@ func (s *Service) Init(ctx context.Context) error {
 	}
 
 	for i, _ := range wallets {
-		hdWallet, creatErr := hdwallet.New(wallets[i].EncryptedData)
+		hdWallet, creatErr := hdwallet.NewFromString(string(wallets[i].EncryptedData))
 		if creatErr != nil {
 			return creatErr
 		}

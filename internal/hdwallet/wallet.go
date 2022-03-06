@@ -66,6 +66,17 @@ func New(entropy []byte) (*Wallet, error) {
 	return Restore(mnemonic)
 }
 
+// NewFromString hdwallet via mnemo string
+func NewFromString(mnemo string) (*Wallet, error) {
+	entropy, err := bip39.EntropyFromMnemonic(mnemo)
+	if err != nil {
+		return nil, err
+	}
+
+	mnemonic, _ := bip39.NewMnemonic(entropy)
+	return Restore(mnemonic)
+}
+
 // Restore mnemonic a Bip32 HD hdwallet for the mnemonic
 func Restore(mnemonic string) (*Wallet, error) {
 	seed, err := bip39.NewSeedWithErrorChecking(mnemonic, "")

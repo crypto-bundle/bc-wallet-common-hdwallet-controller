@@ -18,9 +18,9 @@ var (
 
 type GetDerivationAddressForm struct {
 	WalletUUID    string `valid:"type(string),uuid,required"`
-	AccountIndex  uint32 `valid:"type(uint32),numeric,required"`
-	InternalIndex uint32 `valid:"type(uint32),numeric,required"`
-	AddressIndex  uint32 `valid:"type(uint32),numeric,required"`
+	AccountIndex  uint32 `valid:"type(uint32),int,required"`
+	InternalIndex uint32 `valid:"type(uint32),int,required"`
+	AddressIndex  uint32 `valid:"type(uint32),int,required"`
 }
 
 func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
