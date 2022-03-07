@@ -1,26 +1,27 @@
 package main
 
 import (
-	"bc-wallet-eth-hdwallet/internal/app"
-	"bc-wallet-eth-hdwallet/internal/common/vault"
-	"bc-wallet-eth-hdwallet/internal/wallet"
-	"bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api"
 	"context"
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
+	"log"
 	"net"
+	"os"
 	"os/signal"
 	"syscall"
 
-	"log"
-	"os"
+	"bc-wallet-eth-hdwallet/internal/app"
+	"bc-wallet-eth-hdwallet/internal/wallet"
+	"bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api"
 
-	"bc-wallet-eth-hdwallet/internal/common/postgres"
 	"bc-wallet-eth-hdwallet/internal/config"
 	grpcHandlers "bc-wallet-eth-hdwallet/internal/grpc"
 
-	"github.com/crypto-bundle/bc-adapter-common/pkg/logger"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/logger"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/vault"
+
 	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 
 	"go.uber.org/zap"
 )

@@ -1,14 +1,16 @@
 package repository
 
 import (
-	"bc-wallet-eth-hdwallet/internal/entities"
 	"context"
+	"time"
+
+	"bc-wallet-eth-hdwallet/internal/entities"
+
+	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-	"time"
-
-	"bc-wallet-eth-hdwallet/internal/common/postgres"
 )
 
 var (
