@@ -3,7 +3,7 @@ package handlers
 import (
 	"bc-wallet-eth-hdwallet/internal/app"
 	"bc-wallet-eth-hdwallet/internal/forms"
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api/proto"
+	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"context"
 	"github.com/crypto-bundle/bc-adapter-common/pkg/tracer"
 	"go.uber.org/zap"

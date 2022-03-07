@@ -1,17 +1,24 @@
-package bc_adapter_api
+package hdwallet_api
 
 import (
 	"context"
+	"math"
 	"net"
 	"time"
 
-	"google.golang.org/grpc/credentials/insecure"
-
 	"github.com/crypto-bundle/bc-adapter-common/pkg/dns"
+
 	grpcRetry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	originGRPC "google.golang.org/grpc"
 	grpcCodes "google.golang.org/grpc/codes"
 	grpcKeepalive "google.golang.org/grpc/keepalive"
+
+	"google.golang.org/grpc/credentials/insecure"
+)
+
+const (
+	DefaultClientMaxReceiveMessageSize = 1024 * 1024 * 24
+	DefaultClientMaxSendMessageSize    = math.MaxInt32
 )
 
 func DefaultKeepaliveClientOptions() grpcKeepalive.ClientParameters {

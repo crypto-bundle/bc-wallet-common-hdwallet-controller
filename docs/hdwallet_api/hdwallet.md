@@ -6,8 +6,13 @@
 - [api.proto](#api.proto)
     - [AddNewWalletRequest](#hdwallet_api.AddNewWalletRequest)
     - [AddNewWalletResponse](#hdwallet_api.AddNewWalletResponse)
+    - [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest)
+    - [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse)
+    - [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity)
     - [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest)
     - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
+    - [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest)
+    - [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse)
   
     - [HdWalletApi](#hdwallet_api.HdWalletApi)
   
@@ -54,9 +59,42 @@
 
 
 
-<a name="hdwallet_api.DerivationAddressRequest"></a>
+<a name="hdwallet_api.DerivationAddressByRangeRequest"></a>
 
-### DerivationAddressRequest
+### DerivationAddressByRangeRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AccountIndex | [uint32](#uint32) |  |  |
+| InternalIndex | [uint32](#uint32) |  |  |
+| AddressIndexFrom | [uint32](#uint32) |  |  |
+| AddressIndexTo | [uint32](#uint32) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.DerivationAddressByRangeResponse"></a>
+
+### DerivationAddressByRangeResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AddressIdentities | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) | repeated |  |
+
+
+
+
+
+
+<a name="hdwallet_api.DerivationAddressIdentity"></a>
+
+### DerivationAddressIdentity
 
 
 
@@ -65,6 +103,22 @@
 | AccountIndex | [uint32](#uint32) |  |  |
 | InternalIndex | [uint32](#uint32) |  |  |
 | AddressIndex | [uint32](#uint32) |  |  |
+| Address | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.DerivationAddressRequest"></a>
+
+### DerivationAddressRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
 
 
 
@@ -79,7 +133,32 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Address | [string](#string) |  |  |
+| AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GetEnabledWalletsRequest"></a>
+
+### GetEnabledWalletsRequest
+
+
+
+
+
+
+
+<a name="hdwallet_api.GetEnabledWalletsResponse"></a>
+
+### GetEnabledWalletsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletsUUID | [string](#string) | repeated |  |
 
 
 
@@ -100,7 +179,9 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | AddNewWallet | [AddNewWalletRequest](#hdwallet_api.AddNewWalletRequest) | [AddNewWalletResponse](#hdwallet_api.AddNewWalletResponse) |  |
+| GetEnabledWallets | [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest) | [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse) |  |
 | GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
+| GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
 
  
 

@@ -19,7 +19,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HdWalletApiClient interface {
 	AddNewWallet(ctx context.Context, in *AddNewWalletRequest, opts ...grpc.CallOption) (*AddNewWalletResponse, error)
+	GetEnabledWallets(ctx context.Context, in *GetEnabledWalletsRequest, opts ...grpc.CallOption) (*GetEnabledWalletsResponse, error)
 	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
+	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
 }
 
 type hdWalletApiClient struct {
@@ -39,9 +41,27 @@ func (c *hdWalletApiClient) AddNewWallet(ctx context.Context, in *AddNewWalletRe
 	return out, nil
 }
 
+func (c *hdWalletApiClient) GetEnabledWallets(ctx context.Context, in *GetEnabledWalletsRequest, opts ...grpc.CallOption) (*GetEnabledWalletsResponse, error) {
+	out := new(GetEnabledWalletsResponse)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GetEnabledWallets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *hdWalletApiClient) GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error) {
 	out := new(DerivationAddressResponse)
 	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GetDerivationAddress", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletApiClient) GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error) {
+	out := new(DerivationAddressByRangeResponse)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GetDerivationAddressByRange", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +73,9 @@ func (c *hdWalletApiClient) GetDerivationAddress(ctx context.Context, in *Deriva
 // for forward compatibility
 type HdWalletApiServer interface {
 	AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error)
+	GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error)
 	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
+	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
 	mustEmbedUnimplementedHdWalletApiServer()
 }
 
@@ -64,8 +86,14 @@ type UnimplementedHdWalletApiServer struct {
 func (UnimplementedHdWalletApiServer) AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNewWallet not implemented")
 }
+func (UnimplementedHdWalletApiServer) GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEnabledWallets not implemented")
+}
 func (UnimplementedHdWalletApiServer) GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddress not implemented")
+}
+func (UnimplementedHdWalletApiServer) GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddressByRange not implemented")
 }
 func (UnimplementedHdWalletApiServer) mustEmbedUnimplementedHdWalletApiServer() {}
 
@@ -98,6 +126,24 @@ func _HdWalletApi_AddNewWallet_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HdWalletApi_GetEnabledWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEnabledWalletsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).GetEnabledWallets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hdwallet_api.HdWalletApi/GetEnabledWallets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).GetEnabledWallets(ctx, req.(*GetEnabledWalletsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HdWalletApi_GetDerivationAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DerivationAddressRequest)
 	if err := dec(in); err != nil {
@@ -116,6 +162,24 @@ func _HdWalletApi_GetDerivationAddress_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HdWalletApi_GetDerivationAddressByRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DerivationAddressByRangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).GetDerivationAddressByRange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hdwallet_api.HdWalletApi/GetDerivationAddressByRange",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).GetDerivationAddressByRange(ctx, req.(*DerivationAddressByRangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HdWalletApi_ServiceDesc is the grpc.ServiceDesc for HdWalletApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -128,8 +192,16 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HdWalletApi_AddNewWallet_Handler,
 		},
 		{
+			MethodName: "GetEnabledWallets",
+			Handler:    _HdWalletApi_GetEnabledWallets_Handler,
+		},
+		{
 			MethodName: "GetDerivationAddress",
 			Handler:    _HdWalletApi_GetDerivationAddress_Handler,
+		},
+		{
+			MethodName: "GetDerivationAddressByRange",
+			Handler:    _HdWalletApi_GetDerivationAddressByRange_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

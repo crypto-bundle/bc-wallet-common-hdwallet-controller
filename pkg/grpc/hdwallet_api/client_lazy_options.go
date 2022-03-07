@@ -1,4 +1,4 @@
-package bc_adapter_api
+package hdwallet_api
 
 import (
 	"context"

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api/proto"
+	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	protoTypes "bc-wallet-eth-hdwallet/pkg/types"
 
 	"github.com/asaskevich/govalidator"
@@ -38,9 +38,9 @@ func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
 	}
 
 	f.WalletUUID = walletHeaders[0]
-	f.AccountIndex = req.AccountIndex
-	f.InternalIndex = req.InternalIndex
-	f.AddressIndex = req.AccountIndex
+	f.AccountIndex = req.AddressIdentity.AccountIndex
+	f.InternalIndex = req.AddressIdentity.InternalIndex
+	f.AddressIndex = req.AddressIdentity.AccountIndex
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

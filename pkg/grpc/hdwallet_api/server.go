@@ -1,20 +1,16 @@
-package grpc
+package hdwallet_api
 
 import (
-	"context"
-	"net"
-
 	"bc-wallet-eth-hdwallet/internal/app"
 	"bc-wallet-eth-hdwallet/internal/config"
-
-	commonGrpc "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api"
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api/proto"
-
+	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"context"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"net"
 )
 
 type Server struct {
@@ -23,19 +19,13 @@ type Server struct {
 	handlers   pbApi.HdWalletApiServer
 	config     *config.Config
 
-	walletService walleter
-
 	listener net.Listener
 }
 
 func (s *Server) Init(ctx context.Context,
 	loggerEntry *zap.Logger,
-	cfg *config.Config,
+	handlers pbApi.HdWalletApiServer,
 ) error {
-	handlers, err := NewGRPCHandler(ctx, cfg, loggerEntry, s.walletService)
-	if err != nil {
-		return err
-	}
 	s.handlers = handlers
 
 	loggerEntry.Info("init success")
@@ -53,7 +43,7 @@ func (s *Server) Shutdown(ctx context.Context) {
 
 func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 	// todo: move to go-base
-	options := commonGrpc.DefaultServeOptions()
+	options := DefaultServeOptions()
 	msgSizeOptions := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(DefaultServerMaxReceiveMessageSize),
 		grpc.MaxSendMsgSize(DefaultServerMaxSendMessageSize),
@@ -75,8 +65,6 @@ func NewServer(ctx context.Context,
 	loggerSrv *zap.Logger,
 	cfg *config.Config,
 	listener net.Listener,
-
-	walletSrv walleter,
 ) (*Server, error) {
 	l := loggerSrv.Named("grpc.server").With(
 		zap.String(app.ApplicationNameTag, app.ApplicationName),
@@ -86,8 +74,6 @@ func NewServer(ctx context.Context,
 		logger:   l,
 		config:   cfg,
 		listener: listener,
-
-		walletService: walletSrv,
 	}
 
 	return srv, nil

@@ -25,11 +25,53 @@
         }
       }
     },
+    "hdwallet_apiDerivationAddressByRangeResponse": {
+      "type": "object",
+      "properties": {
+        "AddressIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/hdwallet_apiDerivationAddressIdentity"
+          }
+        }
+      }
+    },
+    "hdwallet_apiDerivationAddressIdentity": {
+      "type": "object",
+      "properties": {
+        "AccountIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "InternalIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Address": {
+          "type": "string"
+        }
+      }
+    },
     "hdwallet_apiDerivationAddressResponse": {
       "type": "object",
       "properties": {
-        "Address": {
-          "type": "string"
+        "AddressIdentity": {
+          "$ref": "#/definitions/hdwallet_apiDerivationAddressIdentity"
+        }
+      }
+    },
+    "hdwallet_apiGetEnabledWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "WalletsUUID": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

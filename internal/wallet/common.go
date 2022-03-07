@@ -13,7 +13,10 @@ type repo interface {
 	AddNewMnemonicWallet(ctx context.Context, wallet *entities.MnemonicWallet) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error)
+	GetAllEnabledMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 	GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+	GetAllEnabledHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+	GetAllEnabledNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 }
 
 type mnemonicWalletConfig interface {

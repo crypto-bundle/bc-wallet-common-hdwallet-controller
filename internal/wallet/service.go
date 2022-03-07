@@ -28,7 +28,7 @@ type Service struct {
 }
 
 func (s *Service) Init(ctx context.Context) error {
-	wallets, err := s.repo.GetAllHotMnemonicWallets(ctx)
+	wallets, err := s.repo.GetAllEnabledMnemonicWallets(ctx)
 	if err != nil {
 		return err
 	}
@@ -65,6 +65,21 @@ func (s *Service) GetMnemonicWallet(ctx context.Context,
 	}
 
 	return wallet, nil
+}
+
+func (s *Service) GetEnabledWalletsUUID(ctx context.Context) ([]string, error) {
+	wallets, err := s.repo.GetAllEnabledNonHotMnemonicWallets(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	uuids := make([]string, len(wallets))
+
+	for i, _ := range wallets {
+		uuids[i] = wallets[i].UUID.String()
+	}
+
+	return uuids, nil
 }
 
 func (s *Service) GetAddressByPath(ctx context.Context,

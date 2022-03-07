@@ -1,7 +1,7 @@
 package forms
 
 import (
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api/proto"
+	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"context"
 
 	"github.com/asaskevich/govalidator"

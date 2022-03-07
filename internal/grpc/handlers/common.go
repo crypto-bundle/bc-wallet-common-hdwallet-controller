@@ -15,6 +15,8 @@ type walleter interface {
 		account, change, index uint32,
 	) (string, error)
 
+	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
+
 	CreateNewMnemonicWallet(ctx context.Context,
 		title string,
 		purpose string,

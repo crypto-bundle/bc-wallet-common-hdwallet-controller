@@ -1,10 +1,16 @@
-package bc_adapter_api
+package hdwallet_api
 
 import (
+	"math"
 	"time"
 
 	originGRPC "google.golang.org/grpc"
 	grpcKeepalive "google.golang.org/grpc/keepalive"
+)
+
+const (
+	DefaultServerMaxReceiveMessageSize = math.MaxInt32
+	DefaultServerMaxSendMessageSize    = 1024 * 1024 * 24
 )
 
 func DefaultEnforcementServerOptions() grpcKeepalive.EnforcementPolicy {

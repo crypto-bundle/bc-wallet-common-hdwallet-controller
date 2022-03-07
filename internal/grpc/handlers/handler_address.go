@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"bc-wallet-eth-hdwallet/internal/app"
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hd_wallet_api/proto"
+	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"github.com/crypto-bundle/bc-adapter-common/pkg/tracer"
 )
 
@@ -51,7 +51,12 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.DerivationAddressResponse{
-		Address: address,
+		AddressIdentity: &pbApi.DerivationAddressIdentity{
+			AccountIndex:  validationForm.AccountIndex,
+			InternalIndex: validationForm.AccountIndex,
+			AddressIndex:  validationForm.AccountIndex,
+			Address:       address,
+		},
 	}, nil
 }
 

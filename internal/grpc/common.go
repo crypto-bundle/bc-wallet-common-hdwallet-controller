@@ -3,14 +3,6 @@ package grpc
 import (
 	"bc-wallet-eth-hdwallet/internal/entities"
 	"context"
-	"math"
-)
-
-const (
-	MethodNameTag = "method_name"
-
-	DefaultServerMaxReceiveMessageSize = math.MaxInt32
-	DefaultServerMaxSendMessageSize    = 1024 * 1024 * 24
 )
 
 type walleter interface {
@@ -24,4 +16,6 @@ type walleter interface {
 		purpose string,
 		isHot bool,
 	) (*entities.MnemonicWallet, error)
+
+	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
 }

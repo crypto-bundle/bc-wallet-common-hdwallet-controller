@@ -4,6 +4,21 @@ package hdwallet_api;
 
 option go_package = "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc";
 
+message DerivationAddressIdentity {
+  uint32 AccountIndex = 1;
+  uint32 InternalIndex = 2;
+  uint32 AddressIndex = 3;
+
+  string Address = 4;
+}
+
+message GetEnabledWalletsRequest {
+}
+
+message GetEnabledWalletsResponse {
+  repeated string WalletsUUID = 1;
+}
+
 message AddNewWalletRequest {
   string Title = 1;
   string Purpose = 2;
@@ -15,16 +30,27 @@ message AddNewWalletResponse {
 }
 
 message DerivationAddressRequest {
-  uint32 AccountIndex = 2;
-  uint32 InternalIndex = 3;
-  uint32 AddressIndex = 4;
+  DerivationAddressIdentity AddressIdentity = 1;
 }
 
 message DerivationAddressResponse {
-  string Address = 1;
+  DerivationAddressIdentity AddressIdentity = 1;
+}
+
+message DerivationAddressByRangeRequest {
+  uint32 AccountIndex = 1;
+  uint32 InternalIndex = 2;
+  uint32 AddressIndexFrom = 3;
+  uint32 AddressIndexTo = 4;
+}
+
+message DerivationAddressByRangeResponse {
+  repeated DerivationAddressIdentity AddressIdentities = 1;
 }
 
 service HdWalletApi {
-  rpc AddNewWallet                 (AddNewWalletRequest)           returns (AddNewWalletResponse) {}
-  rpc GetDerivationAddress                 (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+  rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
+  rpc GetEnabledWallets                 (GetEnabledWalletsRequest)           returns (GetEnabledWalletsResponse) {}
+  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
 }
