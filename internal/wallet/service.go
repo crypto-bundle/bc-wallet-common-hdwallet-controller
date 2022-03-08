@@ -5,10 +5,10 @@ import (
 	"crypto/sha256"
 	"fmt"
 
-	"bc-wallet-eth-hdwallet/internal/entities"
-	"bc-wallet-eth-hdwallet/internal/hdwallet"
-	"bc-wallet-eth-hdwallet/internal/mnemonic"
-	"bc-wallet-eth-hdwallet/internal/wallet/repository"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/mnemonic"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/wallet/repository"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 

@@ -1,8 +1,10 @@
 package hdwallet_api
 
 import (
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"context"
+
+	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	originGRPC "google.golang.org/grpc"

@@ -9,12 +9,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"bc-wallet-eth-hdwallet/internal/app"
-	"bc-wallet-eth-hdwallet/internal/wallet"
-	"bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/wallet"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api"
 
-	"bc-wallet-eth-hdwallet/internal/config"
-	grpcHandlers "bc-wallet-eth-hdwallet/internal/grpc"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
+	grpcHandlers "github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/grpc"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/logger"
 	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"

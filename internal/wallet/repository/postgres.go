@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 

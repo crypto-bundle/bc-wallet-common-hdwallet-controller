@@ -1,10 +1,12 @@
 package config
 
 import (
-	"bc-wallet-eth-hdwallet/internal/app"
-	"github.com/kelseyhightower/envconfig"
 	"log"
 	"os"
+
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+
+	"github.com/kelseyhightower/envconfig"
 )
 
 const (

@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"bc-wallet-eth-hdwallet/internal/forms"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/forms"
 	"context"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"bc-wallet-eth-hdwallet/internal/app"
-	pbApi "bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"github.com/crypto-bundle/bc-adapter-common/pkg/tracer"
 )
 

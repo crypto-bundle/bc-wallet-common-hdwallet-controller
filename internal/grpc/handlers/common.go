@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
 	"context"
 )
 

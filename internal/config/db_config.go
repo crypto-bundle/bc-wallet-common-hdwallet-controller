@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
 
 	"github.com/kelseyhightower/envconfig"
 )
