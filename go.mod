@@ -10,7 +10,6 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/btcsuite/btcd v0.21.0-beta
 	github.com/btcsuite/btcutil v1.0.2
-	github.com/crypto-bundle/bc-adapter-common v0.0.0-00010101000000-000000000000
 	github.com/crypto-bundle/bc-wallet-common v0.0.0-00010101000000-000000000000
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/google/uuid v1.3.0
@@ -37,6 +36,7 @@ require (
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/crypto-bundle/bc-adapter-common v0.0.0-00010101000000-000000000000 // indirect
 	github.com/fatih/color v1.7.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect

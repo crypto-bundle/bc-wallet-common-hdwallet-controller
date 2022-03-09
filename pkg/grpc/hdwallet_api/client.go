@@ -2,6 +2,9 @@ package hdwallet_api
 
 import (
 	"context"
+	"errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 
@@ -9,6 +12,10 @@ import (
 	"github.com/opentracing/opentracing-go"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
+)
+
+var (
+	ErrUnableDecodeGrpcErrorStatus = errors.New("unable to decode grpc error status")
 )
 
 type Client struct {
@@ -81,7 +88,17 @@ func (s *Client) GetDerivationAddress(ctx context.Context,
 
 	address, err := s.client.GetDerivationAddress(requestCtx, request)
 	if err != nil {
-		return nil, err
+		grpcStatus, ok := status.FromError(err)
+		if !ok {
+			return nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound:
+			return nil, nil
+		default:
+			return nil, err
+		}
 	}
 
 	return address, nil

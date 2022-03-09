@@ -20,7 +20,7 @@ hdwallet:
     		./pkg/proto/*.proto
 
 migrate:
-	 goose -dir ./migrations postgres "host=192.168.0.103 port=5434 user=bc-wallet-eth password=password dbname=bc-wallet-eth sslmode=disable" up
+	 goose -dir ./migrations postgres "host=192.168.1.103 port=5434 user=bc-wallet-eth password=password dbname=bc-wallet-eth sslmode=disable" up
 
 
 default: hdwallet

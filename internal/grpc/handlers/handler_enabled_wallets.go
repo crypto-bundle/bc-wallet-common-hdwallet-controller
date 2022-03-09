@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"context"
+
+	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
 	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
 	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
-	"context"
-	"github.com/crypto-bundle/bc-adapter-common/pkg/tracer"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -40,7 +40,7 @@ func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
 	f.WalletUUID = walletHeaders[0]
 	f.AccountIndex = req.AddressIdentity.AccountIndex
 	f.InternalIndex = req.AddressIdentity.InternalIndex
-	f.AddressIndex = req.AddressIdentity.AccountIndex
+	f.AddressIndex = req.AddressIdentity.AddressIndex
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

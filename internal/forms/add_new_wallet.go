@@ -1,8 +1,8 @@
 package forms
 
 import (
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"context"
+	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"github.com/asaskevich/govalidator"
 )
@@ -10,7 +10,7 @@ import (
 type AddNewWalletForm struct {
 	Title   string `valid:"type(string),required"`
 	Purpose string `valid:"type(string),required"`
-	IsHot   bool   `valid:"type(bool),required"`
+	IsHot   bool   `valid:"type(bool)"`
 }
 
 func (f *AddNewWalletForm) LoadAndValidate(ctx context.Context,

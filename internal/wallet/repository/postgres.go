@@ -31,7 +31,7 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context, wallet *entitie
 		var walletID uint32
 		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("wallet_uuid", "hash", "purpose", "encrypted_data", 
 				"is_hot", "is_enabled", "created_at", "updated_at")
-            VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;`,
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
 			wallet.UUID.String(), wallet.Hash, wallet.Purpose, string(wallet.EncryptedData),
 			wallet.IsHotWallet, true, date, date)
 

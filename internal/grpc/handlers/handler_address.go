@@ -1,15 +1,17 @@
 package handlers
 
 import (
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/forms"
 	"context"
+
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/forms"
+	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+
+	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
-	"github.com/crypto-bundle/bc-adapter-common/pkg/tracer"
 )
 
 const (
@@ -53,8 +55,8 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 	return &pbApi.DerivationAddressResponse{
 		AddressIdentity: &pbApi.DerivationAddressIdentity{
 			AccountIndex:  validationForm.AccountIndex,
-			InternalIndex: validationForm.AccountIndex,
-			AddressIndex:  validationForm.AccountIndex,
+			InternalIndex: validationForm.InternalIndex,
+			AddressIndex:  validationForm.AddressIndex,
 			Address:       address,
 		},
 	}, nil
