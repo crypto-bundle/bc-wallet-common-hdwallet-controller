@@ -1,7 +1,8 @@
 package config
 
 import (
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -14,7 +15,7 @@ type Config struct {
 	// -------------------
 	// Database config
 	// -------------------
-	*DBConfig
+	*postgres.PostgresConfig
 	// -------------------
 	// GRPC service config
 	// -------------------
@@ -45,10 +46,8 @@ func (c *Config) Prepare() error {
 	//	return err
 	//}
 
-	c.DBConfig = &DBConfig{
-		vaultData: nil, // temporary unless vault is not working
-	}
-	err = c.DBConfig.Prepare()
+	c.PostgresConfig = &postgres.PostgresConfig{}
+	err = c.PostgresConfig.Prepare()
 	if err != nil {
 		return err
 	}

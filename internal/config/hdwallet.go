@@ -4,7 +4,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 
 	"github.com/kelseyhightower/envconfig"
 )

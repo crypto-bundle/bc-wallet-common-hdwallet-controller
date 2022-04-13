@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/config"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	bip39 "github.com/tyler-smith/go-bip39"

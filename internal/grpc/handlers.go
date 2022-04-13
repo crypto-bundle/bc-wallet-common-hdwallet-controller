@@ -3,10 +3,10 @@ package grpc
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/grpc/handlers"
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/config"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/grpc/handlers"
+	pbApi "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"go.uber.org/zap"
 )

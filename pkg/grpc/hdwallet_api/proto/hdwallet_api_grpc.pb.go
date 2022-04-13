@@ -205,5 +205,5 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "api.proto",
+	Metadata: "hdwallet_api.proto",
 }

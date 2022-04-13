@@ -2,9 +2,9 @@ package hdwallet_api
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/config"
+	pbApi "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"

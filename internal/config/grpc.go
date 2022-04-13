@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 	"fmt"
 	"github.com/kelseyhightower/envconfig"
 	"strings"

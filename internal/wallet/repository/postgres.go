@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
 
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
+	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"

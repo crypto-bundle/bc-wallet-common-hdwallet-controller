@@ -3,7 +3,7 @@
 
 ## Table of Contents
 
-- [api.proto](#api.proto)
+- [hdwallet_api.proto](#hdwallet_api.proto)
     - [AddNewWalletRequest](#hdwallet_api.AddNewWalletRequest)
     - [AddNewWalletResponse](#hdwallet_api.AddNewWalletResponse)
     - [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest)
@@ -20,10 +20,10 @@
 
 
 
-<a name="api.proto"></a>
+<a name="hdwallet_api.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## api.proto
+## hdwallet_api.proto
 
 
 

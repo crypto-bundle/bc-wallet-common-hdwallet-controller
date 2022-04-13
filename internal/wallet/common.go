@@ -1,8 +1,8 @@
 package wallet
 
 import (
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/hdwallet"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/hdwallet"
 	"context"
 )
 
