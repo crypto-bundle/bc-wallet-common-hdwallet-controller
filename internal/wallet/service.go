@@ -119,9 +119,26 @@ func (s *Service) CreateNewMnemonicWallet(ctx context.Context,
 		EncryptedData: []byte(newWalletMnemonic),
 	}
 
-	walletEntity, registerErr := s.repo.AddNewMnemonicWallet(ctx, walletEntity)
-	if registerErr != nil {
-		return nil, registerErr
+	walletEntity, err = s.repo.AddNewMnemonicWallet(ctx, walletEntity)
+	if err != nil {
+		return nil, err
+	}
+
+	if isHot {
+		hdWallet, creatErr := hdwallet.NewFromString(string(walletEntity.EncryptedData))
+		if creatErr != nil {
+			return nil, creatErr
+		}
+
+		ethWallet, walletErr := hdWallet.NewEthWallet(uint32(0), uint32(0), uint32(0))
+		if walletErr != nil {
+			return nil, walletErr
+		}
+
+		uuidStr := walletEntity.UUID.String()
+
+		s.hotWallets[uuidStr] = ethWallet
+		s.hotHdWallets[uuidStr] = hdWallet
 	}
 
 	return walletEntity, nil
