@@ -19,6 +19,11 @@ vendor/
 data/
 
 build/*
+!build/secrets/
+build/secrets/*
 !build/vault
 build/vault/*
 !build/vault/policies.hcl.example
+
+deploy/k8s_secrets/*.yaml
+deploy/helm/api/values_local.yaml

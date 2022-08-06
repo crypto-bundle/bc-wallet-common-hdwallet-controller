@@ -3,7 +3,9 @@ package config
 import (
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 
+	natsCfg "github.com/cryptowize-tech/bc-wallet-common/pkg/nats/config"
 	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
+	"github.com/cryptowize-tech/bc-wallet-common/pkg/redis"
 
 	"github.com/kelseyhightower/envconfig"
 )
@@ -18,6 +20,8 @@ type Config struct {
 	// Database config
 	// -------------------
 	*postgres.PostgresConfig
+	*redis.RedisConfig
+	*natsCfg.NatsConfig
 	// -------------------
 	// GRPC service config
 	// -------------------

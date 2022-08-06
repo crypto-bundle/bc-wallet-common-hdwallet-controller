@@ -20,9 +20,15 @@ hdwallet:
     		./pkg/proto/*.proto
 
 migrate:
-	 goose -dir ./migrations postgres "host=10.147.19.161 port=5434 user=bc-wallet-eth password=password dbname=bc-wallet-eth-hdwallet sslmode=disable" up
+	 goose -dir ./migrations postgres "host=data4.gdrn.me port=5434 user=bc-wallet-eth-hdwallet password=password dbname=bc-wallet-eth-hdwallet sslmode=disable" up
 
+build:
+	docker build -t cr.selcloud.ru/liber/bc-wallet-eth-hdwallet:latest .
+	docker push cr.selcloud.ru/liber/bc-wallet-eth-hdwallet:latest
 
 default: hdwallet
 
-.PHONY: hdwallet
+deploy:
+	helm --kubeconfig ~/.kube/kubenet.config --kube-context microk8s upgrade --install bc-wallet-eth-hdwallet-api --set "global.env=$(env)"= ./deploy/helm/api --values=./deploy/helm/api/values.yaml --values=./deploy/helm/api/values_$(env).yaml
+
+.PHONY: migrate hdwallet build deploy

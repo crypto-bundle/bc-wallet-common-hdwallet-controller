@@ -30,6 +30,7 @@ type BaseConfig struct {
 	// MinimalLogsLevel is a level for setup minimal logger event notification.
 	// Allowed: debug, info, warn, error, dpanic, panic, fatal
 	MinimalLogsLevel string `envconfig:"LOGGER_LEVEL" default:"debug"`
+	StageName        string `envconfig:"APP_STAGE" default:"dev"`
 
 	// ----------------------------
 	// Calculated config parameters
@@ -91,4 +92,9 @@ func (c *BaseConfig) IsLocal() bool {
 // GetMinimalLogLevel ...
 func (c *BaseConfig) GetMinimalLogLevel() string {
 	return c.MinimalLogsLevel
+}
+
+// GetStageName is for getting log stage name environment
+func (c *BaseConfig) GetStageName() string {
+	return c.StageName
 }

@@ -1,0 +1,21 @@
+app:
+  db:
+    host:
+      _default: "10.229.217.3"
+      production: "10.229.217.3"
+    port:
+      _default: "5434"
+      production: "5434"
+
+  redis:
+    host:
+      _default: 10.229.217.3
+    port:
+      _default: 6380
+
+  nats:
+    hosts:
+      _default:
+        - nats://10.229.217.3:4223
+        - nats://10.229.217.3:4224
+        - nats://10.229.217.3:4225

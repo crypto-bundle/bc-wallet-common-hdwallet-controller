@@ -12,7 +12,7 @@ import (
 // GrpcConfig for application
 type GrpcConfig struct {
 	// BindRaw port string, default "8080"
-	BindRaw string `envconfig:"API_GRPC_PORT"`
+	BindRaw string `envconfig:"API_GRPC_PORT" default:"8080"`
 
 	// ----------------------------
 	// Calculated config parameters

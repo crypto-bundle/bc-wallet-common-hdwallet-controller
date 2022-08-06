@@ -1,0 +1,22 @@
+{
+  "name": "DEV__BC_WALLET__LIBER__ETHEREUM",
+  "description": "blockchain orders processor for bitcoin blockchain.bc orders perimeter",
+  "subjects": [
+    "DEV__BC_WALLET_ETH_HDWALLET_LIBER__ETHEREUM.CREATE_WALLET"
+  ],
+  "retention": "workqueue",
+  "max_consumers": -1,
+  "max_msgs_per_subject": -1,
+  "max_msgs": -1,
+  "max_bytes": -1,
+  "max_age": 0,
+  "max_msg_size": -1,
+  "storage": "file",
+  "discard": "new",
+  "num_replicas": 3,
+  "duplicate_window": 120000000000,
+  "sealed": false,
+  "deny_delete": false,
+  "deny_purge": false,
+  "allow_rollup_hdrs": false
+}
