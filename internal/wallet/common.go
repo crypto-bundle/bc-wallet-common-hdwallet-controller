@@ -1,9 +1,10 @@
 package wallet
 
 import (
+	"context"
+
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/hdwallet"
-	"context"
 )
 
 type config interface {
@@ -41,4 +42,9 @@ type hdWalleter interface {
 
 type mnemonicGenerator interface {
 	Generate(ctx context.Context) (string, error)
+}
+
+type crypto interface {
+	Encrypt(msg string) (string, error)
+	Decrypt(encMsg string) ([]byte, error)
 }

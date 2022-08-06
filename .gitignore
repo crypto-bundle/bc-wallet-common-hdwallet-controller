@@ -15,5 +15,10 @@
 
 # Dependency directories (remove the comment below to include it)
 vendor/
-build/certs
+
+data/
+
 build/*
+!build/vault
+build/vault/*
+!build/vault/policies.hcl.example

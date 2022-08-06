@@ -15,7 +15,7 @@ type MnemonicWallet struct {
 	Purpose         string     `db:"purpose"`
 	IsHotWallet     bool       `db:"is_hot"`
 	IsWalletEnabled bool       `db:"is_enabled"`
-	EncryptedData   []byte     `db:"encrypted_data"`
+	RsaEncrypted    string     `db:"rsa_encrypted"`
 	CreatedAt       *time.Time `db:"created_at"`
 	UpdatedAt       *time.Time `db:"updated_at"`
 }

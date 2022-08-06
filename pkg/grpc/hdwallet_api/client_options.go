@@ -11,9 +11,8 @@ import (
 	grpcRetry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	originGRPC "google.golang.org/grpc"
 	grpcCodes "google.golang.org/grpc/codes"
-	grpcKeepalive "google.golang.org/grpc/keepalive"
-
 	"google.golang.org/grpc/credentials/insecure"
+	grpcKeepalive "google.golang.org/grpc/keepalive"
 )
 
 const (

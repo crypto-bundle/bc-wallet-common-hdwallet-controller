@@ -3,6 +3,7 @@ package wallet
 import (
 	"context"
 	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
@@ -21,6 +22,7 @@ type Service struct {
 	cfg            config
 	repo           repo
 	mnemoGenerator mnemonicGenerator
+	cryptoSrv      crypto
 
 	// hotWallets - Ethereum hot wallets
 	hotWallets map[string]walleter
@@ -35,7 +37,17 @@ func (s *Service) Init(ctx context.Context) error {
 	}
 
 	for i, _ := range wallets {
-		hdWallet, creatErr := hdwallet.NewFromString(string(wallets[i].EncryptedData))
+		mnemonicBytes, err := s.cryptoSrv.Decrypt(wallets[i].RsaEncrypted)
+		if err != nil {
+			return err
+		}
+
+		mnemonicSum256 := sha256.Sum256(mnemonicBytes)
+		if hex.EncodeToString(mnemonicSum256[:]) != wallets[i].Hash {
+			return ErrWrongMnemonicHash
+		}
+
+		hdWallet, creatErr := hdwallet.NewFromString(string(mnemonicBytes))
 		if creatErr != nil {
 			return creatErr
 		}
@@ -52,8 +64,7 @@ func (s *Service) Init(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) Shutdown(ctx context.Context) error {
-
+func (s *Service) Shutdown(_ context.Context) error {
 	return nil
 }
 
@@ -83,7 +94,7 @@ func (s *Service) GetEnabledWalletsUUID(ctx context.Context) ([]string, error) {
 	return uuids, nil
 }
 
-func (s *Service) GetAddressByPath(ctx context.Context,
+func (s *Service) GetAddressByPath(_ context.Context,
 	walletUUID string,
 	account, change, index uint32,
 ) (string, error) {
@@ -110,13 +121,18 @@ func (s *Service) CreateNewMnemonicWallet(ctx context.Context,
 		return nil, err
 	}
 
+	encMnemonic, err := s.cryptoSrv.Encrypt(newWalletMnemonic)
+	if err != nil {
+		return nil, err
+	}
+
 	walletEntity := &entities.MnemonicWallet{
-		Title:         title,
-		UUID:          uuid.New(),
-		Hash:          fmt.Sprintf("%x", sha256.Sum256([]byte(newWalletMnemonic))),
-		IsHotWallet:   isHot,
-		Purpose:       purpose,
-		EncryptedData: []byte(newWalletMnemonic),
+		Title:        title,
+		UUID:         uuid.New(),
+		Hash:         fmt.Sprintf("%x", sha256.Sum256([]byte(newWalletMnemonic))),
+		IsHotWallet:  isHot,
+		Purpose:      purpose,
+		RsaEncrypted: encMnemonic,
 	}
 
 	walletEntity, err = s.repo.AddNewMnemonicWallet(ctx, walletEntity)
@@ -125,7 +141,7 @@ func (s *Service) CreateNewMnemonicWallet(ctx context.Context,
 	}
 
 	if isHot {
-		hdWallet, creatErr := hdwallet.NewFromString(string(walletEntity.EncryptedData))
+		hdWallet, creatErr := hdwallet.NewFromString(newWalletMnemonic)
 		if creatErr != nil {
 			return nil, creatErr
 		}
@@ -147,6 +163,7 @@ func (s *Service) CreateNewMnemonicWallet(ctx context.Context,
 func New(logger *zap.Logger,
 	cfg config,
 	pgConn *postgres.Connection,
+	cryptoSrv crypto,
 ) (*Service, error) {
 	pgRepos, err := repository.NewPostgresStore(logger, pgConn)
 	if err != nil {
@@ -163,6 +180,7 @@ func New(logger *zap.Logger,
 		cfg:            cfg,
 		repo:           pgRepos,
 		mnemoGenerator: mnemoGenerator,
+		cryptoSrv:      cryptoSrv,
 
 		hotWallets:   make(map[string]walleter, 0),
 		hotHdWallets: make(map[string]hdWalleter, 0),

@@ -8,6 +8,7 @@ import (
 	pbApi "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"github.com/cryptowize-tech/bc-wallet-common/pkg/tracer"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

@@ -10,19 +10,18 @@ import (
 	"syscall"
 
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/config"
+	grpcHandlers "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/grpc"
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/wallet"
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api"
 
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/config"
-	grpcHandlers "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/grpc"
-
+	"github.com/cryptowize-tech/bc-wallet-common/pkg/crypter"
 	"github.com/cryptowize-tech/bc-wallet-common/pkg/logger"
 	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
 	"github.com/cryptowize-tech/bc-wallet-common/pkg/vault"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
-
 	"go.uber.org/zap"
 )
 
@@ -63,12 +62,12 @@ func main() {
 		loggerEntry.Fatal("vault config init error", zap.Error(err))
 	}
 
-	//vaultClient, err := vault.NewClient(ctx, vcfg)
-	//if err != nil {
+	// vaultClient, err := vault.NewClient(ctx, vcfg)
+	// if err != nil {
 	//	loggerEntry.Fatal("vault client init error", zap.Error(err))
-	//}
+	// }
 	//
-	//cfg.VaultClient = vaultClient
+	// cfg.VaultClient = vaultClient
 	err = cfg.Prepare()
 	if err != nil {
 		fmt.Println(err.Error())
@@ -88,7 +87,12 @@ func main() {
 			zap.String("port", cfg.GetBindPort()))
 	}
 
-	walletService, err := wallet.New(loggerEntry, cfg, conn)
+	cryptoService := crypter.New(cfg.HDWalletConfig)
+	if err != nil {
+		loggerEntry.Fatal("unable to create crypto service instance", zap.Error(err))
+	}
+
+	walletService, err := wallet.New(loggerEntry, cfg, conn, cryptoService)
 	if err != nil {
 		loggerEntry.Fatal("unable to create wallet service instance", zap.Error(err))
 	}

@@ -1,9 +1,10 @@
 package forms
 
 import (
+	"context"
+
 	pbApi "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 	protoTypes "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/types"
-	"context"
 
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc/metadata"

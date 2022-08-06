@@ -1,8 +1,10 @@
 package config
 
 import (
-	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+
+	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
+
 	"github.com/kelseyhightower/envconfig"
 )
 

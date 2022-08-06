@@ -6,6 +6,8 @@ import (
 
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 
+	"github.com/cryptowize-tech/bc-wallet-common/pkg/crypter"
+
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -20,9 +22,11 @@ func (c *MnemonicConfig) GetHash() string {
 }
 
 type HDWalletConfig struct {
-	ETHMnemonic string `envconfig:"HDWALLET_ETH_MNEMONIC"`
+	ETHMnemonic string `envconfig:"ETH_MNEMONIC"`
 
 	EthMnemonicConfig *MnemonicConfig
+
+	crypter.Config
 }
 
 //nolint:funlen // its ok
@@ -41,7 +45,7 @@ func (c *HDWalletConfig) Prepare() error {
 		BlockChain: app.BlockChainName,
 	}
 
-	return nil
+	return c.Config.Prepare()
 }
 
 func (c *HDWalletConfig) GetETHMnemonics() string {

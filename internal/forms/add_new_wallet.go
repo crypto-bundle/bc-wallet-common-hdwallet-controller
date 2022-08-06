@@ -2,6 +2,7 @@ package forms
 
 import (
 	"context"
+
 	pbApi "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"github.com/asaskevich/govalidator"

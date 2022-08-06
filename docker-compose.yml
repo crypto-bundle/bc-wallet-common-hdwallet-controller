@@ -4,13 +4,14 @@ services:
   postgres:
     image: postgres
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-bc-wallet-eth}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-bc-wallet-eth-hdwallet}
       PGDATA: /data/postgres
     volumes:
       - ./data/postgres/data/:/data/postgres
     ports:
-      - "5434:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     networks:
       - cryptowyze
     restart: unless-stopped
@@ -23,7 +24,7 @@ services:
     volumes:
       - ./data/pgadmin/data/:/var/lib/pgadmin
     ports:
-      - "${PGADMIN_PORT:-5050}:80"
+      - "${PGADMIN_PORT:-80}:80"
     networks:
       - cryptowyze
     restart: unless-stopped
@@ -33,7 +34,7 @@ services:
   vault-server:
     image: vault:latest
     ports:
-      - "8201:8200"
+      - "${VAULT_PORT:-8200}:8200"
     environment:
       VAULT_ADDR: "http://0.0.0.0:8200"
       VAULT_DEV_ROOT_TOKEN_ID: "vault-plaintext-root-token"

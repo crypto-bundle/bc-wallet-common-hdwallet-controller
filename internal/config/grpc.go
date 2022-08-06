@@ -1,10 +1,12 @@
 package config
 
 import (
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 	"fmt"
-	"github.com/kelseyhightower/envconfig"
 	"strings"
+
+	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+
+	"github.com/kelseyhightower/envconfig"
 )
 
 // GrpcConfig for application
