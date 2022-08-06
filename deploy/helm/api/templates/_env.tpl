@@ -113,7 +113,8 @@
 
 - name: HDWALLET_MNEMONIC_SIZE
   value: {{ pluck .Values.global.env .Values.app.mnemonic.size | first | default .Values.app.mnemonic.size._default | quote }}
-- name: HDWALLET_KEY_PATH
+
+- name: RSA_ENCRYPTION_KEY_PATH
   value: {{ pluck .Values.global.env .Values.app.encryption.rsa.path | first | default .Values.app.encryption.rsa.path._default | quote }}
 
 {{- end }}

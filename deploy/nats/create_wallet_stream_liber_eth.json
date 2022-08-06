@@ -1,8 +1,8 @@
 {
   "name": "DEV__BC_WALLET__LIBER__ETHEREUM",
-  "description": "blockchain orders processor for bitcoin blockchain.bc orders perimeter",
+  "description": "create wallet request for ethereum blockchain.bc wallet perimeter",
   "subjects": [
-    "DEV__BC_WALLET_ETH_HDWALLET_LIBER__ETHEREUM.CREATE_WALLET"
+    "DEV__BC_WALLET__LIBER__ETHEREUM.CREATE_WALLET"
   ],
   "retention": "workqueue",
   "max_consumers": -1,
