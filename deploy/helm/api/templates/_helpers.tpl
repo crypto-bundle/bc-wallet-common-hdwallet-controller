@@ -60,3 +60,7 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "app.encryptionRsaFullFilePath" -}}
+{{- printf "%s/%s" .Values.app.encryption.rsa.dir._default .Values.app.encryption.rsa.file._default }}
+{{- end }}

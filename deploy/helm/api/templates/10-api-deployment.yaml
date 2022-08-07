@@ -34,7 +34,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
-            - mountPath: {{ pluck .Values.global.env .Values.app.encryption.rsa.path | first | default .Values.app.encryption.rsa.path._default | quote }}
+            - mountPath: {{ pluck .Values.global.env .Values.app.encryption.rsa.dir | first | default .Values.app.encryption.rsa.dir._default | quote }}
               name: bc-wallet-eth-hdwallet-rsa-key
               readOnly: true
           resources:
@@ -61,7 +61,7 @@ spec:
         - name: bc-wallet-eth-hdwallet-rsa-key
           secret:
             secretName: bc-wallet-eth-hdwallet
-#            items:
-#              - key: bc-wallet-eth-hdwallet-rsa-key
-#                path: ""
+            items:
+              - key: bc-wallet-eth-hdwallet-rsa-key
+                path: {{ pluck .Values.global.env .Values.app.encryption.rsa.file | first | default .Values.app.encryption.rsa.file._default | quote }}
             optional: false

@@ -26,4 +26,4 @@ build/vault/*
 !build/vault/policies.hcl.example
 
 deploy/k8s_secrets/*.yaml
-deploy/helm/api/values_local.yaml
+deploy/helm/*/values_local.yaml

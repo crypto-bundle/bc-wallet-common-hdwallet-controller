@@ -1,9 +1,6 @@
 package config
 
 import (
-	"crypto/sha256"
-	"fmt"
-
 	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
 
 	"github.com/cryptowize-tech/bc-wallet-common/pkg/crypter"
@@ -22,10 +19,6 @@ func (c *MnemonicConfig) GetHash() string {
 }
 
 type HDWalletConfig struct {
-	ETHMnemonic string `envconfig:"ETH_MNEMONIC"`
-
-	EthMnemonicConfig *MnemonicConfig
-
 	crypter.Config
 }
 
@@ -36,22 +29,5 @@ func (c *HDWalletConfig) Prepare() error {
 		return err
 	}
 
-	// ETH wallet
-	ethWalletMnemoStr := c.GetETHMnemonics()
-	ethWalletHash := sha256.Sum256([]byte(ethWalletMnemoStr))
-	c.EthMnemonicConfig = &MnemonicConfig{
-		Mnemonic:   c.GetETHMnemonics(),
-		Hash:       fmt.Sprintf("%x", ethWalletHash),
-		BlockChain: app.BlockChainName,
-	}
-
 	return c.Config.Prepare()
-}
-
-func (c *HDWalletConfig) GetETHMnemonics() string {
-	return c.ETHMnemonic
-}
-
-func (c *HDWalletConfig) GetETHMnemonicsConfig() *MnemonicConfig {
-	return c.EthMnemonicConfig
 }

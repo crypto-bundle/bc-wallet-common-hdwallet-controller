@@ -73,8 +73,10 @@ app:
 
   encryption:
     rsa:
-      path:
-        _default: /usr/local/share/private.pem
+      dir:
+        _default: /usr/local/share
+      file:
+        _default: private.pem
 
   db:
     host:

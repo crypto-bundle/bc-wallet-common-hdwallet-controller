@@ -115,6 +115,6 @@
   value: {{ pluck .Values.global.env .Values.app.mnemonic.size | first | default .Values.app.mnemonic.size._default | quote }}
 
 - name: RSA_ENCRYPTION_KEY_PATH
-  value: {{ pluck .Values.global.env .Values.app.encryption.rsa.path | first | default .Values.app.encryption.rsa.path._default | quote }}
+  value: {{ include "app.encryptionRsaFullFilePath" . }}
 
 {{- end }}
