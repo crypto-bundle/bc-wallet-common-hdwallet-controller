@@ -127,7 +127,7 @@ func main() {
 		}
 	}()
 
-	loggerEntry.Info("application started successfully")
+	loggerEntry.Info("application started successfully", zap.String(app.GRPCBindPortTag, cfg.GetBindPort()))
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

@@ -33,6 +33,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: grpc
+              containerPort: {{ pluck .Values.global.env .Values.app.api.grpc_port | first | default .Values.app.api.grpc_port._default }}
+              protocol: TCP
           volumeMounts:
             - mountPath: {{ pluck .Values.global.env .Values.app.encryption.rsa.dir | first | default .Values.app.encryption.rsa.dir._default | quote }}
               name: bc-wallet-eth-hdwallet-rsa-key

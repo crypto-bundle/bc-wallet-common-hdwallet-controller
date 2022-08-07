@@ -1,0 +1,5 @@
+./deploy/*
+./build/*
+./docs
+
+docker-compose.yaml

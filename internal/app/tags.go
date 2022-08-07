@@ -7,4 +7,6 @@ const (
 	WalletTitleTag   = "title"
 	WalletPurposeTag = "purpose"
 	WalletIsHotTag   = "is_hot"
+
+	GRPCBindPortTag = "grpc_bind_port"
 )
