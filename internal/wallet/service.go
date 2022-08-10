@@ -98,7 +98,12 @@ func (s *Service) GetAddressByPath(_ context.Context,
 	walletUUID string,
 	account, change, index uint32,
 ) (string, error) {
-	ethWallet, err := s.hotHdWallets[walletUUID].NewEthWallet(account, change, index)
+	pickedHDWallet, ok := s.hotHdWallets[walletUUID]
+	if !ok {
+		return "", ErrPassedWalletNotFound
+	}
+
+	ethWallet, err := pickedHDWallet.NewEthWallet(account, change, index)
 	if err != nil {
 		return "", err
 	}
