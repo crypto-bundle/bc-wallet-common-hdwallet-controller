@@ -132,12 +132,13 @@ func (s *Service) CreateNewMnemonicWallet(ctx context.Context,
 	}
 
 	walletEntity := &entities.MnemonicWallet{
-		Title:        title,
-		UUID:         uuid.New(),
-		Hash:         fmt.Sprintf("%x", sha256.Sum256([]byte(newWalletMnemonic))),
-		IsHotWallet:  isHot,
-		Purpose:      purpose,
-		RsaEncrypted: encMnemonic,
+		Title:            title,
+		UUID:             uuid.New(),
+		Hash:             fmt.Sprintf("%x", sha256.Sum256([]byte(newWalletMnemonic))),
+		IsHotWallet:      isHot,
+		Purpose:          purpose,
+		RsaEncrypted:     encMnemonic,
+		RsaEncryptedHash: fmt.Sprintf("%x", sha256.Sum256([]byte(encMnemonic))),
 	}
 
 	walletEntity, err = s.repo.AddNewMnemonicWallet(ctx, walletEntity)
