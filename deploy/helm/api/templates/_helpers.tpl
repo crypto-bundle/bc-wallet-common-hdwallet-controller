@@ -64,3 +64,7 @@ Create the name of the service account to use
 {{- define "app.encryptionRsaFullFilePath" -}}
 {{- printf "%s/%s" .Values.app.encryption.rsa.dir._default .Values.app.encryption.rsa.file._default }}
 {{- end }}
+
+{{- define "app.container.tag" -}}
+{{- default .Values.image.tag .Values.global.build_tag -}}
+{{- end }}
