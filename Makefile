@@ -31,8 +31,7 @@ default: hdwallet
 deploy:
 	$(eval build_tag=$(env)-$(shell git rev-parse --short HEAD)-$(shell date +%s))
 
-	docker build -t cr.selcloud.ru/liber/bc-wallet-eth-hdwallet:$(build_tag) .
-	docker push cr.selcloud.ru/liber/bc-wallet-eth-hdwallet:$(build_tag)
+	docker buildx build --platform linux/amd64,linux/arm64 --push -t cr.selcloud.ru/liber/bc-wallet-eth-hdwallet:$(build_tag) .
 
 	helm --kubeconfig ~/.kube/kubenet.config --kube-context microk8s upgrade --install bc-wallet-eth-hdwallet-api --set "global.build_tag=$(build_tag)" --set "global.env=$(env)"= ./deploy/helm/api --values=./deploy/helm/api/values.yaml --values=./deploy/helm/api/values_$(env).yaml
 
