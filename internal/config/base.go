@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
 
 	"github.com/kelseyhightower/envconfig"
 )

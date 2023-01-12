@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	pbApi "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
-	protoTypes "github.com/cryptowize-tech/bc-wallet-eth-hdwallet/pkg/types"
+	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	protoTypes "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/types"
 
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc/metadata"

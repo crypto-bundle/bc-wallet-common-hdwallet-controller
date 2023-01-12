@@ -3,7 +3,7 @@ package grpc
 import (
 	"context"
 
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
 )
 
 type walleter interface {

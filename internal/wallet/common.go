@@ -3,8 +3,8 @@ package wallet
 import (
 	"context"
 
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/hdwallet"
 )
 
 type config interface {

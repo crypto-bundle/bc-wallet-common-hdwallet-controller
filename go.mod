@@ -1,4 +1,4 @@
-module github.com/cryptowize-tech/bc-wallet-eth-hdwallet
+module github.com/crypto-bundle/bc-wallet-eth-hdwallet
 
 go 1.17
 
@@ -6,7 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/btcsuite/btcd v0.21.0-beta
 	github.com/btcsuite/btcutil v1.0.2
-	github.com/cryptowize-tech/bc-wallet-common v0.0.27
+	github.com/crypto-bundle/bc-wallet-common v0.0.41
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0

@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/cryptowize-tech/bc-wallet-common/pkg/dns"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/dns"
 
 	grpcRetry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	originGRPC "google.golang.org/grpc"

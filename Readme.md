@@ -4,13 +4,13 @@
 
 Pattern to create buckets or streams is
 ```
-%s__BC_WALLET_ETH_HDWALLET_LIBER__ETHEREUM
+%s__BC_WALLET_ETH_HDWALLET__CRYPTO_BUNDLE__ETHEREUM
 ```
 %s - is ENVIRONMENT name, for example - dev, prod, bc_team1 (personal test stand for bc team)
 
 ### Create Streams
 ```
-nats stream add --config ./deploy/nats/create_wallet_stream_liber_eth.json
+nats stream add --config ./deploy/nats/create_wallet_stream_cb_eth.json
 ```
 
 ## K8s

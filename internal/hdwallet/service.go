@@ -1,8 +1,8 @@
 package hdwallet
 
 import (
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/config"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
 )
 
 type ManagerService struct {

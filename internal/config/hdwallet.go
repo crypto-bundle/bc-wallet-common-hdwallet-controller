@@ -1,9 +1,9 @@
 package config
 
 import (
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
 
-	"github.com/cryptowize-tech/bc-wallet-common/pkg/crypter"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
 
 	"github.com/kelseyhightower/envconfig"
 )

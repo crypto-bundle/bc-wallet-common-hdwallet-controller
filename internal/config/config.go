@@ -1,11 +1,11 @@
 package config
 
 import (
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
 
-	natsCfg "github.com/cryptowize-tech/bc-wallet-common/pkg/nats/config"
-	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
-	"github.com/cryptowize-tech/bc-wallet-common/pkg/redis"
+	natsCfg "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/redis"
 
 	"github.com/kelseyhightower/envconfig"
 )

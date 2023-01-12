@@ -6,12 +6,12 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/entities"
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/hdwallet"
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/mnemonic"
-	"github.com/cryptowize-tech/bc-wallet-eth-hdwallet/internal/wallet/repository"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/mnemonic"
+	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/wallet/repository"
 
-	"github.com/cryptowize-tech/bc-wallet-common/pkg/postgres"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
