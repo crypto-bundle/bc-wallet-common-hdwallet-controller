@@ -25,7 +25,7 @@
 package app
 
 const (
-	ApplicationName = "bc-wallet-eth-hdwallet"
+	ApplicationName = "bc-wallet-tron-hdwallet"
 
 	DatabaseConfigPrefix = "DB"
 	APIConfigPrefix      = "API"
