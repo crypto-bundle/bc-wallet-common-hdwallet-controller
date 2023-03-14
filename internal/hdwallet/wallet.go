@@ -44,7 +44,8 @@ const (
 
 	BtcCoinNumber = 0
 
-	EthCoinNumber = 60
+	TronCoinNumber = 195
+	TronBytePrefix = byte(0x41)
 )
 
 var (

@@ -158,7 +158,7 @@ func (k *Key) PublicHash() ([]byte, error) {
 	return address.ScriptAddress(), nil
 }
 
-// AddressP2WPKH generate public key to p2wpkh style address
+// AddressP2PKH generate public key to p2wpkh style address
 func (k *Key) AddressP2PKH() (string, error) {
 	pubHash, err := k.PublicHash()
 	if err != nil {

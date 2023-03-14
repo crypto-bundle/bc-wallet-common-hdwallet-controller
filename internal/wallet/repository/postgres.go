@@ -53,8 +53,9 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context, wallet *entitie
 		date := time.Now()
 
 		var walletID uint32
-		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("wallet_uuid", "hash", "purpose", "rsa_encrypted", 
-				"rsa_encrypted_hash", "is_hot", "is_enabled", "created_at", "updated_at")
+		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("wallet_uuid", "hash", 
+				"purpose", "rsa_encrypted", "rsa_encrypted_hash", 
+				"is_hot", "is_enabled", "created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`,
 			wallet.UUID.String(), wallet.Hash, wallet.Purpose, wallet.RsaEncrypted, wallet.RsaEncryptedHash,
 			wallet.IsHotWallet, true, date, date)
@@ -80,8 +81,9 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 	wallet := &entities.MnemonicWallet{}
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted", 
-				"rsa_encrypted_hash", "is_hot", "is_enabled", "created_at", "updated_at"
+		row := stmt.QueryRowx(`SELECT "id", "wallet_uuid", "hash", 
+       			"purpose", "rsa_encrypted", "rsa_encrypted_hash",
+				 "is_hot", "is_enabled", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "hash" = $1`, hash)
 

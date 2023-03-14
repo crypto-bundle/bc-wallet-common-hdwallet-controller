@@ -61,7 +61,7 @@ type hdWalleter interface {
 	PublicHex() string
 	PublicHash() ([]byte, error)
 
-	NewEthWallet(account, change, address uint32) (*hdwallet.ETH, error)
+	NewEthWallet(account, change, address uint32) (*hdwallet.Tron, error)
 }
 
 type mnemonicGenerator interface {

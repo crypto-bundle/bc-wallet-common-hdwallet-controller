@@ -61,8 +61,8 @@ func (s *ManagerService) RegisterWallet(walletName string, mnemoConf *config.Mne
 	return nil
 }
 
-// NewEthUserWallet create new ETH wallet
-func (s *ManagerService) NewEthUserWallet(account, change, addressNumber uint32) (*ETH, error) {
+// NewEthUserWallet create new Tron wallet
+func (s *ManagerService) NewEthUserWallet(account, change, addressNumber uint32) (*Tron, error) {
 	hdWallet, ok := s.wallets[app.WalletMnemoName]
 	if !ok {
 		return nil, ErrUnsupportedBlockchain

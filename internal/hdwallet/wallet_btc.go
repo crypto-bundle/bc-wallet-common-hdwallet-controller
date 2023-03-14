@@ -31,7 +31,7 @@ import (
 	"github.com/btcsuite/btcutil"
 )
 
-// NewBTCWaller create new wallet
+// NewBtcWallet create new wallet
 func (w *Wallet) NewBtcWallet(account, change, address uint32) (*BTC, error) {
 	blockChainParams := chaincfg.MainNetParams
 

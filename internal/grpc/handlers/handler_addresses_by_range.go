@@ -26,6 +26,7 @@ package handlers
 
 import (
 	"context"
+	"sync"
 
 	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/forms"
@@ -76,21 +77,36 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
 	}
 
-	for i, j := validationForm.AddressIndexFrom, uint32(0); i <= validationForm.AddressIndexTo; i++ {
-		address, err := h.walletSrv.GetAddressByPath(ctx, validationForm.WalletUUID,
-			validationForm.AccountIndex, validationForm.InternalIndex, i)
-		if err != nil {
-			return nil, err
-		}
+	wg := sync.WaitGroup{}
+	wg.Add(int(rangeSize) + 1)
 
-		response.AddressIdentities[j] = &pbApi.DerivationAddressIdentity{
-			AccountIndex:  validationForm.AccountIndex,
-			InternalIndex: validationForm.InternalIndex,
-			AddressIndex:  i,
-			Address:       address,
-		}
+	for i, j := validationForm.AddressIndexFrom, uint32(0); i <= validationForm.AddressIndexTo; i++ {
+		go func(i, j uint32) {
+			defer wg.Done()
+
+			address, getAddrErr := h.walletSrv.GetAddressByPath(ctx, validationForm.WalletUUID,
+				validationForm.AccountIndex, validationForm.InternalIndex, i)
+			if getAddrErr != nil {
+				h.l.Error("unable to get address by path", zap.Error(getAddrErr))
+				err = getAddrErr
+				return
+			}
+
+			response.AddressIdentities[j] = &pbApi.DerivationAddressIdentity{
+				AccountIndex:  validationForm.AccountIndex,
+				InternalIndex: validationForm.InternalIndex,
+				AddressIndex:  i,
+				Address:       address,
+			}
+		}(i, j)
 
 		j++
+	}
+
+	wg.Wait()
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
 	return response, nil

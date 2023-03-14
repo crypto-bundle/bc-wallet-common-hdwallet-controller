@@ -25,15 +25,17 @@
 package hdwallet
 
 import (
-	"encoding/hex"
 	"fmt"
+
+	"encoding/hex"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/shengdoushi/base58"
 )
 
-// ETH parent
-type ETH struct {
+// Tron parent
+type Tron struct {
 	purpose  int
 	coinType int
 
@@ -45,17 +47,18 @@ type ETH struct {
 }
 
 // NewEthWallet create new wallet
-func (w *Wallet) NewEthWallet(account, change, address uint32) (*ETH, error) {
+func (w *Wallet) NewEthWallet(account, change, address uint32) (*Tron, error) {
 	blockChainParams := chaincfg.MainNetParams
 
-	accountKey, key, err := w.GetChildKey(&blockChainParams, Bip44Purpose, EthCoinNumber, account, change, address)
+	accountKey, key, err := w.GetChildKey(&blockChainParams, Bip44Purpose,
+		TronCoinNumber, account, change, address)
 	if err != nil {
 		return nil, err
 	}
 
-	return &ETH{
+	return &Tron{
 		purpose:       Bip44Purpose,
-		coinType:      EthCoinNumber,
+		coinType:      TronCoinNumber,
 		account:       account,
 		change:        change,
 		addressNumber: address,
@@ -68,34 +71,47 @@ func (w *Wallet) NewEthWallet(account, change, address uint32) (*ETH, error) {
 }
 
 // GetAddress get address with 0x
-func (e *ETH) GetAddress() (string, error) {
-	return crypto.PubkeyToAddress(*e.ExtendedKey.PublicECDSA).Hex(), nil
+func (e *Tron) GetAddress() (string, error) {
+	addr := crypto.PubkeyToAddress(*e.ExtendedKey.PublicECDSA)
+
+	addrTrxBytes := make([]byte, 0)
+	addrTrxBytes = append(addrTrxBytes, TronBytePrefix)
+	addrTrxBytes = append(addrTrxBytes, addr.Bytes()...)
+
+	crc := calcCheckSum(addrTrxBytes)
+
+	addrTrxBytes = append(addrTrxBytes, crc...)
+
+	//nolint:gocritic // ok. Just reminder hot to generate address_hex for TronKey table
+	// addrTrxHex := hex.EncodeToString(addrTrxBytes)
+
+	addrTrx := base58.Encode(addrTrxBytes, base58.BitcoinAlphabet)
+
+	return addrTrx, nil
 }
 
 // GetPubKey get key with 0x
-func (e *ETH) GetPubKey() string {
-	pubKey := "0x" + e.BTC.GetPubKey()
-	return pubKey
+func (e *Tron) GetPubKey() string {
+	return e.BTC.GetPubKey()
 }
 
 // GetPrvKey get key with 0x
-func (e *ETH) GetPrvKey() (string, error) {
-	prv := hex.EncodeToString(e.ExtendedKey.PrivateECDSA.D.Bytes())
-	return "0x" + prv, nil
+func (e *Tron) GetPrvKey() (string, error) {
+	return hex.EncodeToString(e.ExtendedKey.PrivateECDSA.D.Bytes()), nil
 }
 
 // GetPath ...
-func (e *ETH) GetPath() string {
+func (e *Tron) GetPath() string {
 	return fmt.Sprintf("m/%d'/%d'/%d'/%d/%d",
 		e.GetPurpose(), e.GetCoinType(), e.account, e.change, e.addressNumber)
 }
 
 // GetPurpose ...
-func (e *ETH) GetPurpose() int {
+func (e *Tron) GetPurpose() int {
 	return e.purpose
 }
 
-// GetCoinType
-func (e *ETH) GetCoinType() int {
-	return EthCoinNumber
+// GetCoinType ...
+func (e *Tron) GetCoinType() int {
+	return TronCoinNumber
 }
