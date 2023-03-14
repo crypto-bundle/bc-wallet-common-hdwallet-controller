@@ -25,8 +25,8 @@
 package hdwallet
 
 import (
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
 )
 
 type ManagerService struct {

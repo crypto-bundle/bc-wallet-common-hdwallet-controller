@@ -27,10 +27,10 @@ package grpc
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/config"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/grpc/handlers"
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/grpc/handlers"
+	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"go.uber.org/zap"
 )

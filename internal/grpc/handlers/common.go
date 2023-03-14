@@ -27,7 +27,7 @@ package handlers
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 )
 
 const (

@@ -27,7 +27,7 @@ package forms
 import (
 	"context"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"github.com/asaskevich/govalidator"
 )

@@ -30,10 +30,10 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/hdwallet"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/mnemonic"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/wallet/repository"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet/repository"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 

@@ -1,12 +1,12 @@
 replicaCount: 1
 
 image:
-  repository: cr.selcloud.ru/crypto-bundle/bc-wallet-eth-hdwallet
+  repository: cr.selcloud.ru/crypto-bundle/bc-wallet-tron-hdwallet
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: "latest"
 
-nameOverride: "bc-wallet-eth-hdwallet-api"
+nameOverride: "bc-wallet-tron-hdwallet-api"
 fullnameOverride: ""
 
 serviceAccount:

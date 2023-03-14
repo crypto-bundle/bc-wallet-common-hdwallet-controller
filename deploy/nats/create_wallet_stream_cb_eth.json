@@ -1,8 +1,8 @@
 {
-  "name": "DEV__BC_WALLET__CRYPTO_BUNDLE__ETHEREUM",
+  "name": "DEV__BC_WALLET__CRYPTO_BUNDLE__TRON",
   "description": "create wallet request for ethereum blockchain.bc wallet perimeter",
   "subjects": [
-    "DEV__BC_WALLET__CRYPTO_BUNDLE__ETHEREUM.CREATE_WALLET"
+    "DEV__BC_WALLET__CRYPTO_BUNDLE__TRON.CREATE_WALLET"
   ],
   "retention": "workqueue",
   "max_consumers": -1,

@@ -27,8 +27,8 @@ package wallet
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/hdwallet"
 )
 
 type config interface {

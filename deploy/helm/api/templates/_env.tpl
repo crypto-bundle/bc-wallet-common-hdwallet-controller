@@ -2,49 +2,49 @@
 - name: DB_DATABASE
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: db_name
       optional: false
 
 - name: DB_USERNAME
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: db_username
       optional: false
 
 - name: DB_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: db_password
       optional: false
 
 - name: REDIS_USER
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: redis_username
       optional: false
 
 - name: REDIS_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: redis_password
       optional: false
 
 - name: NATS_USER
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: nats_username
       optional: false
 
 - name: NATS_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: bc-wallet-eth-hdwallet
+      name: bc-wallet-tron-hdwallet
       key: nats_password
       optional: false
 

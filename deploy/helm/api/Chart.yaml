@@ -1,5 +1,5 @@
 apiVersion: v2
-name: bc-wallet-eth-hdwallet-api
+name: bc-wallet-tron-hdwallet-api
 description: A Helm chart for Kubernetes
 
 # A chart can be either an 'application' or a 'library' chart.

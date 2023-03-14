@@ -25,7 +25,7 @@
 package config
 
 import (
-	"github.com/crypto-bundle/bc-wallet-eth-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
 

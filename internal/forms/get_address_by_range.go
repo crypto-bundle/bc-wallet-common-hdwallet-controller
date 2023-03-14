@@ -27,8 +27,8 @@ package forms
 import (
 	"context"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/grpc/hdwallet_api/proto"
-	protoTypes "github.com/crypto-bundle/bc-wallet-eth-hdwallet/pkg/types"
+	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	protoTypes "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/types"
 
 	"github.com/asaskevich/govalidator"
 	"google.golang.org/grpc/metadata"

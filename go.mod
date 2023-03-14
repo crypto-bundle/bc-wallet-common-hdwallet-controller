@@ -1,4 +1,4 @@
-module github.com/crypto-bundle/bc-wallet-eth-hdwallet
+module github.com/crypto-bundle/bc-wallet-tron-hdwallet
 
 go 1.17
 
