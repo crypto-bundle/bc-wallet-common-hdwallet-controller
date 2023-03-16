@@ -68,8 +68,8 @@ func (o *Generator) generate(ctx context.Context) (string, error) {
 	return mnemonic, nil
 }
 
-func NewMnemonicGenerator(logger *zap.Logger) (*Generator, error) {
+func NewMnemonicGenerator(logger *zap.Logger) *Generator {
 	return &Generator{
 		l: logger,
-	}, nil
+	}
 }

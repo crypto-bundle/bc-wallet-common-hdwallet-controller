@@ -22,10 +22,12 @@
  * SOFTWARE.
  */
 
-package handlers
+package grpc
 
 import (
 	"context"
+	"github.com/google/uuid"
+
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
@@ -38,18 +40,19 @@ import (
 )
 
 const (
-	MethodGetDerivationAddressByRange = "GetDerivationAddressByRange"
+	MethodGetDerivationAddress = "GetDerivationAddress"
 )
 
-type GetDerivationAddressByRangeHandler struct {
-	l         *zap.Logger
-	walletSrv walleter
+type GetDerivationAddressHandler struct {
+	l             *zap.Logger
+	walletSrv     walletManagerService
+	marshallerSrv getAddressMarshallerService
 }
 
 // nolint:funlen // fixme
-func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
-	req *pbApi.DerivationAddressByRangeRequest,
-) (*pbApi.DerivationAddressByRangeResponse, error) {
+func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
+	req *pbApi.DerivationAddressRequest,
+) (*pbApi.DerivationAddressResponse, error) {
 	var err error
 	_, span, finish := tracer.Trace(ctx)
 
@@ -57,7 +60,7 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	validationForm := &forms.DerivationAddressByRangeForm{}
+	validationForm := &forms.GetDerivationAddressForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
@@ -69,24 +72,37 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	rangeSize := validationForm.AddressIndexTo - validationForm.AddressIndexFrom
-
-	response := &pbApi.DerivationAddressByRangeResponse{
-		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
-	}
-
+	walletUUID, err := uuid.Parse(validationForm.WalletUUID)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "something went wrong")
+		return nil, err
 	}
 
-	return response, nil
+	mnemonicWalletUUID, err := uuid.Parse(validationForm.MnemonicWalletUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	addressData, err := h.walletSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID,
+		validationForm.AccountIndex, validationForm.InternalIndex, validationForm.AddressIndex)
+	if err != nil {
+		return nil, err
+	}
+
+	return &pbApi.DerivationAddressResponse{
+		AddressIdentity: &pbApi.DerivationAddressIdentity{
+			AccountIndex:  addressData.AccountIndex,
+			InternalIndex: addressData.InternalIndex,
+			AddressIndex:  addressData.AddressIndex,
+			Address:       addressData.Address,
+		},
+	}, nil
 }
 
-func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
-	walletSrv walleter,
-) *GetDerivationAddressByRangeHandler {
-	return &GetDerivationAddressByRangeHandler{
-		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
+func MakeGetDerivationAddressHandler(loggerEntry *zap.Logger,
+	walletSrv walletManagerService,
+) *GetDerivationAddressHandler {
+	return &GetDerivationAddressHandler{
+		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddress)),
 		walletSrv: walletSrv,
 	}
 }

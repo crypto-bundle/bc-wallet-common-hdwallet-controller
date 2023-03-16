@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-package handlers
+package grpc
 
 import (
 	"context"
+	"sync"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
@@ -42,8 +43,9 @@ const (
 )
 
 type GetEnabledWalletsHandler struct {
-	l         *zap.Logger
-	walletSrv walleter
+	l             *zap.Logger
+	walletSrv     walletManagerService
+	marshallerSrv getEnabledWalletsMarshallerService
 }
 
 // nolint:funlen // fixme
@@ -57,19 +59,54 @@ func (h *GetEnabledWalletsHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	wallets, err := h.walletSrv.GetEnabledWalletsUUID(ctx)
+	wallets, err := h.walletSrv.GetEnabledWallets(ctx)
 	if err != nil {
 		h.l.Error("unable to get enabled mnemonic wallets", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pbApi.GetEnabledWalletsResponse{
-		WalletsUUID: wallets,
-	}, nil
+	walletCount := uint32(len(wallets))
+
+	response := &pbApi.GetEnabledWalletsResponse{
+		Wallets:      make([]*pbApi.WalletIdentity, walletCount),
+		WalletsCount: walletCount,
+	}
+
+	wg := sync.WaitGroup{}
+	wg.Add(int(walletCount))
+	for i := uint32(0); i != walletCount; i++ {
+		go func(index uint32) {
+			walletData := wallets[index]
+			mnemonicWalletsCount := len(walletData.MnemonicWallets)
+
+			walletIdentity := &pbApi.WalletIdentity{
+				WalletUUID:             walletData.UUID.String(),
+				Title:                  walletData.Title,
+				Purpose:                walletData.Purpose,
+				Strategy:               pbApi.WalletMakerStrategy(walletData.Strategy),
+				MnemonicWalletCount:    uint32(mnemonicWalletsCount),
+				MnemonicWalletIdentity: make([]*pbApi.MnemonicWalletIdentity, mnemonicWalletsCount),
+			}
+
+			for j := 0; j != mnemonicWalletsCount; j++ {
+				walletIdentity.MnemonicWalletIdentity[j] = &pbApi.MnemonicWalletIdentity{
+					WalletUUID: walletData.MnemonicWallets[j].UUID.String(),
+					IsHot:      walletData.MnemonicWallets[j].IsHotWallet,
+				}
+			}
+
+			response.Wallets[index] = walletIdentity
+
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
+	return response, nil
 }
 
 func MakeGetEnabledWalletsHandler(loggerEntry *zap.Logger,
-	walletSrv walleter,
+	walletSrv walletManagerService,
 ) *GetEnabledWalletsHandler {
 	return &GetEnabledWalletsHandler{
 		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetEnabledWallets)),

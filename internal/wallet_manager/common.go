@@ -49,10 +49,8 @@ type mnemonicWalletsDataService interface {
 	GetMnemonicWalletsByUUIDList(ctx context.Context,
 		UUIDList []string,
 	) ([]*entities.MnemonicWallet, error)
-	GetAllEnabledMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 	GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
-	GetAllEnabledHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
-	GetAllEnabledNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+	GetAllNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 }
 
 type walletsDataService interface {
@@ -154,7 +152,7 @@ type walletPoolService interface {
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
 	) ([]*types.PublicDerivationAddressData, error)
-	GetEnabledWalletsUUIDsList(ctx context.Context) ([]string, error)
+	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
 }
 
 type mnemonicWalletConfig interface {

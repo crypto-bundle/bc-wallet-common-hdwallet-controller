@@ -101,6 +101,30 @@ func (p *Pool) AddAndStartWalletUnit(ctx context.Context,
 	return nil
 }
 
+func (p *Pool) GetAddressByPath(ctx context.Context,
+	walletUUID uuid.UUID,
+	mnemonicWalletUUID uuid.UUID,
+	account, change, index uint32,
+) (string, error) {
+	poolUnit, isExists := p.walletUnits[walletUUID]
+	if isExists {
+		return "", ErrPassedWalletNotFound
+	}
+
+	return poolUnit.GetAddressByPath(ctx, mnemonicWalletUUID, account, change, index)
+}
+
+func (p *Pool) GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error) {
+	result := make([]*types.PublicWalletData, len(p.walletUnits))
+	i := 0
+	for _, walletUnit := range p.walletUnits {
+		result[i] = walletUnit.GetWalletPublicData()
+		i++
+	}
+
+	return result, nil
+}
+
 func (p *Pool) GetAddressesByPathByRange(ctx context.Context,
 	walletUUID uuid.UUID,
 	mnemonicWalletUUID uuid.UUID,
@@ -119,7 +143,7 @@ func (p *Pool) GetAddressesByPathByRange(ctx context.Context,
 		addressIndexFrom, addressIndexTo)
 }
 
-func NewWalletPool(logger *zap.Logger,
+func newWalletPool(logger *zap.Logger,
 	cfg configService,
 	walletsDataSrv walletsDataService,
 	mnemonicWalletsDataSrv mnemonicWalletsDataService,

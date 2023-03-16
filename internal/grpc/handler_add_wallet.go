@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package handlers
+package grpc
 
 import (
 	"context"
@@ -44,8 +44,9 @@ const (
 )
 
 type AddNewWalletHandler struct {
-	l         *zap.Logger
-	walletSrv walleter
+	l             *zap.Logger
+	walletSrv     walletManagerService
+	marshallerSrv createWalletMarshallerService
 }
 
 // nolint:funlen // fixme
@@ -84,13 +85,17 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pbApi.AddNewWalletResponse{
-		WalletUUID: wallet.UUID.String(),
-	}, nil
+	marshalledData, err := h.marshallerSrv.Marshall(wallet)
+	if err != nil {
+		h.l.Error("unable to marshall wallet data", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return marshalledData, nil
 }
 
 func MakeAddNewWalletHandler(loggerEntry *zap.Logger,
-	walletSrv walleter,
+	walletSrv walletManagerService,
 ) *AddNewWalletHandler {
 	return &AddNewWalletHandler{
 		l:         loggerEntry.With(zap.String(MethodNameTag, MethodNameAddNewWallet)),

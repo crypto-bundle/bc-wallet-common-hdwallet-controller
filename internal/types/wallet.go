@@ -33,9 +33,9 @@ type PublicMnemonicWalletData struct {
 }
 
 type PublicWalletData struct {
-	UUID           uuid.UUID
-	Title          string
-	Purpose        string
-	Strategy       WalletMakerStrategy
-	MnemonicWallet []*PublicMnemonicWalletData
+	UUID            uuid.UUID
+	Title           string
+	Purpose         string
+	Strategy        WalletMakerStrategy
+	MnemonicWallets []*PublicMnemonicWalletData
 }

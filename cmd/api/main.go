@@ -27,6 +27,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_data"
 	"log"
 	"net"
 	"os"
@@ -99,8 +102,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn := postgres.NewConnection(context.Background(), cfg, loggerEntry)
-	_, err = conn.Connect()
+	pgConn := postgres.NewConnection(context.Background(), cfg, loggerEntry)
+	_, err = pgConn.Connect()
 	if err != nil {
 		loggerEntry.Fatal(err.Error(), zap.Error(err))
 	}
@@ -116,14 +119,15 @@ func main() {
 		loggerEntry.Fatal("unable to create crypto service instance", zap.Error(err))
 	}
 
-	walletService, err := wallet_manager.New(loggerEntry, cfg, conn, cryptoService)
+	walletDataSrv := wallet_data.NewService(loggerEntry, pgConn)
+	mnemonicWalletDataSrv := mnemonic_wallet_data.NewService(loggerEntry, pgConn)
+	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry)
+
+	walletService, err := wallet_manager.NewService(loggerEntry, cfg, cryptoService,
+		walletDataSrv, mnemonicWalletDataSrv,
+		pgConn, mnemonicGenerator)
 	if err != nil {
 		loggerEntry.Fatal("unable to create wallet service instance", zap.Error(err))
-	}
-
-	err = walletService.Init(ctx)
-	if err != nil {
-		loggerEntry.Fatal("unable to init wallet service", zap.Error(err))
 	}
 
 	apiHandlers, err := grpcHandlers.New(ctx, cfg, loggerEntry, walletService)
@@ -135,6 +139,11 @@ func main() {
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
 			zap.String("port", cfg.Bind))
+	}
+
+	err = walletService.Init(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to init wallet service", zap.Error(err))
 	}
 
 	err = srv.Init(ctx, loggerEntry, apiHandlers)

@@ -20,8 +20,8 @@
     "hdwallet_apiAddNewWalletResponse": {
       "type": "object",
       "properties": {
-        "WalletUUID": {
-          "type": "string"
+        "Wallet": {
+          "$ref": "#/definitions/hdwallet_apiWalletIdentity"
         }
       }
     },
@@ -67,10 +67,52 @@
     "hdwallet_apiGetEnabledWalletsResponse": {
       "type": "object",
       "properties": {
-        "WalletsUUID": {
+        "Wallets": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/hdwallet_apiWalletIdentity"
+          }
+        },
+        "WalletsCount": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "hdwallet_apiMnemonicWalletIdentity": {
+      "type": "object",
+      "properties": {
+        "WalletUUID": {
+          "type": "string"
+        },
+        "IsHot": {
+          "type": "boolean"
+        }
+      }
+    },
+    "hdwallet_apiWalletIdentity": {
+      "type": "object",
+      "properties": {
+        "WalletUUID": {
+          "type": "string"
+        },
+        "Title": {
+          "type": "string"
+        },
+        "Purpose": {
+          "type": "string"
+        },
+        "Strategy": {
+          "$ref": "#/definitions/hdwallet_apiWalletMakerStrategy"
+        },
+        "MnemonicWalletCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "MnemonicWalletIdentity": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
           }
         }
       }

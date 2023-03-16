@@ -65,6 +65,18 @@ type Config struct {
 	VaultClient vaulter
 }
 
+func (c *Config) GetDefaultHotWalletUnloadInterval() time.Duration {
+	return c.WalletManagerUnloadHotInterval
+}
+
+func (c *Config) GetDefaultWalletUnloadInterval() time.Duration {
+	return c.WalletManagerUnloadInterval
+}
+
+func (c *Config) GetMnemonicsCountPerWallet() uint8 {
+	return c.WalletManagerMnemonicPerWalletCount
+}
+
 // Prepare variables to static configuration
 func (c *Config) Prepare() error {
 	err := envconfig.Process(app.ApplicationName, c)

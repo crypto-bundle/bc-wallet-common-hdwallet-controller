@@ -74,21 +74,26 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) GetEnabledWalletsUUID(ctx context.Context) ([]string, error) {
-	uuidList, err := s.walletsDataSrv.GetAllEnabledWalletUUIDList(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return uuidList, nil
+func (s *Service) GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error) {
+	return s.walletPoolSrv.GetEnabledWallets(ctx)
 }
 
 func (s *Service) GetAddressByPath(ctx context.Context,
 	walletUUID uuid.UUID,
 	mnemonicWalletUUID uuid.UUID,
 	account, change, index uint32,
-) (string, error) {
-	return s.walletPoolSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID, account, change, index)
+) (*types.PublicDerivationAddressData, error) {
+	address, err := s.walletPoolSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID, account, change, index)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.PublicDerivationAddressData{
+		AccountIndex:  account,
+		InternalIndex: change,
+		AddressIndex:  index,
+		Address:       address,
+	}, nil
 }
 
 func (s *Service) GetAddressesByPathByRange(ctx context.Context,
@@ -121,7 +126,7 @@ func (s *Service) CreateNewWallet(ctx context.Context,
 	return poolUnit.GetWalletPublicData(), nil
 }
 
-func New(logger *zap.Logger,
+func NewService(logger *zap.Logger,
 	cfg configService,
 	encryptSrv encryptService,
 	walletDataSrv walletsDataService,
@@ -136,6 +141,8 @@ func New(logger *zap.Logger,
 		return nil, err
 	}
 
+	walletPoolSrv := newWalletPool(logger, cfg, walletDataSrv, mnemonicWalletDataSrv, encryptSrv)
+
 	return &Service{
 		logger: logger,
 		cfg:    cfg,
@@ -147,6 +154,7 @@ func New(logger *zap.Logger,
 		mnemonicGeneratorSrv: mnemonicGeneratorSrv,
 		encryptSrv:           encryptSrv,
 
+		walletPoolSrv:            walletPoolSrv,
 		walletPoolInitializerSrv: walletPoolInitSrv,
 	}, nil
 }

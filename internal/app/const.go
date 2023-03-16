@@ -32,7 +32,7 @@ const (
 	HDWalletConfigPrefix = "HDWALLET"
 	VaultConfigPrefix    = "VAULT"
 
-	WalletMnemoName = "ETH_WALLET"
+	WalletMnemoName = "TRON_WALLET"
 
-	BlockChainName = "ETH"
+	BlockChainName = "TRON"
 )

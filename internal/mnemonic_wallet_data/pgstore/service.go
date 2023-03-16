@@ -48,7 +48,9 @@ type pgRepository struct {
 	logger *zap.Logger
 }
 
-func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context, wallet *entities.MnemonicWallet) (*entities.MnemonicWallet, error) {
+func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
+	wallet *entities.MnemonicWallet,
+) (*entities.MnemonicWallet, error) {
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		date := time.Now()
 
@@ -251,9 +253,9 @@ func (s *pgRepository) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*enti
 
 func NewPostgresStore(logger *zap.Logger,
 	pgConn *postgres.Connection,
-) (*pgRepository, error) {
+) *pgRepository {
 	return &pgRepository{
 		pgConn: pgConn,
 		logger: logger,
-	}, nil
+	}
 }

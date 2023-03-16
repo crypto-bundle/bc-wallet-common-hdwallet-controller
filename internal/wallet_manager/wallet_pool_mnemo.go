@@ -304,7 +304,7 @@ func (u *MnemonicWalletUnit) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-func NewMnemonicWalletPoolUnit(logger *zap.Logger,
+func newMnemonicWalletPoolUnit(logger *zap.Logger,
 	cfg configService,
 	unloadInterval time.Duration,
 	walletUUID uuid.UUID,

@@ -29,7 +29,6 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/grpc/handlers"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"go.uber.org/zap"
@@ -42,13 +41,13 @@ type grpcServerHandle struct {
 	logger *zap.Logger
 	cfg    *config.Config
 
-	walletSrv walleter
+	walletSrv walletManagerService
 
 	// all GRPC handlers
-	addNewWalletHandler                *handlers.AddNewWalletHandler
-	getDerivationAddressHandler        *handlers.GetDerivationAddressHandler
-	getDerivationAddressByRangeHandler *handlers.GetDerivationAddressByRangeHandler
-	getEnabledWalletsHandler           *handlers.GetEnabledWalletsHandler
+	addNewWalletHandler                *AddNewWalletHandler
+	getDerivationAddressHandler        *GetDerivationAddressHandler
+	getDerivationAddressByRangeHandler *GetDerivationAddressByRangeHandler
+	getEnabledWalletsHandler           *GetEnabledWalletsHandler
 }
 
 func (h *grpcServerHandle) AddNewWallet(ctx context.Context,
@@ -80,7 +79,7 @@ func New(ctx context.Context,
 	cfg *config.Config,
 	loggerSrv *zap.Logger,
 
-	walletSrv walleter,
+	walletSrv walletManagerService,
 ) (pbApi.HdWalletApiServer, error) {
 
 	l := loggerSrv.Named("grpc.server.handler").With(
@@ -94,9 +93,9 @@ func New(ctx context.Context,
 
 		walletSrv: walletSrv,
 
-		addNewWalletHandler:                handlers.MakeAddNewWalletHandler(l, walletSrv),
-		getDerivationAddressHandler:        handlers.MakeGetDerivationAddressHandler(l, walletSrv),
-		getEnabledWalletsHandler:           handlers.MakeGetEnabledWalletsHandler(l, walletSrv),
-		getDerivationAddressByRangeHandler: handlers.MakeGetDerivationAddressByRangeHandler(l, walletSrv),
+		addNewWalletHandler:                MakeAddNewWalletHandler(l, walletSrv),
+		getDerivationAddressHandler:        MakeGetDerivationAddressHandler(l, walletSrv),
+		getEnabledWalletsHandler:           MakeGetEnabledWalletsHandler(l, walletSrv),
+		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv),
 	}, nil
 }

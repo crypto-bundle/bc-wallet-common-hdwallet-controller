@@ -55,7 +55,7 @@ func (u *singleMnemonicWalletUnit) GetWalletPublicData() *types.PublicWalletData
 		Title:    u.walletTitle,
 		Purpose:  u.walletPurpose,
 		Strategy: types.WalletMakerSingleMnemonicStrategy,
-		MnemonicWallet: []*types.PublicMnemonicWalletData{
+		MnemonicWallets: []*types.PublicMnemonicWalletData{
 			u.mnemonicUnit.GetPublicData(),
 		},
 	}
@@ -108,7 +108,7 @@ func (u *singleMnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Context
 	return u.mnemonicUnit.GetAddressesByPathByRange(ctx, accountIndex, internalIndex, addressIndexFrom, addressIndexTo)
 }
 
-func NewSingleMnemonicWalletPoolUnit(logger *zap.Logger,
+func newSingleMnemonicWalletPoolUnit(logger *zap.Logger,
 	walletUUID uuid.UUID,
 	walletTitle string,
 	walletPurpose string,

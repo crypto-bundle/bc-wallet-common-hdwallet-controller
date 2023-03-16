@@ -50,7 +50,8 @@ func (m *WalletUnitMaker) createSingleMnemonicWallet(ctx context.Context,
 
 	var mnemonicItem *entities.MnemonicWallet = nil
 
-	walletPoolUnit := NewSingleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID.String())
+	walletPoolUnit := newSingleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID,
+		walletEntity.Title, walletEntity.Purpose)
 
 	err := m.txStmtManager.BeginTxWithUnlessCommittedRollback(ctx, func(txStmtCtx context.Context) error {
 		_, txStmtErr := m.walletsDataSrv.AddNewWallet(ctx, walletEntity)
@@ -69,8 +70,8 @@ func (m *WalletUnitMaker) createSingleMnemonicWallet(ctx context.Context,
 		return nil, err
 	}
 
-	mnemonicUnit := NewMnemonicWalletPoolUnit(m.logger, m.cfg,
-		m.cfg.GetDefaultHotWalletUnloadInterval(), walletEntity.UUID.String(), m.encryptSrv,
+	mnemonicUnit := newMnemonicWalletPoolUnit(m.logger, m.cfg,
+		m.cfg.GetDefaultHotWalletUnloadInterval(), walletEntity.UUID, m.encryptSrv,
 		m.mnemonicWalletsDataSrv, mnemonicItem)
 
 	err = walletPoolUnit.AddMnemonicUnit(mnemonicUnit)
@@ -94,7 +95,8 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	var hotMnemonicItem *entities.MnemonicWallet = nil
 	mnemonicItems := make([]*entities.MnemonicWallet, m.cfg.GetMnemonicsCountPerWallet())
 
-	walletPoolUnit := NewMultipleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID.String())
+	walletPoolUnit := newMultipleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID,
+		walletEntity.Title, walletEntity.Purpose)
 
 	err := m.txStmtManager.BeginTxWithUnlessCommittedRollback(ctx, func(txStmtCtx context.Context) error {
 		_, txStmtErr := m.walletsDataSrv.AddNewWallet(ctx, walletEntity)
@@ -126,8 +128,8 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	}
 
 	for i := uint8(0); i != m.cfg.GetMnemonicsCountPerWallet(); i++ {
-		mnemonicUnit := NewMnemonicWalletPoolUnit(m.logger, m.cfg,
-			m.cfg.GetDefaultWalletUnloadInterval(), walletEntity.UUID.String(), m.encryptSrv,
+		mnemonicUnit := newMnemonicWalletPoolUnit(m.logger, m.cfg,
+			m.cfg.GetDefaultWalletUnloadInterval(), walletEntity.UUID, m.encryptSrv,
 			m.mnemonicWalletsDataSrv, hotMnemonicItem)
 
 		addErr := walletPoolUnit.AddMnemonicUnit(mnemonicUnit)

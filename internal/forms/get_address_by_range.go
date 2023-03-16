@@ -35,7 +35,8 @@ import (
 )
 
 type DerivationAddressByRangeForm struct {
-	WalletUUID string `valid:"type(string),uuid,required"`
+	WalletUUID         string `valid:"type(string),uuid,required"`
+	MnemonicWalletUUID string `valid:"type(string),uuid,required"`
 
 	AccountIndex     uint32 `valid:"type(uint32)"`
 	InternalIndex    uint32 `valid:"type(uint32)"`
@@ -52,12 +53,18 @@ func (f *DerivationAddressByRangeForm) LoadAndValidate(ctx context.Context,
 	}
 
 	walletHeaders := headers.Get(protoTypes.WalletUUIDHeaderName)
+	mnemonicWalletHeaders := headers.Get(protoTypes.MnemonicWalletUUIDHeaderName)
 
 	if len(walletHeaders) == 0 {
 		return false, ErrUnableGetWalletUUIDFromMetadata
 	}
 
+	if len(mnemonicWalletHeaders) == 0 {
+		return false, ErrUnableGetWalletUUIDFromMetadata
+	}
+
 	f.WalletUUID = walletHeaders[0]
+	f.MnemonicWalletUUID = mnemonicWalletHeaders[0]
 
 	f.AccountIndex = req.AccountIndex
 	f.InternalIndex = req.InternalIndex

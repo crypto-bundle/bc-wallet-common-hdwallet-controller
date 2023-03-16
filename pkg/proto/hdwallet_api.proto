@@ -21,8 +21,23 @@ message DerivationAddressIdentity {
 message GetEnabledWalletsRequest {
 }
 
+message MnemonicWalletIdentity {
+  string WalletUUID = 1;
+  bool IsHot = 2;
+}
+
+message WalletIdentity {
+  string WalletUUID = 1;
+  string Title = 2;
+  string Purpose = 3;
+  WalletMakerStrategy Strategy = 4;
+  uint32 MnemonicWalletCount = 5;
+  repeated MnemonicWalletIdentity MnemonicWalletIdentity = 6;
+}
+
 message GetEnabledWalletsResponse {
-  repeated string WalletsUUID = 1;
+  repeated WalletIdentity Wallets = 1;
+  uint32 WalletsCount = 2;
 }
 
 message AddNewWalletRequest {
@@ -32,7 +47,7 @@ message AddNewWalletRequest {
 }
 
 message AddNewWalletResponse {
-  string WalletUUID = 1;
+  WalletIdentity Wallet = 1;
 }
 
 message DerivationAddressRequest {

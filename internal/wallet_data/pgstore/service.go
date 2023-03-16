@@ -78,14 +78,8 @@ func (s *pgRepository) GetWalletByUUID(ctx context.Context, uuid string) (*entit
 	return wallet, nil
 }
 
-func (s *pgRepository) GetAllEnabledWallets(ctx context.Context,
-	onScanMutator func(ctx context.Context, wallet *entities.Wallet) error,
-) ([]*entities.Wallet, error) {
+func (s *pgRepository) GetAllEnabledWallets(ctx context.Context) ([]*entities.Wallet, error) {
 	var wallets []*entities.Wallet = nil
-	var mutator = s.defaultOnScanMutator
-	if onScanMutator == nil {
-		mutator = onScanMutator
-	}
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		rows, err := stmt.Queryx(`SELECT "id", "title", "uuid", "purpose", "is_enabled",  "strategy",
@@ -104,11 +98,6 @@ func (s *pgRepository) GetAllEnabledWallets(ctx context.Context,
 			walletData := &entities.Wallet{}
 
 			scanErr := rows.StructScan(walletData)
-			if scanErr != nil {
-				return err
-			}
-
-			scanErr = mutator(ctx, walletData)
 			if scanErr != nil {
 				return err
 			}
@@ -160,12 +149,12 @@ func (s *pgRepository) GetAllEnabledWalletUUIDList(ctx context.Context) ([]strin
 
 func NewPostgresStore(logger *zap.Logger,
 	pgConn *postgres.Connection,
-) (*pgRepository, error) {
+) *pgRepository {
 	return &pgRepository{
 		pgConn: pgConn,
 		logger: logger,
 		defaultOnScanMutator: func(ctx context.Context, wallet *entities.Wallet) error {
 			return nil
 		},
-	}, nil
+	}
 }

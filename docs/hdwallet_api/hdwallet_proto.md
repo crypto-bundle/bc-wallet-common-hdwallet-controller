@@ -13,6 +13,8 @@
     - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
     - [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest)
     - [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse)
+    - [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity)
+    - [WalletIdentity](#hdwallet_api.WalletIdentity)
   
     - [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy)
   
@@ -54,7 +56,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletUUID | [string](#string) |  |  |
+| Wallet | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 
 
 
@@ -160,7 +162,44 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletsUUID | [string](#string) | repeated |  |
+| Wallets | [WalletIdentity](#hdwallet_api.WalletIdentity) | repeated |  |
+| WalletsCount | [uint32](#uint32) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.MnemonicWalletIdentity"></a>
+
+### MnemonicWalletIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletUUID | [string](#string) |  |  |
+| IsHot | [bool](#bool) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.WalletIdentity"></a>
+
+### WalletIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletUUID | [string](#string) |  |  |
+| Title | [string](#string) |  |  |
+| Purpose | [string](#string) |  |  |
+| Strategy | [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy) |  |  |
+| MnemonicWalletCount | [uint32](#uint32) |  |  |
+| MnemonicWalletIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) | repeated |  |
 
 
 

@@ -88,7 +88,7 @@ func (pi *poolInitializer) prepareMnemonicUnits(_ context.Context) error {
 			bucket = pi.groupedByUUID[walletUUID]
 		}
 
-		mnemonicUnit := NewMnemonicWalletPoolUnit(pi.logger, pi.cfg, mnemonicWallet.UnloadInterval,
+		mnemonicUnit := newMnemonicWalletPoolUnit(pi.logger, pi.cfg, mnemonicWallet.UnloadInterval,
 			walletUUID, pi.encryptSrv, pi.mnemonicWalletsDataSrv, mnemonicWallet)
 
 		bucket = append(bucket, mnemonicUnit)
@@ -107,7 +107,7 @@ func (pi *poolInitializer) prepareWalletPoolUnits(_ context.Context) error {
 		mnemonicCount := len(bucket)
 
 		if mnemonicCount == 1 && walletItem.Strategy == types.WalletMakerSingleMnemonicStrategy {
-			walletPoolUnit := NewSingleMnemonicWalletPoolUnit(pi.logger, walletItem.UUID,
+			walletPoolUnit := newSingleMnemonicWalletPoolUnit(pi.logger, walletItem.UUID,
 				walletItem.Title, walletItem.Purpose)
 			addErr := walletPoolUnit.AddMnemonicUnit(bucket[0])
 			if addErr != nil {
@@ -120,7 +120,7 @@ func (pi *poolInitializer) prepareWalletPoolUnits(_ context.Context) error {
 		}
 
 		if mnemonicCount > 1 && walletItem.Strategy == types.WalletMakerMultipleMnemonicStrategy {
-			walletPoolUnit := NewMultipleMnemonicWalletPoolUnit(pi.logger, walletItem.UUID,
+			walletPoolUnit := newMultipleMnemonicWalletPoolUnit(pi.logger, walletItem.UUID,
 				walletItem.Title, walletItem.Purpose)
 			for j := 0; j != mnemonicCount; j++ {
 				addErr := walletPoolUnit.AddMnemonicUnit(bucket[i])

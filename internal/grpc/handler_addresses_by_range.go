@@ -22,14 +22,15 @@
  * SOFTWARE.
  */
 
-package handlers
+package grpc
 
 import (
 	"context"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/google/uuid"
+	"sync"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
 
@@ -39,18 +40,19 @@ import (
 )
 
 const (
-	MethodGetDerivationAddress = "GetDerivationAddress"
+	MethodGetDerivationAddressByRange = "GetDerivationAddressByRange"
 )
 
-type GetDerivationAddressHandler struct {
-	l         *zap.Logger
-	walletSrv walleter
+type GetDerivationAddressByRangeHandler struct {
+	l             *zap.Logger
+	walletSrv     walletManagerService
+	marshallerSrv getAddressByRangeMarshallerService
 }
 
 // nolint:funlen // fixme
-func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
-	req *pbApi.DerivationAddressRequest,
-) (*pbApi.DerivationAddressResponse, error) {
+func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
+	req *pbApi.DerivationAddressByRangeRequest,
+) (*pbApi.DerivationAddressByRangeResponse, error) {
 	var err error
 	_, span, finish := tracer.Trace(ctx)
 
@@ -58,7 +60,7 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	validationForm := &forms.GetDerivationAddressForm{}
+	validationForm := &forms.DerivationAddressByRangeForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
@@ -70,27 +72,55 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	address, err := h.walletSrv.GetAddressByPath(ctx, validationForm.WalletUUID,
-		validationForm.AccountIndex, validationForm.InternalIndex, validationForm.AddressIndex)
+	walletUUID, err := uuid.Parse(validationForm.WalletUUID)
 	if err != nil {
 		return nil, err
 	}
 
-	return &pbApi.DerivationAddressResponse{
-		AddressIdentity: &pbApi.DerivationAddressIdentity{
-			AccountIndex:  validationForm.AccountIndex,
-			InternalIndex: validationForm.InternalIndex,
-			AddressIndex:  validationForm.AddressIndex,
-			Address:       address,
-		},
-	}, nil
+	mnemonicWalletUUID, err := uuid.Parse(validationForm.MnemonicWalletUUID)
+	if err != nil {
+		return nil, err
+	}
+
+	walletsData, err := h.walletSrv.GetAddressesByPathByRange(ctx, walletUUID, mnemonicWalletUUID,
+		validationForm.AccountIndex, validationForm.InternalIndex,
+		validationForm.AddressIndexFrom, validationForm.AddressIndexTo)
+	if err != nil {
+		h.l.Error("unable get derivative addresses by range", zap.Error(err))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+
+	rangeSize := validationForm.AddressIndexTo - validationForm.AddressIndexFrom
+
+	response := &pbApi.DerivationAddressByRangeResponse{
+		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
+	}
+
+	wg := sync.WaitGroup{}
+	wg.Add(int(rangeSize) + 1)
+	for i := uint32(0); i != rangeSize; i++ {
+		go func(index uint32) {
+			response.AddressIdentities[index] = &pbApi.DerivationAddressIdentity{
+				AccountIndex:  walletsData[index].AccountIndex,
+				InternalIndex: walletsData[index].InternalIndex,
+				AddressIndex:  walletsData[index].AddressIndex,
+				Address:       walletsData[index].Address,
+			}
+
+			wg.Done()
+		}(i)
+	}
+	wg.Wait()
+
+	return response, nil
 }
 
-func MakeGetDerivationAddressHandler(loggerEntry *zap.Logger,
-	walletSrv walleter,
-) *GetDerivationAddressHandler {
-	return &GetDerivationAddressHandler{
-		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddress)),
+func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
+	walletSrv walletManagerService,
+) *GetDerivationAddressByRangeHandler {
+	return &GetDerivationAddressByRangeHandler{
+		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
 		walletSrv: walletSrv,
 	}
 }

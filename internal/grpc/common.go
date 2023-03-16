@@ -27,27 +27,46 @@ package grpc
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/google/uuid"
 )
 
-type walleter interface {
+type walletManagerService interface {
+	CreateNewWallet(ctx context.Context,
+		strategy types.WalletMakerStrategy,
+		title string,
+		purpose string,
+	) (*types.PublicWalletData, error)
 	GetAddressByPath(ctx context.Context,
-		walletUUID string,
+		walletUUID uuid.UUID,
+		mnemonicWalletUUID uuid.UUID,
 		account, change, index uint32,
-	) (string, error)
+	) (*types.PublicDerivationAddressData, error)
 
 	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID string,
+		walletUUID uuid.UUID,
+		mnemonicWalletUUID uuid.UUID,
 		accountIndex uint32,
 		internalIndex uint32,
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
 	) ([]*types.PublicDerivationAddressData, error)
 
-	CreateNewWallet(ctx context.Context,
-		strategy types.WalletMakerStrategy,
-		title string,
-		purpose string,
-	) (*types.PublicWalletData, error)
+	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
+}
 
-	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
+type createWalletMarshallerService interface {
+	Marshall(*types.PublicWalletData) (*pbApi.AddNewWalletResponse, error)
+}
+
+type getAddressMarshallerService interface {
+	Marshall(*types.PublicDerivationAddressData) (*pbApi.DerivationAddressResponse, error)
+}
+
+type getAddressByRangeMarshallerService interface {
+	Marshall([]*types.PublicDerivationAddressData) (*pbApi.DerivationAddressByRangeResponse, error)
+}
+
+type getEnabledWalletsMarshallerService interface {
+	Marshall([]*types.PublicWalletData) (*pbApi.GetEnabledWalletsResponse, error)
 }
