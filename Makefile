@@ -5,7 +5,7 @@
 #  go get -d github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 #  go get -d github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
-hdwallet:
+hdwallet_proto:
 	protoc -I ./pkg/proto/ -I . -I ./pkg/proto/ \
     		--go_out=./pkg/grpc/hdwallet_api/proto/ \
     		--go_opt=paths=source_relative \
@@ -20,7 +20,7 @@ hdwallet:
     		./pkg/proto/*.proto
 
 migrate:
-	 goose -dir ./migrations postgres "host=data4.gdrn.me port=5434 user=bc-wallet-eth-hdwallet password=password dbname=bc-wallet-eth-hdwallet sslmode=disable" up
+	 goose -dir ./migrations postgres "host=data4.gdrn.me port=5434 user=bc-wallet-tron-hdwallet password=password dbname=bc-wallet-tron-hdwallet sslmode=disable" up
 
 build:
 	docker build -t cr.selcloud.ru/liber/bc-wallet-eth-hdwallet:latest .

@@ -27,12 +27,12 @@
 CREATE TABLE mnemonic_wallets
 (
     id serial PRIMARY KEY,
+    uuid uuid NOT NULL,
     wallet_uuid uuid NOT NULL,
     hash varchar NOT NULL,
-    purpose varchar NOT NULL,
     encrypted_data varchar NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP
 )
 -- +goose StatementEnd
 

@@ -22,32 +22,18 @@
  * SOFTWARE.
  */
 
-package grpc
+-- +goose Up
+-- +goose StatementBegin
+ALTER TABLE wallets
+    ADD COLUMN is_enabled BOOLEAN NOT NULL DEFAULT true;
 
-import (
-	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-)
+CREATE INDEX is_enabled__idx ON wallets (
+    "is_enabled"
+);
+-- +goose StatementEnd
 
-type walleter interface {
-	GetAddressByPath(ctx context.Context,
-		walletUUID string,
-		account, change, index uint32,
-	) (string, error)
-
-	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID string,
-		accountIndex uint32,
-		internalIndex uint32,
-		addressIndexFrom uint32,
-		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
-
-	CreateNewWallet(ctx context.Context,
-		strategy types.WalletMakerStrategy,
-		title string,
-		purpose string,
-	) (*types.PublicWalletData, error)
-
-	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
-}
+-- +goose Down
+-- +goose StatementBegin
+DROP INDEX is_enabled__idx;
+ALTER TABLE wallets DROP COLUMN is_enabled;
+-- +goose StatementEnd

@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package repository
+package pgstore
 
 import (
 	"context"
@@ -53,12 +53,17 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context, wallet *entitie
 		date := time.Now()
 
 		var walletID uint32
-		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("wallet_uuid", "hash", 
-				"purpose", "rsa_encrypted", "rsa_encrypted_hash", 
-				"is_hot", "is_enabled", "created_at", "updated_at")
+		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("uuid", "wallet_uuid", 
+				"mnemonic_hash",
+				"is_hot", 
+				"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash", 
+				"created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`,
-			wallet.UUID.String(), wallet.Hash, wallet.Purpose, wallet.RsaEncrypted, wallet.RsaEncryptedHash,
-			wallet.IsHotWallet, true, date, date)
+			wallet.UUID.String(), wallet.WalletUUID.String(),
+			wallet.MnemonicHash,
+			wallet.IsHotWallet,
+			wallet.RsaEncrypted, wallet.RsaEncryptedHash, wallet.VaultEncrypted, wallet.VaultEncryptedHash,
+			date, date)
 
 		err := row.Scan(&walletID)
 		if err != nil {
@@ -78,18 +83,24 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context, wallet *entitie
 }
 
 func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error) {
-	wallet := &entities.MnemonicWallet{}
+	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT "id", "wallet_uuid", "hash", 
-       			"purpose", "rsa_encrypted", "rsa_encrypted_hash",
-				 "is_hot", "is_enabled", "created_at", "updated_at"
+		row := stmt.QueryRowx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
+       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
+				"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "hash" = $1`, hash)
 
-		err := row.StructScan(&wallet)
-		if err != nil {
-			return postgres.EmptyOrError(err, "unable get site by domain")
+		callbackErr := row.Err()
+		if callbackErr != nil {
+			return callbackErr
+		}
+
+		wallet = &entities.MnemonicWallet{}
+		callbackErr = row.StructScan(&wallet)
+		if callbackErr != nil {
+			return postgres.EmptyOrError(callbackErr, "unable get mnemonic wallet by hash")
 		}
 
 		return nil
@@ -100,18 +111,25 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 	return wallet, nil
 }
 
-func (s *pgRepository) GetMnemonicWalletUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error) {
-	wallet := &entities.MnemonicWallet{}
+func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error) {
+	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
-       			"rsa_encrypted_hash", "is_hot", "is_enabled", "created_at", "updated_at"
+		row := stmt.QueryRowx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
+       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
+				"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "wallet_uuid" = $1`, uuid)
 
+		queryErr := row.Err()
+		if queryErr != nil {
+			return queryErr
+		}
+
+		wallet = &entities.MnemonicWallet{}
 		err := row.StructScan(&wallet)
 		if err != nil {
-			return postgres.EmptyOrError(err, "unable get site by domain")
+			return postgres.EmptyOrError(err, "unable get mnemonic wallet by uuid")
 		}
 
 		return nil
@@ -123,18 +141,20 @@ func (s *pgRepository) GetMnemonicWalletUUID(ctx context.Context, uuid string) (
 }
 
 func (s *pgRepository) GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
-	wallets := make([]*entities.MnemonicWallet, 0)
+	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
-       			"rsa_encrypted_hash", "is_enabled", "created_at", "updated_at"
+		rows, err := stmt.Queryx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
+       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
+				"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "is_hot" = true`)
-
 		if err != nil {
 			return err
 		}
 		defer rows.Close()
+
+		wallets = make([]*entities.MnemonicWallet, 0)
 
 		for rows.Next() {
 			walletData := &entities.MnemonicWallet{}
@@ -155,24 +175,30 @@ func (s *pgRepository) GetAllHotMnemonicWallets(ctx context.Context) ([]*entitie
 	return wallets, nil
 }
 
-func (s *pgRepository) GetAllEnabledMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
-	wallets := make([]*entities.MnemonicWallet, 0)
+func (s *pgRepository) GetMnemonicWalletsByUUIDList(ctx context.Context,
+	UUIDList []string,
+) ([]*entities.MnemonicWallet, error) {
+	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
+		query, args, err := sqlx.In(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
        			"rsa_encrypted_hash", "is_enabled", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
-	       WHERE "is_enabled" = true`)
+	       WHERE "wallet_uuid" IN (?)`, UUIDList)
 
+		bonded := stmt.Rebind(query)
+		returnedRows, err := stmt.Queryx(bonded, args...)
 		if err != nil {
 			return err
 		}
-		defer rows.Close()
+		defer returnedRows.Close()
 
-		for rows.Next() {
+		wallets = make([]*entities.MnemonicWallet, 0)
+
+		for returnedRows.Next() {
 			walletData := &entities.MnemonicWallet{}
 
-			scanErr := rows.StructScan(walletData)
+			scanErr := returnedRows.StructScan(walletData)
 			if scanErr != nil {
 				return err
 			}
@@ -188,52 +214,21 @@ func (s *pgRepository) GetAllEnabledMnemonicWallets(ctx context.Context) ([]*ent
 	return wallets, nil
 }
 
-func (s *pgRepository) GetAllEnabledHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
-	wallets := make([]*entities.MnemonicWallet, 0)
+func (s *pgRepository) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
+	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
-       			"rsa_encrypted_hash", "is_enabled", "created_at", "updated_at"
+		rows, err := stmt.Queryx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
+       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
+				"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
-	       WHERE "is_hot" = true AND "is_enabled" = true`)
-
+	       WHERE "is_hot" = false`)
 		if err != nil {
 			return err
 		}
 		defer rows.Close()
 
-		for rows.Next() {
-			walletData := &entities.MnemonicWallet{}
-
-			scanErr := rows.StructScan(walletData)
-			if scanErr != nil {
-				return err
-			}
-
-			wallets = append(wallets, walletData)
-		}
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return wallets, nil
-}
-
-func (s *pgRepository) GetAllEnabledNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
-	wallets := make([]*entities.MnemonicWallet, 0)
-
-	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
-       			"rsa_encrypted_hash", "is_enabled", "created_at", "updated_at"
-	       FROM "mnemonic_wallets"
-	       WHERE "is_hot" = false AND "is_enabled" = true`)
-
-		if err != nil {
-			return err
-		}
-		defer rows.Close()
+		wallets = make([]*entities.MnemonicWallet, 0)
 
 		for rows.Next() {
 			walletData := &entities.MnemonicWallet{}

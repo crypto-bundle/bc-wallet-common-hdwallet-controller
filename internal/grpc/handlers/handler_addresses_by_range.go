@@ -26,8 +26,6 @@ package handlers
 
 import (
 	"context"
-	"sync"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
@@ -76,34 +74,6 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 	response := &pbApi.DerivationAddressByRangeResponse{
 		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
 	}
-
-	wg := sync.WaitGroup{}
-	wg.Add(int(rangeSize) + 1)
-
-	for i, j := validationForm.AddressIndexFrom, uint32(0); i <= validationForm.AddressIndexTo; i++ {
-		go func(i, j uint32) {
-			defer wg.Done()
-
-			address, getAddrErr := h.walletSrv.GetAddressByPath(ctx, validationForm.WalletUUID,
-				validationForm.AccountIndex, validationForm.InternalIndex, i)
-			if getAddrErr != nil {
-				h.l.Error("unable to get address by path", zap.Error(getAddrErr))
-				err = getAddrErr
-				return
-			}
-
-			response.AddressIdentities[j] = &pbApi.DerivationAddressIdentity{
-				AccountIndex:  validationForm.AccountIndex,
-				InternalIndex: validationForm.InternalIndex,
-				AddressIndex:  i,
-				Address:       address,
-			}
-		}(i, j)
-
-		j++
-	}
-
-	wg.Wait()
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, "something went wrong")

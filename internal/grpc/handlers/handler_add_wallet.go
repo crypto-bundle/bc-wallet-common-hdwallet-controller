@@ -26,6 +26,7 @@ package handlers
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
@@ -72,7 +73,12 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	wallet, err := h.walletSrv.CreateNewMnemonicWallet(ctx, req.Title, req.Purpose, req.IsHot)
+	if validationForm.Strategy == 0 {
+		validationForm.Strategy = types.WalletMakerMultipleMnemonicStrategy
+	}
+
+	wallet, err := h.walletSrv.CreateNewWallet(ctx, validationForm.Strategy,
+		validationForm.Title, validationForm.Purpose)
 	if err != nil {
 		h.l.Error("unable to create mnemonic wallet", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

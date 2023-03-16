@@ -4,6 +4,12 @@ package hdwallet_api;
 
 option go_package = "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc";
 
+enum WalletMakerStrategy {
+  PLACEHOLDER_STRATEGY_TYPE = 0;
+  SIGNE_MNEMONIC_STRATEGY_TYPE = 1;
+  MULTIPLE_MNEMONIC_STRATEGY_TYPE = 2;
+}
+
 message DerivationAddressIdentity {
   uint32 AccountIndex = 1;
   uint32 InternalIndex = 2;
@@ -22,7 +28,7 @@ message GetEnabledWalletsResponse {
 message AddNewWalletRequest {
   string Title = 1;
   string Purpose = 2;
-  bool IsHot = 3;
+  WalletMakerStrategy Strategy = 3;
 }
 
 message AddNewWalletResponse {

@@ -22,11 +22,12 @@
  * SOFTWARE.
  */
 
-package wallet
+-- +goose Up
+-- +goose StatementBegin
+ALTER TABLE mnemonic_wallets RENAME COLUMN hash TO mnemonic_hash;
+-- +goose StatementEnd
 
-import "errors"
-
-var (
-	ErrWrongMnemonicHash    = errors.New("wrong mnemonic hash")
-	ErrPassedWalletNotFound = errors.New("passed wallet not found")
-)
+-- +goose Down
+-- +goose StatementBegin
+ALTER TABLE mnemonic_wallets RENAME COLUMN mnemonic_hash TO hash;
+-- +goose StatementEnd

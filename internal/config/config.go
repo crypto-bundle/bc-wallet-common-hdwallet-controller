@@ -26,6 +26,7 @@ package config
 
 import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
+	"time"
 
 	natsCfg "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
 	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
@@ -54,6 +55,12 @@ type Config struct {
 	// HD wallet config
 	// -------------------
 	*HDWalletConfig
+	// -------------------
+	// Wallet manager config
+	// -------------------
+	WalletManagerUnloadHotInterval      time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_HOT_INTERVAL" default:"15s"`
+	WalletManagerUnloadInterval         time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_INTERVAL" default:"8s"`
+	WalletManagerMnemonicPerWalletCount uint8         `envconfig:"WALLET_MANAGER_MNEMONICS_PER_WALLET_COUNT" default:"3"`
 
 	VaultClient vaulter
 }

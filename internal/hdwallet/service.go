@@ -68,5 +68,5 @@ func (s *ManagerService) NewEthUserWallet(account, change, addressNumber uint32)
 		return nil, ErrUnsupportedBlockchain
 	}
 
-	return hdWallet.NewEthWallet(account, change, addressNumber)
+	return hdWallet.NewTronWallet(account, change, addressNumber)
 }

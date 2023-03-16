@@ -26,8 +26,7 @@ package handlers
 
 import (
 	"context"
-
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 )
 
 const (
@@ -40,11 +39,19 @@ type walleter interface {
 		account, change, index uint32,
 	) (string, error)
 
+	GetAddressByPathByRange(ctx context.Context,
+		walletUUID string,
+		accountIndex uint32,
+		internalIndex uint32,
+		addressIndexFrom uint32,
+		addressIndexTo uint32,
+	) ([]*types.PublicDerivationAddressData, error)
+
 	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
 
-	CreateNewMnemonicWallet(ctx context.Context,
+	CreateNewWallet(ctx context.Context,
+		strategy types.WalletMakerStrategy,
 		title string,
 		purpose string,
-		isHot bool,
-	) (*entities.MnemonicWallet, error)
+	) (*types.PublicWalletData, error)
 }

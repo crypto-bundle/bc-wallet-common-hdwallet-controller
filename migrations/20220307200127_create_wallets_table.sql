@@ -22,32 +22,20 @@
  * SOFTWARE.
  */
 
-package grpc
-
-import (
-	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+-- +goose Up
+-- +goose StatementBegin
+CREATE TABLE wallets
+(
+    id serial PRIMARY KEY,
+    uuid uuid NOT NULL,
+    title varchar NOT NULL,
+    purpose varchar NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 )
+-- +goose StatementEnd
 
-type walleter interface {
-	GetAddressByPath(ctx context.Context,
-		walletUUID string,
-		account, change, index uint32,
-	) (string, error)
-
-	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID string,
-		accountIndex uint32,
-		internalIndex uint32,
-		addressIndexFrom uint32,
-		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
-
-	CreateNewWallet(ctx context.Context,
-		strategy types.WalletMakerStrategy,
-		title string,
-		purpose string,
-	) (*types.PublicWalletData, error)
-
-	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
-}
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS wallets
+-- +goose StatementEnd

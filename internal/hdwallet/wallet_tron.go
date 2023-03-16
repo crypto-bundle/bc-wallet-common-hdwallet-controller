@@ -46,8 +46,8 @@ type Tron struct {
 	*BTC
 }
 
-// NewEthWallet create new wallet
-func (w *Wallet) NewEthWallet(account, change, address uint32) (*Tron, error) {
+// NewTronWallet create new wallet
+func (w *Wallet) NewTronWallet(account, change, address uint32) (*Tron, error) {
 	blockChainParams := chaincfg.MainNetParams
 
 	accountKey, key, err := w.GetChildKey(&blockChainParams, Bip44Purpose,

@@ -22,32 +22,28 @@
  * SOFTWARE.
  */
 
-package grpc
+package entities
 
 import (
-	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"time"
+
+	"github.com/google/uuid"
 )
 
-type walleter interface {
-	GetAddressByPath(ctx context.Context,
-		walletUUID string,
-		account, change, index uint32,
-	) (string, error)
+// MnemonicWallet struct for storing in pg database
+type MnemonicWallet struct {
+	ID             uint32        `db:"id"`
+	UUID           uuid.UUID     `db:"uuid"`
+	WalletUUID     uuid.UUID     `db:"wallet_uuid"`
+	MnemonicHash   string        `db:"mnemonic_hash"`
+	IsHotWallet    bool          `db:"is_hot"`
+	UnloadInterval time.Duration `db:"unload_interval"`
 
-	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID string,
-		accountIndex uint32,
-		internalIndex uint32,
-		addressIndexFrom uint32,
-		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
+	RsaEncrypted       string `db:"rsa_encrypted"`
+	RsaEncryptedHash   string `db:"rsa_encrypted_hash"`
+	VaultEncrypted     string `db:"vault_encrypted"`
+	VaultEncryptedHash string `db:"vault_encrypted_hash"`
 
-	CreateNewWallet(ctx context.Context,
-		strategy types.WalletMakerStrategy,
-		title string,
-		purpose string,
-	) (*types.PublicWalletData, error)
-
-	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
+	CreatedAt time.Time  `db:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at"`
 }

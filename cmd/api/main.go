@@ -36,7 +36,7 @@ import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
 	grpcHandlers "github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/grpc"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
@@ -116,7 +116,7 @@ func main() {
 		loggerEntry.Fatal("unable to create crypto service instance", zap.Error(err))
 	}
 
-	walletService, err := wallet.New(loggerEntry, cfg, conn, cryptoService)
+	walletService, err := wallet_manager.New(loggerEntry, cfg, conn, cryptoService)
 	if err != nil {
 		loggerEntry.Fatal("unable to create wallet service instance", zap.Error(err))
 	}

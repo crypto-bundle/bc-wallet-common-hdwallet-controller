@@ -28,9 +28,6 @@ package hdwallet
 import (
 	"encoding/hex"
 	"errors"
-	"strconv"
-	"strings"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -130,21 +127,4 @@ func (w *Wallet) GetSeed() string {
 // GetMnemonic return mnemonic string
 func (w *Wallet) GetMnemonic() string {
 	return w.mnemonic
-}
-
-// ParseAddressPath derives. Example m/49'/1'/0'/0/0
-func ParseAddressPath(path string) []int {
-	var data []int
-	parts := strings.Split(path, "/")
-	for _, part := range parts {
-		// do we have an apostrophe?
-		harden := part[len(part)-1:] == "'"
-		if harden {
-			part = part[:len(part)-1]
-		}
-		if idx, err := strconv.Atoi(part); err == nil {
-			data = append(data, idx)
-		}
-	}
-	return data
 }

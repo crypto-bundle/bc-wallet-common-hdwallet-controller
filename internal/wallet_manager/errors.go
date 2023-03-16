@@ -22,32 +22,17 @@
  * SOFTWARE.
  */
 
-package grpc
+package wallet_manager
 
-import (
-	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+import "errors"
+
+var (
+	ErrWrongMnemonicHash                 = errors.New("wrong mnemonic hash")
+	ErrWalletPoolIsNotEmpty              = errors.New("wallet pool is not empty - unable to overwrite it")
+	ErrPassedWalletNotFound              = errors.New("passed wallet not found")
+	ErrPassedMnemonicWalletAlreadyExists = errors.New("passed mnemonic wallet already exists")
+	ErrMnemonicAlreadySet                = errors.New("mnemonic unit already set in unit")
+	ErrPassedWalletAlreadyExists         = errors.New("passed wallet already exists")
+	ErrPassedMnemonicWalletNotFound      = errors.New("passed mnemonic wallet not found")
+	ErrMethodUnimplemented               = errors.New("called service method unimplemented")
 )
-
-type walleter interface {
-	GetAddressByPath(ctx context.Context,
-		walletUUID string,
-		account, change, index uint32,
-	) (string, error)
-
-	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID string,
-		accountIndex uint32,
-		internalIndex uint32,
-		addressIndexFrom uint32,
-		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
-
-	CreateNewWallet(ctx context.Context,
-		strategy types.WalletMakerStrategy,
-		title string,
-		purpose string,
-	) (*types.PublicWalletData, error)
-
-	GetEnabledWalletsUUID(ctx context.Context) ([]string, error)
-}
