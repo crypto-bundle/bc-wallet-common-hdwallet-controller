@@ -54,26 +54,32 @@ import (
 var (
 	// Version - version time.RFC3339.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
 	Version = "DEVELOPMENT.VESION"
 
 	// ReleaseTag - release tag in TAG.%Y-%m-%dT%H-%M-%SZ.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
 	ReleaseTag = "DEVELOPMENT.RELEASE_TAG"
 
 	// CommitID - latest commit id.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
 	CommitID = "DEVELOPMENT.COMMIT_HASH"
 
 	// ShortCommitID - first 12 characters from CommitID.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
 	ShortCommitID = "DEVELOPMENT.SHORT_COMMIT_HASH"
 
 	// BuildNumber - ci/cd build number for BuildNumber
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
 	BuildNumber uint64 = 0
 
 	// BuildDateTS - ci/cd build date in time stamp
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
 	BuildDateTS uint64 = 0
 )
 

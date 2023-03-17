@@ -2,8 +2,11 @@ package wallet_manager
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
+	"github.com/ethereum/go-ethereum/crypto"
 	"sync"
 	"time"
 
@@ -15,6 +18,7 @@ import (
 	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 type MnemonicWalletUnit struct {
@@ -32,10 +36,13 @@ type MnemonicWalletUnit struct {
 	mnemonicWalletUUID  uuid.UUID
 	unloadTimerInterval time.Duration
 	walletEntity        *entities.MnemonicWallet
+	// privateKeyPool is pool of derivation addresses private keys
+	// map key - string with derivation path
+	// map value - ecdsa.PrivateKey
+	privateKeyPool map[string]*ecdsa.PrivateKey
 }
 
 func (u *MnemonicWalletUnit) Init(ctx context.Context) error {
-
 	return nil
 }
 
@@ -105,13 +112,13 @@ func (u *MnemonicWalletUnit) GetPublicData() *types.PublicMnemonicWalletData {
 func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 	account, change, index uint32,
 	transaction *tronCore.Transaction,
-) ([]byte, error) {
+) (*tronCore.Transaction, error) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
 		u.onAirTicker.Reset(u.unloadTimerInterval)
-		return u.signTransaction(ctx, transaction)
+		return u.signTransaction(ctx, account, change, index, transaction)
 	}
 
 	err := u.loadWallet(ctx)
@@ -119,14 +126,52 @@ func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 		return nil, err
 	}
 
-	return u.signTransaction(ctx, transaction)
+	return u.signTransaction(ctx, account, change, index, transaction)
 
 }
 
 func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
+	account, change, index uint32,
 	transaction *tronCore.Transaction,
-) ([]byte, error) {
-	return nil, ErrMethodUnimplemented
+) (*tronCore.Transaction, error) {
+	key := fmt.Sprintf("%d'/%d/%d", account, change, index)
+	privateKey, isExists := u.privateKeyPool[key]
+	if !isExists {
+		tronWallet, walletErr := u.hdWalletSrv.NewTronWallet(account, change, index)
+		if walletErr != nil {
+			return nil, walletErr
+		}
+
+		wif, walletErr := tronWallet.GetAccountWIF()
+		if walletErr != nil {
+			return nil, walletErr
+		}
+
+		u.privateKeyPool[key] = wif.PrivKey.ToECDSA()
+		privateKey = wif.PrivKey.ToECDSA()
+	}
+
+	rawData, err := proto.Marshal(transaction.GetRawData())
+	if err != nil {
+		return nil, err
+	}
+
+	h256h := sha256.New()
+	h256h.Write(rawData)
+	hash := h256h.Sum(nil)
+
+	contractList := transaction.GetRawData().GetContract()
+
+	for range contractList {
+		signature, signErr := crypto.Sign(hash, privateKey)
+		if signErr != nil {
+			return nil, signErr
+		}
+
+		transaction.Signature = append(transaction.Signature, signature)
+	}
+
+	return transaction, ErrMethodUnimplemented
 }
 
 func (u *MnemonicWalletUnit) GetAddressByPath(ctx context.Context,
@@ -285,6 +330,11 @@ func (u *MnemonicWalletUnit) UnloadWallet(ctx context.Context) error {
 func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
 	u.hdWalletSrv = nil
 	u.walletEntity = nil
+
+	for key := range u.privateKeyPool {
+		delete(u.privateKeyPool, key)
+	}
+
 	u.isWalletLoaded = false
 
 	return nil
@@ -327,5 +377,6 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 		mnemonicWalletUUID:  walletUUID,
 		unloadTimerInterval: unloadInterval,
 		walletEntity:        walletItem,
+		privateKeyPool:      make(map[string]*ecdsa.PrivateKey, 0),
 	}
 }
