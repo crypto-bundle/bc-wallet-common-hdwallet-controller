@@ -41,8 +41,8 @@ type grpcServerHandle struct {
 	logger *zap.Logger
 	cfg    *config.Config
 
-	walletSrv walletManagerService
-
+	walletSrv     walletManagerService
+	marshallerSrv marshallerService
 	// all GRPC handlers
 	addNewWalletHandler                *AddNewWalletHandler
 	getDerivationAddressHandler        *GetDerivationAddressHandler
@@ -76,7 +76,6 @@ func (h *grpcServerHandle) GetEnabledWallets(ctx context.Context,
 
 // New instance of service
 func New(ctx context.Context,
-	cfg *config.Config,
 	loggerSrv *zap.Logger,
 
 	walletSrv walletManagerService,
@@ -86,16 +85,18 @@ func New(ctx context.Context,
 		zap.String(app.ApplicationNameTag, app.ApplicationName),
 		zap.String(app.BlockChainNameTag, app.BlockChainName))
 
+	marshallerSrv := newGRPCMarshaller(loggerSrv)
+
 	return &grpcServerHandle{
 		UnimplementedHdWalletApiServer: &pbApi.UnimplementedHdWalletApiServer{},
-		cfg:                            cfg,
 		logger:                         l,
 
 		walletSrv: walletSrv,
 
-		addNewWalletHandler:                MakeAddNewWalletHandler(l, walletSrv),
-		getDerivationAddressHandler:        MakeGetDerivationAddressHandler(l, walletSrv),
-		getEnabledWalletsHandler:           MakeGetEnabledWalletsHandler(l, walletSrv),
-		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv),
+		marshallerSrv:                      marshallerSrv,
+		addNewWalletHandler:                MakeAddNewWalletHandler(l, walletSrv, marshallerSrv),
+		getDerivationAddressHandler:        MakeGetDerivationAddressHandler(l, walletSrv, marshallerSrv),
+		getEnabledWalletsHandler:           MakeGetEnabledWalletsHandler(l, walletSrv, marshallerSrv),
+		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv, marshallerSrv),
 	}, nil
 }

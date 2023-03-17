@@ -26,10 +26,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/google/uuid"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
@@ -40,19 +37,19 @@ import (
 )
 
 const (
-	MethodGetDerivationAddress = "GetDerivationAddress"
+	MethodGetEnabledWallets = "GetEnabledWallets"
 )
 
-type GetDerivationAddressHandler struct {
+type GetEnabledWalletsHandler struct {
 	l             *zap.Logger
 	walletSrv     walletManagerService
-	marshallerSrv getAddressMarshallerService
+	marshallerSrv marshallerService
 }
 
 // nolint:funlen // fixme
-func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
-	req *pbApi.DerivationAddressRequest,
-) (*pbApi.DerivationAddressResponse, error) {
+func (h *GetEnabledWalletsHandler) Handle(ctx context.Context,
+	req *pbApi.GetEnabledWalletsRequest,
+) (*pbApi.GetEnabledWalletsResponse, error) {
 	var err error
 	_, span, finish := tracer.Trace(ctx)
 
@@ -60,49 +57,28 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	validationForm := &forms.GetDerivationAddressForm{}
-	valid, err := validationForm.LoadAndValidate(ctx, req)
+	wallets, err := h.walletSrv.GetEnabledWallets(ctx)
 	if err != nil {
-		h.l.Error("unable load and validate request values", zap.Error(err))
-
-		if !valid {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		}
-
-		return nil, status.Error(codes.Internal, "something went wrong")
+		h.l.Error("unable to get enabled mnemonic wallets", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	walletUUID, err := uuid.Parse(validationForm.WalletUUID)
+	response, err := h.marshallerSrv.MarshallGetEnabledWallets(wallets)
 	if err != nil {
-		return nil, err
+		h.l.Error("unable to marshall get wallets data", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	mnemonicWalletUUID, err := uuid.Parse(validationForm.MnemonicWalletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	addressData, err := h.walletSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID,
-		validationForm.AccountIndex, validationForm.InternalIndex, validationForm.AddressIndex)
-	if err != nil {
-		return nil, err
-	}
-
-	return &pbApi.DerivationAddressResponse{
-		AddressIdentity: &pbApi.DerivationAddressIdentity{
-			AccountIndex:  addressData.AccountIndex,
-			InternalIndex: addressData.InternalIndex,
-			AddressIndex:  addressData.AddressIndex,
-			Address:       addressData.Address,
-		},
-	}, nil
+	return response, nil
 }
 
-func MakeGetDerivationAddressHandler(loggerEntry *zap.Logger,
+func MakeGetEnabledWalletsHandler(loggerEntry *zap.Logger,
 	walletSrv walletManagerService,
-) *GetDerivationAddressHandler {
-	return &GetDerivationAddressHandler{
-		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddress)),
-		walletSrv: walletSrv,
+	marshallerSrv marshallerService,
+) *GetEnabledWalletsHandler {
+	return &GetEnabledWalletsHandler{
+		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetEnabledWallets)),
+		walletSrv:     walletSrv,
+		marshallerSrv: marshallerSrv,
 	}
 }

@@ -55,18 +55,9 @@ type walletManagerService interface {
 	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
 }
 
-type createWalletMarshallerService interface {
-	Marshall(*types.PublicWalletData) (*pbApi.AddNewWalletResponse, error)
-}
-
-type getAddressMarshallerService interface {
-	Marshall(*types.PublicDerivationAddressData) (*pbApi.DerivationAddressResponse, error)
-}
-
-type getAddressByRangeMarshallerService interface {
-	Marshall([]*types.PublicDerivationAddressData) (*pbApi.DerivationAddressByRangeResponse, error)
-}
-
-type getEnabledWalletsMarshallerService interface {
-	Marshall([]*types.PublicWalletData) (*pbApi.GetEnabledWalletsResponse, error)
+type marshallerService interface {
+	MarshallCreateWalletData(*types.PublicWalletData) (*pbApi.AddNewWalletResponse, error)
+	MarshallGetAddressData(*types.PublicDerivationAddressData) (*pbApi.DerivationAddressResponse, error)
+	MarshallGetAddressByRange([]*types.PublicDerivationAddressData) (*pbApi.DerivationAddressByRangeResponse, error)
+	MarshallGetEnabledWallets([]*types.PublicWalletData) (*pbApi.GetEnabledWalletsResponse, error)
 }

@@ -26,7 +26,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"github.com/google/uuid"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
@@ -40,19 +40,19 @@ import (
 )
 
 const (
-	MethodNameAddNewWallet = "AddNewWallet"
+	MethodGetDerivationAddress = "GetDerivationAddress"
 )
 
-type AddNewWalletHandler struct {
+type GetDerivationAddressHandler struct {
 	l             *zap.Logger
 	walletSrv     walletManagerService
 	marshallerSrv marshallerService
 }
 
 // nolint:funlen // fixme
-func (h *AddNewWalletHandler) Handle(ctx context.Context,
-	req *pbApi.AddNewWalletRequest,
-) (*pbApi.AddNewWalletResponse, error) {
+func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
+	req *pbApi.DerivationAddressRequest,
+) (*pbApi.DerivationAddressResponse, error) {
 	var err error
 	_, span, finish := tracer.Trace(ctx)
 
@@ -60,12 +60,10 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	validationForm := &forms.AddNewWalletForm{}
+	validationForm := &forms.GetDerivationAddressForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
-		h.l.Error("unable load and validate request values", zap.Error(err),
-			zap.String(app.WalletTitleTag, req.Title),
-			zap.String(app.WalletPurposeTag, req.Purpose))
+		h.l.Error("unable load and validate request values", zap.Error(err))
 
 		if !valid {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -74,32 +72,37 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	if validationForm.Strategy == 0 {
-		validationForm.Strategy = types.WalletMakerMultipleMnemonicStrategy
+	walletUUID, err := uuid.Parse(validationForm.WalletUUID)
+	if err != nil {
+		return nil, err
 	}
 
-	wallet, err := h.walletSrv.CreateNewWallet(ctx, validationForm.Strategy,
-		validationForm.Title, validationForm.Purpose)
+	mnemonicWalletUUID, err := uuid.Parse(validationForm.MnemonicWalletUUID)
 	if err != nil {
-		h.l.Error("unable to create mnemonic wallet", zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, err
 	}
 
-	marshalledData, err := h.marshallerSrv.MarshallCreateWalletData(wallet)
+	addressData, err := h.walletSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID,
+		validationForm.AccountIndex, validationForm.InternalIndex, validationForm.AddressIndex)
 	if err != nil {
-		h.l.Error("unable to marshall wallet data", zap.Error(err))
+		return nil, err
+	}
+
+	marshalledData, err := h.marshallerSrv.MarshallGetAddressData(addressData)
+	if err != nil {
+		h.l.Error("unable to marshall public address data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return marshalledData, nil
 }
 
-func MakeAddNewWalletHandler(loggerEntry *zap.Logger,
+func MakeGetDerivationAddressHandler(loggerEntry *zap.Logger,
 	walletSrv walletManagerService,
 	marshallerSrv marshallerService,
-) *AddNewWalletHandler {
-	return &AddNewWalletHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodNameAddNewWallet)),
+) *GetDerivationAddressHandler {
+	return &GetDerivationAddressHandler{
+		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddress)),
 		walletSrv:     walletSrv,
 		marshallerSrv: marshallerSrv,
 	}

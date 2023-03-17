@@ -26,13 +26,11 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 	"github.com/google/uuid"
-	"sync"
-
-	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -46,7 +44,7 @@ const (
 type GetDerivationAddressByRangeHandler struct {
 	l             *zap.Logger
 	walletSrv     walletManagerService
-	marshallerSrv getAddressByRangeMarshallerService
+	marshallerSrv marshallerService
 }
 
 // nolint:funlen // fixme
@@ -91,36 +89,22 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	rangeSize := validationForm.AddressIndexTo - validationForm.AddressIndexFrom
-
-	response := &pbApi.DerivationAddressByRangeResponse{
-		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
+	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletsData)
+	if err != nil {
+		h.l.Error("unable to marshall get addresses data", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-
-	wg := sync.WaitGroup{}
-	wg.Add(int(rangeSize) + 1)
-	for i := uint32(0); i != rangeSize; i++ {
-		go func(index uint32) {
-			response.AddressIdentities[index] = &pbApi.DerivationAddressIdentity{
-				AccountIndex:  walletsData[index].AccountIndex,
-				InternalIndex: walletsData[index].InternalIndex,
-				AddressIndex:  walletsData[index].AddressIndex,
-				Address:       walletsData[index].Address,
-			}
-
-			wg.Done()
-		}(i)
-	}
-	wg.Wait()
 
 	return response, nil
 }
 
 func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
 	walletSrv walletManagerService,
+	marshallerSrv marshallerService,
 ) *GetDerivationAddressByRangeHandler {
 	return &GetDerivationAddressByRangeHandler{
-		l:         loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
-		walletSrv: walletSrv,
+		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
+		walletSrv:     walletSrv,
+		marshallerSrv: marshallerSrv,
 	}
 }
