@@ -130,7 +130,7 @@ func main() {
 		loggerEntry.Fatal("unable to create wallet service instance", zap.Error(err))
 	}
 
-	apiHandlers, err := grpcHandlers.New(ctx, cfg, loggerEntry, walletService)
+	apiHandlers, err := grpcHandlers.New(ctx, loggerEntry, walletService)
 	if err != nil {
 		loggerEntry.Fatal("unable to init grpc handlers", zap.Error(err))
 	}
