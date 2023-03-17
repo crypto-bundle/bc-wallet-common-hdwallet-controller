@@ -165,7 +165,7 @@ type transactionalStatementManager interface {
 	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
 	CommitContextualTxStatement(ctx context.Context) error
 	RollbackContextualTxStatement(ctx context.Context) error
-	BeginTxWithUnlessCommittedRollback(ctx context.Context,
+	BeginTxWithRollbackOnError(ctx context.Context,
 		callback func(txStmtCtx context.Context) error,
 	) error
 }

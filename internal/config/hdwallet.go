@@ -25,11 +25,7 @@
 package config
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-
 	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
-
-	"github.com/kelseyhightower/envconfig"
 )
 
 type MnemonicConfig struct {
@@ -48,10 +44,5 @@ type HDWalletConfig struct {
 
 //nolint:funlen // its ok
 func (c *HDWalletConfig) Prepare() error {
-	err := envconfig.Process(app.HDWalletConfigPrefix, c)
-	if err != nil {
-		return err
-	}
-
-	return c.Config.Prepare()
+	return nil
 }

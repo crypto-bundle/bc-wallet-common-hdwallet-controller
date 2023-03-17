@@ -3,10 +3,10 @@ package wallet_data
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_data/pgstore"
+	
+	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"go.uber.org/zap"
 )
@@ -16,7 +16,7 @@ type Service struct {
 
 	persistentStore dbStoreService
 
-	pgConn *postgres.Connection
+	pgConn *commonPostgres.Connection
 }
 
 func (s *Service) AddNewWallet(ctx context.Context, walletItem *entities.Wallet) (*entities.Wallet, error) {
@@ -36,7 +36,7 @@ func (s *Service) GetAllEnabledWalletUUIDList(ctx context.Context) ([]string, er
 }
 
 func NewService(logger *zap.Logger,
-	pgConn *postgres.Connection,
+	pgConn *commonPostgres.Connection,
 ) *Service {
 	l := logger.Named("wallet_data.service")
 	persistentStoreSrv := pgstore.NewPostgresStore(logger, pgConn)

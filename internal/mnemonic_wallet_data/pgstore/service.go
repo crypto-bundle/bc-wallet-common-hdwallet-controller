@@ -30,7 +30,7 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
+	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
@@ -44,7 +44,7 @@ var (
 )
 
 type pgRepository struct {
-	pgConn *postgres.Connection
+	pgConn *commonPostgres.Connection
 	logger *zap.Logger
 }
 
@@ -102,7 +102,7 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 		wallet = &entities.MnemonicWallet{}
 		callbackErr = row.StructScan(&wallet)
 		if callbackErr != nil {
-			return postgres.EmptyOrError(callbackErr, "unable get mnemonic wallet by hash")
+			return commonPostgres.EmptyOrError(callbackErr, "unable get mnemonic wallet by hash")
 		}
 
 		return nil
@@ -131,7 +131,7 @@ func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string)
 		wallet = &entities.MnemonicWallet{}
 		err := row.StructScan(&wallet)
 		if err != nil {
-			return postgres.EmptyOrError(err, "unable get mnemonic wallet by uuid")
+			return commonPostgres.EmptyOrError(err, "unable get mnemonic wallet by uuid")
 		}
 
 		return nil
@@ -252,7 +252,7 @@ func (s *pgRepository) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*enti
 }
 
 func NewPostgresStore(logger *zap.Logger,
-	pgConn *postgres.Connection,
+	pgConn *commonPostgres.Connection,
 ) *pgRepository {
 	return &pgRepository{
 		pgConn: pgConn,

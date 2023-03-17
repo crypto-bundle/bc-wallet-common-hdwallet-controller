@@ -25,14 +25,14 @@
 package config
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"time"
 
-	natsCfg "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/redis"
+	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
+	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
+	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 
-	"github.com/kelseyhightower/envconfig"
+	natsCfg "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
 )
 
 // Config for application
@@ -40,12 +40,16 @@ type Config struct {
 	// -------------------
 	// Application configs
 	// -------------------
-	*BaseConfig
+	*commonConfig.BaseConfig
+	// -------------------
+	// Logger configs
+	// -------------------
+	*commonLogger.Config
 	// -------------------
 	// Database config
 	// -------------------
-	*postgres.PostgresConfig
-	*redis.RedisConfig
+	*commonPostgres.PostgresConfig
+	*commonRedis.RedisConfig
 	*natsCfg.NatsConfig
 	// -------------------
 	// GRPC service config
@@ -54,15 +58,13 @@ type Config struct {
 	// -------------------
 	// HD wallet config
 	// -------------------
-	*HDWalletConfig
+	//*HDWalletConfig
 	// -------------------
 	// Wallet manager config
 	// -------------------
 	WalletManagerUnloadHotInterval      time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_HOT_INTERVAL" default:"15s"`
 	WalletManagerUnloadInterval         time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_INTERVAL" default:"8s"`
 	WalletManagerMnemonicPerWalletCount uint8         `envconfig:"WALLET_MANAGER_MNEMONICS_PER_WALLET_COUNT" default:"3"`
-
-	VaultClient vaulter
 }
 
 func (c *Config) GetDefaultHotWalletUnloadInterval() time.Duration {
@@ -79,39 +81,9 @@ func (c *Config) GetMnemonicsCountPerWallet() uint8 {
 
 // Prepare variables to static configuration
 func (c *Config) Prepare() error {
-	err := envconfig.Process(app.ApplicationName, c)
-	if err != nil {
-		return err
-	}
+	return nil
+}
 
-	c.BaseConfig = &BaseConfig{}
-	err = c.BaseConfig.Prepare()
-	if err != nil {
-		return err
-	}
-
-	//b, err := c.VaultClient.GetCredentialsBytes()
-	//if err != nil {
-	//	return err
-	//}
-
-	c.PostgresConfig = &postgres.PostgresConfig{}
-	err = c.PostgresConfig.Prepare()
-	if err != nil {
-		return err
-	}
-
-	c.HDWalletConfig = &HDWalletConfig{}
-	err = c.HDWalletConfig.Prepare()
-	if err != nil {
-		return err
-	}
-
-	c.GrpcConfig = &GrpcConfig{}
-	err = c.GrpcConfig.Prepare()
-	if err != nil {
-		return err
-	}
-
-	return err
+func (c *Config) PrepareWith(cfgSrvList ...interface{}) error {
+	return nil
 }

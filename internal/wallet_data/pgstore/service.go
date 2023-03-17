@@ -3,8 +3,10 @@ package pgstore
 import (
 	"context"
 	"errors"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+
+	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
 )
@@ -16,7 +18,7 @@ var (
 )
 
 type pgRepository struct {
-	pgConn *postgres.Connection
+	pgConn *commonPostgres.Connection
 	logger *zap.Logger
 
 	defaultOnScanMutator func(ctx context.Context, wallet *entities.Wallet) error
@@ -66,7 +68,7 @@ func (s *pgRepository) GetWalletByUUID(ctx context.Context, uuid string) (*entit
 		wallet = &entities.Wallet{}
 		callbackErr = row.StructScan(&wallet)
 		if callbackErr != nil {
-			return postgres.EmptyOrError(callbackErr, "unable get wallet by uuid")
+			return commonPostgres.EmptyOrError(callbackErr, "unable get wallet by uuid")
 		}
 
 		return nil
@@ -86,10 +88,10 @@ func (s *pgRepository) GetAllEnabledWallets(ctx context.Context) ([]*entities.Wa
        			"created_at", "updated_at"
 	       FROM "wallets"
 	       WHERE "is_enabled" = true`)
-
 		if err != nil {
 			return err
 		}
+
 		defer rows.Close()
 
 		wallets = make([]*entities.Wallet, 0)
@@ -148,7 +150,7 @@ func (s *pgRepository) GetAllEnabledWalletUUIDList(ctx context.Context) ([]strin
 }
 
 func NewPostgresStore(logger *zap.Logger,
-	pgConn *postgres.Connection,
+	pgConn *commonPostgres.Connection,
 ) *pgRepository {
 	return &pgRepository{
 		pgConn: pgConn,

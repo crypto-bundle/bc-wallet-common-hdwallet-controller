@@ -2,10 +2,11 @@ package mnemonic_wallet_data
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/pgstore"
+
+	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"go.uber.org/zap"
 )
@@ -15,7 +16,7 @@ type Service struct {
 
 	persistentStore dbStoreService
 
-	pgConn *postgres.Connection
+	pgConn *commonPostgres.Connection
 }
 
 func (s *Service) AddNewMnemonicWallet(ctx context.Context,
@@ -47,7 +48,7 @@ func (s *Service) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*entities.
 }
 
 func NewService(logger *zap.Logger,
-	pgConn *postgres.Connection,
+	pgConn *commonPostgres.Connection,
 ) *Service {
 	l := logger.Named("mnemonic_wallet_data.service")
 	persistentStoreSrv := pgstore.NewPostgresStore(logger, pgConn)

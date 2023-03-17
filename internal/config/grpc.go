@@ -27,10 +27,6 @@ package config
 import (
 	"fmt"
 	"strings"
-
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-
-	"github.com/kelseyhightower/envconfig"
 )
 
 // GrpcConfig for application
@@ -49,12 +45,12 @@ func (c *GrpcConfig) GetBindPort() string {
 
 // Prepare variables to static configuration
 func (c *GrpcConfig) Prepare() error {
-	err := envconfig.Process(app.APIConfigPrefix, c)
-	if err != nil {
-		return err
-	}
-
 	c.Bind = fmt.Sprintf(":%s", strings.TrimLeft(c.BindRaw, ":"))
 
-	return err
+	return nil
+}
+
+// PrepareWith variables with dependencies service-components
+func (c *GrpcConfig) PrepareWith(cfgSrvList ...interface{}) error {
+	return nil
 }

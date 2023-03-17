@@ -27,9 +27,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_data"
 	"log"
 	"net"
 	"os"
@@ -39,41 +36,61 @@ import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
 	grpcHandlers "github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/grpc"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_data"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api"
 
+	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
+	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/logger"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/postgres"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/vault"
 
-	"github.com/joho/godotenv"
-	"github.com/kelseyhightower/envconfig"
 	"go.uber.org/zap"
+)
+
+// DO NOT EDIT THIS VARIABLES DIRECTLY. These are build-time constants
+// DO NOT USE THESE VARIABLES IN APPLICATION CODE. USE commonConfig.NewLdFlagsManager SERVICE-COMPONENT INSTEAD OF IT
+var (
+	// Version - version time.RFC3339.
+	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	Version = "DEVELOPMENT.VESION"
+
+	// ReleaseTag - release tag in TAG.%Y-%m-%dT%H-%M-%SZ.
+	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	ReleaseTag = "DEVELOPMENT.RELEASE_TAG"
+
+	// CommitID - latest commit id.
+	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	CommitID = "DEVELOPMENT.COMMIT_HASH"
+
+	// ShortCommitID - first 12 characters from CommitID.
+	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	ShortCommitID = "DEVELOPMENT.SHORT_COMMIT_HASH"
+
+	// BuildNumber - ci/cd build number for BuildNumber
+	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	BuildNumber uint64 = 0
+
+	// BuildDateTS - ci/cd build date in time stamp
+	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
+	BuildDateTS uint64 = 0
 )
 
 func main() {
 	var err error
 	ctx := context.Background()
-	baseCfg := &config.BaseConfig{}
-	err = baseCfg.Prepare()
+
+	appCfg, err := config.Prepare(ctx, Version, ReleaseTag,
+		CommitID, ShortCommitID,
+		BuildNumber, BuildDateTS)
 	if err != nil {
 		fmt.Println(err.Error())
 
 		os.Exit(1)
 	}
 
-	cfg := &config.Config{}
-	cfg.BaseConfig = baseCfg
-
-	if baseCfg.IsDev() {
-		loadErr := godotenv.Load(".env")
-		if loadErr != nil {
-			log.Fatal(loadErr)
-		}
-	}
-
-	loggerSrv, err := logger.NewService(baseCfg)
+	loggerSrv, err := commonLogger.NewService(appCfg)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
@@ -83,38 +100,19 @@ func main() {
 		log.Fatal(err.Error(), err)
 	}
 
-	vcfg := &vault.Config{}
-	err = envconfig.Process(app.VaultConfigPrefix, vcfg)
-	if err != nil {
-		loggerEntry.Fatal("vault config init error", zap.Error(err))
-	}
-
-	// vaultClient, err := vault.NewClient(ctx, vcfg)
-	// if err != nil {
-	//	loggerEntry.Fatal("vault client init error", zap.Error(err))
-	// }
-	//
-	// cfg.VaultClient = vaultClient
-	err = cfg.Prepare()
-	if err != nil {
-		fmt.Println(err.Error())
-
-		os.Exit(1)
-	}
-
-	pgConn := postgres.NewConnection(context.Background(), cfg, loggerEntry)
+	pgConn := commonPostgres.NewConnection(context.Background(), appCfg, loggerEntry)
 	_, err = pgConn.Connect()
 	if err != nil {
 		loggerEntry.Fatal(err.Error(), zap.Error(err))
 	}
 
-	listenConn, err := net.Listen("tcp", cfg.GetBindPort())
+	listenConn, err := net.Listen("tcp", appCfg.GetBindPort())
 	if err != nil {
 		loggerEntry.Fatal("unable to listen port", zap.Error(err),
-			zap.String("port", cfg.GetBindPort()))
+			zap.String("port", appCfg.GetBindPort()))
 	}
 
-	cryptoService := crypter.New(cfg.HDWalletConfig)
+	cryptoService := crypter.New(appCfg.HDWalletConfig)
 	if err != nil {
 		loggerEntry.Fatal("unable to create crypto service instance", zap.Error(err))
 	}
@@ -123,7 +121,7 @@ func main() {
 	mnemonicWalletDataSrv := mnemonic_wallet_data.NewService(loggerEntry, pgConn)
 	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry)
 
-	walletService, err := wallet_manager.NewService(loggerEntry, cfg, cryptoService,
+	walletService, err := wallet_manager.NewService(loggerEntry, appCfg, cryptoService,
 		walletDataSrv, mnemonicWalletDataSrv,
 		pgConn, mnemonicGenerator)
 	if err != nil {
@@ -135,10 +133,10 @@ func main() {
 		loggerEntry.Fatal("unable to init grpc handlers", zap.Error(err))
 	}
 
-	srv, err := hdwallet_api.NewServer(ctx, loggerEntry, cfg, listenConn)
+	srv, err := hdwallet_api.NewServer(ctx, loggerEntry, appCfg, listenConn)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
-			zap.String("port", cfg.Bind))
+			zap.String("port", appCfg.GetBindPort()))
 	}
 
 	err = walletService.Init(ctx)
@@ -149,18 +147,18 @@ func main() {
 	err = srv.Init(ctx, loggerEntry, apiHandlers)
 	if err != nil {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
-			zap.String("port", cfg.Bind))
+			zap.String("port", appCfg.GetBindPort()))
 	}
 
 	go func() {
 		err = srv.ListenAndServe(ctx)
 		if err != nil {
 			loggerEntry.Fatal("unable to start grpc handlers", zap.Error(err),
-				zap.String("port", cfg.Bind))
+				zap.String("port", appCfg.GetBindPort()))
 		}
 	}()
 
-	loggerEntry.Info("application started successfully", zap.String(app.GRPCBindPortTag, cfg.GetBindPort()))
+	loggerEntry.Info("application started successfully", zap.String(app.GRPCBindPortTag, appCfg.GetBindPort()))
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

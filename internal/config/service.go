@@ -24,6 +24,55 @@
 
 package config
 
-type vaulter interface {
-	GetCredentialsBytes() (b []byte, err error)
+import (
+	"context"
+	"log"
+
+	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
+	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
+
+	"github.com/joho/godotenv"
+)
+
+func Prepare(ctx context.Context,
+	version,
+	releaseTag,
+	commitID,
+	shortCommitID string,
+	buildNumber,
+	buildDateTS uint64,
+) (*Config, error) {
+	cfgPreparerSrv := commonConfig.NewConfigManager()
+	vaultCfg := &commonVault.Config{}
+	err := cfgPreparerSrv.PrepareTo(vaultCfg).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	flagManagerSrv := commonConfig.NewLdFlagsManager(version, releaseTag,
+		commitID, shortCommitID,
+		buildNumber, buildDateTS)
+
+	baseCfg := commonConfig.NewBaseConfig()
+	err = cfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if baseCfg.IsDev() {
+		loadErr := godotenv.Load(".env")
+		if loadErr != nil {
+			log.Fatal(loadErr)
+		}
+	}
+
+	wrappedConfig := &Config{}
+	err = cfgPreparerSrv.With(baseCfg).PrepareTo(wrappedConfig).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	wrappedConfig.BaseConfig = baseCfg
+
+	return wrappedConfig, nil
 }
