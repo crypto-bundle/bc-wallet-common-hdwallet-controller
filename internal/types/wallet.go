@@ -1,6 +1,7 @@
 package types
 
 import (
+	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
 )
 
@@ -29,6 +30,7 @@ func (d WalletMakerStrategy) String() string {
 
 type PublicMnemonicWalletData struct {
 	UUID        uuid.UUID
+	Hash        string
 	IsHotWallet bool
 }
 
@@ -38,4 +40,12 @@ type PublicWalletData struct {
 	Purpose         string
 	Strategy        WalletMakerStrategy
 	MnemonicWallets []*PublicMnemonicWalletData
+}
+
+type PublicSignTxData struct {
+	WalletUUID   uuid.UUID
+	MnemonicUUID uuid.UUID
+	MnemonicHash string
+	AddressData  *PublicDerivationAddressData
+	SignedTx     *tronCore.Transaction
 }

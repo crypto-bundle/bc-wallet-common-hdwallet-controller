@@ -22,6 +22,7 @@ type HdWalletApiClient interface {
 	GetEnabledWallets(ctx context.Context, in *GetEnabledWalletsRequest, opts ...grpc.CallOption) (*GetEnabledWalletsResponse, error)
 	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
+	SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error)
 }
 
 type hdWalletApiClient struct {
@@ -68,6 +69,15 @@ func (c *hdWalletApiClient) GetDerivationAddressByRange(ctx context.Context, in 
 	return out, nil
 }
 
+func (c *hdWalletApiClient) SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error) {
+	out := new(SignTransactionResponse)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/SignTransaction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // HdWalletApiServer is the server API for HdWalletApi service.
 // All implementations must embed UnimplementedHdWalletApiServer
 // for forward compatibility
@@ -76,6 +86,7 @@ type HdWalletApiServer interface {
 	GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error)
 	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
+	SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error)
 	mustEmbedUnimplementedHdWalletApiServer()
 }
 
@@ -94,6 +105,9 @@ func (UnimplementedHdWalletApiServer) GetDerivationAddress(context.Context, *Der
 }
 func (UnimplementedHdWalletApiServer) GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddressByRange not implemented")
+}
+func (UnimplementedHdWalletApiServer) SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignTransaction not implemented")
 }
 func (UnimplementedHdWalletApiServer) mustEmbedUnimplementedHdWalletApiServer() {}
 
@@ -180,6 +194,24 @@ func _HdWalletApi_GetDerivationAddressByRange_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HdWalletApi_SignTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignTransactionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).SignTransaction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hdwallet_api.HdWalletApi/SignTransaction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).SignTransaction(ctx, req.(*SignTransactionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // HdWalletApi_ServiceDesc is the grpc.ServiceDesc for HdWalletApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -202,6 +234,10 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetDerivationAddressByRange",
 			Handler:    _HdWalletApi_GetDerivationAddressByRange_Handler,
+		},
+		{
+			MethodName: "SignTransaction",
+			Handler:    _HdWalletApi_SignTransaction_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

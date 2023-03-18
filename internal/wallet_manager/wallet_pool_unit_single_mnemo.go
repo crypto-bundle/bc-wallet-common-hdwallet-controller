@@ -65,7 +65,7 @@ func (u *singleMnemonicWalletUnit) SignTransaction(ctx context.Context,
 	mnemonicUUID uuid.UUID,
 	account, change, index uint32,
 	transaction *tronCore.Transaction,
-) ([]byte, error) {
+) (*types.PublicSignTxData, error) {
 	if mnemonicUUID != u.mnemonicUnit.GetMnemonicUUID() {
 		return nil, ErrPassedMnemonicWalletNotFound
 	}

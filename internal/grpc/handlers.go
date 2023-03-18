@@ -48,6 +48,7 @@ type grpcServerHandle struct {
 	getDerivationAddressHandler        *GetDerivationAddressHandler
 	getDerivationAddressByRangeHandler *GetDerivationAddressByRangeHandler
 	getEnabledWalletsHandler           *GetEnabledWalletsHandler
+	signTransactionHandle              *SignTransactionHandler
 }
 
 func (h *grpcServerHandle) AddNewWallet(ctx context.Context,
@@ -74,6 +75,12 @@ func (h *grpcServerHandle) GetEnabledWallets(ctx context.Context,
 	return h.getEnabledWalletsHandler.Handle(ctx, req)
 }
 
+func (h *grpcServerHandle) SignTransaction(ctx context.Context,
+	req *pbApi.SignTransactionRequest,
+) (*pbApi.SignTransactionResponse, error) {
+	return h.signTransactionHandle.Handle(ctx, req)
+}
+
 // New instance of service
 func New(ctx context.Context,
 	loggerSrv *zap.Logger,
@@ -91,12 +98,13 @@ func New(ctx context.Context,
 		UnimplementedHdWalletApiServer: &pbApi.UnimplementedHdWalletApiServer{},
 		logger:                         l,
 
-		walletSrv: walletSrv,
+		walletSrv:     walletSrv,
+		marshallerSrv: marshallerSrv,
 
-		marshallerSrv:                      marshallerSrv,
 		addNewWalletHandler:                MakeAddNewWalletHandler(l, walletSrv, marshallerSrv),
 		getDerivationAddressHandler:        MakeGetDerivationAddressHandler(l, walletSrv, marshallerSrv),
 		getEnabledWalletsHandler:           MakeGetEnabledWalletsHandler(l, walletSrv, marshallerSrv),
 		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv, marshallerSrv),
+		signTransactionHandle:              MakeSignTransactionsHandler(l, walletSrv, marshallerSrv),
 	}, nil
 }

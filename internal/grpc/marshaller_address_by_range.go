@@ -13,6 +13,8 @@ func (m *grpcMarshaller) MarshallGetAddressByRange(
 	rangeSize := uint32(len(addressesData))
 
 	response := &pbApi.DerivationAddressByRangeResponse{
+		WalletIdentity:    nil,
+		MnemonicIdentity:  nil,
 		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
 	}
 

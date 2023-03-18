@@ -4,9 +4,9 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
 
-	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"go.uber.org/zap"
 )
 
@@ -90,19 +90,6 @@ func (u *multipleMnemonicWalletUnit) GetWalletPublicData() *types.PublicWalletDa
 	return publicData
 }
 
-func (u *multipleMnemonicWalletUnit) SignTransaction(ctx context.Context,
-	mnemonicUUID uuid.UUID,
-	account, change, index uint32,
-	transaction *tronCore.Transaction,
-) ([]byte, error) {
-	mnemonicUnit, isExists := u.mnemonicUnitsByUUID[mnemonicUUID]
-	if !isExists {
-		return nil, ErrPassedMnemonicWalletNotFound
-	}
-
-	return mnemonicUnit.SignTransaction(ctx, account, change, index, transaction)
-}
-
 func (u *multipleMnemonicWalletUnit) AddMnemonicUnit(unit walletPoolMnemonicUnitService) error {
 	u.mnemonicUnits = append(u.mnemonicUnits, unit)
 
@@ -142,6 +129,19 @@ func (u *multipleMnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Conte
 	}
 
 	return mnemonicUnit.GetAddressesByPathByRange(ctx, accountIndex, internalIndex, addressIndexFrom, addressIndexTo)
+}
+
+func (u *multipleMnemonicWalletUnit) SignTransaction(ctx context.Context,
+	mnemonicUUID uuid.UUID,
+	account, change, index uint32,
+	transaction *tronCore.Transaction,
+) (*types.PublicSignTxData, error) {
+	mnemonicUnit, isExists := u.mnemonicUnitsByUUID[mnemonicUUID]
+	if !isExists {
+		return nil, ErrPassedMnemonicWalletNotFound
+	}
+
+	return mnemonicUnit.SignTransaction(ctx, account, change, index, transaction)
 }
 
 func newMultipleMnemonicWalletPoolUnit(logger *zap.Logger,

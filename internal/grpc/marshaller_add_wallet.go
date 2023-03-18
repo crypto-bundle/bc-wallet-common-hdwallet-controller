@@ -11,20 +11,23 @@ func (m *grpcMarshaller) MarshallCreateWalletData(
 ) (*pbApi.AddNewWalletResponse, error) {
 	mnemonicsCount := uint32(len(walletData.MnemonicWallets))
 
-	resp := &pbApi.AddNewWalletResponse{Wallet: &pbApi.WalletIdentity{
-		WalletUUID:             walletData.UUID.String(),
-		Title:                  walletData.Title,
-		Purpose:                walletData.Purpose,
-		Strategy:               pbApi.WalletMakerStrategy(walletData.Strategy),
-		MnemonicWalletCount:    uint32(len(walletData.MnemonicWallets)),
-		MnemonicWalletIdentity: make([]*pbApi.MnemonicWalletIdentity, mnemonicsCount),
+	resp := &pbApi.AddNewWalletResponse{Wallet: &pbApi.WalletData{
+		Identity:            &pbApi.WalletIdentity{WalletUUID: walletData.UUID.String()},
+		Title:               walletData.Title,
+		Purpose:             walletData.Purpose,
+		Strategy:            pbApi.WalletMakerStrategy(walletData.Strategy),
+		MnemonicWalletCount: uint32(len(walletData.MnemonicWallets)),
+		MnemonicWallets:     make([]*pbApi.MnemonicWalletData, mnemonicsCount),
 	}}
 
 	for i := uint32(0); i != mnemonicsCount; i++ {
 		mnemonicPublicData := walletData.MnemonicWallets[i]
-		resp.Wallet.MnemonicWalletIdentity[i] = &pbApi.MnemonicWalletIdentity{
-			WalletUUID: mnemonicPublicData.UUID.String(),
-			IsHot:      mnemonicPublicData.IsHotWallet,
+		resp.Wallet.MnemonicWallets[i] = &pbApi.MnemonicWalletData{
+			Identity: &pbApi.MnemonicWalletIdentity{
+				WalletUUID: mnemonicPublicData.UUID.String(),
+				WalletHash: mnemonicPublicData.Hash,
+			},
+			IsHot: mnemonicPublicData.IsHotWallet,
 		}
 	}
 

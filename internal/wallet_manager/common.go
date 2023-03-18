@@ -72,17 +72,11 @@ type WalletPoolUnitService interface {
 	Run(ctx context.Context) error
 	Shutdown(ctx context.Context) error
 
+	AddMnemonicUnit(unit walletPoolMnemonicUnitService) error
 	GetWalletUUID() uuid.UUID
 	GetWalletTitle() string
 	GetWalletPurpose() string
-
 	GetWalletPublicData() *types.PublicWalletData
-
-	SignTransaction(ctx context.Context,
-		mnemonicUUID uuid.UUID,
-		account, change, index uint32,
-		transaction *tronCore.Transaction,
-	) ([]byte, error)
 	GetAddressByPath(ctx context.Context,
 		mnemonicUUID uuid.UUID,
 		account, change, index uint32,
@@ -94,7 +88,11 @@ type WalletPoolUnitService interface {
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
 	) ([]*types.PublicDerivationAddressData, error)
-	AddMnemonicUnit(unit walletPoolMnemonicUnitService) error
+	SignTransaction(ctx context.Context,
+		mnemonicUUID uuid.UUID,
+		account, change, index uint32,
+		transaction *tronCore.Transaction,
+	) (*types.PublicSignTxData, error)
 }
 
 type walletPoolMnemonicUnitService interface {
@@ -105,10 +103,6 @@ type walletPoolMnemonicUnitService interface {
 	UnloadWallet(ctx context.Context) error
 	GetPublicData() *types.PublicMnemonicWalletData
 
-	SignTransaction(ctx context.Context,
-		account, change, index uint32,
-		transaction *tronCore.Transaction,
-	) ([]byte, error)
 	IsHotWalletUnit() bool
 	GetMnemonicUUID() uuid.UUID
 	GetAddressByPath(ctx context.Context,
@@ -120,6 +114,10 @@ type walletPoolMnemonicUnitService interface {
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
 	) ([]*types.PublicDerivationAddressData, error)
+	SignTransaction(ctx context.Context,
+		account, change, index uint32,
+		transaction *tronCore.Transaction,
+	) (*types.PublicSignTxData, error)
 }
 
 type walletPoolInitService interface {
@@ -153,6 +151,12 @@ type walletPoolService interface {
 		addressIndexTo uint32,
 	) ([]*types.PublicDerivationAddressData, error)
 	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
+	SignTransaction(ctx context.Context,
+		walletUUID uuid.UUID,
+		mnemonicUUID uuid.UUID,
+		account, change, index uint32,
+		transaction *tronCore.Transaction,
+	) (*types.PublicSignTxData, error)
 }
 
 type mnemonicWalletConfig interface {

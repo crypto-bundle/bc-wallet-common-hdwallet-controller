@@ -28,6 +28,7 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
 )
 
@@ -53,6 +54,13 @@ type walletManagerService interface {
 	) ([]*types.PublicDerivationAddressData, error)
 
 	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
+
+	SignTransaction(ctx context.Context,
+		walletUUID uuid.UUID,
+		mnemonicUUID uuid.UUID,
+		account, change, index uint32,
+		transaction *tronCore.Transaction,
+	) (*types.PublicSignTxData, error)
 }
 
 type marshallerService interface {
@@ -60,4 +68,7 @@ type marshallerService interface {
 	MarshallGetAddressData(*types.PublicDerivationAddressData) (*pbApi.DerivationAddressResponse, error)
 	MarshallGetAddressByRange([]*types.PublicDerivationAddressData) (*pbApi.DerivationAddressByRangeResponse, error)
 	MarshallGetEnabledWallets([]*types.PublicWalletData) (*pbApi.GetEnabledWalletsResponse, error)
+	MarshallSignTransaction(
+		publicSignTxData *types.PublicSignTxData,
+	) (*pbApi.SignTransactionResponse, error)
 }

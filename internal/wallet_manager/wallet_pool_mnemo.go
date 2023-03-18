@@ -21,6 +21,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+type addressData struct {
+	address    string
+	privateKey *ecdsa.PrivateKey
+}
+
 type MnemonicWalletUnit struct {
 	logger *zap.Logger
 
@@ -33,13 +38,14 @@ type MnemonicWalletUnit struct {
 	mnemonicWalletsDataSrv mnemonicWalletsDataService
 
 	isWalletLoaded      bool
+	walletUUID          uuid.UUID
 	mnemonicWalletUUID  uuid.UUID
 	unloadTimerInterval time.Duration
 	walletEntity        *entities.MnemonicWallet
-	// privateKeyPool is pool of derivation addresses private keys
+	// addressPool is pool of derivation addresses with private keys and address
 	// map key - string with derivation path
-	// map value - ecdsa.PrivateKey
-	privateKeyPool map[string]*ecdsa.PrivateKey
+	// map value - ecdsa.PrivateKey and address string
+	addressPool map[string]*addressData
 }
 
 func (u *MnemonicWalletUnit) Init(ctx context.Context) error {
@@ -112,7 +118,7 @@ func (u *MnemonicWalletUnit) GetPublicData() *types.PublicMnemonicWalletData {
 func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 	account, change, index uint32,
 	transaction *tronCore.Transaction,
-) (*tronCore.Transaction, error) {
+) (*types.PublicSignTxData, error) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
@@ -133,9 +139,9 @@ func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 	account, change, index uint32,
 	transaction *tronCore.Transaction,
-) (*tronCore.Transaction, error) {
+) (*types.PublicSignTxData, error) {
 	key := fmt.Sprintf("%d'/%d/%d", account, change, index)
-	privateKey, isExists := u.privateKeyPool[key]
+	addrData, isExists := u.addressPool[key]
 	if !isExists {
 		tronWallet, walletErr := u.hdWalletSrv.NewTronWallet(account, change, index)
 		if walletErr != nil {
@@ -147,8 +153,17 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 			return nil, walletErr
 		}
 
-		u.privateKeyPool[key] = wif.PrivKey.ToECDSA()
-		privateKey = wif.PrivKey.ToECDSA()
+		address, walletErr := tronWallet.GetAddress()
+		if walletErr != nil {
+			return nil, walletErr
+		}
+
+		addrData = &addressData{
+			address:    address,
+			privateKey: wif.PrivKey.ToECDSA(),
+		}
+
+		u.addressPool[key] = addrData
 	}
 
 	rawData, err := proto.Marshal(transaction.GetRawData())
@@ -163,7 +178,7 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 	contractList := transaction.GetRawData().GetContract()
 
 	for range contractList {
-		signature, signErr := crypto.Sign(hash, privateKey)
+		signature, signErr := crypto.Sign(hash, addrData.privateKey)
 		if signErr != nil {
 			return nil, signErr
 		}
@@ -171,7 +186,18 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 		transaction.Signature = append(transaction.Signature, signature)
 	}
 
-	return transaction, ErrMethodUnimplemented
+	return &types.PublicSignTxData{
+		WalletUUID:   u.walletEntity.WalletUUID,
+		MnemonicUUID: u.mnemonicWalletUUID,
+		MnemonicHash: u.walletEntity.MnemonicHash,
+		SignedTx:     transaction,
+		AddressData: &types.PublicDerivationAddressData{
+			AccountIndex:  account,
+			InternalIndex: change,
+			AddressIndex:  index,
+			Address:       addrData.address,
+		},
+	}, nil
 }
 
 func (u *MnemonicWalletUnit) GetAddressByPath(ctx context.Context,
@@ -331,8 +357,8 @@ func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
 	u.hdWalletSrv = nil
 	u.walletEntity = nil
 
-	for key := range u.privateKeyPool {
-		delete(u.privateKeyPool, key)
+	for key := range u.addressPool {
+		delete(u.addressPool, key)
 	}
 
 	u.isWalletLoaded = false
@@ -360,7 +386,7 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 	walletUUID uuid.UUID,
 	cryptoSrv encryptService,
 	mnemonicWalletDataSrv mnemonicWalletsDataService,
-	walletItem *entities.MnemonicWallet,
+	mnemonicWalletItem *entities.MnemonicWallet,
 ) *MnemonicWalletUnit {
 	return &MnemonicWalletUnit{
 		logger: logger.With(zap.String(app.WalletUUIDTag, walletUUID.String())),
@@ -374,9 +400,10 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 		mnemonicWalletsDataSrv: mnemonicWalletDataSrv,
 
 		isWalletLoaded:      false,
-		mnemonicWalletUUID:  walletUUID,
+		walletUUID:          walletUUID,
+		mnemonicWalletUUID:  mnemonicWalletItem.WalletUUID,
 		unloadTimerInterval: unloadInterval,
-		walletEntity:        walletItem,
-		privateKeyPool:      make(map[string]*ecdsa.PrivateKey, 0),
+		walletEntity:        mnemonicWalletItem,
+		addressPool:         make(map[string]*addressData, 0),
 	}
 }

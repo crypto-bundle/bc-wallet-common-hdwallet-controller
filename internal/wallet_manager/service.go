@@ -27,6 +27,7 @@ package wallet_manager
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -124,6 +125,16 @@ func (s *Service) CreateNewWallet(ctx context.Context,
 	}
 
 	return poolUnit.GetWalletPublicData(), nil
+}
+
+func (s *Service) SignTransaction(ctx context.Context,
+	walletUUID uuid.UUID,
+	mnemonicUUID uuid.UUID,
+	account, change, index uint32,
+	transaction *tronCore.Transaction,
+) (*types.PublicSignTxData, error) {
+	return s.walletPoolSrv.SignTransaction(ctx, walletUUID, mnemonicUUID,
+		account, change, index, transaction)
 }
 
 func NewService(logger *zap.Logger,

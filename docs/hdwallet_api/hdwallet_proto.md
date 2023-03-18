@@ -13,7 +13,11 @@
     - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
     - [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest)
     - [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse)
+    - [MnemonicWalletData](#hdwallet_api.MnemonicWalletData)
     - [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity)
+    - [SignTransactionRequest](#hdwallet_api.SignTransactionRequest)
+    - [SignTransactionResponse](#hdwallet_api.SignTransactionResponse)
+    - [WalletData](#hdwallet_api.WalletData)
     - [WalletIdentity](#hdwallet_api.WalletIdentity)
   
     - [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy)
@@ -56,7 +60,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Wallet | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| Wallet | [WalletData](#hdwallet_api.WalletData) |  |  |
 
 
 
@@ -89,6 +93,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
 | AddressIdentities | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) | repeated |  |
 
 
@@ -137,6 +143,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
 | AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
 
 
@@ -162,8 +170,24 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Wallets | [WalletIdentity](#hdwallet_api.WalletIdentity) | repeated |  |
 | WalletsCount | [uint32](#uint32) |  |  |
+| Wallets | [WalletData](#hdwallet_api.WalletData) | repeated |  |
+
+
+
+
+
+
+<a name="hdwallet_api.MnemonicWalletData"></a>
+
+### MnemonicWalletData
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| Identity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| IsHot | [bool](#bool) |  |  |
 
 
 
@@ -179,7 +203,61 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletUUID | [string](#string) |  |  |
-| IsHot | [bool](#bool) |  |  |
+| WalletHash | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.SignTransactionRequest"></a>
+
+### SignTransactionRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletUUID | [string](#string) |  |  |
+| MnemonicWalletUUID | [string](#string) |  |  |
+| AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.SignTransactionResponse"></a>
+
+### SignTransactionResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| TxOwnerIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.WalletData"></a>
+
+### WalletData
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| Identity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| Title | [string](#string) |  |  |
+| Purpose | [string](#string) |  |  |
+| Strategy | [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy) |  |  |
+| MnemonicWalletCount | [uint32](#uint32) |  |  |
+| MnemonicWallets | [MnemonicWalletData](#hdwallet_api.MnemonicWalletData) | repeated |  |
 
 
 
@@ -195,11 +273,6 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletUUID | [string](#string) |  |  |
-| Title | [string](#string) |  |  |
-| Purpose | [string](#string) |  |  |
-| Strategy | [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy) |  |  |
-| MnemonicWalletCount | [uint32](#uint32) |  |  |
-| MnemonicWalletIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -236,6 +309,7 @@
 | GetEnabledWallets | [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest) | [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse) |  |
 | GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
 | GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
+| SignTransaction | [SignTransactionRequest](#hdwallet_api.SignTransactionRequest) | [SignTransactionResponse](#hdwallet_api.SignTransactionResponse) |  |
 
  
 

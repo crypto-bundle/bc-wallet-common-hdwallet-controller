@@ -53,7 +53,7 @@ func (m *WalletUnitMaker) createSingleMnemonicWallet(ctx context.Context,
 	walletPoolUnit := newSingleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID,
 		walletEntity.Title, walletEntity.Purpose)
 
-	err := m.txStmtManager.BeginTxWithUnlessCommittedRollback(ctx, func(txStmtCtx context.Context) error {
+	err := m.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		_, txStmtErr := m.walletsDataSrv.AddNewWallet(ctx, walletEntity)
 		if txStmtErr != nil {
 			return txStmtErr
@@ -98,7 +98,7 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	walletPoolUnit := newMultipleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID,
 		walletEntity.Title, walletEntity.Purpose)
 
-	err := m.txStmtManager.BeginTxWithUnlessCommittedRollback(ctx, func(txStmtCtx context.Context) error {
+	err := m.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		_, txStmtErr := m.walletsDataSrv.AddNewWallet(ctx, walletEntity)
 		if txStmtErr != nil {
 			return txStmtErr
