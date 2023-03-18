@@ -139,8 +139,8 @@ github.com/crypto-bundle/bc-wallet-common v0.0.41 h1:YoicMo8E/0RvJA0HenpyygcEGYN
 github.com/crypto-bundle/bc-wallet-common v0.0.41/go.mod h1:3+dgiaSCMjCwqzry2VGdKjnGVjXs7fgILj8yG1AgfSw=
 github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.8 h1:Ol6CEVMXnQxm10QSSG43Hoyw6x6EO/wFnmo+HpKj27s=
 github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.8/go.mod h1:wICgxkuXN1Q3PIEZx3w8Jlm4VGayh30YNFZqJjkQaaA=
-github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4 h1:teS0iunqjkFkX7zcBbEOE3pn1fjVRt8ACdAqn48+g7Y=
-github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4/go.mod h1:6VFXuJrzhX4XXSkr+PIpUnN8wVNSPegC91kIlSFJvXo=
+github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.5 h1:iL+QAiwaHNSMkSq3rmrCoNxCl7wYHGMrfLJljxxjOBc=
+github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.5/go.mod h1:6VFXuJrzhX4XXSkr+PIpUnN8wVNSPegC91kIlSFJvXo=
 github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2 h1:c+cUFDZj184tHdI6p0Mybfkqxr1VQUpHf9Z4FnbV0i8=
 github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2/go.mod h1:VZIlWFpV7BSA6Rtc/gPlOLO8E4MGHJLV5vC0Ye8XS5g=
 github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.2 h1:ILSPZOLkEiSUeKpFBSi97/nqyz8g9qDUDnPQG9mm030=

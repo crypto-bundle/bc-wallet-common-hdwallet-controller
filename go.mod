@@ -8,7 +8,7 @@ require (
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/crypto-bundle/bc-wallet-common v0.0.41
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.8
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
+	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.5
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.3
@@ -20,7 +20,6 @@ require (
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.4.0
-	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/shengdoushi/base58 v1.0.0
@@ -67,6 +66,7 @@ require (
 	github.com/hashicorp/vault/api/auth/userpass v0.1.0 // indirect
 	github.com/hashicorp/vault/sdk v0.6.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
+	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
