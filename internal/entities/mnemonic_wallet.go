@@ -39,7 +39,7 @@ type MnemonicWallet struct {
 	IsHotWallet    bool          `db:"is_hot"`
 	UnloadInterval time.Duration `db:"unload_interval"`
 
-	RsaEncrypted       string `db:"rsa_encrypted"`
+	RsaEncrypted       []byte `db:"rsa_encrypted"`
 	RsaEncryptedHash   string `db:"rsa_encrypted_hash"`
 	VaultEncrypted     []byte `db:"vault_encrypted"`
 	VaultEncryptedHash string `db:"vault_encrypted_hash"`

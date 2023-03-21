@@ -12,9 +12,9 @@ type baseConfigService interface {
 	IsDebug() bool
 	IsLocal() bool
 	GetStageName() string
+	GetApplicationPID() int
 	GetApplicationName() string
 	SetApplicationName(appName string)
-	GetApplicationPID() int
 	GetVersion() string
 	GetReleaseTag() string
 	GetCommitID() string

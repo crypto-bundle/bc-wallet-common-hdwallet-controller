@@ -107,8 +107,6 @@ github.com/btcsuite/snappy-go v1.0.0/go.mod h1:8woku9dyThutzjeg+3xrA5iCpBRH8XEEg
 github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792/go.mod h1:ghJtEyQwv5/p4Mg4C0fgbePVuGr935/5ddU9Z3TmDRY=
 github.com/btcsuite/winsvc v1.0.0/go.mod h1:jsenWakMcC0zFBFurPLEAyrnc/teJEM1O46fmI40EZs=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
-github.com/caarlos0/env/v6 v6.9.1 h1:zOkkjM0F6ltnQ5eBX6IPI41UP/KDGEK7rRPwGCNos8k=
-github.com/caarlos0/env/v6 v6.9.1/go.mod h1:hvp/ryKXKipEkcuYjs9mI4bBCg+UI0Yhgm5Zu0ddvwc=
 github.com/cenkalti/backoff/v3 v3.0.0 h1:ske+9nBpD9qZsTBoF41nW5L+AIuFBKMeze18XQ3eG1c=
 github.com/cenkalti/backoff/v3 v3.0.0/go.mod h1:cIeZDE3IrqwwJl6VUwCN6trj1oXrTS4rc0ij+ULvLYs=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
@@ -137,10 +135,10 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:ma
 github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
 github.com/crypto-bundle/bc-wallet-common v0.0.41 h1:YoicMo8E/0RvJA0HenpyygcEGYNHdYDT9hJKigFeIDw=
 github.com/crypto-bundle/bc-wallet-common v0.0.41/go.mod h1:3+dgiaSCMjCwqzry2VGdKjnGVjXs7fgILj8yG1AgfSw=
-github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.9 h1:DPQcvdrCkBYs+d7sno93KXfDqHWlDxIap+7BO1a0pks=
-github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.9/go.mod h1:wICgxkuXN1Q3PIEZx3w8Jlm4VGayh30YNFZqJjkQaaA=
-github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.7 h1:alrwKK8TYoJTu45niWI3TPhArWmEHkiRRrnzlZ/t5n8=
-github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.7/go.mod h1:6VFXuJrzhX4XXSkr+PIpUnN8wVNSPegC91kIlSFJvXo=
+github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.14 h1:m1ftpjqNp0YY4Xk3LaZ4kcFuSgINX28uloI14cz7XlI=
+github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.14/go.mod h1:wICgxkuXN1Q3PIEZx3w8Jlm4VGayh30YNFZqJjkQaaA=
+github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.9 h1:5F3fCKnFCt/2PBEFMx1Xbto7GZQzrLlpEoPDbCVu+io=
+github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.9/go.mod h1:6VFXuJrzhX4XXSkr+PIpUnN8wVNSPegC91kIlSFJvXo=
 github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2 h1:c+cUFDZj184tHdI6p0Mybfkqxr1VQUpHf9Z4FnbV0i8=
 github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2/go.mod h1:VZIlWFpV7BSA6Rtc/gPlOLO8E4MGHJLV5vC0Ye8XS5g=
 github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.2 h1:ILSPZOLkEiSUeKpFBSi97/nqyz8g9qDUDnPQG9mm030=

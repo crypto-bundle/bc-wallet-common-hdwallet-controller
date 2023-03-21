@@ -7,8 +7,8 @@ require (
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/crypto-bundle/bc-wallet-common v0.0.41
-	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.9
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.7
+	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.14
+	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.9
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.11
@@ -36,7 +36,6 @@ require (
 	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
-	github.com/caarlos0/env/v6 v6.9.1 // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect

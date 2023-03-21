@@ -41,13 +41,14 @@ func PrepareBaseConfig(ctx context.Context,
 	shortCommitID string,
 	buildNumber,
 	buildDateTS uint64,
+	applicationName string,
 ) (*commonConfig.BaseConfig, error) {
 	flagManagerSrv := commonConfig.NewLdFlagsManager(version, releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS)
 
 	baseCfgPreparerSrv := commonConfig.NewConfigManager()
-	baseCfg := commonConfig.NewBaseConfig()
+	baseCfg := commonConfig.NewBaseConfig(applicationName)
 	err := baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -99,10 +100,11 @@ func Prepare(ctx context.Context,
 	shortCommitID string,
 	buildNumber,
 	buildDateTS uint64,
+	applicationName string,
 ) (*Config, *commonVault.Service, error) {
 	baseCfgSrv, err := PrepareBaseConfig(ctx, version, releaseTag,
 		commitID, shortCommitID,
-		buildNumber, buildDateTS)
+		buildNumber, buildDateTS, applicationName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -114,7 +116,7 @@ func Prepare(ctx context.Context,
 
 	appCfgPreparerSrv := commonConfig.NewConfigManager()
 	wrappedConfig := &Config{}
-	err = appCfgPreparerSrv.With(baseCfgSrv, vaultSecretSrv).PrepareTo(wrappedConfig).Do(ctx)
+	err = appCfgPreparerSrv.PrepareTo(wrappedConfig).With(baseCfgSrv, vaultSecretSrv).Do(ctx)
 	if err != nil {
 		return nil, nil, err
 	}

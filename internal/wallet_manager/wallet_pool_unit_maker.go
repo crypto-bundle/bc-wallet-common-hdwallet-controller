@@ -41,11 +41,10 @@ func (m *WalletUnitMaker) createSingleMnemonicWallet(ctx context.Context,
 	title, purpose string,
 ) (*singleMnemonicWalletUnit, error) {
 	walletEntity := &entities.Wallet{
-		Title:                      title,
-		UUID:                       uuid.New(),
-		Purpose:                    purpose,
-		HDWalletPathVaultEncrypted: nil,
-		HDWalletPathRsaEncrypted:   nil,
+		Title:    title,
+		UUID:     uuid.New(),
+		Purpose:  purpose,
+		Strategy: types.WalletMakerSingleMnemonicStrategy,
 	}
 
 	var mnemonicItem *entities.MnemonicWallet = nil
@@ -86,11 +85,10 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	title, purpose string,
 ) (*multipleMnemonicWalletUnit, error) {
 	walletEntity := &entities.Wallet{
-		Title:                      title,
-		UUID:                       uuid.New(),
-		Purpose:                    purpose,
-		HDWalletPathVaultEncrypted: nil,
-		HDWalletPathRsaEncrypted:   nil,
+		Title:    title,
+		UUID:     uuid.New(),
+		Purpose:  purpose,
+		Strategy: types.WalletMakerMultipleMnemonicStrategy,
 	}
 	var hotMnemonicItem *entities.MnemonicWallet = nil
 	mnemonicItems := make([]*entities.MnemonicWallet, m.cfg.GetMnemonicsCountPerWallet())
@@ -160,8 +158,8 @@ func (m *WalletUnitMaker) createNewMnemonicWallet(ctx context.Context,
 		WalletUUID:         walletUUID,
 		MnemonicHash:       fmt.Sprintf("%x", sha256.Sum256([]byte(newWalletMnemonic))),
 		IsHotWallet:        isHotWallet,
-		RsaEncrypted:       "nil", // temporary nil string TODO: add rsa encryption via merchant service
-		RsaEncryptedHash:   "nil", // temporary nil string TODO: add rsa encryption via merchant service
+		RsaEncrypted:       []byte("nil"), // temporary nil string TODO: add rsa encryption via merchant service
+		RsaEncryptedHash:   "nil",         // temporary nil string TODO: add rsa encryption via merchant service
 		VaultEncrypted:     encMnemonic,
 		VaultEncryptedHash: fmt.Sprintf("%x", sha256.Sum256([]byte(encMnemonic))),
 	}

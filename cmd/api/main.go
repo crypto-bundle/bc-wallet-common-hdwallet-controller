@@ -80,13 +80,15 @@ var (
 	BuildDateTS uint64 = 0
 )
 
+const ApplicationName = "bc-wallet-tron-hdwallet-api"
+
 func main() {
 	var err error
 	ctx := context.Background()
 
 	appCfg, secretSrv, err := config.Prepare(ctx, Version, ReleaseTag,
 		CommitID, ShortCommitID,
-		BuildNumber, BuildDateTS)
+		BuildNumber, BuildDateTS, ApplicationName)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
@@ -111,7 +113,8 @@ func main() {
 
 	walletDataSrv := wallet_data.NewService(loggerEntry, pgConn)
 	mnemonicWalletDataSrv := mnemonic_wallet_data.NewService(loggerEntry, pgConn)
-	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry)
+	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry,
+		appCfg.GetDefaultMnemonicWordsCount())
 
 	walletService, err := wallet_manager.NewService(loggerEntry, appCfg, secretSrv,
 		walletDataSrv, mnemonicWalletDataSrv,

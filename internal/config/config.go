@@ -33,7 +33,6 @@ import (
 	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
-	natsCfg "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
 )
 
 type VaultWrappedConfig struct {
@@ -50,7 +49,7 @@ type Config struct {
 	// -------------------
 	// Logger configs
 	// -------------------
-	*commonLogger.Config
+	*commonLogger.LoggerConfig
 	// -------------------
 	// Vault config
 	// -------------------
@@ -60,7 +59,7 @@ type Config struct {
 	// -------------------
 	*commonPostgres.PostgresConfig
 	*commonRedis.RedisConfig
-	*natsCfg.NatsConfig
+	//*natsCfg.NatsConfig
 	// -------------------
 	// GRPC service config
 	// -------------------

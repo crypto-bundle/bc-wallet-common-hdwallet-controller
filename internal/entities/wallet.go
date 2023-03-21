@@ -16,13 +16,6 @@ type Wallet struct {
 	IsEnabled bool                      `db:"is_enabled"`
 	Strategy  types.WalletMakerStrategy `db:"strategy"`
 
-	HDWalletPathVaultEncrypted []byte `db:"hd_wallet_path_vault_encrypted"`
-	HDWalletPathRsaEncrypted   []byte `db:"hd_wallet_path_rsa_encrypted"`
-
-	HotHdWalletAccountIndex  uint32 `db:"-"`
-	HotHdWalletInternalIndex uint32 `db:"-"`
-	HotHdWalletAddressIndex  uint32 `db:"-"`
-
 	CreatedAt time.Time  `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 }

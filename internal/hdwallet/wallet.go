@@ -28,8 +28,6 @@ package hdwallet
 import (
 	"encoding/hex"
 	"errors"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
-
 	"github.com/btcsuite/btcd/chaincfg"
 	bip39 "github.com/tyler-smith/go-bip39"
 )
@@ -59,8 +57,6 @@ type Wallet struct {
 type confiManagerer interface {
 	IsModeDev() bool
 	IsModeTest() bool
-
-	GetMnemonicsWallets() map[string]*config.MnemonicConfig
 }
 
 // BTC parent

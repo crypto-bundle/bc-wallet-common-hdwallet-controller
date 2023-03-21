@@ -114,15 +114,19 @@ func (k *Key) GetPath(purpose, coinType, account, change, addressIndex uint32) [
 }
 
 // GetChildKey path for address
-func (k *Key) GetChildKey(network *chaincfg.Params, purpose, coinType, account,
-	change, addressIndex uint32) (*AccountKey, *Key, error) {
+func (k *Key) GetChildKey(network *chaincfg.Params,
+	purpose, coinType,
+	account,
+	change,
+	addressIndex uint32,
+) (*AccountKey, *Key, error) {
 	var err error
 	k.ExtendedKey.SetNet(network)
 
 	extendedKey := k.ExtendedKey
 	accountKey := extendedKey
 	for i, v := range k.GetPath(purpose, coinType, account, change, addressIndex) {
-		extendedKey, err = extendedKey.Child(v)
+		extendedKey, err = extendedKey.Derive(v)
 		if err != nil {
 			return nil, nil, err
 		}

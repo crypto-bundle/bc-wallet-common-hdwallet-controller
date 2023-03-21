@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-ALTER TABLE mnemonic_wallets ADD COLUMN vault_encrypted varchar NOT NULL;
+ALTER TABLE mnemonic_wallets ADD COLUMN vault_encrypted bytea NOT NULL;
 ALTER TABLE mnemonic_wallets ADD COLUMN vault_encrypted_hash varchar NOT NULL;
 -- +goose StatementEnd
 
