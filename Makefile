@@ -20,7 +20,7 @@ hdwallet_proto:
     		./pkg/proto/*.proto
 
 migrate:
-	 goose -dir ./migrations postgres "host=data4.gdrn.me port=5434 user=bc-wallet-tron-hdwallet password=password dbname=bc-wallet-tron-hdwallet sslmode=disable" up
+	 goose -dir ./migrations postgres "host=data.tr.gdrn.me port=5434 user=bc-wallet-tron-hdwallet-migrator password=password dbname=bc-wallet-tron-hdwallet sslmode=disable" up
 
 build:
 	docker build -t cr.selcloud.ru/crypto-bundle/bc-wallet-tron-hdwallet:latest .

@@ -11,6 +11,14 @@
         login_user: postgres
         port: 5434
 
+    - postgresql_schema:
+        db: bc-wallet-tron-hdwallet
+        name: public
+        login_host: data.tr.gdrn.me
+        login_password: password
+        login_user: postgres
+        port: 5434
+
     - postgresql_user:
         db: bc-wallet-tron-hdwallet
         name: bc-wallet-tron-hdwallet-api
@@ -22,15 +30,29 @@
         port: 5434
 
     -  postgresql_privs:
+        state: present
         db: bc-wallet-tron-hdwallet
-        privs: CONNECT,SELECT,INSERT,UPDATE,DELETE
+        privs: CONNECT
         grant_option: false
-        objs: ALL_IN_SCHEMA
+        type: database
         roles: bc-wallet-tron-hdwallet-api
         login_host: data.tr.gdrn.me
         login_password: password
         login_user: postgres
         port: 5434
+
+    -  postgresql_privs:
+         state: present
+         db: bc-wallet-tron-hdwallet
+         privs: SELECT,INSERT,UPDATE,DELETE
+         grant_option: false
+         type: table
+         objs: ALL_IN_SCHEMA
+         roles: bc-wallet-tron-hdwallet-api
+         login_host: data.tr.gdrn.me
+         login_password: password
+         login_user: postgres
+         port: 5434
 
     - postgresql_user:
         db: bc-wallet-tron-hdwallet
@@ -43,10 +65,12 @@
         port: 5434
 
     - postgresql_privs:
+        state: present
         db: bc-wallet-tron-hdwallet
-        privs: CONNECT,SELECT,INSERT,UPDATE,DELETE,CREATE
+        privs: ALL
         grant_option: false
-        objs: ALL_IN_SCHEMA
+        objs: public
+        type: schema
         roles: bc-wallet-tron-hdwallet-migrator
         login_host: data.tr.gdrn.me
         login_password: password
