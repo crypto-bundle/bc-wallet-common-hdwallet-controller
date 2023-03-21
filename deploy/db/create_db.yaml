@@ -1,0 +1,54 @@
+---
+- hosts: localhost
+  name: Setup database
+  become: no
+  tasks:
+    - postgresql_db:
+        name: bc-wallet-tron-hdwallet
+        encoding: UTF-8
+        login_host: data.tr.gdrn.me
+        login_password: password
+        login_user: postgres
+        port: 5434
+
+    - postgresql_user:
+        db: bc-wallet-tron-hdwallet
+        name: bc-wallet-tron-hdwallet-api
+        password: password
+        expires: infinity
+        login_host: data.tr.gdrn.me
+        login_password: password
+        login_user: postgres
+        port: 5434
+
+    -  postgresql_privs:
+        db: bc-wallet-tron-hdwallet
+        privs: CONNECT,SELECT,INSERT,UPDATE,DELETE
+        grant_option: false
+        objs: ALL_IN_SCHEMA
+        roles: bc-wallet-tron-hdwallet-api
+        login_host: data.tr.gdrn.me
+        login_password: password
+        login_user: postgres
+        port: 5434
+
+    - postgresql_user:
+        db: bc-wallet-tron-hdwallet
+        name: bc-wallet-tron-hdwallet-migrator
+        password: password
+        expires: infinity
+        login_host: data.tr.gdrn.me
+        login_password: password
+        login_user: postgres
+        port: 5434
+
+    - postgresql_privs:
+        db: bc-wallet-tron-hdwallet
+        privs: CONNECT,SELECT,INSERT,UPDATE,DELETE,CREATE
+        grant_option: false
+        objs: ALL_IN_SCHEMA
+        roles: bc-wallet-tron-hdwallet-migrator
+        login_host: data.tr.gdrn.me
+        login_password: password
+        login_user: postgres
+        port: 5434

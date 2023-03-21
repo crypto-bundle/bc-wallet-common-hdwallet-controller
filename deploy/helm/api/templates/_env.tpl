@@ -3,12 +3,13 @@
   value: {{ pluck .Values.global.env .Values.app.environment | first | default .Values.app.environment._default | quote }}
 - name: APP_DEBUG
   value: {{ pluck .Values.global.env .Values.app.debug_mode | first | default .Values.app.debug_mode._default | quote }}
-- name: LOGGER_LEVEL
-  value: {{ pluck .Values.global.env .Values.app.logger.minimal_level | first | default .Values.app.logger.minimal_level._default | quote }}
-- name: APP_LOGGER_STACKTRACE_ENABLE
-  value: {{ pluck .Values.global.env .Values.app.logger.enabled_stack_trace | first | default .Values.app.logger.enabled_stack_trace._default | quote }}
 - name: APP_STAGE
   value: {{ pluck .Values.global.env .Values.app.stage.name | first | default .Values.app.stage.name._default | quote }}
+
+- name: LOGGER_LEVEL
+  value: {{ pluck .Values.global.env .Values.app.logger.minimal_level | first | default .Values.app.logger.minimal_level._default | quote }}
+- name: LOGGER_STACKTRACE_ENABLE
+  value: {{ pluck .Values.global.env .Values.app.logger.enabled_stack_trace | first | default .Values.app.logger.enabled_stack_trace._default | quote }}
 
 - name: API_GRPC_PORT
   value: {{ pluck .Values.global.env .Values.app.api.grpc_port | first | default .Values.app.api.grpc_port._default | quote }}
@@ -131,7 +132,4 @@
 
 - name: HDWALLET_WORDS_COUNT
   value: {{ pluck .Values.global.env .Values.app.mnemonic.words_count | first | default .Values.app.mnemonic.words_count._default | quote }}
-
-- name: RSA_ENCRYPTION_KEY_PATH
-  value: {{ include "app.encryptionRsaFullFilePath" . }}
 {{- end }}
