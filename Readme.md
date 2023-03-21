@@ -23,7 +23,8 @@ kubectl create secret generic bc-wallet-tron-hdwallet \
   --from-literal=redis_username= --from-literal=redis_password='password' \
   --from-literal=nats_username='user' --from-literal=nats_password='password' \
   --from-literal=db_name='bc-wallet-tron-hdwallet' --from-literal=db_username='bc-wallet-tron-hdwallet' \
-  --from-literal=db_password='password'
+  --from-literal=db_password='password' --from-literal=vault_auth_path='<insert_token_here>' \
+  --from-literal=vault_transit_secret_key='bc-wallet-tron-hdwallet'
 ```
 
 ## DB
@@ -38,4 +39,19 @@ make migrate
 
 ```
 openssl genrsa -out ./build/secrets/rsa/private.pem 4096
+```
+
+
+## Vault
+```bash
+vault secrets enable -address=http://data.tr.gdrn.me:8200 transit
+vault token create -address=http://data.tr.gdrn.me:8200 -display-name bc-wallet-tron-hdwallet
+vault write -address=http://data.tr.gdrn.me:8200 -f transit/keys/bc-wallet-tron-hdwallet
+vault secrets enable -address=http://data.tr.gdrn.me:8200 -path=kv kv
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet DB_USERNAME=bc-wallet-tron-hdwallet
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet DB_PASSWORD=password
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet REDIS_USER=bc-wallet-tron-hdwallet
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet REDIS_PASSWORD=password
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet NATS_USER=nats-user
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet NATS_USER=password
 ```

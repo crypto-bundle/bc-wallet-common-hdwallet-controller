@@ -26,35 +26,29 @@ package config
 
 import (
 	"context"
+	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
+	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
 	"log"
 
 	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
-	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
-
 	"github.com/joho/godotenv"
 )
 
-func Prepare(ctx context.Context,
+func PrepareBaseConfig(ctx context.Context,
 	version,
 	releaseTag,
 	commitID,
 	shortCommitID string,
 	buildNumber,
 	buildDateTS uint64,
-) (*Config, error) {
-	cfgPreparerSrv := commonConfig.NewConfigManager()
-	vaultCfg := &commonVault.Config{}
-	err := cfgPreparerSrv.PrepareTo(vaultCfg).Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
+) (*commonConfig.BaseConfig, error) {
 	flagManagerSrv := commonConfig.NewLdFlagsManager(version, releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS)
 
+	baseCfgPreparerSrv := commonConfig.NewConfigManager()
 	baseCfg := commonConfig.NewBaseConfig()
-	err = cfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
+	err := baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -66,13 +60,66 @@ func Prepare(ctx context.Context,
 		}
 	}
 
-	wrappedConfig := &Config{}
-	err = cfgPreparerSrv.With(baseCfg).PrepareTo(wrappedConfig).Do(ctx)
+	return baseCfg, nil
+}
+
+func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVault.Service, error) {
+	cfgPreparerSrv := commonConfig.NewConfigManager()
+	vaultCfg := &VaultWrappedConfig{
+		BaseConfig: &commonVault.BaseConfig{},
+		AuthConfig: &commonVaultTokenClient.AuthConfig{},
+	}
+	err := cfgPreparerSrv.PrepareTo(vaultCfg).With(baseCfgSrv).Do(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	wrappedConfig.BaseConfig = baseCfg
+	vaultClientSrv, err := commonVaultTokenClient.NewClient(ctx, vaultCfg)
+	if err != nil {
+		return nil, err
+	}
 
-	return wrappedConfig, nil
+	vaultSrv, err := commonVault.NewService(ctx, vaultCfg, vaultClientSrv)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = vaultSrv.Login(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return vaultSrv, nil
+}
+
+func Prepare(ctx context.Context,
+	version,
+	releaseTag,
+	commitID,
+	shortCommitID string,
+	buildNumber,
+	buildDateTS uint64,
+) (*Config, *commonVault.Service, error) {
+	baseCfgSrv, err := PrepareBaseConfig(ctx, version, releaseTag,
+		commitID, shortCommitID,
+		buildNumber, buildDateTS)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	vaultSecretSrv, err := PrepareVault(ctx, baseCfgSrv)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	appCfgPreparerSrv := commonConfig.NewConfigManager()
+	wrappedConfig := &Config{}
+	err = appCfgPreparerSrv.With(baseCfgSrv, vaultSecretSrv).PrepareTo(wrappedConfig).Do(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	wrappedConfig.BaseConfig = baseCfgSrv
+
+	return wrappedConfig, vaultSecretSrv, nil
 }

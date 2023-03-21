@@ -31,9 +31,15 @@ import (
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
-
+	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
+	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
 	natsCfg "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
 )
+
+type VaultWrappedConfig struct {
+	*commonVault.BaseConfig
+	*commonVaultTokenClient.AuthConfig
+}
 
 // Config for application
 type Config struct {
@@ -46,6 +52,10 @@ type Config struct {
 	// -------------------
 	*commonLogger.Config
 	// -------------------
+	// Vault config
+	// -------------------
+	// -------------------
+	*VaultWrappedConfig
 	// Database config
 	// -------------------
 	*commonPostgres.PostgresConfig
@@ -58,7 +68,7 @@ type Config struct {
 	// -------------------
 	// HD wallet config
 	// -------------------
-	//*HDWalletConfig
+	*MnemonicConfig
 	// -------------------
 	// Wallet manager config
 	// -------------------

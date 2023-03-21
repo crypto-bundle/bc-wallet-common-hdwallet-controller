@@ -26,7 +26,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -44,8 +43,6 @@ import (
 
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
-	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
-
 	"go.uber.org/zap"
 )
 
@@ -87,24 +84,18 @@ func main() {
 	var err error
 	ctx := context.Background()
 
-	appCfg, err := config.Prepare(ctx, Version, ReleaseTag,
+	appCfg, secretSrv, err := config.Prepare(ctx, Version, ReleaseTag,
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS)
 	if err != nil {
-		fmt.Println(err.Error())
-
-		os.Exit(1)
+		log.Fatal(err.Error(), err)
 	}
 
 	loggerSrv, err := commonLogger.NewService(appCfg)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
-
-	loggerEntry, err := loggerSrv.NewLoggerEntry("main")
-	if err != nil {
-		log.Fatal(err.Error(), err)
-	}
+	loggerEntry := loggerSrv.NewLoggerEntry("main")
 
 	pgConn := commonPostgres.NewConnection(context.Background(), appCfg, loggerEntry)
 	_, err = pgConn.Connect()
@@ -118,16 +109,11 @@ func main() {
 			zap.String("port", appCfg.GetBindPort()))
 	}
 
-	cryptoService := crypter.New(appCfg.HDWalletConfig)
-	if err != nil {
-		loggerEntry.Fatal("unable to create crypto service instance", zap.Error(err))
-	}
-
 	walletDataSrv := wallet_data.NewService(loggerEntry, pgConn)
 	mnemonicWalletDataSrv := mnemonic_wallet_data.NewService(loggerEntry, pgConn)
 	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry)
 
-	walletService, err := wallet_manager.NewService(loggerEntry, appCfg, cryptoService,
+	walletService, err := wallet_manager.NewService(loggerEntry, appCfg, secretSrv,
 		walletDataSrv, mnemonicWalletDataSrv,
 		pgConn, mnemonicGenerator)
 	if err != nil {

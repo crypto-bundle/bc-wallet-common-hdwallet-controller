@@ -24,25 +24,52 @@
 
 package config
 
-import (
-	"github.com/crypto-bundle/bc-wallet-common/pkg/crypter"
+import "errors"
+
+var (
+	ErrWrongMnemonicWordsCount = errors.New("wrong mnemonic words count.allowed: 15, 18, 21, 24")
+	ErrBaseAppConfigIsEmpty    = errors.New("base app config is missing or empty")
+	ErrMinWordsCount           = errors.New("minimal words count for environment is 21")
 )
 
 type MnemonicConfig struct {
-	Mnemonic   string
-	Hash       string
-	BlockChain string
+	MnemonicWordCount uint8 `envconfig:"HDWALLET_WORDS_COUNT" default:"24"`
+
+	baseAppCfgSrv baseConfigService
 }
 
-func (c *MnemonicConfig) GetHash() string {
-	return c.Hash
-}
-
-type HDWalletConfig struct {
-	crypter.Config
+func (c *MnemonicConfig) GetDefaultMnemonicWordsCount() uint8 {
+	return c.MnemonicWordCount
 }
 
 //nolint:funlen // its ok
-func (c *HDWalletConfig) Prepare() error {
+func (c *MnemonicConfig) Prepare() error {
+	if c.baseAppCfgSrv == nil {
+		return ErrBaseAppConfigIsEmpty
+	}
+
+	if c.baseAppCfgSrv.IsProd() && c.MnemonicWordCount <= 18 {
+		return ErrMinWordsCount
+	}
+
+	switch c.MnemonicWordCount {
+	case 15, 18, 21, 24:
+		return nil
+	default:
+		return ErrWrongMnemonicWordsCount
+	}
+}
+
+//nolint:funlen // its ok
+func (c *MnemonicConfig) PrepareWith(dependentCfgList ...interface{}) error {
+	for _, cfgSrv := range dependentCfgList {
+		switch castedCfg := cfgSrv.(type) {
+		case baseConfigService:
+			c.baseAppCfgSrv = castedCfg
+		default:
+			continue
+		}
+	}
+
 	return nil
 }

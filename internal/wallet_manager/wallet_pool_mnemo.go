@@ -323,7 +323,7 @@ func (u *MnemonicWalletUnit) loadWallet(ctx context.Context) error {
 	}
 	u.walletEntity = walletEntity
 
-	mnemonicBytes, err := u.cryptoSrv.Decrypt(u.walletEntity.RsaEncrypted)
+	mnemonicBytes, err := u.cryptoSrv.Decrypt(u.walletEntity.VaultEncrypted)
 	if err != nil {
 		return err
 	}

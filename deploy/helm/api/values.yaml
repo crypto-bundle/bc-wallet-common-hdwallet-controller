@@ -67,7 +67,7 @@ app:
       production: 8098
 
   mnemonic:
-    size:
+    words_count:
       _default: 24
       production: 24
 
@@ -119,6 +119,30 @@ app:
         - nats://nats-s2:4223
         - nats://nats-s3:4223
 
+  vault:
+    use_https:
+      _default: true
+    host:
+      _default: vault
+    port:
+      _default: 8200
+    data_path:
+      _default: kv/data/crypto-bundle/bc-wallet-tron-hdwallet
+    auth_method:
+      _default: token
+    auth_path:
+      _default: token
+    token_renewal:
+      enabled:
+        _default: false
+      interval:
+        _default: 180s
+    k8s_auth:
+      token_path:
+        _default: /path/to-/token
+      role:
+        _default: vault-client
+
   redis:
     host:
       _default: redis
@@ -157,6 +181,10 @@ app:
     production: false
 
   logger:
+    enabled_stack_trace:
+      _default: false
+      production: true
+
     minimal_level:
       _default: debug
       test: debug

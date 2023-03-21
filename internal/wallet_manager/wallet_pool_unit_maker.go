@@ -150,7 +150,7 @@ func (m *WalletUnitMaker) createNewMnemonicWallet(ctx context.Context,
 		return nil, err
 	}
 
-	encMnemonic, err := m.encryptSrv.Encrypt(newWalletMnemonic)
+	encMnemonic, err := m.encryptSrv.Encrypt([]byte(newWalletMnemonic))
 	if err != nil {
 		return nil, err
 	}

@@ -7,11 +7,11 @@ require (
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/crypto-bundle/bc-wallet-common v0.0.41
-	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.8
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.5
+	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.9
+	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.6
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.2
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.3
+	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.11
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/fbsobreira/gotron-sdk v0.0.0-20230314163715-3e721028a4f0
 	github.com/google/uuid v1.3.0
@@ -62,8 +62,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.5-0.20210104140557-80c98217689d // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/vault/api v1.8.0 // indirect
-	github.com/hashicorp/vault/api/auth/kubernetes v0.3.0 // indirect
-	github.com/hashicorp/vault/api/auth/userpass v0.1.0 // indirect
 	github.com/hashicorp/vault/sdk v0.6.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect

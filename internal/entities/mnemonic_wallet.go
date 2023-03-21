@@ -41,7 +41,7 @@ type MnemonicWallet struct {
 
 	RsaEncrypted       string `db:"rsa_encrypted"`
 	RsaEncryptedHash   string `db:"rsa_encrypted_hash"`
-	VaultEncrypted     string `db:"vault_encrypted"`
+	VaultEncrypted     []byte `db:"vault_encrypted"`
 	VaultEncryptedHash string `db:"vault_encrypted_hash"`
 
 	CreatedAt time.Time  `db:"created_at"`

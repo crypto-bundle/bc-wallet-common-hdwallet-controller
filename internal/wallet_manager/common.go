@@ -193,6 +193,6 @@ type mnemonicGenerator interface {
 }
 
 type encryptService interface {
-	Encrypt(msg string) (string, error)
-	Decrypt(encMsg string) ([]byte, error)
+	Encrypt(msg []byte) ([]byte, error)
+	Decrypt(encMsg []byte) ([]byte, error)
 }
