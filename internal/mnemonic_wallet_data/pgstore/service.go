@@ -88,11 +88,12 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
-       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
-				"created_at", "updated_at"
+		row := stmt.QueryRowx(`SELECT  "id", "wallet_uuid", "mnemonic_hash", 
+       			"rsa_encrypted", "rsa_encrypted_hash",
+       			"vault_encrypted", "vault_encrypted_hash",
+       			"is_hot", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
-	       WHERE "hash" = $1`, hash)
+	       WHERE "mnemonic_hash" = $1`, hash)
 
 		callbackErr := row.Err()
 		if callbackErr != nil {
@@ -117,9 +118,10 @@ func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string)
 	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
-       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
-				"created_at", "updated_at"
+		row := stmt.QueryRowx(`SELECT  "id", "wallet_uuid", "mnemonic_hash", 
+       			"rsa_encrypted", "rsa_encrypted_hash",
+       			"vault_encrypted", "vault_encrypted_hash",
+       			"is_hot", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "uuid" = $1`, uuid)
 
@@ -146,9 +148,10 @@ func (s *pgRepository) GetAllHotMnemonicWallets(ctx context.Context) ([]*entitie
 	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
-       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
-				"created_at", "updated_at"
+		rows, err := stmt.Queryx(`SELECT "id", "wallet_uuid", "mnemonic_hash", 
+       			"rsa_encrypted", "rsa_encrypted_hash",
+       			"vault_encrypted", "vault_encrypted_hash",
+       			"is_hot", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "is_hot" = true`)
 		if err != nil {
@@ -183,8 +186,10 @@ func (s *pgRepository) GetMnemonicWalletsByUUIDList(ctx context.Context,
 	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		query, args, err := sqlx.In(`SELECT "id", "wallet_uuid", "hash", "purpose", "rsa_encrypted",
-       			"rsa_encrypted_hash", "is_enabled", "created_at", "updated_at"
+		query, args, err := sqlx.In(`SELECT "id", "wallet_uuid", "mnemonic_hash", 
+       			"rsa_encrypted", "rsa_encrypted_hash",
+       			"vault_encrypted", "vault_encrypted_hash",
+       			"is_hot", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "wallet_uuid" IN (?)`, UUIDList)
 
@@ -220,9 +225,10 @@ func (s *pgRepository) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*enti
 	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", "is_hot",
-       			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
-				"created_at", "updated_at"
+		rows, err := stmt.Queryx(`SELECT  "id", "wallet_uuid", "mnemonic_hash", 
+       			"rsa_encrypted", "rsa_encrypted_hash",
+       			"vault_encrypted", "vault_encrypted_hash",
+       			"is_hot", "created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "is_hot" = false`)
 		if err != nil {
