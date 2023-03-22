@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"time"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 
@@ -23,7 +24,7 @@ type WalletUnitMaker struct {
 	encryptSrv             encryptService
 }
 
-func (m *WalletUnitMaker) CreateWallet(ctx context.Context,
+func (m *WalletUnitMaker) CreateDisabledWallet(ctx context.Context,
 	strategy types.WalletMakerStrategy,
 	title, purpose string,
 ) (WalletPoolUnitService, error) {
@@ -41,10 +42,13 @@ func (m *WalletUnitMaker) createSingleMnemonicWallet(ctx context.Context,
 	title, purpose string,
 ) (*singleMnemonicWalletUnit, error) {
 	walletEntity := &entities.Wallet{
-		Title:    title,
-		UUID:     uuid.New(),
-		Purpose:  purpose,
-		Strategy: types.WalletMakerSingleMnemonicStrategy,
+		Title:     title,
+		UUID:      uuid.New(),
+		Purpose:   purpose,
+		Strategy:  types.WalletMakerSingleMnemonicStrategy,
+		IsEnabled: false, // temporary until wallet not successfully init
+		CreatedAt: time.Now(),
+		UpdatedAt: nil, // temporary until wallet not successfully init
 	}
 
 	var mnemonicItem *entities.MnemonicWallet = nil
@@ -85,10 +89,13 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	title, purpose string,
 ) (*multipleMnemonicWalletUnit, error) {
 	walletEntity := &entities.Wallet{
-		Title:    title,
-		UUID:     uuid.New(),
-		Purpose:  purpose,
-		Strategy: types.WalletMakerMultipleMnemonicStrategy,
+		Title:     title,
+		UUID:      uuid.New(),
+		Purpose:   purpose,
+		Strategy:  types.WalletMakerMultipleMnemonicStrategy,
+		IsEnabled: false, // temporary until wallet not successfully init
+		CreatedAt: time.Now(),
+		UpdatedAt: nil, // temporary until wallet not successfully init
 	}
 	var hotMnemonicItem *entities.MnemonicWallet = nil
 	mnemonicItems := make([]*entities.MnemonicWallet, m.cfg.GetMnemonicsCountPerWallet())

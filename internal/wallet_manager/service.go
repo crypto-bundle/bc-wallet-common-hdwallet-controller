@@ -117,12 +117,24 @@ func (s *Service) CreateNewWallet(ctx context.Context,
 	title string,
 	purpose string,
 ) (*types.PublicWalletData, error) {
-	poolUnit, err := s.walletPoolUnitMakerSrv.CreateWallet(ctx, strategy, title, purpose)
+	poolUnit, err := s.walletPoolUnitMakerSrv.CreateDisabledWallet(ctx, strategy, title, purpose)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.walletPoolSrv.AddAndStartWalletUnit(ctx, poolUnit.GetWalletUUID(), poolUnit)
+	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
+		err = s.walletPoolSrv.AddAndStartWalletUnit(txStmtCtx, poolUnit.GetWalletUUID(), poolUnit)
+		if err != nil {
+			return err
+		}
+
+		err = s.walletsDataSrv.SetEnabledToWalletByUUID(txStmtCtx, poolUnit.GetWalletUUID().String())
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}

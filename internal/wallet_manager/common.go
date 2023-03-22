@@ -58,10 +58,11 @@ type walletsDataService interface {
 	GetWalletByUUID(ctx context.Context, uuid string) (*entities.Wallet, error)
 	GetAllEnabledWallets(ctx context.Context) ([]*entities.Wallet, error)
 	GetAllEnabledWalletUUIDList(ctx context.Context) ([]string, error)
+	SetEnabledToWalletByUUID(ctx context.Context, uuid string) error
 }
 
 type walletPoolUnitMakerService interface {
-	CreateWallet(ctx context.Context,
+	CreateDisabledWallet(ctx context.Context,
 		strategy types.WalletMakerStrategy,
 		title, purpose string,
 	) (WalletPoolUnitService, error)

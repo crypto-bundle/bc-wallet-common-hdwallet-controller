@@ -5,7 +5,7 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_data/pgstore"
-	
+
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"go.uber.org/zap"
@@ -21,6 +21,10 @@ type Service struct {
 
 func (s *Service) AddNewWallet(ctx context.Context, walletItem *entities.Wallet) (*entities.Wallet, error) {
 	return s.persistentStore.AddNewWallet(ctx, walletItem)
+}
+
+func (s *Service) SetEnabledToWalletByUUID(ctx context.Context, uuid string) error {
+	return s.persistentStore.UpdateIsEnabledWalletByUUID(ctx, uuid, true)
 }
 
 func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.Wallet, error) {

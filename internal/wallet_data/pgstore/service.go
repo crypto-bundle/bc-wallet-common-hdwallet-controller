@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"time"
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
@@ -15,6 +16,7 @@ var (
 	ErrUnablePrepareQuery    = errors.New("unable to prepare query")
 	ErrUnableExecuteQuery    = errors.New("unable to execute query")
 	ErrUnableGetLastInsertID = errors.New("unable get last insert id")
+	ErrHaveNoAffectedRows    = errors.New("have ho affected row")
 )
 
 type pgRepository struct {
@@ -48,6 +50,34 @@ func (s *pgRepository) AddNewWallet(ctx context.Context, wallet *entities.Wallet
 	}
 
 	return wallet, nil
+}
+
+func (s *pgRepository) UpdateIsEnabledWalletByUUID(ctx context.Context, uuid string, isEnabled bool) error {
+	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		date := time.Now()
+
+		result, err := stmt.Exec(`UPDATE "wallets" 
+			SET "is_enabled" = $1, "updated_at" = $2
+			WHERE "uuid" = $3`, isEnabled, date, uuid)
+		if err != nil {
+			return err
+		}
+
+		affectedRows, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+
+		if affectedRows == 0 {
+			return ErrHaveNoAffectedRows
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *pgRepository) GetWalletByUUID(ctx context.Context, uuid string) (*entities.Wallet, error) {
@@ -93,7 +123,13 @@ func (s *pgRepository) GetAllEnabledWallets(ctx context.Context) ([]*entities.Wa
 
 		defer rows.Close()
 
-		wallets = make([]*entities.Wallet, 0)
+		err = rows.Err()
+		if err != nil {
+			return commonPostgres.EmptyOrError(err, "unable get all enabled wallets")
+		}
+
+		walletsList := make([]*entities.Wallet, 0)
+		count := 0
 
 		for rows.Next() {
 			walletData := &entities.Wallet{}
@@ -103,7 +139,12 @@ func (s *pgRepository) GetAllEnabledWallets(ctx context.Context) ([]*entities.Wa
 				return err
 			}
 
-			wallets = append(wallets, walletData)
+			walletsList = append(walletsList, walletData)
+			count++
+		}
+
+		if count > 0 {
+			wallets = walletsList
 		}
 
 		return nil
