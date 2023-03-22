@@ -110,8 +110,9 @@ func (u *MnemonicWalletUnit) IsHotWalletUnit() bool {
 
 func (u *MnemonicWalletUnit) GetPublicData() *types.PublicMnemonicWalletData {
 	return &types.PublicMnemonicWalletData{
-		UUID:        u.mnemonicWalletUUID,
+		UUID:        u.walletEntity.UUID,
 		IsHotWallet: u.walletEntity.IsHotWallet,
+		Hash:        u.walletEntity.VaultEncryptedHash,
 	}
 }
 
@@ -321,6 +322,10 @@ func (u *MnemonicWalletUnit) loadWallet(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	if walletEntity == nil {
+		return ErrPassedMnemonicWalletNotFound
+	}
+
 	u.walletEntity = walletEntity
 
 	mnemonicBytes, err := u.cryptoSrv.Decrypt(u.walletEntity.VaultEncrypted)
@@ -396,12 +401,13 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 
 		hdWalletSrv: nil, // that field will be field @ load wallet stage
 
+		cfgSrv:                 cfg,
 		cryptoSrv:              cryptoSrv,
 		mnemonicWalletsDataSrv: mnemonicWalletDataSrv,
 
 		isWalletLoaded:      false,
 		walletUUID:          walletUUID,
-		mnemonicWalletUUID:  mnemonicWalletItem.WalletUUID,
+		mnemonicWalletUUID:  mnemonicWalletItem.UUID,
 		unloadTimerInterval: unloadInterval,
 		walletEntity:        mnemonicWalletItem,
 		addressPool:         make(map[string]*addressData, 0),

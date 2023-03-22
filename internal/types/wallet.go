@@ -13,8 +13,9 @@ const (
 )
 
 const (
-	WalletMakerSingleMnemonicStrategy   WalletMakerStrategy = 0
-	WalletMakerMultipleMnemonicStrategy WalletMakerStrategy = 1
+	WalletMakerPlaceholderMnemonicStrategy WalletMakerStrategy = 0
+	WalletMakerSingleMnemonicStrategy      WalletMakerStrategy = 1
+	WalletMakerMultipleMnemonicStrategy    WalletMakerStrategy = 2
 )
 
 func (d WalletMakerStrategy) String() string {
@@ -23,6 +24,8 @@ func (d WalletMakerStrategy) String() string {
 		return WalletMakerSingleMnemonicStrategyName
 	case WalletMakerMultipleMnemonicStrategy:
 		return WalletMakerMultipleMnemonicStrategyName
+	case WalletMakerPlaceholderMnemonicStrategy:
+		fallthrough
 	default:
 		return ""
 	}

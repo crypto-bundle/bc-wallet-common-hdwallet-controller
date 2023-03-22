@@ -45,13 +45,34 @@ openssl genrsa -out ./build/secrets/rsa/private.pem 4096
 ## Vault
 ```bash
 vault secrets enable -address=http://data.tr.gdrn.me:8200 transit
-vault token create -address=http://data.tr.gdrn.me:8200 -display-name bc-wallet-tron-hdwallet
-vault write -address=http://data.tr.gdrn.me:8200 -f transit/keys/bc-wallet-tron-hdwallet
-vault secrets enable -address=http://data.tr.gdrn.me:8200 -path=kv kv
-vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet DB_USERNAME=bc-wallet-tron-hdwallet
-vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet DB_PASSWORD=password
-vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet REDIS_USER=bc-wallet-tron-hdwallet
-vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet REDIS_PASSWORD=password
-vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet NATS_USER=nats-user
-vault kv put -address=http://data.tr.gdrn.me:8200 kv/bc-wallet-tron-hdwallet NATS_USER=password
+vault token create -address=http://data.tr.gdrn.me:8200 -display-name bc-wallet-tron-hdwallet-api
+vault token create -address=http://data.tr.gdrn.me:8200 -display-name bc-wallet-tron-hdwallet-migrator
+vault write -address=http://data.tr.gdrn.me:8200 -f transit/keys/crypto-bundle/bc-wallet-tron-hdwallet
+
+vault secrets enable -address=http://data.tr.gdrn.me:8200 -path=kv kv-v2
+
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/crypto-bundle/bc-wallet-tron-hdwallet/common DB_DATABASE=bc-wallet-tron-hdwallet
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/crypto-bundle/bc-wallet-tron-hdwallet/api \
+  DB_USERNAME=bc-wallet-tron-hdwallet-api \
+  DB_PASSWORD=password \
+  REDIS_USER=bc-wallet-tron-hdwallet-api \
+  REDIS_PASSWORD=password \
+  NATS_USER=nats-user \
+  NATS_PASSWORD=password
+  
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/crypto-bundle/bc-wallet-tron-hdwallet/migrator \
+  DB_USERNAME=bc-wallet-tron-hdwallet-migrator \
+  DB_PASSWORD=password \
+  REDIS_USER=bc-wallet-tron-hdwallet-migrator \
+  REDIS_PASSWORD=password \
+  NATS_USER=nats-user \
+  NATS_PASSWORD=password  
+  
+vault kv put -address=http://data.tr.gdrn.me:8200 kv/crypto-bundle/bc-wallet-tron-hdwallet/updater \
+  DB_USERNAME=bc-wallet-tron-hdwallet-updater \
+  DB_PASSWORD=password \
+  REDIS_USER=bc-wallet-tron-hdwallet-updater \
+  REDIS_PASSWORD=password \
+  NATS_USER=nats-user \
+  NATS_PASSWORD=password  
 ```

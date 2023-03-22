@@ -120,7 +120,9 @@ func (pi *poolInitializer) prepareWalletPoolUnits(_ context.Context) error {
 		}
 
 		if mnemonicCount > 1 && walletItem.Strategy == types.WalletMakerMultipleMnemonicStrategy {
-			walletPoolUnit := newMultipleMnemonicWalletPoolUnit(pi.logger, walletItem.UUID,
+			walletPoolUnit := newMultipleMnemonicWalletPoolUnit(pi.logger, pi.cfg, pi.encryptSrv,
+				pi.walletsDataSrv, pi.mnemonicWalletsDataSrv,
+				walletItem.UUID,
 				walletItem.Title, walletItem.Purpose)
 			for j := 0; j != mnemonicCount; j++ {
 				addErr := walletPoolUnit.AddMnemonicUnit(bucket[i])

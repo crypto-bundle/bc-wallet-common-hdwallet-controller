@@ -79,6 +79,7 @@ func NewMnemonicGenerator(logger *zap.Logger,
 	case 21: // 21 word mnemo for 224 bit entropy
 		defaultMnemonicBitSize = 224
 	case 24: // 24 word mnemo for 256 bit entropy
+		fallthrough
 	default:
 		defaultMnemonicBitSize = 256
 	}

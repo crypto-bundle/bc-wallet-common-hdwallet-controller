@@ -3,9 +3,6 @@
 CREATE UNIQUE INDEX uuid__idx ON mnemonic_wallets (
      "uuid"
 );
-CREATE UNIQUE INDEX wallet_uuid__idx ON mnemonic_wallets (
-    "wallet_uuid"
-);
 
 CREATE UNIQUE INDEX wallet_uuid__mnemonic_wallet_uuid__idx ON mnemonic_wallets (
     "wallet_uuid", "uuid"

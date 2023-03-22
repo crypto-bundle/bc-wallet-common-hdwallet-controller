@@ -30,9 +30,8 @@ func (s *pgRepository) AddNewWallet(ctx context.Context, wallet *entities.Wallet
 		row := stmt.QueryRowx(`INSERT INTO "wallets" ("uuid", "title", "purpose", "is_enabled", "strategy",
        			"created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;`,
-			wallet.UUID.String(), wallet.Title, wallet.Purpose, wallet.Strategy,
-			wallet.IsEnabled,
-			wallet.CreatedAt, wallet.UpdatedAt)
+			wallet.UUID.String(), wallet.Title, wallet.Purpose, wallet.IsEnabled,
+			wallet.Strategy, wallet.CreatedAt, wallet.UpdatedAt)
 
 		err := row.Scan(&walletID)
 		if err != nil {

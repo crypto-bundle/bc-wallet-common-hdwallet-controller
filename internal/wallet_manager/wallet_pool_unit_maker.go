@@ -93,16 +93,18 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	var hotMnemonicItem *entities.MnemonicWallet = nil
 	mnemonicItems := make([]*entities.MnemonicWallet, m.cfg.GetMnemonicsCountPerWallet())
 
-	walletPoolUnit := newMultipleMnemonicWalletPoolUnit(m.logger, walletEntity.UUID,
+	walletPoolUnit := newMultipleMnemonicWalletPoolUnit(m.logger, m.cfg, m.encryptSrv, m.walletsDataSrv,
+		m.mnemonicWalletsDataSrv,
+		walletEntity.UUID,
 		walletEntity.Title, walletEntity.Purpose)
 
 	err := m.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		_, txStmtErr := m.walletsDataSrv.AddNewWallet(ctx, walletEntity)
+		_, txStmtErr := m.walletsDataSrv.AddNewWallet(txStmtCtx, walletEntity)
 		if txStmtErr != nil {
 			return txStmtErr
 		}
 
-		hotMnemonicItem, txStmtErr = m.createNewMnemonicWallet(ctx, walletEntity.UUID, true)
+		hotMnemonicItem, txStmtErr = m.createNewMnemonicWallet(txStmtCtx, walletEntity.UUID, true)
 		if txStmtErr != nil {
 			return txStmtErr
 		}
@@ -110,7 +112,7 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 		mnemonicItems[0] = hotMnemonicItem
 
 		for i, j := uint8(0), 1; i != m.cfg.GetMnemonicsCountPerWallet()-1; i++ {
-			nonHotMnemonicItem, createItem := m.createNewMnemonicWallet(ctx, walletEntity.UUID, false)
+			nonHotMnemonicItem, createItem := m.createNewMnemonicWallet(txStmtCtx, walletEntity.UUID, false)
 			if createItem != nil {
 				return createItem
 			}
@@ -128,7 +130,7 @@ func (m *WalletUnitMaker) createMultipleMnemonicWallet(ctx context.Context,
 	for i := uint8(0); i != m.cfg.GetMnemonicsCountPerWallet(); i++ {
 		mnemonicUnit := newMnemonicWalletPoolUnit(m.logger, m.cfg,
 			m.cfg.GetDefaultWalletUnloadInterval(), walletEntity.UUID, m.encryptSrv,
-			m.mnemonicWalletsDataSrv, hotMnemonicItem)
+			m.mnemonicWalletsDataSrv, mnemonicItems[i])
 
 		addErr := walletPoolUnit.AddMnemonicUnit(mnemonicUnit)
 		if addErr != nil {
@@ -170,4 +172,23 @@ func (m *WalletUnitMaker) createNewMnemonicWallet(ctx context.Context,
 	}
 
 	return mnemonicWalletEntity, err
+}
+
+func newWalletMaker(logger *zap.Logger,
+	cfg configService,
+	walletsDataSrv walletsDataService,
+	mnemonicWalletsDataSrv mnemonicWalletsDataService,
+	txStmtManager transactionalStatementManager,
+	mnemonicGeneratorSrv mnemonicGenerator,
+	encryptSrv encryptService,
+) *WalletUnitMaker {
+	return &WalletUnitMaker{
+		logger:                 logger,
+		cfg:                    cfg,
+		walletsDataSrv:         walletsDataSrv,
+		mnemonicWalletsDataSrv: mnemonicWalletsDataSrv,
+		txStmtManager:          txStmtManager,
+		mnemonicGeneratorSrv:   mnemonicGeneratorSrv,
+		encryptSrv:             encryptSrv,
+	}
 }

@@ -18,7 +18,7 @@ type multipleMnemonicWalletUnit struct {
 	walletPurpose string
 
 	cfgSrv         configService
-	cryptoSrv      encryptService
+	encryptSrv     encryptService
 	walletsDataSrv walletsDataService
 
 	mnemonicWalletsDataSrv mnemonicWalletsDataService
@@ -145,15 +145,26 @@ func (u *multipleMnemonicWalletUnit) SignTransaction(ctx context.Context,
 }
 
 func newMultipleMnemonicWalletPoolUnit(logger *zap.Logger,
+	cfg configService,
+	encryptionSrv encryptService,
+	walletDataSrv walletsDataService,
+	mnemonicWalletDataSrv mnemonicWalletsDataService,
 	walletUUID uuid.UUID,
 	walletTitle string,
 	walletPurpose string,
 ) *multipleMnemonicWalletUnit {
 	return &multipleMnemonicWalletUnit{
-		logger:              logger.With(zap.String(app.WalletUUIDTag, walletUUID.String())),
-		walletUUID:          walletUUID,
-		walletTitle:         walletTitle,
-		walletPurpose:       walletPurpose,
+		logger: logger.With(zap.String(app.WalletUUIDTag, walletUUID.String())),
+		cfgSrv: cfg,
+
+		walletUUID:    walletUUID,
+		walletTitle:   walletTitle,
+		walletPurpose: walletPurpose,
+
+		encryptSrv:             encryptionSrv,
+		walletsDataSrv:         walletDataSrv,
+		mnemonicWalletsDataSrv: mnemonicWalletDataSrv,
+
 		mnemonicUnitsByUUID: map[uuid.UUID]walletPoolMnemonicUnitService{},
 		mnemonicUnits:       make([]walletPoolMnemonicUnitService, 0),
 		mnemonicUnitsCount:  0,

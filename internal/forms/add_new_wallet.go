@@ -41,7 +41,7 @@ var (
 type AddNewWalletForm struct {
 	Title    string                    `valid:"type(string),required"`
 	Purpose  string                    `valid:"type(string),required"`
-	Strategy types.WalletMakerStrategy `valid:"type(uint8)"`
+	Strategy types.WalletMakerStrategy `valid:"type(types.WalletMakerStrategy)"`
 }
 
 func (f *AddNewWalletForm) LoadAndValidate(ctx context.Context,

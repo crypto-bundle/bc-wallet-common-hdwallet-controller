@@ -29,8 +29,8 @@ func (s *Service) GetMnemonicWalletByHash(ctx context.Context, hash string) (*en
 	return s.persistentStore.GetMnemonicWalletByHash(ctx, hash)
 }
 
-func (s *Service) GetMnemonicWalletUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error) {
-	return s.persistentStore.GetMnemonicWalletByUUID(ctx, walletUUID)
+func (s *Service) GetMnemonicWalletUUID(ctx context.Context, mnemoWalletUUID string) (*entities.MnemonicWallet, error) {
+	return s.persistentStore.GetMnemonicWalletByUUID(ctx, mnemoWalletUUID)
 }
 
 func (s *Service) GetMnemonicWalletsByUUIDList(ctx context.Context,

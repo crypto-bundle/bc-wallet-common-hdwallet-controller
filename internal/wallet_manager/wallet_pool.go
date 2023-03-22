@@ -59,6 +59,10 @@ func (p *Pool) SetWalletUnits(ctx context.Context,
 		return ErrWalletPoolIsNotEmpty
 	}
 
+	if len(walletUnits) == 0 {
+		return ErrPassedWalletPoolUnitIsEmpty
+	}
+
 	p.walletUnits = walletUnits
 
 	return nil

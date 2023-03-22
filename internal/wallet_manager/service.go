@@ -53,9 +53,12 @@ func (s *Service) Init(ctx context.Context) error {
 		return err
 	}
 
-	err = s.walletPoolSrv.SetWalletUnits(ctx, s.walletPoolInitializerSrv.GetWalletPoolUnits())
-	if err != nil {
-		return err
+	loadedWallets := s.walletPoolInitializerSrv.GetWalletPoolUnits()
+	if loadedWallets != nil {
+		err = s.walletPoolSrv.SetWalletUnits(ctx, s.walletPoolInitializerSrv.GetWalletPoolUnits())
+		if err != nil {
+			return err
+		}
 	}
 
 	err = s.walletPoolSrv.Init(ctx)
@@ -153,6 +156,8 @@ func NewService(logger *zap.Logger,
 	}
 
 	walletPoolSrv := newWalletPool(logger, cfg, walletDataSrv, mnemonicWalletDataSrv, encryptSrv)
+	walletMaker := newWalletMaker(logger, cfg, walletDataSrv, mnemonicWalletDataSrv,
+		txStmtManager, mnemonicGeneratorSrv, encryptSrv)
 
 	return &Service{
 		logger: logger,
@@ -167,5 +172,6 @@ func NewService(logger *zap.Logger,
 
 		walletPoolSrv:            walletPoolSrv,
 		walletPoolInitializerSrv: walletPoolInitSrv,
+		walletPoolUnitMakerSrv:   walletMaker,
 	}, nil
 }

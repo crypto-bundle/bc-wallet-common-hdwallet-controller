@@ -60,7 +60,7 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
 				"is_hot", 
 				"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash", 
 				"created_at", "updated_at")
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id;`,
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id;`,
 			wallet.UUID.String(), wallet.WalletUUID.String(),
 			wallet.MnemonicHash,
 			wallet.IsHotWallet,
@@ -121,7 +121,7 @@ func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string)
        			"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash",
 				"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
-	       WHERE "wallet_uuid" = $1`, uuid)
+	       WHERE "uuid" = $1`, uuid)
 
 		queryErr := row.Err()
 		if queryErr != nil {
@@ -129,7 +129,7 @@ func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string)
 		}
 
 		wallet = &entities.MnemonicWallet{}
-		err := row.StructScan(&wallet)
+		err := row.StructScan(wallet)
 		if err != nil {
 			return commonPostgres.EmptyOrError(err, "unable get mnemonic wallet by uuid")
 		}

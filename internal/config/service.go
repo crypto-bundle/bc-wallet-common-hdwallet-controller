@@ -114,6 +114,11 @@ func Prepare(ctx context.Context,
 		return nil, nil, err
 	}
 
+	err = vaultSecretSrv.LoadSecrets(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	appCfgPreparerSrv := commonConfig.NewConfigManager()
 	wrappedConfig := &Config{}
 	err = appCfgPreparerSrv.PrepareTo(wrappedConfig).With(baseCfgSrv, vaultSecretSrv).Do(ctx)
