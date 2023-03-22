@@ -93,6 +93,13 @@ func (s *Service) GetAddressByPath(ctx context.Context,
 	}
 
 	return &types.PublicDerivationAddressData{
+		PublicWallet: &types.PublicWalletData{
+			UUID: walletUUID,
+		},
+		MnemonicWallet: &types.PublicMnemonicWalletData{
+			UUID: mnemonicWalletUUID,
+			Hash: "",
+		},
 		AccountIndex:  account,
 		InternalIndex: change,
 		AddressIndex:  index,

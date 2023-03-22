@@ -60,7 +60,9 @@ message AddNewWalletResponse {
 }
 
 message DerivationAddressRequest {
-  DerivationAddressIdentity AddressIdentity = 1;
+  WalletIdentity WalletIdentity = 1;
+  MnemonicWalletIdentity MnemonicIdentity = 2;
+  DerivationAddressIdentity AddressIdentity = 3;
 }
 
 message DerivationAddressResponse {

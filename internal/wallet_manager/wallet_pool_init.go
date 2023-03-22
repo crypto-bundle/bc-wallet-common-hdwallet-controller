@@ -80,16 +80,17 @@ func (pi *poolInitializer) prepareMnemonicUnits(_ context.Context) error {
 
 	// prepare map of mnemonic units grouped by wallet uuid
 	for i, _ := range pi.mnemonicItems {
-		mnemonicWallet := pi.mnemonicItems[i]
-		walletUUID := mnemonicWallet.WalletUUID
+		mnemonicWalletItem := pi.mnemonicItems[i]
+		walletUUID := mnemonicWalletItem.WalletUUID
 
 		bucket, isExists := groupedByWalletUUID[walletUUID]
 		if !isExists {
 			bucket = make([]walletPoolMnemonicUnitService, 0)
 		}
 
-		mnemonicUnit := newMnemonicWalletPoolUnit(pi.logger, pi.cfg, mnemonicWallet.UnloadInterval,
-			walletUUID, pi.encryptSrv, pi.mnemonicWalletsDataSrv, mnemonicWallet)
+		mnemonicUnit := newMnemonicWalletPoolUnit(pi.logger, pi.cfg,
+			mnemonicWalletItem.UnloadInterval,
+			walletUUID, pi.encryptSrv, pi.mnemonicWalletsDataSrv, mnemonicWalletItem)
 
 		bucket = append(bucket, mnemonicUnit)
 		groupedByWalletUUID[walletUUID] = bucket
@@ -127,8 +128,9 @@ func (pi *poolInitializer) prepareWalletPoolUnits(_ context.Context) error {
 				pi.walletsDataSrv, pi.mnemonicWalletsDataSrv,
 				walletItem.UUID,
 				walletItem.Title, walletItem.Purpose)
+
 			for j := 0; j != mnemonicCount; j++ {
-				addErr := walletPoolUnit.AddMnemonicUnit(bucket[i])
+				addErr := walletPoolUnit.AddMnemonicUnit(bucket[j])
 				if addErr != nil {
 					return addErr
 				}

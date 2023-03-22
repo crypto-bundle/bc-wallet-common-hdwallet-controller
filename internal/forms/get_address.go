@@ -28,11 +28,8 @@ import (
 	"context"
 	"errors"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-	protoTypes "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/types"
-
 	"github.com/asaskevich/govalidator"
-	"google.golang.org/grpc/metadata"
+	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 )
 
 var (
@@ -52,24 +49,8 @@ type GetDerivationAddressForm struct {
 func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.DerivationAddressRequest,
 ) (valid bool, err error) {
-	headers, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return false, ErrUnableReadGrpcMetadata
-	}
-
-	walletHeaders := headers.Get(protoTypes.WalletUUIDHeaderName)
-	mnemonicWalletHeaders := headers.Get(protoTypes.MnemonicWalletUUIDHeaderName)
-
-	if len(walletHeaders) == 0 {
-		return false, ErrUnableGetWalletUUIDFromMetadata
-	}
-
-	if len(mnemonicWalletHeaders) == 0 {
-		return false, ErrUnableGetWalletUUIDFromMetadata
-	}
-
-	f.WalletUUID = walletHeaders[0]
-	f.MnemonicWalletUUID = mnemonicWalletHeaders[0]
+	f.WalletUUID = req.WalletIdentity.WalletUUID
+	f.MnemonicWalletUUID = req.MnemonicIdentity.WalletUUID
 
 	f.AccountIndex = req.AddressIdentity.AccountIndex
 	f.InternalIndex = req.AddressIdentity.InternalIndex

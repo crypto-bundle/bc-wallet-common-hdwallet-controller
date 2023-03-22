@@ -57,13 +57,13 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
 		var walletID uint32
 		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("uuid", "wallet_uuid", 
 				"mnemonic_hash",
-				"is_hot", 
+				"is_hot", "unload_interval",
 				"rsa_encrypted", "rsa_encrypted_hash", "vault_encrypted", "vault_encrypted_hash", 
 				"created_at", "updated_at")
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id;`,
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id;`,
 			wallet.UUID.String(), wallet.WalletUUID.String(),
 			wallet.MnemonicHash,
-			wallet.IsHotWallet,
+			wallet.IsHotWallet, wallet.UnloadInterval.Microseconds(),
 			wallet.RsaEncrypted, wallet.RsaEncryptedHash, wallet.VaultEncrypted, wallet.VaultEncryptedHash,
 			date, date)
 
@@ -88,10 +88,11 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT  "id", "wallet_uuid", "mnemonic_hash", 
+		row := stmt.QueryRowx(`SELECT  "id", "uuid", "wallet_uuid", "mnemonic_hash", 
        			"rsa_encrypted", "rsa_encrypted_hash",
        			"vault_encrypted", "vault_encrypted_hash",
-       			"is_hot", "created_at", "updated_at"
+       			"is_hot", "unload_interval", 
+       			"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "mnemonic_hash" = $1`, hash)
 
@@ -118,10 +119,11 @@ func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string)
 	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT  "id", "wallet_uuid", "mnemonic_hash", 
+		row := stmt.QueryRowx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", 
        			"rsa_encrypted", "rsa_encrypted_hash",
        			"vault_encrypted", "vault_encrypted_hash",
-       			"is_hot", "created_at", "updated_at"
+       			"is_hot", "unload_interval",  
+       			"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "uuid" = $1`, uuid)
 
@@ -148,10 +150,11 @@ func (s *pgRepository) GetAllHotMnemonicWallets(ctx context.Context) ([]*entitie
 	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT "id", "wallet_uuid", "mnemonic_hash", 
+		rows, err := stmt.Queryx(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", 
        			"rsa_encrypted", "rsa_encrypted_hash",
        			"vault_encrypted", "vault_encrypted_hash",
-       			"is_hot", "created_at", "updated_at"
+       			"is_hot", "unload_interval",  
+       			"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "is_hot" = true`)
 		if err != nil {
@@ -186,10 +189,11 @@ func (s *pgRepository) GetMnemonicWalletsByUUIDList(ctx context.Context,
 	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		query, args, err := sqlx.In(`SELECT "id", "wallet_uuid", "mnemonic_hash", 
+		query, args, err := sqlx.In(`SELECT "id", "uuid", "wallet_uuid", "mnemonic_hash", 
        			"rsa_encrypted", "rsa_encrypted_hash",
        			"vault_encrypted", "vault_encrypted_hash",
-       			"is_hot", "created_at", "updated_at"
+       			"is_hot", "unload_interval", 
+       			"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "wallet_uuid" IN (?)`, UUIDList)
 
@@ -225,10 +229,11 @@ func (s *pgRepository) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*enti
 	var wallets []*entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, err := stmt.Queryx(`SELECT  "id", "wallet_uuid", "mnemonic_hash", 
+		rows, err := stmt.Queryx(`SELECT  "id", "uuid", "wallet_uuid", "mnemonic_hash", 
        			"rsa_encrypted", "rsa_encrypted_hash",
        			"vault_encrypted", "vault_encrypted_hash",
-       			"is_hot", "created_at", "updated_at"
+       			"is_hot", "unload_interval", 
+       			"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
 	       WHERE "is_hot" = false`)
 		if err != nil {

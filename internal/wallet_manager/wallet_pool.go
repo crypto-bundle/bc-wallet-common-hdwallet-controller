@@ -112,7 +112,7 @@ func (p *Pool) GetAddressByPath(ctx context.Context,
 	account, change, index uint32,
 ) (string, error) {
 	poolUnit, isExists := p.walletUnits[walletUUID]
-	if isExists {
+	if !isExists {
 		return "", ErrPassedWalletNotFound
 	}
 

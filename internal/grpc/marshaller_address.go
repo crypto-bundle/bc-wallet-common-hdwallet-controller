@@ -9,8 +9,13 @@ func (m *grpcMarshaller) MarshallGetAddressData(
 	addressPublicData *types.PublicDerivationAddressData,
 ) (*pbApi.DerivationAddressResponse, error) {
 	return &pbApi.DerivationAddressResponse{
-		WalletIdentity:   nil,
-		MnemonicIdentity: nil,
+		WalletIdentity: &pbApi.WalletIdentity{
+			WalletUUID: addressPublicData.PublicWallet.UUID.String(),
+		},
+		MnemonicIdentity: &pbApi.MnemonicWalletIdentity{
+			WalletUUID: addressPublicData.MnemonicWallet.UUID.String(),
+			WalletHash: addressPublicData.MnemonicWallet.Hash,
+		},
 		AddressIdentity: &pbApi.DerivationAddressIdentity{
 			AccountIndex:  addressPublicData.AccountIndex,
 			InternalIndex: addressPublicData.InternalIndex,
