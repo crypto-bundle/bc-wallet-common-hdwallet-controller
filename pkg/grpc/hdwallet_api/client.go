@@ -36,7 +36,6 @@ import (
 	"github.com/opentracing/opentracing-go"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -50,7 +49,7 @@ type Client struct {
 	client pbApi.HdWalletApiClient
 }
 
-// Init bcexplorer service
+// Init bc-wallet-tron-hdwallet GRPC-client service
 // nolint:revive // fixme (autofix)
 func (s *Client) Init(ctx context.Context) error {
 	options := commonGRPCClient.DefaultDialOptions()
@@ -79,11 +78,9 @@ func (s *Client) Shutdown(ctx context.Context) error {
 	return nil
 }
 
-// GetEnabledWallets is function for getting address from bcexplorer
+// GetEnabledWallets is function for getting address from bc-wallet-tron-hdwallet
 func (s *Client) GetEnabledWallets(ctx context.Context) (*pbApi.GetEnabledWalletsResponse, error) {
-	request := &pbApi.GetEnabledWalletsRequest{}
-
-	enabledWallets, err := s.client.GetEnabledWallets(ctx, request)
+	enabledWallets, err := s.client.GetEnabledWallets(ctx, &pbApi.GetEnabledWalletsRequest{})
 	if err != nil {
 		return nil, err
 	}
@@ -91,14 +88,21 @@ func (s *Client) GetEnabledWallets(ctx context.Context) (*pbApi.GetEnabledWallet
 	return enabledWallets, nil
 }
 
-// GetDerivationAddress is function for getting address from bcexplorer
+// GetDerivationAddress is function for getting address from bc-wallet-tron-hdwallet
 func (s *Client) GetDerivationAddress(ctx context.Context,
 	walletUUID string,
+	mnemonicWalletUUID string,
 	accountIndex uint32,
 	internalIndex uint32,
 	addressIndex uint32,
 ) (*pbApi.DerivationAddressResponse, error) {
 	request := &pbApi.DerivationAddressRequest{
+		WalletIdentity: &pbApi.WalletIdentity{
+			WalletUUID: walletUUID,
+		},
+		MnemonicIdentity: &pbApi.MnemonicWalletIdentity{
+			WalletUUID: mnemonicWalletUUID,
+		},
 		AddressIdentity: &pbApi.DerivationAddressIdentity{
 			AccountIndex:  accountIndex,
 			InternalIndex: internalIndex,
@@ -106,13 +110,7 @@ func (s *Client) GetDerivationAddress(ctx context.Context,
 		},
 	}
 
-	md := metadata.New(map[string]string{
-		"wallet_uuid": walletUUID,
-	})
-
-	requestCtx := metadata.NewOutgoingContext(ctx, md)
-
-	address, err := s.client.GetDerivationAddress(requestCtx, request)
+	address, err := s.client.GetDerivationAddress(ctx, request)
 	if err != nil {
 		grpcStatus, ok := status.FromError(err)
 		if !ok {
