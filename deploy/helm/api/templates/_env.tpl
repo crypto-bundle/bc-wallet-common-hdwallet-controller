@@ -24,24 +24,6 @@
   value: {{ pluck .Values.global.env .Values.app.db.idle_connections | first | default .Values.app.db.idle_connections._default | quote }}
 - name: DB_SSL_MODE
   value: {{ pluck .Values.global.env .Values.app.db.ssl_mode | first | default .Values.app.db.ssl_mode._default | quote }}
-- name: DB_DATABASE
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: db_name
-      optional: false
-- name: DB_USERNAME
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: db_username
-      optional: false
-- name: DB_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: db_password
-      optional: false
 
 - name: NATS_ADDRESSES
   value: {{ pluck .Values.global.env .Values.app.nats.hosts | first | default .Values.app.nats.hosts._default | join "," | quote }}
@@ -55,18 +37,6 @@
   value: {{ pluck .Values.global.env .Values.app.nats.flush_timeout | first | default .Values.app.nats.flush_timeout._default | quote }}
 - name: NATS_WORKER_PER_CONSUMER
   value: {{ pluck .Values.global.env .Values.app.nats.workers | first | default .Values.app.nats.workers._default | quote }}
-- name: NATS_USER
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: nats_username
-      optional: false
-- name: NATS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: nats_password
-      optional: false
 
 - name: REDIS_HOST
   value: {{ pluck .Values.global.env .Values.app.redis.host | first | default .Values.app.redis.host._default | quote }}
@@ -94,18 +64,6 @@
   value: {{ pluck .Values.global.env .Values.app.redis.pool_timeout | first | default .Values.app.redis.pool_timeout._default | quote }}
 - name: REDIS_DIAL_TIMEOUT
   value: {{ pluck .Values.global.env .Values.app.redis.dial_timeout | first | default .Values.app.redis.dial_timeout._default | quote }}
-- name: REDIS_USER
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: redis_username
-      optional: false
-- name: REDIS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      name: bc-wallet-tron-hdwallet
-      key: redis_password
-      optional: false
 
 - name: VAULT_HOST
   value: {{ pluck .Values.global.env .Values.app.vault.host | first | default .Values.app.vault.host._default | quote }}

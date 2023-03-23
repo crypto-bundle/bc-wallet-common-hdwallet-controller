@@ -31,4 +31,4 @@ deploy:
 		--set "global.build_tag=$(build_tag)" --set "global.env=$(env)"= ./deploy/helm/api \
 		--values=./deploy/helm/api/values.yaml --values=./deploy/helm/api/values_$(env).yaml
 
-.PHONY: migrate hdwallet deploy
+.PHONY: hdwallet_proto deploy
