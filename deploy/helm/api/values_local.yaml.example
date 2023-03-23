@@ -1,3 +1,6 @@
+image:
+  repository: your.dockerrepo.local/crypto-bundle/bc-wallet-tron-hdwallet
+
 app:
   db:
     host:

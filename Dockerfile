@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine AS gobuild
+FROM golang:1.19-alpine AS gobuild
 
 ENV GO111MODULE on
 ENV GOSUMDB off
@@ -32,8 +32,6 @@ FROM scratch
 
 # Import the user and group files from the build stage.
 #COPY --from=gobuild /etc/group /etc/passwd /etc/
-# Import the Certificate-Authority certificates for enabling HTTPS.
-COPY --from=gobuild /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 ENV APP_ROOT /opt/appworker
 ENV PATH /opt/appworker

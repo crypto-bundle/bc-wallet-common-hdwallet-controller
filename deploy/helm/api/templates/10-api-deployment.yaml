@@ -31,16 +31,12 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ .Values.image.repository }}:{{ include "app.container.tag" . }}
+          image: {{ .Values.global.repository | default .Values.image.repository }}:{{ include "app.container.tag" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: grpc
               containerPort: {{ pluck .Values.global.env .Values.app.api.grpc_port | first | default .Values.app.api.grpc_port._default }}
               protocol: TCP
-          volumeMounts:
-            - mountPath: {{ pluck .Values.global.env .Values.app.encryption.rsa.dir | first | default .Values.app.encryption.rsa.dir._default | quote }}
-              name: bc-wallet-eth-hdwallet-rsa-key
-              readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           env:
@@ -60,12 +56,3 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
-      volumes:
-        - name: bc-wallet-eth-hdwallet-rsa-key
-          secret:
-            secretName: bc-wallet-eth-hdwallet
-            items:
-              - key: bc-wallet-eth-hdwallet-rsa-key
-                path: {{ pluck .Values.global.env .Values.app.encryption.rsa.file | first | default .Values.app.encryption.rsa.file._default | quote }}
-            optional: false
