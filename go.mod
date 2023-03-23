@@ -6,16 +6,15 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
-	github.com/crypto-bundle/bc-wallet-common v0.0.41
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.16
+	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.1
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.10
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.3
+	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/fbsobreira/gotron-sdk v0.0.0-20230314163715-3e721028a4f0
 	github.com/google/uuid v1.3.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
-	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.4.0
@@ -41,6 +40,8 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v0.16.2 // indirect

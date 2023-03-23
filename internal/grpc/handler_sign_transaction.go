@@ -26,14 +26,14 @@ package grpc
 
 import (
 	"context"
-	"github.com/google/uuid"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
-	"github.com/crypto-bundle/bc-wallet-common/pkg/tracer"
+	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
 
 	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

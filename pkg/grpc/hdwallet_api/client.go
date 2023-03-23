@@ -30,6 +30,8 @@ import (
 
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
+	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
+
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	originGRPC "google.golang.org/grpc"
@@ -43,7 +45,7 @@ var (
 )
 
 type Client struct {
-	cfg clientConfig
+	cfg clientConfigService
 
 	client pbApi.HdWalletApiClient
 }
@@ -51,10 +53,10 @@ type Client struct {
 // Init bcexplorer service
 // nolint:revive // fixme (autofix)
 func (s *Client) Init(ctx context.Context) error {
-	options := DefaultDialOptions()
+	options := commonGRPCClient.DefaultDialOptions()
 	msgSizeOptions := originGRPC.WithDefaultCallOptions(
-		originGRPC.MaxCallRecvMsgSize(DefaultClientMaxReceiveMessageSize),
-		originGRPC.MaxCallSendMsgSize(DefaultClientMaxSendMessageSize),
+		originGRPC.MaxCallRecvMsgSize(commonGRPCClient.DefaultClientMaxReceiveMessageSize),
+		originGRPC.MaxCallSendMsgSize(commonGRPCClient.DefaultClientMaxSendMessageSize),
 	)
 	options = append(options, msgSizeOptions,
 		originGRPC.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),

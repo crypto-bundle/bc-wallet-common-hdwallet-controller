@@ -32,6 +32,8 @@ import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
+	commonGRPCServer "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/server"
+
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
@@ -69,10 +71,10 @@ func (s *Server) Shutdown(ctx context.Context) {
 
 func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 	// todo: move to go-base
-	options := DefaultServeOptions()
+	options := commonGRPCServer.DefaultServeOptions()
 	msgSizeOptions := []grpc.ServerOption{
-		grpc.MaxRecvMsgSize(DefaultServerMaxReceiveMessageSize),
-		grpc.MaxSendMsgSize(DefaultServerMaxSendMessageSize),
+		grpc.MaxRecvMsgSize(commonGRPCServer.DefaultServerMaxReceiveMessageSize),
+		grpc.MaxSendMsgSize(commonGRPCServer.DefaultServerMaxSendMessageSize),
 	}
 	options = append(options, msgSizeOptions...)
 	options = append(options, grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer())))
