@@ -27,10 +27,9 @@ package config
 import (
 	"time"
 
-	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
+	commonEnvConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/envconfig"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
-	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
 )
@@ -45,7 +44,7 @@ type Config struct {
 	// -------------------
 	// Application configs
 	// -------------------
-	*commonConfig.BaseConfig
+	*commonEnvConfig.BaseConfig
 	// -------------------
 	// Logger configs
 	// -------------------
@@ -58,7 +57,6 @@ type Config struct {
 	// Database config
 	// -------------------
 	*commonPostgres.PostgresConfig
-	*commonRedis.RedisConfig
 	//*natsCfg.NatsConfig
 	// -------------------
 	// GRPC service config

@@ -26,11 +26,12 @@ package config
 
 import (
 	"context"
-	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
-	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
 	"log"
 
-	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
+	commonEnvConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/envconfig"
+	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
+	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
+
 	"github.com/joho/godotenv"
 )
 
@@ -42,13 +43,13 @@ func PrepareBaseConfig(ctx context.Context,
 	buildNumber,
 	buildDateTS uint64,
 	applicationName string,
-) (*commonConfig.BaseConfig, error) {
-	flagManagerSrv := commonConfig.NewLdFlagsManager(version, releaseTag,
+) (*commonEnvConfig.BaseConfig, error) {
+	flagManagerSrv := commonEnvConfig.NewLdFlagsManager(version, releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS)
 
-	baseCfgPreparerSrv := commonConfig.NewConfigManager()
-	baseCfg := commonConfig.NewBaseConfig(applicationName)
+	baseCfgPreparerSrv := commonEnvConfig.NewConfigManager()
+	baseCfg := commonEnvConfig.NewBaseConfig(applicationName)
 	err := baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
 	if err != nil {
 		return nil, err
@@ -65,7 +66,7 @@ func PrepareBaseConfig(ctx context.Context,
 }
 
 func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVault.Service, error) {
-	cfgPreparerSrv := commonConfig.NewConfigManager()
+	cfgPreparerSrv := commonEnvConfig.NewConfigManager()
 	vaultCfg := &VaultWrappedConfig{
 		BaseConfig: &commonVault.BaseConfig{},
 		AuthConfig: &commonVaultTokenClient.AuthConfig{},
@@ -119,7 +120,7 @@ func Prepare(ctx context.Context,
 		return nil, nil, err
 	}
 
-	appCfgPreparerSrv := commonConfig.NewConfigManager()
+	appCfgPreparerSrv := commonEnvConfig.NewConfigManager()
 	wrappedConfig := &Config{}
 	err = appCfgPreparerSrv.PrepareTo(wrappedConfig).With(baseCfgSrv, vaultSecretSrv).Do(ctx)
 	if err != nil {
