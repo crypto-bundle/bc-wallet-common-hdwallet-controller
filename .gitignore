@@ -12,6 +12,7 @@
 *.out
 
 .idea
+README_local.md
 
 # Dependency directories (remove the comment below to include it)
 vendor/
@@ -19,11 +20,6 @@ vendor/
 data/
 
 build/*
-!build/secrets/
-build/secrets/*
-!build/vault
-build/vault/*
-!build/vault/policies.hcl.example
 
 deploy/k8s_secrets/*.yaml
 deploy/helm/*/values_local.yaml

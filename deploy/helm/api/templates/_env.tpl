@@ -121,7 +121,7 @@
   valueFrom:
     secretKeyRef:
       name: bc-wallet-tron-hdwallet
-      key: vault_auth_path
+      key: vault_api_user_token
       optional: false
 - name: VAULT_TRANSIT_KEY
   valueFrom:
