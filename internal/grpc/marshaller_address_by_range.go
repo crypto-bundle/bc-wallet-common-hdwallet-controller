@@ -8,18 +8,25 @@ import (
 )
 
 func (m *grpcMarshaller) MarshallGetAddressByRange(
+	walletPublicData *types.PublicWalletData,
+	mnemonicWalletPublicData *types.PublicMnemonicWalletData,
 	addressesData []*types.PublicDerivationAddressData,
 ) (*pbApi.DerivationAddressByRangeResponse, error) {
 	rangeSize := uint32(len(addressesData))
 
 	response := &pbApi.DerivationAddressByRangeResponse{
-		WalletIdentity:    nil,
-		MnemonicIdentity:  nil,
+		WalletIdentity: &pbApi.WalletIdentity{
+			WalletUUID: walletPublicData.UUID.String(),
+		},
+		MnemonicIdentity: &pbApi.MnemonicWalletIdentity{
+			WalletUUID: mnemonicWalletPublicData.UUID.String(),
+			WalletHash: mnemonicWalletPublicData.Hash,
+		},
 		AddressIdentities: make([]*pbApi.DerivationAddressIdentity, rangeSize+1),
 	}
 
 	wg := sync.WaitGroup{}
-	wg.Add(int(rangeSize) + 1)
+	wg.Add(int(rangeSize))
 	for i := uint32(0); i != rangeSize; i++ {
 		go func(index uint32) {
 			addrData := addressesData[index]

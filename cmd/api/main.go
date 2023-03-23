@@ -139,6 +139,11 @@ func main() {
 		loggerEntry.Fatal("unable to init wallet service", zap.Error(err))
 	}
 
+	err = walletService.Run(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to run wallet service", zap.Error(err))
+	}
+
 	err = srv.Init(ctx, loggerEntry, apiHandlers)
 	if err != nil {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),

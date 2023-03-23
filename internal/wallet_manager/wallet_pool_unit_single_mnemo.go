@@ -50,13 +50,17 @@ func (u *singleMnemonicWalletUnit) GetWalletPurpose() string {
 }
 
 func (u *singleMnemonicWalletUnit) GetWalletPublicData() *types.PublicWalletData {
+	mnemonicPubData := u.mnemonicUnit.GetPublicData()
 	return &types.PublicWalletData{
 		UUID:     u.walletUUID,
 		Title:    u.walletTitle,
 		Purpose:  u.walletPurpose,
 		Strategy: types.WalletMakerSingleMnemonicStrategy,
 		MnemonicWallets: []*types.PublicMnemonicWalletData{
-			u.mnemonicUnit.GetPublicData(),
+			mnemonicPubData,
+		},
+		MnemonicWalletsByUUID: map[uuid.UUID]*types.PublicMnemonicWalletData{
+			mnemonicPubData.UUID: mnemonicPubData,
 		},
 	}
 }

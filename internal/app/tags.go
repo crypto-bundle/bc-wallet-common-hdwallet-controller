@@ -28,10 +28,11 @@ const (
 	ApplicationNameTag = "application"
 	BlockChainNameTag  = "blockchain_name"
 
-	WalletTitleTag   = "title"
-	WalletUUIDTag    = "title"
-	WalletPurposeTag = "purpose"
-	WalletIsHotTag   = "is_hot"
+	WalletTitleTag        = "title"
+	WalletUUIDTag         = "wallet_uuid"
+	MnemonicWalletUUIDTag = "mnemonic_wallet_uuid"
+	WalletPurposeTag      = "purpose"
+	WalletIsHotTag        = "is_hot"
 
 	GRPCBindPortTag = "grpc_bind_port"
 

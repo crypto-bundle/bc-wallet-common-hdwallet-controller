@@ -8,7 +8,7 @@ require (
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/crypto-bundle/bc-wallet-common v0.0.41
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.15
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.9
+	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.10
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.3
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12

@@ -75,6 +75,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
 | AccountIndex | [uint32](#uint32) |  |  |
 | InternalIndex | [uint32](#uint32) |  |  |
 | AddressIndexFrom | [uint32](#uint32) |  |  |

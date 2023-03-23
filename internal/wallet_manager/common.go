@@ -151,6 +151,7 @@ type walletPoolService interface {
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
 	) ([]*types.PublicDerivationAddressData, error)
+	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
 	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
 	SignTransaction(ctx context.Context,
 		walletUUID uuid.UUID,

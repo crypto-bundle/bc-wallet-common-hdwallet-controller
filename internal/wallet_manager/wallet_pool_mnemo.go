@@ -72,7 +72,9 @@ func (u *MnemonicWalletUnit) run(ctx context.Context) {
 			if err != nil {
 				u.logger.Error("unable to unload logger by ticker", zap.Error(err),
 					zap.Time(app.TickerEventTriggerTimeTag, tick))
+				continue
 			}
+			u.logger.Info("wallet successfully unload")
 
 		case <-ctx.Done():
 			u.onAirTicker.Stop()
@@ -394,8 +396,9 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 	mnemonicWalletItem *entities.MnemonicWallet,
 ) *MnemonicWalletUnit {
 	return &MnemonicWalletUnit{
-		logger: logger.With(zap.String(app.WalletUUIDTag, walletUUID.String())),
-		mu:     sync.Mutex{},
+		logger: logger.With(zap.String(app.WalletUUIDTag, walletUUID.String()),
+			zap.String(app.MnemonicWalletUUIDTag, mnemonicWalletItem.WalletUUID.String())),
+		mu: sync.Mutex{},
 
 		onAirTicker: nil, // that field will be field @ run stage
 

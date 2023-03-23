@@ -27,6 +27,7 @@ package forms
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 
 	"github.com/asaskevich/govalidator"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
@@ -38,8 +39,10 @@ var (
 )
 
 type GetDerivationAddressForm struct {
-	WalletUUID         string `valid:"type(string),uuid,required"`
-	MnemonicWalletUUID string `valid:"type(string),uuid,required"`
+	WalletUUID            string `valid:"type(string),uuid,required"`
+	WalletUUIDRaw         uuid.UUID
+	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
+	MnemonicWalletUUIDRaw uuid.UUID
 
 	AccountIndex  uint32 `valid:"type(uint32)"`
 	InternalIndex uint32 `valid:"type(uint32)"`
@@ -60,6 +63,18 @@ func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
 	if err != nil {
 		return false, err
 	}
+
+	walletUUIDRaw, err := uuid.Parse(f.WalletUUID)
+	if err != nil {
+		return false, err
+	}
+	f.WalletUUIDRaw = walletUUIDRaw
+
+	mnemonicWalletUUIDRaw, err := uuid.Parse(f.MnemonicWalletUUID)
+	if err != nil {
+		return false, err
+	}
+	f.MnemonicWalletUUIDRaw = mnemonicWalletUUIDRaw
 
 	return true, nil
 }

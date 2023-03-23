@@ -69,6 +69,15 @@ func (s *Service) Init(ctx context.Context) error {
 	return nil
 }
 
+func (s *Service) Run(ctx context.Context) error {
+	err := s.walletPoolSrv.Run(ctx)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *Service) Shutdown(ctx context.Context) error {
 	err := s.walletPoolSrv.Shutdown(ctx)
 	if err != nil {
@@ -76,6 +85,10 @@ func (s *Service) Shutdown(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error) {
+	return s.walletPoolSrv.GetWalletByUUID(ctx, walletUUID)
 }
 
 func (s *Service) GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error) {
@@ -93,13 +106,6 @@ func (s *Service) GetAddressByPath(ctx context.Context,
 	}
 
 	return &types.PublicDerivationAddressData{
-		PublicWallet: &types.PublicWalletData{
-			UUID: walletUUID,
-		},
-		MnemonicWallet: &types.PublicMnemonicWalletData{
-			UUID: mnemonicWalletUUID,
-			Hash: "",
-		},
 		AccountIndex:  account,
 		InternalIndex: change,
 		AddressIndex:  index,

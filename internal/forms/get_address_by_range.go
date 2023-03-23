@@ -26,45 +26,29 @@ package forms
 
 import (
 	"context"
-
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-	protoTypes "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/types"
+	"github.com/google/uuid"
 
 	"github.com/asaskevich/govalidator"
-	"google.golang.org/grpc/metadata"
+	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 )
 
 type DerivationAddressByRangeForm struct {
-	WalletUUID         string `valid:"type(string),uuid,required"`
-	MnemonicWalletUUID string `valid:"type(string),uuid,required"`
+	WalletUUID            string `valid:"type(string),uuid,required"`
+	WalletUUIDRaw         uuid.UUID
+	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
+	MnemonicWalletUUIDRaw uuid.UUID
 
-	AccountIndex     uint32 `valid:"type(uint32)"`
-	InternalIndex    uint32 `valid:"type(uint32)"`
-	AddressIndexFrom uint32 `valid:"type(uint32)"`
-	AddressIndexTo   uint32 `valid:"type(uint32)"`
+	AccountIndex     uint32 `valid:"type(uint32),int,required"`
+	InternalIndex    uint32 `valid:"type(uint32),int,required"`
+	AddressIndexFrom uint32 `valid:"type(uint32),int,required"`
+	AddressIndexTo   uint32 `valid:"type(uint32),int,required"`
 }
 
 func (f *DerivationAddressByRangeForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.DerivationAddressByRangeRequest,
 ) (valid bool, err error) {
-	headers, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return false, ErrUnableReadGrpcMetadata
-	}
-
-	walletHeaders := headers.Get(protoTypes.WalletUUIDHeaderName)
-	mnemonicWalletHeaders := headers.Get(protoTypes.MnemonicWalletUUIDHeaderName)
-
-	if len(walletHeaders) == 0 {
-		return false, ErrUnableGetWalletUUIDFromMetadata
-	}
-
-	if len(mnemonicWalletHeaders) == 0 {
-		return false, ErrUnableGetWalletUUIDFromMetadata
-	}
-
-	f.WalletUUID = walletHeaders[0]
-	f.MnemonicWalletUUID = mnemonicWalletHeaders[0]
+	f.WalletUUID = req.WalletIdentity.WalletUUID
+	f.MnemonicWalletUUID = req.MnemonicIdentity.WalletUUID
 
 	f.AccountIndex = req.AccountIndex
 	f.InternalIndex = req.InternalIndex
@@ -75,6 +59,18 @@ func (f *DerivationAddressByRangeForm) LoadAndValidate(ctx context.Context,
 	if err != nil {
 		return false, err
 	}
+
+	walletUUIDRaw, err := uuid.Parse(f.WalletUUID)
+	if err != nil {
+		return false, err
+	}
+	f.WalletUUIDRaw = walletUUIDRaw
+
+	mnemonicWalletUUIDRaw, err := uuid.Parse(f.MnemonicWalletUUID)
+	if err != nil {
+		return false, err
+	}
+	f.MnemonicWalletUUIDRaw = mnemonicWalletUUIDRaw
 
 	return true, nil
 }

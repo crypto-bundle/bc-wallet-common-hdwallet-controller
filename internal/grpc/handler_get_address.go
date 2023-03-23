@@ -26,8 +26,6 @@ package grpc
 
 import (
 	"context"
-	"github.com/google/uuid"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
@@ -60,8 +58,8 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	validationForm := &forms.GetDerivationAddressForm{}
-	valid, err := validationForm.LoadAndValidate(ctx, req)
+	vf := &forms.GetDerivationAddressForm{}
+	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
 
@@ -72,23 +70,28 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletUUID, err := uuid.Parse(validationForm.WalletUUID)
+	walletPubData, err := h.walletSrv.GetWalletByUUID(ctx, vf.WalletUUIDRaw)
+	if err != nil {
+		h.l.Error("unable get wallet", zap.Error(err))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+	if walletPubData == nil {
+		return nil, status.Error(codes.NotFound, "wallet not found")
+	}
+
+	mnemoWalletData, isExists := walletPubData.MnemonicWalletsByUUID[vf.MnemonicWalletUUIDRaw]
+	if !isExists {
+		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
+	}
+
+	addressData, err := h.walletSrv.GetAddressByPath(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
+		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
 	if err != nil {
 		return nil, err
 	}
 
-	mnemonicWalletUUID, err := uuid.Parse(validationForm.MnemonicWalletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	addressData, err := h.walletSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID,
-		validationForm.AccountIndex, validationForm.InternalIndex, validationForm.AddressIndex)
-	if err != nil {
-		return nil, err
-	}
-
-	marshalledData, err := h.marshallerSrv.MarshallGetAddressData(addressData)
+	marshalledData, err := h.marshallerSrv.MarshallGetAddressData(walletPubData, mnemoWalletData, addressData)
 	if err != nil {
 		h.l.Error("unable to marshall public address data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

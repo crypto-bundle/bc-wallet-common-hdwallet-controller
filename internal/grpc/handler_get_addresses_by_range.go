@@ -30,8 +30,6 @@ import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-	"github.com/google/uuid"
-
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -58,8 +56,8 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 
 	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
-	validationForm := &forms.DerivationAddressByRangeForm{}
-	valid, err := validationForm.LoadAndValidate(ctx, req)
+	vf := &forms.DerivationAddressByRangeForm{}
+	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
 
@@ -70,26 +68,31 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletUUID, err := uuid.Parse(validationForm.WalletUUID)
+	walletPubData, err := h.walletSrv.GetWalletByUUID(ctx, vf.WalletUUIDRaw)
 	if err != nil {
-		return nil, err
+		h.l.Error("unable get wallet", zap.Error(err))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+	if walletPubData == nil {
+		return nil, status.Error(codes.NotFound, "wallet not found")
 	}
 
-	mnemonicWalletUUID, err := uuid.Parse(validationForm.MnemonicWalletUUID)
-	if err != nil {
-		return nil, err
+	mnemoWalletData, isExists := walletPubData.MnemonicWalletsByUUID[vf.MnemonicWalletUUIDRaw]
+	if !isExists {
+		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
 	}
 
-	walletsData, err := h.walletSrv.GetAddressesByPathByRange(ctx, walletUUID, mnemonicWalletUUID,
-		validationForm.AccountIndex, validationForm.InternalIndex,
-		validationForm.AddressIndexFrom, validationForm.AddressIndexTo)
+	addressesData, err := h.walletSrv.GetAddressesByPathByRange(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
+		vf.AccountIndex, vf.InternalIndex,
+		vf.AddressIndexFrom, vf.AddressIndexTo)
 	if err != nil {
 		h.l.Error("unable get derivative addresses by range", zap.Error(err))
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletsData)
+	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletPubData, mnemoWalletData, addressesData)
 	if err != nil {
 		h.l.Error("unable to marshall get addresses data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

@@ -119,6 +119,15 @@ func (p *Pool) GetAddressByPath(ctx context.Context,
 	return poolUnit.GetAddressByPath(ctx, mnemonicWalletUUID, account, change, index)
 }
 
+func (p *Pool) GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error) {
+	poolUnit, isExists := p.walletUnits[walletUUID]
+	if !isExists {
+		return nil, nil
+	}
+
+	return poolUnit.GetWalletPublicData(), nil
+}
+
 func (p *Pool) GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error) {
 	result := make([]*types.PublicWalletData, len(p.walletUnits))
 	i := 0
@@ -139,7 +148,7 @@ func (p *Pool) GetAddressesByPathByRange(ctx context.Context,
 	addressIndexTo uint32,
 ) ([]*types.PublicDerivationAddressData, error) {
 	poolUnit, isExists := p.walletUnits[walletUUID]
-	if isExists {
+	if !isExists {
 		return nil, ErrPassedWalletNotFound
 	}
 
