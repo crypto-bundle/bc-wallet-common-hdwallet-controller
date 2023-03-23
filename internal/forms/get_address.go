@@ -44,9 +44,9 @@ type GetDerivationAddressForm struct {
 	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
 	MnemonicWalletUUIDRaw uuid.UUID
 
-	AccountIndex  uint32 `valid:"type(uint32)"`
-	InternalIndex uint32 `valid:"type(uint32)"`
-	AddressIndex  uint32 `valid:"type(uint32)"`
+	AccountIndex  uint32 `valid:"type(uint32),int,required"`
+	InternalIndex uint32 `valid:"type(uint32),int,required"`
+	AddressIndex  uint32 `valid:"type(uint32),int,required"`
 }
 
 func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
