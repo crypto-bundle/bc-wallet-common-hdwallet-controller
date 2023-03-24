@@ -29,7 +29,6 @@ import (
 	"net"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
 
 	commonGRPCServer "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/server"
@@ -42,35 +41,16 @@ import (
 )
 
 type Server struct {
-	logger     *zap.Logger
-	grpcServer *grpc.Server
-	handlers   pbApi.HdWalletApiServer
-	config     *config.Config
+	logger            *zap.Logger
+	grpcServer        *grpc.Server
+	grpcServerOptions []grpc.ServerOption
+	handlers          pbApi.HdWalletApiServer
+	config            configService
 
 	listener net.Listener
 }
 
-func (s *Server) Init(ctx context.Context,
-	loggerEntry *zap.Logger,
-	handlers pbApi.HdWalletApiServer,
-) error {
-	s.handlers = handlers
-
-	loggerEntry.Info("init success")
-
-	return nil
-}
-
-func (s *Server) Shutdown(ctx context.Context) {
-	s.logger.Info("start close instances")
-
-	s.grpcServer.Stop()
-
-	s.logger.Info("grpc server shutdown completed")
-}
-
-func (s *Server) ListenAndServe(ctx context.Context) (err error) {
-	// todo: move to go-base
+func (s *Server) Init(ctx context.Context) error {
 	options := commonGRPCServer.DefaultServeOptions()
 	msgSizeOptions := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(commonGRPCServer.DefaultServerMaxReceiveMessageSize),
@@ -79,8 +59,38 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 	options = append(options, msgSizeOptions...)
 	options = append(options, grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer())))
 
-	s.grpcServer = grpc.NewServer(options...)
-	reflection.Register(s.grpcServer)
+	s.grpcServerOptions = options
+
+	return nil
+}
+
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.logger.Info("start close instances")
+
+	s.grpcServer.GracefulStop()
+	err := s.listener.Close()
+	if err != nil {
+		return err
+	}
+
+	s.logger.Info("grpc server shutdown completed")
+
+	return nil
+}
+
+func (s *Server) ListenAndServe(ctx context.Context) (err error) {
+	listenConn, err := net.Listen("tcp", s.config.GetBindPort())
+	if err != nil {
+		s.logger.Error("unable to listen port", zap.Error(err),
+			zap.String("port", s.config.GetBindPort()))
+	}
+	s.listener = listenConn
+
+	s.grpcServer = grpc.NewServer(s.grpcServerOptions...)
+	if (s.config.IsDev() || s.config.IsLocal()) && s.config.IsDebug() {
+		reflection.Register(s.grpcServer)
+	}
+
 	pbApi.RegisterHdWalletApiServer(s.grpcServer, s.handlers)
 
 	s.logger.Info("grpc serve success")
@@ -91,8 +101,8 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 // nolint:revive // fixme
 func NewServer(ctx context.Context,
 	loggerSrv *zap.Logger,
-	cfg *config.Config,
-	listener net.Listener,
+	cfg configService,
+	handlers pbApi.HdWalletApiServer,
 ) (*Server, error) {
 	l := loggerSrv.Named("grpc.server").With(
 		zap.String(app.ApplicationNameTag, app.ApplicationName),
@@ -101,7 +111,7 @@ func NewServer(ctx context.Context,
 	srv := &Server{
 		logger:   l,
 		config:   cfg,
-		listener: listener,
+		handlers: handlers,
 	}
 
 	return srv, nil

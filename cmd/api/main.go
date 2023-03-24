@@ -27,7 +27,6 @@ package main
 import (
 	"context"
 	"log"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
@@ -105,12 +104,6 @@ func main() {
 		loggerEntry.Fatal(err.Error(), zap.Error(err))
 	}
 
-	listenConn, err := net.Listen("tcp", appCfg.GetBindPort())
-	if err != nil {
-		loggerEntry.Fatal("unable to listen port", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
-	}
-
 	walletDataSrv := wallet_data.NewService(loggerEntry, pgConn)
 	mnemonicWalletDataSrv := mnemonic_wallet_data.NewService(loggerEntry, pgConn)
 	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry,
@@ -128,7 +121,7 @@ func main() {
 		loggerEntry.Fatal("unable to init grpc handlers", zap.Error(err))
 	}
 
-	srv, err := hdwallet_api.NewServer(ctx, loggerEntry, appCfg, listenConn)
+	srv, err := hdwallet_api.NewServer(ctx, loggerEntry, appCfg, apiHandlers)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
@@ -144,7 +137,7 @@ func main() {
 		loggerEntry.Fatal("unable to run wallet service", zap.Error(err))
 	}
 
-	err = srv.Init(ctx, loggerEntry, apiHandlers)
+	err = srv.Init(ctx)
 	if err != nil {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
