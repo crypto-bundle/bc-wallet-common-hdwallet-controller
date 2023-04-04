@@ -225,6 +225,7 @@
 | WalletUUID | [string](#string) |  |  |
 | MnemonicWalletUUID | [string](#string) |  |  |
 | AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+| CreatedTxData | [bytes](#bytes) |  |  |
 
 
 
@@ -242,6 +243,7 @@
 | WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 | MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
 | TxOwnerIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+| SignedTxData | [bytes](#bytes) |  |  |
 
 
 

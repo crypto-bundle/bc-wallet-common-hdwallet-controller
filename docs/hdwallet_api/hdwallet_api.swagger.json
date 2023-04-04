@@ -124,6 +124,10 @@
         },
         "TxOwnerIdentity": {
           "$ref": "#/definitions/hdwallet_apiDerivationAddressIdentity"
+        },
+        "SignedTxData": {
+          "type": "string",
+          "format": "byte"
         }
       }
     },

@@ -90,12 +90,14 @@ message SignTransactionRequest {
   string WalletUUID = 1;
   string MnemonicWalletUUID = 2;
   DerivationAddressIdentity AddressIdentity = 3;
+  bytes CreatedTxData = 4;
 }
 
 message SignTransactionResponse {
   WalletIdentity WalletIdentity = 1;
   MnemonicWalletIdentity MnemonicIdentity= 2;
   DerivationAddressIdentity TxOwnerIdentity = 3;
+  bytes SignedTxData = 4;
 }
 
 service HdWalletApi {

@@ -40,8 +40,10 @@ import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api"
 
+	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+
 	"go.uber.org/zap"
 )
 
@@ -142,6 +144,8 @@ func main() {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
 	}
+
+	commonHealthcheck.NewHTTPHealthChecker(loggerEntry)
 
 	go func() {
 		err = srv.ListenAndServe(ctx)

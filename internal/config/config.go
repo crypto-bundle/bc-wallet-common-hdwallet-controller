@@ -28,6 +28,7 @@ import (
 	"time"
 
 	commonEnvConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/envconfig"
+	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
@@ -42,33 +43,18 @@ type VaultWrappedConfig struct {
 // Config for application
 type Config struct {
 	// -------------------
-	// Application configs
+	// External common configs
 	// -------------------
 	*commonEnvConfig.BaseConfig
-	// -------------------
-	// Logger configs
-	// -------------------
 	*commonLogger.LoggerConfig
-	// -------------------
-	// Vault config
-	// -------------------
-	// -------------------
+	*commonHealthcheck.HealthcheckHTTPConfig
 	*VaultWrappedConfig
-	// Database config
-	// -------------------
 	*commonPostgres.PostgresConfig
-	//*natsCfg.NatsConfig
 	// -------------------
-	// GRPC service config
+	// Internal configs
 	// -------------------
 	*GrpcConfig
-	// -------------------
-	// HD wallet config
-	// -------------------
 	*MnemonicConfig
-	// -------------------
-	// Wallet manager config
-	// -------------------
 	WalletManagerUnloadHotInterval      time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_HOT_INTERVAL" default:"15s"`
 	WalletManagerUnloadInterval         time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_INTERVAL" default:"8s"`
 	WalletManagerMnemonicPerWalletCount uint8         `envconfig:"WALLET_MANAGER_MNEMONICS_PER_WALLET_COUNT" default:"3"`

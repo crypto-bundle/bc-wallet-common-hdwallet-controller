@@ -27,8 +27,9 @@ package hdwallet_api
 import (
 	"context"
 	"errors"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+	"google.golang.org/protobuf/proto"
 
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
 
@@ -46,7 +47,10 @@ var (
 type Client struct {
 	cfg clientConfigService
 
-	client pbApi.HdWalletApiClient
+	grpcClientOptions []originGRPC.DialOption
+
+	grpcConn *originGRPC.ClientConn
+	client   pbApi.HdWalletApiClient
 }
 
 // Init bc-wallet-tron-hdwallet GRPC-client service
@@ -61,19 +65,29 @@ func (s *Client) Init(ctx context.Context) error {
 		originGRPC.WithUnaryInterceptor(otgrpc.OpenTracingClientInterceptor(opentracing.GlobalTracer())),
 	)
 
-	grpcConn, err := originGRPC.Dial(s.cfg.GetHdWalletServerAddress(), options...)
+	s.grpcClientOptions = options
+
+	return nil
+}
+
+func (s *Client) Dial(ctx context.Context) error {
+	grpcConn, err := originGRPC.Dial(s.cfg.GetHdWalletServerAddress(), s.grpcClientOptions...)
 	if err != nil {
 		return err
 	}
+	s.grpcConn = grpcConn
 
 	s.client = pbApi.NewHdWalletApiClient(grpcConn)
 
 	return nil
 }
 
-// Shutdown bcexplorer service
-// nolint:revive // fixme (autofix)
+// Shutdown grpc hdwallet-client service
 func (s *Client) Shutdown(ctx context.Context) error {
+	err := s.grpcConn.Close()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -86,6 +100,37 @@ func (s *Client) GetEnabledWallets(ctx context.Context) (*pbApi.GetEnabledWallet
 	}
 
 	return enabledWallets, nil
+}
+
+// SignTransaction is function for sign tron preparedTransaction by private key via hdwalelt srv
+func (s *Client) SignTransaction(ctx context.Context,
+	walletUUID string,
+	mnemonicWalletUUID string,
+	accountIndex, internalIndex, addressIndex uint32,
+	tronCreatedTx *tronCore.Transaction,
+) (*pbApi.SignTransactionResponse, error) {
+	rawData, err := proto.Marshal(tronCreatedTx)
+	if err != nil {
+		return nil, err
+	}
+
+	signReq := &pbApi.SignTransactionRequest{
+		WalletUUID:         walletUUID,
+		MnemonicWalletUUID: mnemonicWalletUUID,
+		AddressIdentity: &pbApi.DerivationAddressIdentity{
+			AccountIndex:  accountIndex,
+			InternalIndex: internalIndex,
+			AddressIndex:  addressIndex,
+		},
+		CreatedTxData: rawData,
+	}
+
+	signResp, err := s.client.SignTransaction(ctx, signReq)
+	if err != nil {
+		return nil, err
+	}
+
+	return signResp, nil
 }
 
 // GetDerivationAddress is function for getting address from bc-wallet-tron-hdwallet

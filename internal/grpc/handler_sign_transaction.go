@@ -26,6 +26,7 @@ package grpc
 
 import (
 	"context"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
@@ -70,9 +71,30 @@ func (h *SignTransactionHandler) Handle(ctx context.Context,
 		return nil, err
 	}
 
-	signedTxData, err := h.walletSrv.SignTransaction(ctx, walletUUID, mnemonicWalletUUID,
+	walletPubData, err := h.walletSrv.GetWalletByUUID(ctx, walletUUID)
+	if err != nil {
+		h.l.Error("unable get wallet", zap.Error(err))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+	if walletPubData == nil {
+		return nil, status.Error(codes.NotFound, "wallet not found")
+	}
+
+	mnemoWalletData, isExists := walletPubData.MnemonicWalletsByUUID[mnemonicWalletUUID]
+	if !isExists {
+		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
+	}
+
+	createdTx := &tronCore.Transaction{}
+	err = proto.Unmarshal(req.CreatedTxData, createdTx)
+	if err != nil {
+		return nil, err
+	}
+
+	signedTxData, err := h.walletSrv.SignTransaction(ctx, walletPubData.UUID, mnemoWalletData.UUID,
 		req.AddressIdentity.AccountIndex, req.AddressIdentity.InternalIndex, req.AddressIdentity.AddressIndex,
-		&tronCore.Transaction{})
+		createdTx)
 	if err != nil {
 		h.l.Error("unable to sign transaction", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
