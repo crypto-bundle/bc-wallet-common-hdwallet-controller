@@ -28,6 +28,7 @@ deploy:
 
 	helm --kubeconfig ~/.kube/kubenet.config --kube-context heronode upgrade \
 		--install bc-wallet-tron-hdwallet-api \
+		--set "global.repository=$(repository)" \
 		--set "global.build_tag=$(build_tag)" --set "global.env=$(env)"= ./deploy/helm/api \
 		--values=./deploy/helm/api/values.yaml --values=./deploy/helm/api/values_$(env).yaml
 

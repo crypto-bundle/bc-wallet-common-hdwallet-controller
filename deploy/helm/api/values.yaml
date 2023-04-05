@@ -126,7 +126,9 @@ app:
     port:
       _default: 8200
     data_path:
-      _default: kv/data/crypto-bundle/bc-wallet-tron-hdwallet
+      _default:
+        - kv/data/crypto-bundle/bc-wallet-tron-hdwallet/common
+        - kv/data/crypto-bundle/bc-wallet-tron-hdwallet/migrator
     auth_method:
       _default: token
     auth_path:

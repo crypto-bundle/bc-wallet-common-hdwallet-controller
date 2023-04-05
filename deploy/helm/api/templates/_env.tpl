@@ -72,7 +72,7 @@
 - name: VAULT_USE_HTTPS
   value: {{ pluck .Values.global.env .Values.app.vault.use_https | first | default .Values.app.vault.use_https._default | quote }}
 - name: VAULT_DATA_PATH
-  value: {{ pluck .Values.global.env .Values.app.vault.data_path | first | default .Values.app.vault.data_path._default }}
+  value: {{ pluck .Values.global.env .Values.app.vault.data_path | first | default .Values.app.vault.data_path._default | join "," | quote }}
 - name: VAULT_AUTH_METHOD
   value: {{ pluck .Values.global.env .Values.app.vault.auth_method | first | default .Values.app.vault.auth_method._default }}
 - name: VAULT_AUTH_TOKEN
