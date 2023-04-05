@@ -10,6 +10,6 @@ type configService interface {
 
 type clientConfigService interface {
 	GetHdWalletApiHost() string
-	GetHdWalletApiPort() string
+	GetHdWalletApiPort() uint
 	GetHdWalletServerAddress() string
 }
