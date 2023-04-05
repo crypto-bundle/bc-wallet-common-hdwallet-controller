@@ -172,3 +172,14 @@ func (s *Client) GetDerivationAddress(ctx context.Context,
 
 	return address, nil
 }
+
+// nolint:revive // fixme
+func NewClient(ctx context.Context,
+	cfg clientConfigService,
+) (*Client, error) {
+	srv := &Client{
+		cfg: cfg,
+	}
+
+	return srv, nil
+}
