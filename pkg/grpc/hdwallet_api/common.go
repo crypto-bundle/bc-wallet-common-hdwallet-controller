@@ -7,3 +7,9 @@ type configService interface {
 
 	GetBindPort() string
 }
+
+type clientConfigService interface {
+	GetHdWalletApiHost() string
+	GetHdWalletApiPort() string
+	GetHdWalletServerAddress() string
+}
