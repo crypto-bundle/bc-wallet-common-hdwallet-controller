@@ -57,7 +57,7 @@ tolerations: []
 affinity: {}
 
 imagePullSecrets:
-  - name: regcred
+  - name: selectel
 
 app:
   api:

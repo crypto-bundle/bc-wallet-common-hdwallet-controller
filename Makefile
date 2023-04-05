@@ -23,12 +23,13 @@ default: hdwallet
 
 deploy:
 	$(eval build_tag=$(env)-$(shell git rev-parse --short HEAD)-$(shell date +%s))
+	$(eval container_registry=$(repository)/crypto-bundle/bc-adapter-tron:$(build_tag))
 
-	docker buildx build --platform linux/amd64,linux/arm64 --push -t docker.host.local/crypto-bundle/bc-wallet-tron-hdwallet:$(build_tag) .
+	docker buildx build --platform linux/amd64,linux/arm64 --push -t $(container_registry) .
 
-	helm --kubeconfig ~/.kube/kubenet.config --kube-context heronode upgrade \
+	helm --kubeconfig ~/.kube/kubenet.config --kube-context k0s-dev-cluster upgrade \
 		--install bc-wallet-tron-hdwallet-api \
-		--set "global.repository=$(repository)" \
+		--set "global.container_registry=$(container_registry)" \
 		--set "global.build_tag=$(build_tag)" --set "global.env=$(env)"= ./deploy/helm/api \
 		--values=./deploy/helm/api/values.yaml --values=./deploy/helm/api/values_$(env).yaml
 
