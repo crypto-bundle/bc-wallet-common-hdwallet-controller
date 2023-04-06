@@ -3,9 +3,10 @@ package pgstore
 import (
 	"context"
 	"errors"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 	"time"
 
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"github.com/jmoiron/sqlx"

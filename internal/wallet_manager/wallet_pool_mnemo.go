@@ -364,7 +364,14 @@ func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
 	u.hdWalletSrv = nil
 	u.walletEntity = nil
 
-	for key := range u.addressPool {
+	for key, data := range u.addressPool {
+		if data.privateKey != nil {
+			b := data.privateKey.D.Bits()
+			for i := range b {
+				b[i] = 0
+			}
+		}
+
 		delete(u.addressPool, key)
 	}
 
