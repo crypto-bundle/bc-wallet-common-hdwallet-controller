@@ -161,12 +161,17 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 			return nil, walletErr
 		}
 
+		clonedPrivKey := *wif.PrivKey.ToECDSA()
+
 		addrData = &addressData{
 			address:    address,
-			privateKey: wif.PrivKey.ToECDSA(),
+			privateKey: &clonedPrivKey,
 		}
 
 		u.addressPool[key] = addrData
+
+		// clear temporary private key
+		defer zeroKeyBTCec(wif.PrivKey)
 	}
 
 	rawData, err := proto.Marshal(transaction.GetRawData())
@@ -361,15 +366,18 @@ func (u *MnemonicWalletUnit) UnloadWallet(ctx context.Context) error {
 }
 
 func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
+	u.hdWalletSrv.ClearSecrets()
+
 	u.hdWalletSrv = nil
 	u.walletEntity = nil
 
 	for key, data := range u.addressPool {
+		if data == nil {
+			continue
+		}
+
 		if data.privateKey != nil {
-			b := data.privateKey.D.Bits()
-			for i := range b {
-				b[i] = 0
-			}
+			zeroKey(data.privateKey)
 		}
 
 		delete(u.addressPool, key)

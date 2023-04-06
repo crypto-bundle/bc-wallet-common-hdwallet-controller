@@ -124,3 +124,16 @@ func (w *Wallet) GetSeed() string {
 func (w *Wallet) GetMnemonic() string {
 	return w.mnemonic
 }
+
+// ClearSecrets is function clear sensitive secrets data
+func (w *Wallet) ClearSecrets() {
+	w.mnemonic = "0"
+
+	pattern := []byte{0x1, 0x2, 0x3, 0x4}
+	// Copy the pattern into the start of the container
+	copy(w.seed, pattern)
+	// Incrementally duplicate the pattern throughout the container
+	for j := len(pattern); j < len(w.seed); j *= 2 {
+		copy(w.seed[j:], w.seed[:j])
+	}
+}

@@ -188,6 +188,8 @@ type hdWalleter interface {
 	PublicHash() ([]byte, error)
 
 	NewTronWallet(account, change, address uint32) (*hdwallet.Tron, error)
+
+	ClearSecrets()
 }
 
 type mnemonicGenerator interface {
