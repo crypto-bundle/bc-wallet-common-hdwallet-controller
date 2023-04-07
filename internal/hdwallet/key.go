@@ -121,15 +121,18 @@ func (k *Key) GetChildKey(network *chaincfg.Params,
 	addressIndex uint32,
 ) (*AccountKey, *Key, error) {
 	var err error
-	k.ExtendedKey.SetNet(network)
+	//k.ExtendedKey.SetNet(network)
 
-	extendedKey := k.ExtendedKey
-	accountKey := extendedKey
+	extendedKeyCloned := *k.ExtendedKey
+	
+	extendedKeyCloned.SetNet(network)
+	accountKey := &extendedKeyCloned
 	for i, v := range k.GetPath(purpose, coinType, account, change, addressIndex) {
-		extendedKey, err = extendedKey.Derive(v)
-		if err != nil {
-			return nil, nil, err
+		extendedKey, deriveErr := extendedKeyCloned.Derive(v)
+		if deriveErr != nil {
+			return nil, nil, deriveErr
 		}
+
 		if i == 2 {
 			accountKey = extendedKey
 		}
@@ -142,7 +145,7 @@ func (k *Key) GetChildKey(network *chaincfg.Params,
 		return nil, nil, err
 	}
 
-	key, err := newKey(extendedKey, network)
+	key, err := newKey(&extendedKeyCloned, network)
 
 	return acc, key, err
 }

@@ -37,9 +37,12 @@ type MnemonicWalletUnit struct {
 	cryptoSrv              encryptService
 	mnemonicWalletsDataSrv mnemonicWalletsDataService
 
-	isWalletLoaded      bool
+	isWalletLoaded bool
+	isHotWallet    bool
+
 	walletUUID          uuid.UUID
 	mnemonicWalletUUID  uuid.UUID
+	mnemonicWalletHash  string
 	unloadTimerInterval time.Duration
 	walletEntity        *entities.MnemonicWallet
 	// addressPool is pool of derivation addresses with private keys and address
@@ -74,7 +77,6 @@ func (u *MnemonicWalletUnit) run(ctx context.Context) {
 					zap.Time(app.TickerEventTriggerTimeTag, tick))
 				continue
 			}
-			u.logger.Info("wallet successfully unload")
 
 		case <-ctx.Done():
 			u.onAirTicker.Stop()
@@ -107,14 +109,14 @@ func (u *MnemonicWalletUnit) GetMnemonicUUID() uuid.UUID {
 }
 
 func (u *MnemonicWalletUnit) IsHotWalletUnit() bool {
-	return u.walletEntity.IsHotWallet
+	return u.isHotWallet
 }
 
 func (u *MnemonicWalletUnit) GetPublicData() *types.PublicMnemonicWalletData {
 	return &types.PublicMnemonicWalletData{
-		UUID:        u.walletEntity.UUID,
-		IsHotWallet: u.walletEntity.IsHotWallet,
-		Hash:        u.walletEntity.VaultEncryptedHash,
+		UUID:        u.mnemonicWalletUUID,
+		IsHotWallet: u.isHotWallet,
+		Hash:        u.mnemonicWalletHash,
 	}
 }
 
@@ -126,7 +128,7 @@ func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
-		u.onAirTicker.Reset(u.unloadTimerInterval)
+		defer u.onAirTicker.Reset(u.unloadTimerInterval)
 		return u.signTransaction(ctx, account, change, index, transaction)
 	}
 
@@ -215,7 +217,8 @@ func (u *MnemonicWalletUnit) GetAddressByPath(ctx context.Context,
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
-		u.onAirTicker.Reset(u.unloadTimerInterval)
+		defer u.onAirTicker.Reset(u.unloadTimerInterval)
+
 		return u.getAddressByPath(ctx, account, change, index)
 	}
 
@@ -238,7 +241,7 @@ func (u *MnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Context,
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
-		u.onAirTicker.Reset(u.unloadTimerInterval)
+		defer u.onAirTicker.Reset(u.unloadTimerInterval)
 		return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex,
 			addressIndexFrom, addressIndexTo, marshallerCallback)
 	}
@@ -318,7 +321,7 @@ func (u *MnemonicWalletUnit) LoadWallet(ctx context.Context) error {
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
-		u.onAirTicker.Reset(u.unloadTimerInterval)
+		defer u.onAirTicker.Reset(u.unloadTimerInterval)
 	}
 
 	return u.loadWallet(ctx)
@@ -350,6 +353,10 @@ func (u *MnemonicWalletUnit) loadWallet(ctx context.Context) error {
 		return creatErr
 	}
 	u.hdWalletSrv = hdWallet
+
+	u.isWalletLoaded = true
+
+	u.logger.Info("wallet successfully load")
 
 	return nil
 }
@@ -385,6 +392,8 @@ func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
 
 	u.isWalletLoaded = false
 
+	u.logger.Info("wallet successfully unload")
+
 	return nil
 }
 
@@ -412,7 +421,7 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 ) *MnemonicWalletUnit {
 	return &MnemonicWalletUnit{
 		logger: logger.With(zap.String(app.WalletUUIDTag, walletUUID.String()),
-			zap.String(app.MnemonicWalletUUIDTag, mnemonicWalletItem.WalletUUID.String())),
+			zap.String(app.MnemonicWalletUUIDTag, mnemonicWalletItem.UUID.String())),
 		mu: sync.Mutex{},
 
 		onAirTicker: nil, // that field will be field @ run stage
@@ -424,8 +433,10 @@ func newMnemonicWalletPoolUnit(logger *zap.Logger,
 		mnemonicWalletsDataSrv: mnemonicWalletDataSrv,
 
 		isWalletLoaded:      false,
+		isHotWallet:         mnemonicWalletItem.IsHotWallet,
 		walletUUID:          walletUUID,
 		mnemonicWalletUUID:  mnemonicWalletItem.UUID,
+		mnemonicWalletHash:  mnemonicWalletItem.MnemonicHash,
 		unloadTimerInterval: unloadInterval,
 		walletEntity:        mnemonicWalletItem,
 		addressPool:         make(map[string]*addressData, 0),
