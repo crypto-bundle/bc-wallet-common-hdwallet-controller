@@ -146,15 +146,16 @@ func (p *Pool) GetAddressesByPathByRange(ctx context.Context,
 	internalIndex uint32,
 	addressIndexFrom uint32,
 	addressIndexTo uint32,
-) ([]*types.PublicDerivationAddressData, error) {
+	marshallerCallback func(addressIdx, position uint32, address string),
+) error {
 	poolUnit, isExists := p.walletUnits[walletUUID]
 	if !isExists {
-		return nil, ErrPassedWalletNotFound
+		return ErrPassedWalletNotFound
 	}
 
 	return poolUnit.GetAddressesByPathByRange(ctx, mnemonicWalletUUID,
 		accountIndex, internalIndex,
-		addressIndexFrom, addressIndexTo)
+		addressIndexFrom, addressIndexTo, marshallerCallback)
 }
 
 func (p *Pool) SignTransaction(ctx context.Context,

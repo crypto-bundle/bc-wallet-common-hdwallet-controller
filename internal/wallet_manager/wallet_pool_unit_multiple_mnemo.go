@@ -126,13 +126,15 @@ func (u *multipleMnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Conte
 	internalIndex uint32,
 	addressIndexFrom uint32,
 	addressIndexTo uint32,
-) ([]*types.PublicDerivationAddressData, error) {
+	marshallerCallback func(addressIdx, position uint32, address string),
+) error {
 	mnemonicUnit, isExists := u.mnemonicUnitsByUUID[mnemonicWalletUUID]
 	if !isExists {
-		return nil, ErrPassedMnemonicWalletNotFound
+		return ErrPassedMnemonicWalletNotFound
 	}
 
-	return mnemonicUnit.GetAddressesByPathByRange(ctx, accountIndex, internalIndex, addressIndexFrom, addressIndexTo)
+	return mnemonicUnit.GetAddressesByPathByRange(ctx, accountIndex, internalIndex,
+		addressIndexFrom, addressIndexTo, marshallerCallback)
 }
 
 func (u *multipleMnemonicWalletUnit) SignTransaction(ctx context.Context,

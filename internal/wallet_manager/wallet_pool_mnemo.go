@@ -232,21 +232,24 @@ func (u *MnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Context,
 	internalIndex uint32,
 	addressIndexFrom uint32,
 	addressIndexTo uint32,
-) ([]*types.PublicDerivationAddressData, error) {
+	marshallerCallback func(addressIdx, position uint32, address string),
+) error {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
 		u.onAirTicker.Reset(u.unloadTimerInterval)
-		return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex, addressIndexFrom, addressIndexTo)
+		return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex,
+			addressIndexFrom, addressIndexTo, marshallerCallback)
 	}
 
 	err := u.loadWallet(ctx)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex, addressIndexFrom, addressIndexTo)
+	return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex,
+		addressIndexFrom, addressIndexTo, marshallerCallback)
 }
 
 func (u *MnemonicWalletUnit) getAddressesByPathByRange(ctx context.Context,
@@ -254,12 +257,12 @@ func (u *MnemonicWalletUnit) getAddressesByPathByRange(ctx context.Context,
 	internalIndex uint32,
 	addressIndexFrom uint32,
 	addressIndexTo uint32,
-) ([]*types.PublicDerivationAddressData, error) {
+	marshallerCallback func(addressIdx, position uint32, address string),
+) error {
 	var err error
-	rangeSize := addressIndexTo - addressIndexFrom
-	result := make([]*types.PublicDerivationAddressData, rangeSize+1)
+	rangeSize := (addressIndexTo - addressIndexFrom) + 1
 	wg := sync.WaitGroup{}
-	wg.Add(int(rangeSize) + 1)
+	wg.Add(int(rangeSize))
 
 	for i, j := addressIndexFrom, uint32(0); i <= addressIndexTo; i++ {
 		go func(i, j uint32) {
@@ -277,12 +280,9 @@ func (u *MnemonicWalletUnit) getAddressesByPathByRange(ctx context.Context,
 				return
 			}
 
-			result[j] = &types.PublicDerivationAddressData{
-				AccountIndex:  accountIndex,
-				InternalIndex: internalIndex,
-				AddressIndex:  i,
-				Address:       address,
-			}
+			marshallerCallback(i, j, address)
+
+			return
 		}(i, j)
 
 		j++
@@ -291,10 +291,10 @@ func (u *MnemonicWalletUnit) getAddressesByPathByRange(ctx context.Context,
 	wg.Wait()
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return result, nil
+	return nil
 }
 
 func (u *MnemonicWalletUnit) getAddressByPath(_ context.Context,

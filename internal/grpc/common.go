@@ -51,7 +51,8 @@ type walletManagerService interface {
 		internalIndex uint32,
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
+		marshallerCallback func(addressIdx, position uint32, address string),
+	) error
 
 	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
 	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
@@ -74,7 +75,7 @@ type marshallerService interface {
 	MarshallGetAddressByRange(
 		walletPublicData *types.PublicWalletData,
 		mnemonicWalletPublicData *types.PublicMnemonicWalletData,
-		addressesData []*types.PublicDerivationAddressData,
+		addressesData []*pbApi.DerivationAddressIdentity,
 	) (*pbApi.DerivationAddressByRangeResponse, error)
 	MarshallGetEnabledWallets([]*types.PublicWalletData) (*pbApi.GetEnabledWalletsResponse, error)
 	MarshallSignTransaction(

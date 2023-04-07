@@ -26,6 +26,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
@@ -86,16 +87,37 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
 	}
 
-	addressesData, err := h.walletSrv.GetAddressesByPathByRange(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
+	return h.processRequest(ctx, vf, walletPubData, mnemoWalletData)
+}
+
+func (h *GetDerivationAddressByRangeHandler) processRequest(ctx context.Context,
+	vf *forms.DerivationAddressByRangeForm,
+	walletPubData *types.PublicWalletData,
+	mnemoWalletData *types.PublicMnemonicWalletData,
+) (*pbApi.DerivationAddressByRangeResponse, error) {
+	rangeSize := (vf.AddressIndexTo - vf.AddressIndexFrom) + 1
+	filedData := make([]*pbApi.DerivationAddressIdentity, rangeSize)
+
+	marshallerCallback := func(addressIdx, position uint32, address string) {
+		filedData[position] = &pbApi.DerivationAddressIdentity{
+			AccountIndex:  vf.AccountIndex,
+			InternalIndex: vf.InternalIndex,
+			AddressIndex:  addressIdx,
+			Address:       address,
+		}
+		return
+	}
+
+	err := h.walletSrv.GetAddressesByPathByRange(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
 		vf.AccountIndex, vf.InternalIndex,
-		vf.AddressIndexFrom, vf.AddressIndexTo)
+		vf.AddressIndexFrom, vf.AddressIndexTo, marshallerCallback)
 	if err != nil {
 		h.l.Error("unable get derivative addresses by range", zap.Error(err))
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletPubData, mnemoWalletData, addressesData)
+	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletPubData, mnemoWalletData, filedData)
 	if err != nil {
 		h.l.Error("unable to marshall get addresses data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

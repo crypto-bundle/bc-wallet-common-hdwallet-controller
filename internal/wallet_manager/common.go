@@ -88,7 +88,8 @@ type WalletPoolUnitService interface {
 		internalIndex uint32,
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
+		marshallerCallback func(addressIdx, position uint32, address string),
+	) error
 	SignTransaction(ctx context.Context,
 		mnemonicUUID uuid.UUID,
 		account, change, index uint32,
@@ -114,7 +115,8 @@ type walletPoolMnemonicUnitService interface {
 		internalIndex uint32,
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
+		marshallerCallback func(addressIdx, position uint32, address string),
+	) error
 	SignTransaction(ctx context.Context,
 		account, change, index uint32,
 		transaction *tronCore.Transaction,
@@ -150,7 +152,8 @@ type walletPoolService interface {
 		internalIndex uint32,
 		addressIndexFrom uint32,
 		addressIndexTo uint32,
-	) ([]*types.PublicDerivationAddressData, error)
+		marshallerCallback func(addressIdx, position uint32, address string),
+	) error
 	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
 	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
 	SignTransaction(ctx context.Context,
