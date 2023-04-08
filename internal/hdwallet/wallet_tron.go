@@ -29,7 +29,6 @@ import (
 
 	"encoding/hex"
 
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/shengdoushi/base58"
 )
@@ -48,9 +47,7 @@ type Tron struct {
 
 // NewTronWallet create new wallet
 func (w *Wallet) NewTronWallet(account, change, address uint32) (*Tron, error) {
-	blockChainParams := chaincfg.MainNetParams
-
-	accountKey, key, err := w.GetChildKey(&blockChainParams, Bip44Purpose,
+	accountKey, key, err := w.GetChildKey(Bip44Purpose,
 		TronCoinNumber, account, change, address)
 	if err != nil {
 		return nil, err
@@ -65,7 +62,7 @@ func (w *Wallet) NewTronWallet(account, change, address uint32) (*Tron, error) {
 		BTC: &BTC{
 			ExtendedKey:      key,
 			AccountKey:       accountKey,
-			blockChainParams: &blockChainParams,
+			blockChainParams: w.Network,
 		},
 	}, err
 }

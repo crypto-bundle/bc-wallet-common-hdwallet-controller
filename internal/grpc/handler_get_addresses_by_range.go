@@ -27,6 +27,7 @@ package grpc
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"sync"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/forms"
@@ -47,6 +48,13 @@ type GetDerivationAddressByRangeHandler struct {
 	l             *zap.Logger
 	walletSrv     walletManagerService
 	marshallerSrv marshallerService
+	respPool      sync.Pool
+}
+
+type respAddrList []*pbApi.DerivationAddressIdentity
+
+func (l *respAddrList) Reset() {
+
 }
 
 // nolint:funlen // fixme
@@ -95,20 +103,24 @@ func (h *GetDerivationAddressByRangeHandler) processRequest(ctx context.Context,
 	walletPubData *types.PublicWalletData,
 	mnemoWalletData *types.PublicMnemonicWalletData,
 ) (*pbApi.DerivationAddressByRangeResponse, error) {
+	var err error
+
 	rangeSize := (vf.AddressIndexTo - vf.AddressIndexFrom) + 1
 	filedData := make([]*pbApi.DerivationAddressIdentity, rangeSize)
 
 	marshallerCallback := func(addressIdx, position uint32, address string) {
-		filedData[position] = &pbApi.DerivationAddressIdentity{
-			AccountIndex:  vf.AccountIndex,
-			InternalIndex: vf.InternalIndex,
-			AddressIndex:  addressIdx,
-			Address:       address,
-		}
+		addressEntity := h.respPool.Get().(*pbApi.DerivationAddressIdentity)
+
+		addressEntity.AccountIndex = vf.AccountIndex
+		addressEntity.InternalIndex = vf.AccountIndex
+		addressEntity.AddressIndex = addressIdx
+		addressEntity.Address = address
+
+		filedData[position] = addressEntity
 		return
 	}
 
-	err := h.walletSrv.GetAddressesByPathByRange(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
+	err = h.walletSrv.GetAddressesByPathByRange(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
 		vf.AccountIndex, vf.InternalIndex,
 		vf.AddressIndexFrom, vf.AddressIndexTo, marshallerCallback)
 	if err != nil {
@@ -123,6 +135,14 @@ func (h *GetDerivationAddressByRangeHandler) processRequest(ctx context.Context,
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
+	defer func(clearedSize uint32) {
+		go func(size uint32) {
+			for i := uint32(0); i != size; i++ {
+				h.respPool.Put(filedData[i])
+			}
+		}(clearedSize)
+	}(rangeSize)
+
 	return response, nil
 }
 
@@ -134,5 +154,8 @@ func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
 		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
 		walletSrv:     walletSrv,
 		marshallerSrv: marshallerSrv,
+		respPool: sync.Pool{New: func() any {
+			return new(pbApi.DerivationAddressIdentity)
+		}},
 	}
 }

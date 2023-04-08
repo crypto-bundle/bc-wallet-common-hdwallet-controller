@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/ethereum/go-ethereum/crypto"
 	"sync"
 	"time"
@@ -348,7 +349,8 @@ func (u *MnemonicWalletUnit) loadWallet(ctx context.Context) error {
 		return ErrWrongMnemonicHash
 	}
 
-	hdWallet, creatErr := hdwallet.NewFromString(string(mnemonicBytes))
+	blockChainParams := chaincfg.MainNetParams
+	hdWallet, creatErr := hdwallet.NewFromString(string(mnemonicBytes), &blockChainParams)
 	if creatErr != nil {
 		return creatErr
 	}
@@ -400,6 +402,10 @@ func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
 func (u *MnemonicWalletUnit) Shutdown(ctx context.Context) error {
 	u.mu.Lock()
 	defer u.mu.Unlock()
+
+	if !u.isWalletLoaded {
+		return nil
+	}
 
 	err := u.unloadWallet(ctx)
 	if err != nil {

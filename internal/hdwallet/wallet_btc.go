@@ -38,7 +38,8 @@ func (w *Wallet) NewBtcWallet(account, change, address uint32) (*BTC, error) {
 	blockChainParams.HDPrivateKeyID = [4]byte{0x04, 0x9d, 0x78, 0x78} // yprv
 	blockChainParams.HDPublicKeyID = [4]byte{0x04, 0x9d, 0x7c, 0xb2}  // ypub
 
-	accountKey, key, err := w.GetChildKey(&blockChainParams, DefaultPurpose, BtcCoinNumber, account, change, address)
+	w.Network = &blockChainParams
+	accountKey, key, err := w.GetChildKey(DefaultPurpose, BtcCoinNumber, account, change, address)
 	if err != nil {
 		return nil, err
 	}

@@ -31,15 +31,16 @@ import (
 
 // AccountKey results info account keys
 type AccountKey struct {
+	Network     *chaincfg.Params
 	ExtendedKey *hdkeychain.ExtendedKey
 	Private     string
 	Public      string
 }
 
 // Init account keys
-func (a *AccountKey) Init(network *chaincfg.Params) error {
+func (a *AccountKey) Init() error {
 	a.Private = a.ExtendedKey.String()
-	w, _ := StringWallet(a.Private, network.HDPrivateKeyID, network.HDPublicKeyID)
+	w, _ := StringWallet(a.Private, a.Network.HDPrivateKeyID, a.Network.HDPublicKeyID)
 	pub, err := w.Pub().String()
 	if err != nil {
 		return err
