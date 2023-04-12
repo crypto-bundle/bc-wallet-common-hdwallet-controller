@@ -2,9 +2,9 @@ package wallet_data
 
 import (
 	"context"
-
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/wallet_data/pgstore"
+	"github.com/google/uuid"
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
@@ -27,7 +27,7 @@ func (s *Service) SetEnabledToWalletByUUID(ctx context.Context, uuid string) err
 	return s.persistentStore.UpdateIsEnabledWalletByUUID(ctx, uuid, true)
 }
 
-func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.Wallet, error) {
+func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.Wallet, error) {
 	return s.persistentStore.GetWalletByUUID(ctx, walletUUID)
 }
 

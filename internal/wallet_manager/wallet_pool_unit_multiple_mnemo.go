@@ -79,7 +79,7 @@ func (u *multipleMnemonicWalletUnit) GetWalletPublicData() *types.PublicWalletDa
 		UUID:                  u.walletUUID,
 		Title:                 u.walletTitle,
 		Purpose:               u.walletPurpose,
-		Strategy:              types.WalletMakerSingleMnemonicStrategy,
+		Strategy:              types.WalletMakerMultipleMnemonicStrategy,
 		MnemonicWallets:       make([]*types.PublicMnemonicWalletData, u.mnemonicUnitsCount),
 		MnemonicWalletsByUUID: make(map[uuid.UUID]*types.PublicMnemonicWalletData, u.mnemonicUnitsCount),
 	}

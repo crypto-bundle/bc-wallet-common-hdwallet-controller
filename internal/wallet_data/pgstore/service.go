@@ -3,10 +3,11 @@ package pgstore
 import (
 	"context"
 	"errors"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
-	
+
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"github.com/jmoiron/sqlx"
@@ -81,14 +82,14 @@ func (s *pgRepository) UpdateIsEnabledWalletByUUID(ctx context.Context, uuid str
 	return nil
 }
 
-func (s *pgRepository) GetWalletByUUID(ctx context.Context, uuid string) (*entities.Wallet, error) {
+func (s *pgRepository) GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.Wallet, error) {
 	var wallet *entities.Wallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		row := stmt.QueryRowx(`SELECT "id", "title", "uuid", "purpose", "is_enabled", "strategy",
        			"created_at", "updated_at"
 	       FROM "wallets"
-	       WHERE "uuid" = $1`, uuid)
+	       WHERE "uuid" = $1`, walletUUID.String())
 
 		callbackErr := row.Err()
 		if callbackErr != nil {

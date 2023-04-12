@@ -31,8 +31,10 @@ import (
 	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
+	commonNatsConfig "github.com/crypto-bundle/bc-wallet-common/pkg/nats/config"
 )
 
 type VaultWrappedConfig struct {
@@ -50,6 +52,8 @@ type Config struct {
 	*commonHealthcheck.HealthcheckHTTPConfig
 	*VaultWrappedConfig
 	*commonPostgres.PostgresConfig
+	*commonNatsConfig.NatsConfig
+	*commonRedis.RedisConfig
 	// -------------------
 	// Internal configs
 	// -------------------

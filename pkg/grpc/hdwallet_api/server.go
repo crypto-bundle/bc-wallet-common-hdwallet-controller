@@ -50,7 +50,7 @@ type Server struct {
 	listener net.Listener
 }
 
-func (s *Server) Init(ctx context.Context) error {
+func (s *Server) Init(_ context.Context) error {
 	options := commonGRPCServer.DefaultServeOptions()
 	msgSizeOptions := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(commonGRPCServer.DefaultServerMaxReceiveMessageSize),
@@ -64,14 +64,14 @@ func (s *Server) Init(ctx context.Context) error {
 	return nil
 }
 
-func (s *Server) Shutdown(ctx context.Context) error {
+func (s *Server) shutdown() error {
 	s.logger.Info("start close instances")
 
 	s.grpcServer.GracefulStop()
-	err := s.listener.Close()
-	if err != nil {
-		return err
-	}
+	//err := s.listener.Close()
+	//if err != nil {
+	//	return err
+	//}
 
 	s.logger.Info("grpc server shutdown completed")
 
@@ -83,6 +83,8 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 	if err != nil {
 		s.logger.Error("unable to listen port", zap.Error(err),
 			zap.String("port", s.config.GetBindPort()))
+
+		return err
 	}
 	s.listener = listenConn
 
@@ -95,7 +97,17 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 
 	s.logger.Info("grpc serve success")
 
-	return s.grpcServer.Serve(s.listener)
+	go func() {
+		err = s.grpcServer.Serve(s.listener)
+		if err != nil {
+			s.logger.Error("unable to start serving", zap.Error(err),
+				zap.String("port", s.config.GetBindPort()))
+		}
+	}()
+
+	<-ctx.Done()
+
+	return s.shutdown()
 }
 
 // nolint:revive // fixme

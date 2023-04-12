@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-package pgstore
+package pg_store
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
@@ -63,7 +64,7 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
             VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id;`,
 			wallet.UUID.String(), wallet.WalletUUID.String(),
 			wallet.MnemonicHash,
-			wallet.IsHotWallet, wallet.UnloadInterval.Microseconds(),
+			wallet.IsHotWallet, wallet.UnloadInterval,
 			wallet.RsaEncrypted, wallet.RsaEncryptedHash, wallet.VaultEncrypted, wallet.VaultEncryptedHash,
 			date, date)
 
@@ -115,7 +116,9 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 	return wallet, nil
 }
 
-func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error) {
+func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context,
+	uuid uuid.UUID,
+) (*entities.MnemonicWallet, error) {
 	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
@@ -125,7 +128,7 @@ func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context, uuid string)
        			"is_hot", "unload_interval",  
        			"created_at", "updated_at"
 	       FROM "mnemonic_wallets"
-	       WHERE "uuid" = $1`, uuid)
+	       WHERE "uuid" = $1`, uuid.String())
 
 		queryErr := row.Err()
 		if queryErr != nil {

@@ -45,7 +45,7 @@ type configService interface {
 type mnemonicWalletsDataService interface {
 	AddNewMnemonicWallet(ctx context.Context, wallet *entities.MnemonicWallet) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
-	GetMnemonicWalletUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error)
+	GetMnemonicWalletUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletsByUUIDList(ctx context.Context,
 		UUIDList []string,
 	) ([]*entities.MnemonicWallet, error)
@@ -55,7 +55,7 @@ type mnemonicWalletsDataService interface {
 
 type walletsDataService interface {
 	AddNewWallet(ctx context.Context, wallet *entities.Wallet) (*entities.Wallet, error)
-	GetWalletByUUID(ctx context.Context, uuid string) (*entities.Wallet, error)
+	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.Wallet, error)
 	GetAllEnabledWallets(ctx context.Context) ([]*entities.Wallet, error)
 	GetAllEnabledWalletUUIDList(ctx context.Context) ([]string, error)
 	SetEnabledToWalletByUUID(ctx context.Context, uuid string) error

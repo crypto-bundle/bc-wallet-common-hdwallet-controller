@@ -171,6 +171,7 @@ func (m *WalletUnitMaker) createNewMnemonicWallet(ctx context.Context,
 		RsaEncryptedHash:   "nil",         // temporary nil string TODO: add rsa encryption via merchant service
 		VaultEncrypted:     encMnemonic,
 		VaultEncryptedHash: fmt.Sprintf("%x", sha256.Sum256([]byte(encMnemonic))),
+		UnloadInterval:     m.cfg.GetDefaultWalletUnloadInterval(),
 	}
 
 	mnemonicWalletEntity, err = m.mnemonicWalletsDataSrv.AddNewMnemonicWallet(ctx, mnemonicWalletEntity)

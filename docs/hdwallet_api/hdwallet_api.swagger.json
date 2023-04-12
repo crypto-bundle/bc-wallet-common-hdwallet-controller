@@ -170,7 +170,7 @@
       "type": "string",
       "enum": [
         "PLACEHOLDER_STRATEGY_TYPE",
-        "SIGNE_MNEMONIC_STRATEGY_TYPE",
+        "SINGLE_MNEMONIC_STRATEGY_TYPE",
         "MULTIPLE_MNEMONIC_STRATEGY_TYPE"
       ],
       "default": "PLACEHOLDER_STRATEGY_TYPE"

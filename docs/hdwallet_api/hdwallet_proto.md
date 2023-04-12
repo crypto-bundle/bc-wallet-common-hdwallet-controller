@@ -295,7 +295,7 @@
 | Name | Number | Description |
 | ---- | ------ | ----------- |
 | PLACEHOLDER_STRATEGY_TYPE | 0 |  |
-| SIGNE_MNEMONIC_STRATEGY_TYPE | 1 |  |
+| SINGLE_MNEMONIC_STRATEGY_TYPE | 1 |  |
 | MULTIPLE_MNEMONIC_STRATEGY_TYPE | 2 |  |
 
 

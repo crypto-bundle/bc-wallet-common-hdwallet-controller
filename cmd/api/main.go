@@ -26,6 +26,7 @@ package main
 
 import (
 	"context"
+	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 	"log"
 	"os"
 	"os/signal"
@@ -43,7 +44,9 @@ import (
 	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonNats "github.com/crypto-bundle/bc-wallet-common/pkg/nats"
 
+	_ "github.com/mailru/easyjson/gen"
 	"go.uber.org/zap"
 )
 
@@ -85,7 +88,7 @@ const ApplicationName = "bc-wallet-tron-hdwallet-api"
 
 func main() {
 	var err error
-	ctx := context.Background()
+	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
 	appCfg, secretSrv, err := config.Prepare(ctx, Version, ReleaseTag,
 		CommitID, ShortCommitID,
@@ -106,8 +109,30 @@ func main() {
 		loggerEntry.Fatal(err.Error(), zap.Error(err))
 	}
 
+	natsSvc, err := commonNats.NewConnection(ctx, appCfg)
+	if err != nil {
+		loggerEntry.Fatal(err.Error(), zap.Error(err))
+	}
+	natsConn := natsSvc.GetConnection()
+
+	redisSvc := commonRedis.NewConnection(ctx, appCfg, loggerEntry)
+	if err != nil {
+		loggerEntry.Fatal(err.Error(), zap.Error(err))
+	}
+
+	redisConn, err := redisSvc.Connect(ctx)
+	if err != nil {
+		loggerEntry.Fatal(err.Error(), zap.Error(err))
+	}
+	redisClient := redisConn.GetClient()
+
 	walletDataSrv := wallet_data.NewService(loggerEntry, pgConn)
-	mnemonicWalletDataSrv := mnemonic_wallet_data.NewService(loggerEntry, pgConn)
+	mnemonicWalletDataSrv, err := mnemonic_wallet_data.NewService(loggerEntry, appCfg,
+		pgConn, redisClient, natsConn)
+	if err != nil {
+		loggerEntry.Fatal(err.Error(), zap.Error(err))
+	}
+
 	mnemonicGenerator := mnemonic.NewMnemonicGenerator(loggerEntry,
 		appCfg.GetDefaultMnemonicWordsCount())
 
@@ -150,7 +175,7 @@ func main() {
 	go func() {
 		err = srv.ListenAndServe(ctx)
 		if err != nil {
-			loggerEntry.Fatal("unable to start grpc handlers", zap.Error(err),
+			loggerEntry.Error("unable to start grpc", zap.Error(err),
 				zap.String("port", appCfg.GetBindPort()))
 		}
 	}()
@@ -161,16 +186,16 @@ func main() {
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	<-c
 	loggerEntry.Warn("shutdown application")
-	srv.Shutdown(ctx)
+	cancelCtxFunc()
 
 	walletShutdownErr := walletService.Shutdown(ctx)
 	if walletShutdownErr != nil {
-		log.Fatal(walletShutdownErr.Error(), walletShutdownErr)
+		log.Printf("%s:%e", walletShutdownErr.Error(), walletShutdownErr)
 	}
 
 	syncErr := loggerEntry.Sync()
 	if syncErr != nil {
-		log.Fatal(syncErr.Error(), syncErr)
+		log.Print(syncErr.Error(), syncErr)
 	}
 
 	log.Print("stopped")

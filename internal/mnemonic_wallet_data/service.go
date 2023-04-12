@@ -2,9 +2,16 @@ package mnemonic_wallet_data
 
 import (
 	"context"
+	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/nats_store"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/redis_store"
+	"github.com/go-redis/redis/v8"
+	"github.com/google/uuid"
+	"github.com/nats-io/nats.go"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/pgstore"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/pg_store"
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
@@ -14,23 +21,126 @@ import (
 type Service struct {
 	logger *zap.Logger
 
-	persistentStore dbStoreService
-
-	pgConn *commonPostgres.Connection
+	persistentStore  dbStoreService
+	redisCacheStore  cacheStoreService
+	natsKVCacheStore cacheStoreService
 }
 
 func (s *Service) AddNewMnemonicWallet(ctx context.Context,
 	wallet *entities.MnemonicWallet,
 ) (*entities.MnemonicWallet, error) {
-	return s.persistentStore.AddNewMnemonicWallet(ctx, wallet)
+	mnemoWalletItem, err := s.persistentStore.AddNewMnemonicWallet(ctx, wallet)
+	if err != nil {
+		s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, mnemoWalletItem.UUID.String()),
+			zap.String(app.WalletUUIDTag, mnemoWalletItem.WalletUUID.String()))
+
+		return nil, err
+	}
+
+	go func(item entities.MnemonicWallet) {
+		_, err = s.redisCacheStore.SetMnemonicWalletItem(ctx, &item)
+		if err != nil {
+			s.logger.Error("unable to save mnemonic wallet item in redis cache store", zap.Error(err),
+				zap.String(app.MnemonicWalletUUIDTag, item.UUID.String()),
+				zap.String(app.WalletUUIDTag, item.WalletUUID.String()))
+		}
+	}(*mnemoWalletItem)
+
+	go func(item entities.MnemonicWallet) {
+		_, err = s.natsKVCacheStore.SetMnemonicWalletItem(ctx, &item)
+		if err != nil {
+			s.logger.Error("unable to save mnemonic wallet item in nats kv cache store", zap.Error(err),
+				zap.String(app.MnemonicWalletUUIDTag, item.UUID.String()),
+				zap.String(app.WalletUUIDTag, item.WalletUUID.String()))
+		}
+	}(*mnemoWalletItem)
+
+	return mnemoWalletItem, nil
 }
 
 func (s *Service) GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error) {
-	return s.persistentStore.GetMnemonicWalletByHash(ctx, hash)
+	var err error
+	_, span, finish := tracer.Trace(ctx)
+
+	defer func() { finish(err) }()
+
+	span.SetTag(app.MnemonicWalletHashTag, hash)
+
+	walletItem, err := s.redisCacheStore.GetMnemonicWalletItemByHash(ctx, hash)
+	if err != nil {
+		s.logger.Error("unable get mnemonicWalletItem from redis cache store", zap.Error(err),
+			zap.String(app.MnemonicWalletHashTag, hash))
+	}
+
+	if walletItem != nil {
+		return walletItem, nil
+	}
+
+	walletItem, err = s.natsKVCacheStore.GetMnemonicWalletItemByHash(ctx, hash)
+	if err != nil {
+		s.logger.Error("unable get mnemonicWalletItem from nats cache store", zap.Error(err),
+			zap.String(app.MnemonicWalletHashTag, hash))
+	}
+
+	if walletItem != nil {
+		return walletItem, nil
+	}
+
+	walletItem, err = s.persistentStore.GetMnemonicWalletByHash(ctx, hash)
+	if err != nil {
+		s.logger.Error("unable get mnemonicWalletItem from persistent store", zap.Error(err),
+			zap.String(app.MnemonicWalletHashTag, hash))
+	}
+
+	if walletItem == nil {
+		return nil, nil
+	}
+
+	return walletItem, nil
 }
 
-func (s *Service) GetMnemonicWalletUUID(ctx context.Context, mnemoWalletUUID string) (*entities.MnemonicWallet, error) {
-	return s.persistentStore.GetMnemonicWalletByUUID(ctx, mnemoWalletUUID)
+func (s *Service) GetMnemonicWalletUUID(ctx context.Context,
+	mnemoWalletUUID uuid.UUID,
+) (*entities.MnemonicWallet, error) {
+	var err error
+	_, span, finish := tracer.Trace(ctx)
+
+	defer func() { finish(err) }()
+
+	span.SetTag(app.MnemonicWalletUUIDTag, mnemoWalletUUID.String())
+
+	walletItem, err := s.redisCacheStore.GetMnemonicWalletItemByUUID(ctx, mnemoWalletUUID)
+	if err != nil {
+		s.logger.Error("unable get mnemonicWalletItem from redis cache store", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, mnemoWalletUUID.String()))
+	}
+
+	if walletItem != nil {
+		return walletItem, nil
+	}
+
+	walletItem, err = s.natsKVCacheStore.GetMnemonicWalletItemByUUID(ctx, mnemoWalletUUID)
+	if err != nil {
+		s.logger.Error("unable get mnemonicWalletItem from nats cache store", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, mnemoWalletUUID.String()))
+	}
+
+	if walletItem != nil {
+		return walletItem, nil
+	}
+
+	walletItem, err = s.persistentStore.GetMnemonicWalletByUUID(ctx, mnemoWalletUUID)
+	if err != nil {
+		s.logger.Error("unable get mnemonicWalletItem from persistent store", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, mnemoWalletUUID.String()))
+	}
+
+	if walletItem == nil {
+		return nil, nil
+	}
+
+	return walletItem, nil
 }
 
 func (s *Service) GetMnemonicWalletsByUUIDList(ctx context.Context,
@@ -48,14 +158,34 @@ func (s *Service) GetAllNonHotMnemonicWallets(ctx context.Context) ([]*entities.
 }
 
 func NewService(logger *zap.Logger,
+	configSvc configurationService,
 	pgConn *commonPostgres.Connection,
-) *Service {
+	redisClient *redis.Client,
+	natsConn *nats.Conn,
+) (*Service, error) {
 	l := logger.Named("mnemonic_wallet_data.service")
-	persistentStoreSrv := pgstore.NewPostgresStore(logger, pgConn)
+	persistentStoreSrv := pg_store.NewPostgresStore(logger, pgConn)
+
+	redisStore, err := redis_store.NewRedisStore(logger, configSvc, redisClient)
+	if err != nil {
+		return nil, err
+	}
+
+	natsJetSteamContext, err := natsConn.JetStream()
+	if err != nil {
+		return nil, err
+	}
+
+	natsKvStore, err := nats_store.NewNatsStore(logger, configSvc, natsJetSteamContext)
+	if err != nil {
+		return nil, err
+	}
 
 	return &Service{
-		logger:          l,
-		persistentStore: persistentStoreSrv,
-		pgConn:          pgConn,
-	}
+		logger: l,
+
+		persistentStore:  persistentStoreSrv,
+		redisCacheStore:  redisStore,
+		natsKVCacheStore: natsKvStore,
+	}, nil
 }

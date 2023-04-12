@@ -6,25 +6,30 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d
 	github.com/btcsuite/btcd v0.22.0-beta
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
+	github.com/crypto-bundle/bc-wallet-common v0.0.45
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.16
 	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.1
 	github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.1
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.10
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.3
+	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12
 	github.com/ethereum/go-ethereum v1.10.16
 	github.com/fbsobreira/gotron-sdk v0.0.0-20230314163715-3e721028a4f0
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/joho/godotenv v1.4.0
+	github.com/mailru/easyjson v0.7.7
+	github.com/nats-io/nats.go v1.25.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/shengdoushi/base58 v1.0.0
 	github.com/tyler-smith/go-bip39 v1.1.0
 	go.uber.org/zap v1.21.0
-	golang.org/x/crypto v0.0.0-20220315160706-3147a52a75dd
+	golang.org/x/crypto v0.6.0
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.28.1
 )
@@ -37,6 +42,7 @@ require (
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/fatih/color v1.9.0 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -62,6 +68,7 @@ require (
 	github.com/hashicorp/vault/api v1.8.0 // indirect
 	github.com/hashicorp/vault/sdk v0.6.0 // indirect
 	github.com/hashicorp/yamux v0.0.0-20180604194846-3520598351bb // indirect
+	github.com/josharian/intern v1.0.0 // indirect
 	github.com/lib/pq v1.10.4 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-isatty v0.0.14 // indirect
@@ -72,6 +79,9 @@ require (
 	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.0 // indirect
+	github.com/nats-io/nats-server/v2 v2.9.15 // indirect
+	github.com/nats-io/nkeys v0.4.4 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/oklog/run v1.0.0 // indirect
 	github.com/pierrec/lz4 v2.5.2+incompatible // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
@@ -81,10 +91,10 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/net v0.0.0-20211216030914-fe4d6282115f // indirect
-	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
-	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	golang.org/x/net v0.6.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/genproto v0.0.0-20211208223120-3a66f561d7aa // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 )

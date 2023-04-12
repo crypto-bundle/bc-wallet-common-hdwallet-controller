@@ -53,6 +53,10 @@ type MnemonicWalletUnit struct {
 }
 
 func (u *MnemonicWalletUnit) Init(ctx context.Context) error {
+	if u.unloadTimerInterval == 0 {
+		u.unloadTimerInterval = u.cfgSrv.GetDefaultWalletUnloadInterval()
+	}
+
 	return nil
 }
 
@@ -329,7 +333,7 @@ func (u *MnemonicWalletUnit) LoadWallet(ctx context.Context) error {
 }
 
 func (u *MnemonicWalletUnit) loadWallet(ctx context.Context) error {
-	walletEntity, err := u.mnemonicWalletsDataSrv.GetMnemonicWalletUUID(ctx, u.mnemonicWalletUUID.String())
+	walletEntity, err := u.mnemonicWalletsDataSrv.GetMnemonicWalletUUID(ctx, u.mnemonicWalletUUID)
 	if err != nil {
 		return err
 	}

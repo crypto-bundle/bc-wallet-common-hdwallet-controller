@@ -38,6 +38,25 @@ In production environment application require 3 database users, for example:
 make migrate
 ```
 
+## Nats
+
+Pattern to create buckets or streams is
+```
+%s__BC-WALLET-TRON-HDWALLET__MNEMONIC-WALLETS 
+```
+%s - is STAGE name, for example - dev, prod, bc_team1 (personal test stand for bc team)
+
+### Create Buckets
+
+
+```
+nats kv add DEV__BC-WALLET-TRON-HDWALLET__MNEMONIC-WALLETS --replicas 1 --history 3 --storage=memory --description="mnemonic wallets cache storage for TRON hdwallet service"
+```
+### Clear Buckets
+```
+nats kv purge DEV__BC-WALLET-TRON-HDWALLET__MNEMONIC-WALLETS
+```
+
 ### Vault
 
 In production environment application require 3 Vault tokens:
@@ -61,10 +80,18 @@ vault kv put kv/crypto-bundle/bc-wallet-tron-hdwallet/api \
 vault kv put kv/crypto-bundle/bc-wallet-tron-hdwallet/migrator \
   DB_USERNAME=bc-wallet-tron-hdwallet-migrator \
   DB_PASSWORD=password \
+  REDIS_USER=bc-wallet-tron-hdwallet-migrator \
+  REDIS_PASSWORD=password
+  NATS_USER=bc-wallet-tron-hdwallet-migrator \
+  NATS_PASSWORD=password
   
 vault kv put kv/crypto-bundle/bc-wallet-tron-hdwallet/updater \
   DB_USERNAME=bc-wallet-tron-hdwallet-updater \
   DB_PASSWORD=password
+  REDIS_USER=bc-wallet-tron-hdwallet-updater \
+  REDIS_PASSWORD=password
+  NATS_USER=bc-wallet-tron-hdwallet-updater \
+  NATS_PASSWORD=password
 ```
 
 ## Licence

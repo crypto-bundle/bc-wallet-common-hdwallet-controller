@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2021-2023 Aleksei Kotelnikov
+ * Copyright (c) 2022-2023 Aleksei Kotelnikov
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,24 +22,8 @@
  * SOFTWARE.
  */
 
-package app
+package nats_store
 
-const (
-	ApplicationNameTag = "application"
-	BlockChainNameTag  = "blockchain_name"
-
-	WalletTitleTag        = "title"
-	WalletUUIDTag         = "wallet_uuid"
-	MnemonicWalletUUIDTag = "mnemonic_wallet_uuid"
-	MnemonicWalletHashTag = "mnemonic_wallet_hash"
-	WalletPurposeTag      = "purpose"
-	WalletIsHotTag        = "is_hot"
-
-	GRPCBindPortTag = "grpc_bind_port"
-
-	TickerEventTriggerTimeTag = "ticker_time"
-
-	HDWalletAccountIndexTag  = "hd_wallet_account_index"
-	HDWalletInternalIndexTag = "hd_wallet_internal_index"
-	HDWalletAddressIndexTag  = "hd_wallet_address_index"
-)
+type configurationService interface {
+	GetStageName() string
+}
