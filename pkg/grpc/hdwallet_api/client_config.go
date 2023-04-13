@@ -35,3 +35,7 @@ func (o *HdWalletTronGRPCClientConfig) Prepare() error {
 
 	return nil
 }
+
+func (c *HdWalletTronGRPCClientConfig) PrepareWith(cfgSrvList ...interface{}) error {
+	return nil
+}
