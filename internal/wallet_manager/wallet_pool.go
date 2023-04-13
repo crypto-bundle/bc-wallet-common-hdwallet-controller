@@ -2,6 +2,7 @@ package wallet_manager
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
@@ -165,7 +166,8 @@ func (p *Pool) SignTransaction(ctx context.Context,
 	transaction *tronCore.Transaction,
 ) (*types.PublicSignTxData, error) {
 	poolUnit, isExists := p.walletUnits[walletUUID]
-	if isExists {
+	if !isExists {
+		p.logger.Error("wallet is not exists in wallet pool", zap.String(app.WalletUUIDTag, walletUUID.String()))
 		return nil, ErrPassedWalletNotFound
 	}
 

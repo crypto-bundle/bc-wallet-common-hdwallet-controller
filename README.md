@@ -48,7 +48,6 @@ Pattern to create buckets or streams is
 
 ### Create Buckets
 
-
 ```
 nats kv add DEV__BC-WALLET-TRON-HDWALLET__MNEMONIC-WALLETS --replicas 1 --history 3 --storage=memory --description="mnemonic wallets cache storage for TRON hdwallet service"
 ```

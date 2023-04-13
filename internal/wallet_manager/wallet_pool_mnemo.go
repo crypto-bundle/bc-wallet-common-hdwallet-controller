@@ -158,17 +158,12 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 			return nil, walletErr
 		}
 
-		wif, walletErr := tronWallet.GetAccountWIF()
-		if walletErr != nil {
-			return nil, walletErr
-		}
-
 		address, walletErr := tronWallet.GetAddress()
 		if walletErr != nil {
 			return nil, walletErr
 		}
 
-		clonedPrivKey := *wif.PrivKey.ToECDSA()
+		clonedPrivKey := *tronWallet.ExtendedKey.PrivateECDSA
 
 		addrData = &addressData{
 			address:    address,
@@ -177,8 +172,12 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 
 		u.addressPool[key] = addrData
 
-		// clear temporary private key
-		defer zeroKeyBTCec(wif.PrivKey)
+		// clear temporary keys
+		// TODO: add Clear method to hdwallet.Tron instance - tronWallet
+		defer func() {
+			zeroKey(tronWallet.ExtendedKey.PrivateECDSA)
+			zeroPubKey(tronWallet.ExtendedKey.PublicECDSA)
+		}()
 	}
 
 	rawData, err := proto.Marshal(transaction.GetRawData())

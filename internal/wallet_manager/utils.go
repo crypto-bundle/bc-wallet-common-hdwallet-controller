@@ -22,6 +22,18 @@ func zeroKey(key *ecdsa.PrivateKey) {
 	}
 }
 
+func zeroPubKey(key *ecdsa.PublicKey) {
+	x := key.X.Bits()
+	for i := range x {
+		x[i] = 0
+	}
+
+	y := key.Y.Bits()
+	for i := range y {
+		y[i] = 0
+	}
+}
+
 func zeroKeyBTCec(key *btcec.PrivateKey) {
 	zeroKey(key.ToECDSA())
 }
