@@ -64,6 +64,10 @@ func (h *GetEnabledWalletsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
+	if wallets == nil {
+		return nil, status.Error(codes.NotFound, "hdwallet-service has no active wallets")
+	}
+
 	response, err := h.marshallerSrv.MarshallGetEnabledWallets(wallets)
 	if err != nil {
 		h.l.Error("unable to marshall get wallets data", zap.Error(err))

@@ -96,7 +96,17 @@ func (s *Client) Shutdown(ctx context.Context) error {
 func (s *Client) GetEnabledWallets(ctx context.Context) (*pbApi.GetEnabledWalletsResponse, error) {
 	enabledWallets, err := s.client.GetEnabledWallets(ctx, &pbApi.GetEnabledWalletsRequest{})
 	if err != nil {
-		return nil, err
+		grpcStatus, ok := status.FromError(err)
+		if !ok {
+			return nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound:
+			return nil, nil
+		default:
+			return nil, err
+		}
 	}
 
 	return enabledWallets, nil

@@ -31,7 +31,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: {{ $.Values.global.container_registry }}
+          image: {{ $.Values.global.container_registry }}:{{ include "app.container.tag" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: grpc

@@ -17,7 +17,8 @@ type Pool struct {
 	mnemonicWalletsDataSrv mnemonicWalletsDataService
 	encryptSrv             encryptService
 
-	walletUnits map[uuid.UUID]WalletPoolUnitService
+	walletUnitsCount uint
+	walletUnits      map[uuid.UUID]WalletPoolUnitService
 }
 
 func (p *Pool) Init(ctx context.Context) error {
@@ -65,6 +66,7 @@ func (p *Pool) SetWalletUnits(ctx context.Context,
 	}
 
 	p.walletUnits = walletUnits
+	p.walletUnitsCount = uint(len(walletUnits))
 
 	return nil
 }
@@ -79,6 +81,7 @@ func (p *Pool) AddAWalletUnit(ctx context.Context,
 	}
 
 	p.walletUnits[walletUUID] = walletUnit
+	p.walletUnitsCount++
 
 	return nil
 }
@@ -92,8 +95,6 @@ func (p *Pool) AddAndStartWalletUnit(ctx context.Context,
 		return ErrPassedWalletAlreadyExists
 	}
 
-	p.walletUnits[walletUUID] = walletUnit
-
 	err := walletUnit.Init(ctx)
 	if err != nil {
 		return err
@@ -103,6 +104,9 @@ func (p *Pool) AddAndStartWalletUnit(ctx context.Context,
 	if err != nil {
 		return err
 	}
+
+	p.walletUnits[walletUUID] = walletUnit
+	p.walletUnitsCount++
 
 	return nil
 }
@@ -130,6 +134,10 @@ func (p *Pool) GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*type
 }
 
 func (p *Pool) GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error) {
+	if p.walletUnitsCount == 0 {
+		return nil, nil
+	}
+
 	result := make([]*types.PublicWalletData, len(p.walletUnits))
 	i := 0
 	for _, walletUnit := range p.walletUnits {
@@ -187,5 +195,6 @@ func newWalletPool(logger *zap.Logger,
 		mnemonicWalletsDataSrv: mnemonicWalletsDataSrv,
 		encryptSrv:             encryptSrv,
 		walletUnits:            make(map[uuid.UUID]WalletPoolUnitService, 0),
+		walletUnitsCount:       0,
 	}
 }

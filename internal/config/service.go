@@ -35,36 +35,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func PrepareBaseConfig(ctx context.Context,
-	version,
-	releaseTag,
-	commitID,
-	shortCommitID string,
-	buildNumber,
-	buildDateTS uint64,
-	applicationName string,
-) (*commonEnvConfig.BaseConfig, error) {
-	flagManagerSrv := commonEnvConfig.NewLdFlagsManager(version, releaseTag,
-		commitID, shortCommitID,
-		buildNumber, buildDateTS)
-
-	baseCfgPreparerSrv := commonEnvConfig.NewConfigManager()
-	baseCfg := commonEnvConfig.NewBaseConfig(applicationName)
-	err := baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if baseCfg.IsDev() {
-		loadErr := godotenv.Load(".env")
-		if loadErr != nil {
-			log.Fatal(loadErr)
-		}
-	}
-
-	return baseCfg, nil
-}
-
 func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVault.Service, error) {
 	cfgPreparerSrv := commonEnvConfig.NewConfigManager()
 	vaultCfg := &VaultWrappedConfig{
@@ -130,4 +100,34 @@ func Prepare(ctx context.Context,
 	wrappedConfig.BaseConfig = baseCfgSrv
 
 	return wrappedConfig, vaultSecretSrv, nil
+}
+
+func PrepareBaseConfig(ctx context.Context,
+	version,
+	releaseTag,
+	commitID,
+	shortCommitID string,
+	buildNumber,
+	buildDateTS uint64,
+	applicationName string,
+) (*commonEnvConfig.BaseConfig, error) {
+	flagManagerSrv := commonEnvConfig.NewLdFlagsManager(version, releaseTag,
+		commitID, shortCommitID,
+		buildNumber, buildDateTS)
+
+	baseCfgPreparerSrv := commonEnvConfig.NewConfigManager()
+	baseCfg := commonEnvConfig.NewBaseConfig(applicationName)
+	err := baseCfgPreparerSrv.PrepareTo(baseCfg).With(flagManagerSrv).Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if baseCfg.IsDev() {
+		loadErr := godotenv.Load(".env")
+		if loadErr != nil {
+			log.Fatal(loadErr)
+		}
+	}
+
+	return baseCfg, nil
 }
