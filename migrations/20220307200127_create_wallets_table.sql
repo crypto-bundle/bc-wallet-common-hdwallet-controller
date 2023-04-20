@@ -8,10 +8,10 @@ CREATE TABLE wallets
     purpose varchar NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
-)
+);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS wallets
+DROP TABLE IF EXISTS wallets;
 -- +goose StatementEnd

@@ -1,5 +1,7 @@
 # bc-wallet-tron-hdwallet
 
+## Description
+
 Service of management owned hd-wallets - mnemonic wallets for Tron blockchain. 
 Application purpose - create new mnemonic wallet, sign transaction, get derivation address
 

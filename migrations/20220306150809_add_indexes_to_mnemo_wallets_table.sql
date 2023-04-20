@@ -21,10 +21,9 @@ CREATE UNIQUE INDEX hash__idx ON mnemonic_wallets ("hash");
 
 -- +goose Down
 -- +goose StatementBegin
-DROP INDEX uuid__idx;
-DROP INDEX wallet_uuid__idx;
-DROP INDEX wallet_uuid__mnemonic_wallet_uuid__idx;
-DROP INDEX is_hot__idx;
-DROP INDEX wallet_uuid__is_hot__idx;
-DROP INDEX hash__idx;
+DROP INDEX IF EXISTS uuid__idx;
+DROP INDEX IF EXISTS wallet_uuid__mnemonic_wallet_uuid__idx;
+DROP INDEX IF EXISTS is_hot__idx;
+DROP INDEX IF EXISTS wallet_uuid__is_hot__idx;
+DROP INDEX IF EXISTS hash__idx;
 -- +goose StatementEnd
