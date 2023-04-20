@@ -19,6 +19,7 @@
     - [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity)
     - [SignTransactionRequest](#hdwallet_api.SignTransactionRequest)
     - [SignTransactionResponse](#hdwallet_api.SignTransactionResponse)
+    - [WalletBookmarks](#hdwallet_api.WalletBookmarks)
     - [WalletData](#hdwallet_api.WalletData)
     - [WalletIdentity](#hdwallet_api.WalletIdentity)
   
@@ -283,6 +284,22 @@
 
 
 
+<a name="hdwallet_api.WalletBookmarks"></a>
+
+### WalletBookmarks
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| HotWalletIndex | [uint32](#uint32) |  |  |
+| NonHotWalletIndexes | [uint32](#uint32) | repeated |  |
+
+
+
+
+
+
 <a name="hdwallet_api.WalletData"></a>
 
 ### WalletData
@@ -296,6 +313,7 @@
 | Purpose | [string](#string) |  |  |
 | Strategy | [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy) |  |  |
 | MnemonicWalletCount | [uint32](#uint32) |  |  |
+| Bookmarks | [WalletBookmarks](#hdwallet_api.WalletBookmarks) |  |  |
 | MnemonicWallets | [MnemonicWalletData](#hdwallet_api.MnemonicWalletData) | repeated |  |
 
 

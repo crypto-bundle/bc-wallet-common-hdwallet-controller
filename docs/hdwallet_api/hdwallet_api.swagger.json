@@ -142,6 +142,22 @@
         }
       }
     },
+    "hdwallet_apiWalletBookmarks": {
+      "type": "object",
+      "properties": {
+        "HotWalletIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "NonHotWalletIndexes": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
     "hdwallet_apiWalletData": {
       "type": "object",
       "properties": {
@@ -160,6 +176,9 @@
         "MnemonicWalletCount": {
           "type": "integer",
           "format": "int64"
+        },
+        "Bookmarks": {
+          "$ref": "#/definitions/hdwallet_apiWalletBookmarks"
         },
         "MnemonicWallets": {
           "type": "array",

@@ -9,6 +9,7 @@ func (m *grpcMarshaller) MarshallWalletInfo(
 	walletData *types.PublicWalletData,
 ) *pbApi.WalletData {
 	mnemonicWalletsCount := len(walletData.MnemonicWallets)
+	nonMnemonicWalletCount := mnemonicWalletsCount - 1
 
 	walletInfo := &pbApi.WalletData{
 		Identity: &pbApi.WalletIdentity{
@@ -19,16 +20,31 @@ func (m *grpcMarshaller) MarshallWalletInfo(
 		Strategy:            pbApi.WalletMakerStrategy(walletData.Strategy),
 		MnemonicWalletCount: uint32(mnemonicWalletsCount),
 		MnemonicWallets:     make([]*pbApi.MnemonicWalletData, mnemonicWalletsCount),
+		Bookmarks: &pbApi.WalletBookmarks{
+			HotWalletIndex:      0,
+			NonHotWalletIndexes: make([]uint32, nonMnemonicWalletCount),
+		},
 	}
 
 	for j := 0; j != mnemonicWalletsCount; j++ {
+		mnemoWallet := walletData.MnemonicWallets[j]
+
 		walletInfo.MnemonicWallets[j] = &pbApi.MnemonicWalletData{
 			Identity: &pbApi.MnemonicWalletIdentity{
-				WalletUUID: walletData.MnemonicWallets[j].UUID.String(),
-				WalletHash: walletData.MnemonicWallets[j].Hash,
+				WalletUUID: mnemoWallet.UUID.String(),
+				WalletHash: mnemoWallet.Hash,
 			},
-			IsHot: walletData.MnemonicWallets[j].IsHotWallet,
+			IsHot: mnemoWallet.IsHotWallet,
 		}
+
+		if mnemoWallet.IsHotWallet {
+			walletInfo.Bookmarks.HotWalletIndex = uint32(j)
+
+			continue
+		}
+
+		walletInfo.Bookmarks.NonHotWalletIndexes[nonMnemonicWalletCount-1] = uint32(j)
+		nonMnemonicWalletCount--
 	}
 
 	return walletInfo
