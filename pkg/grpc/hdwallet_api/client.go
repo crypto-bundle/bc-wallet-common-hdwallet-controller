@@ -183,6 +183,34 @@ func (s *Client) GetDerivationAddress(ctx context.Context,
 	return address, nil
 }
 
+// GetWalletInfo is function for getting full wallet info from bc-wallet-tron-hdwallet
+func (s *Client) GetWalletInfo(ctx context.Context,
+	walletUUID string,
+) (*pbApi.GetWalletInfoResponse, error) {
+	request := &pbApi.GetWalletInfoRequest{
+		WalletIdentity: &pbApi.WalletIdentity{
+			WalletUUID: walletUUID,
+		},
+	}
+
+	walletInfo, err := s.client.GetWalletInfo(ctx, request)
+	if err != nil {
+		grpcStatus, ok := status.FromError(err)
+		if !ok {
+			return nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound:
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+
+	return walletInfo, nil
+}
+
 // nolint:revive // fixme
 func NewClient(ctx context.Context,
 	cfg clientConfigService,
