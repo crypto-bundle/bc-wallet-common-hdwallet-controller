@@ -20,33 +20,16 @@ func (m *grpcMarshaller) MarshallGetEnabledWallets(
 	wg.Add(int(walletCount))
 	for i := uint32(0); i != walletCount; i++ {
 		go func(index uint32) {
+			defer wg.Done()
+
 			walletData := walletsData[index]
-			mnemonicWalletsCount := len(walletData.MnemonicWallets)
-
-			walletIdentity := &pbApi.WalletData{
-				Identity: &pbApi.WalletIdentity{
-					WalletUUID: walletData.UUID.String(),
-				},
-				Title:               walletData.Title,
-				Purpose:             walletData.Purpose,
-				Strategy:            pbApi.WalletMakerStrategy(walletData.Strategy),
-				MnemonicWalletCount: uint32(mnemonicWalletsCount),
-				MnemonicWallets:     make([]*pbApi.MnemonicWalletData, mnemonicWalletsCount),
+			if walletData == nil {
+				return
 			}
 
-			for j := 0; j != mnemonicWalletsCount; j++ {
-				walletIdentity.MnemonicWallets[j] = &pbApi.MnemonicWalletData{
-					Identity: &pbApi.MnemonicWalletIdentity{
-						WalletUUID: walletData.MnemonicWallets[j].UUID.String(),
-						WalletHash: walletData.MnemonicWallets[j].Hash,
-					},
-					IsHot: walletData.MnemonicWallets[j].IsHotWallet,
-				}
-			}
+			walletInfo := m.MarshallWalletInfo(walletData)
 
-			response.Wallets[index] = walletIdentity
-
-			wg.Done()
+			response.Wallets[index] = walletInfo
 		}(i)
 	}
 	wg.Wait()

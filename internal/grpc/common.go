@@ -81,4 +81,7 @@ type marshallerService interface {
 	MarshallSignTransaction(
 		publicSignTxData *types.PublicSignTxData,
 	) (*pbApi.SignTransactionResponse, error)
+	MarshallWalletInfo(
+		walletData *types.PublicWalletData,
+	) *pbApi.WalletData
 }

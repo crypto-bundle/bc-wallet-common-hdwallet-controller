@@ -48,6 +48,7 @@ type grpcServerHandle struct {
 	getDerivationAddressHandler        *GetDerivationAddressHandler
 	getDerivationAddressByRangeHandler *GetDerivationAddressByRangeHandler
 	getEnabledWalletsHandler           *GetEnabledWalletsHandler
+	getWalletInfoHandler               *GetWalletInfoHandler
 	signTransactionHandle              *SignTransactionHandler
 }
 
@@ -81,6 +82,12 @@ func (h *grpcServerHandle) SignTransaction(ctx context.Context,
 	return h.signTransactionHandle.Handle(ctx, req)
 }
 
+func (h *grpcServerHandle) GetWalletInfo(ctx context.Context,
+	req *pbApi.GetWalletInfoRequest,
+) (*pbApi.GetWalletInfoResponse, error) {
+	return h.getWalletInfoHandler.Handle(ctx, req)
+}
+
 // New instance of service
 func New(ctx context.Context,
 	loggerSrv *zap.Logger,
@@ -106,5 +113,6 @@ func New(ctx context.Context,
 		getEnabledWalletsHandler:           MakeGetEnabledWalletsHandler(l, walletSrv, marshallerSrv),
 		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv, marshallerSrv),
 		signTransactionHandle:              MakeSignTransactionsHandler(l, walletSrv, marshallerSrv),
+		getWalletInfoHandler:               MakeGetWalletInfoHandler(l, walletSrv, marshallerSrv),
 	}, nil
 }

@@ -100,8 +100,18 @@ message SignTransactionResponse {
   bytes SignedTxData = 4;
 }
 
+message GetWalletInfoRequest {
+  WalletIdentity WalletIdentity = 1;
+}
+
+message GetWalletInfoResponse {
+  WalletIdentity WalletIdentity = 1;
+  WalletData WalletInfo = 2;
+}
+
 service HdWalletApi {
   rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
+  rpc GetWalletInfo                 (GetWalletInfoRequest)           returns (GetWalletInfoResponse) {}
   rpc GetEnabledWallets                 (GetEnabledWalletsRequest)           returns (GetEnabledWalletsResponse) {}
   rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
   rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}

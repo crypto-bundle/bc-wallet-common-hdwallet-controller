@@ -91,6 +91,17 @@
         }
       }
     },
+    "hdwallet_apiGetWalletInfoResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletIdentity"
+        },
+        "WalletInfo": {
+          "$ref": "#/definitions/hdwallet_apiWalletData"
+        }
+      }
+    },
     "hdwallet_apiMnemonicWalletData": {
       "type": "object",
       "properties": {

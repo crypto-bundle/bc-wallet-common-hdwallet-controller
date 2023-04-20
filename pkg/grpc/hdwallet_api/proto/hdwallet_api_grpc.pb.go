@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HdWalletApiClient interface {
 	AddNewWallet(ctx context.Context, in *AddNewWalletRequest, opts ...grpc.CallOption) (*AddNewWalletResponse, error)
+	GetWalletInfo(ctx context.Context, in *GetWalletInfoRequest, opts ...grpc.CallOption) (*GetWalletInfoResponse, error)
 	GetEnabledWallets(ctx context.Context, in *GetEnabledWalletsRequest, opts ...grpc.CallOption) (*GetEnabledWalletsResponse, error)
 	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
@@ -36,6 +37,15 @@ func NewHdWalletApiClient(cc grpc.ClientConnInterface) HdWalletApiClient {
 func (c *hdWalletApiClient) AddNewWallet(ctx context.Context, in *AddNewWalletRequest, opts ...grpc.CallOption) (*AddNewWalletResponse, error) {
 	out := new(AddNewWalletResponse)
 	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/AddNewWallet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletApiClient) GetWalletInfo(ctx context.Context, in *GetWalletInfoRequest, opts ...grpc.CallOption) (*GetWalletInfoResponse, error) {
+	out := new(GetWalletInfoResponse)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GetWalletInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +93,7 @@ func (c *hdWalletApiClient) SignTransaction(ctx context.Context, in *SignTransac
 // for forward compatibility
 type HdWalletApiServer interface {
 	AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error)
+	GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error)
 	GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error)
 	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
@@ -96,6 +107,9 @@ type UnimplementedHdWalletApiServer struct {
 
 func (UnimplementedHdWalletApiServer) AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddNewWallet not implemented")
+}
+func (UnimplementedHdWalletApiServer) GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWalletInfo not implemented")
 }
 func (UnimplementedHdWalletApiServer) GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetEnabledWallets not implemented")
@@ -136,6 +150,24 @@ func _HdWalletApi_AddNewWallet_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).AddNewWallet(ctx, req.(*AddNewWalletRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletApi_GetWalletInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWalletInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).GetWalletInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hdwallet_api.HdWalletApi/GetWalletInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).GetWalletInfo(ctx, req.(*GetWalletInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -222,6 +254,10 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddNewWallet",
 			Handler:    _HdWalletApi_AddNewWallet_Handler,
+		},
+		{
+			MethodName: "GetWalletInfo",
+			Handler:    _HdWalletApi_GetWalletInfo_Handler,
 		},
 		{
 			MethodName: "GetEnabledWallets",

@@ -13,6 +13,8 @@
     - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
     - [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest)
     - [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse)
+    - [GetWalletInfoRequest](#hdwallet_api.GetWalletInfoRequest)
+    - [GetWalletInfoResponse](#hdwallet_api.GetWalletInfoResponse)
     - [MnemonicWalletData](#hdwallet_api.MnemonicWalletData)
     - [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity)
     - [SignTransactionRequest](#hdwallet_api.SignTransactionRequest)
@@ -182,6 +184,37 @@
 
 
 
+<a name="hdwallet_api.GetWalletInfoRequest"></a>
+
+### GetWalletInfoRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GetWalletInfoResponse"></a>
+
+### GetWalletInfoResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| WalletInfo | [WalletData](#hdwallet_api.WalletData) |  |  |
+
+
+
+
+
+
 <a name="hdwallet_api.MnemonicWalletData"></a>
 
 ### MnemonicWalletData
@@ -312,6 +345,7 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | AddNewWallet | [AddNewWalletRequest](#hdwallet_api.AddNewWalletRequest) | [AddNewWalletResponse](#hdwallet_api.AddNewWalletResponse) |  |
+| GetWalletInfo | [GetWalletInfoRequest](#hdwallet_api.GetWalletInfoRequest) | [GetWalletInfoResponse](#hdwallet_api.GetWalletInfoResponse) |  |
 | GetEnabledWallets | [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest) | [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse) |  |
 | GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
 | GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
