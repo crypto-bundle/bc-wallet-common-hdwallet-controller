@@ -163,7 +163,17 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 			return nil, walletErr
 		}
 
-		clonedPrivKey := *tronWallet.ExtendedKey.PrivateECDSA
+		clonedX := *tronWallet.ExtendedKey.PrivateECDSA.X
+		clonedY := *tronWallet.ExtendedKey.PrivateECDSA.Y
+		clonedD := *tronWallet.ExtendedKey.PrivateECDSA.D
+		clonedPrivKey := ecdsa.PrivateKey{
+			PublicKey: ecdsa.PublicKey{
+				Curve: tronWallet.ExtendedKey.PrivateECDSA.Curve,
+				X:     &clonedX,
+				Y:     &clonedY,
+			},
+			D: &clonedD,
+		}
 
 		addrData = &addressData{
 			address:    address,
@@ -174,10 +184,10 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 
 		// clear temporary keys
 		// TODO: add Clear method to hdwallet.Tron instance - tronWallet
-		defer func() {
-			zeroKey(tronWallet.ExtendedKey.PrivateECDSA)
-			zeroPubKey(tronWallet.ExtendedKey.PublicECDSA)
-		}()
+		//defer func() {
+		//	zeroKey(tronWallet.ExtendedKey.PrivateECDSA)
+		//	zeroPubKey(tronWallet.ExtendedKey.PublicECDSA)
+		//}()
 	}
 
 	rawData, err := proto.Marshal(transaction.GetRawData())
@@ -194,6 +204,8 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 	for range contractList {
 		signature, signErr := crypto.Sign(hash, addrData.privateKey)
 		if signErr != nil {
+			u.logger.Error("unable to sign", zap.Error(signErr),
+				zap.String(app.HDWalletAddressTag, addrData.address))
 			return nil, signErr
 		}
 

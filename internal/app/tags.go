@@ -42,4 +42,5 @@ const (
 	HDWalletAccountIndexTag  = "hd_wallet_account_index"
 	HDWalletInternalIndexTag = "hd_wallet_internal_index"
 	HDWalletAddressIndexTag  = "hd_wallet_address_index"
+	HDWalletAddressTag       = "hd_wallet_address"
 )
