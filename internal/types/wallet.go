@@ -1,7 +1,6 @@
 package types
 
 import (
-	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/google/uuid"
 )
 
@@ -51,5 +50,5 @@ type PublicSignTxData struct {
 	MnemonicUUID uuid.UUID
 	MnemonicHash string
 	AddressData  *PublicDerivationAddressData
-	SignedTx     *tronCore.Transaction
+	SignedTx     []byte
 }

@@ -9,6 +9,7 @@ func (m *grpcMarshaller) MarshallGetAddressByRange(
 	walletPublicData *types.PublicWalletData,
 	mnemonicWalletPublicData *types.PublicMnemonicWalletData,
 	addressesData []*pbApi.DerivationAddressIdentity,
+	size uint64,
 ) (*pbApi.DerivationAddressByRangeResponse, error) {
 	response := &pbApi.DerivationAddressByRangeResponse{
 		WalletIdentity: &pbApi.WalletIdentity{
@@ -18,7 +19,8 @@ func (m *grpcMarshaller) MarshallGetAddressByRange(
 			WalletUUID: mnemonicWalletPublicData.UUID.String(),
 			WalletHash: mnemonicWalletPublicData.Hash,
 		},
-		AddressIdentities: addressesData,
+		AddressIdentitiesCount: size,
+		AddressIdentities:      addressesData,
 	}
 
 	return response, nil

@@ -4,10 +4,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

@@ -68,42 +68,51 @@ message AddNewWalletResponse {
 message DerivationAddressRequest {
   WalletIdentity WalletIdentity = 1;
   MnemonicWalletIdentity MnemonicIdentity = 2;
-  DerivationAddressIdentity AddressIdentity = 3;
+  WalletSessionIdentity SessionIdentity = 3;
+  DerivationAddressIdentity AddressIdentity = 4;
 }
 
 message DerivationAddressResponse {
   WalletIdentity WalletIdentity = 1;
   MnemonicWalletIdentity MnemonicIdentity= 2;
-  DerivationAddressIdentity AddressIdentity = 3;
+  WalletSessionIdentity SessionIdentity = 3;
+  DerivationAddressIdentity AddressIdentity = 4;
 }
 
-message DerivationAddressByRangeRequest {
-  WalletIdentity WalletIdentity = 1;
-  MnemonicWalletIdentity MnemonicIdentity = 2;
+message RangeRequestUnit {
   uint32 AccountIndex = 3;
   uint32 InternalIndex = 4;
   uint32 AddressIndexFrom = 5;
   uint32 AddressIndexTo = 6;
 }
 
+message DerivationAddressByRangeRequest {
+  WalletIdentity WalletIdentity = 1;
+  MnemonicWalletIdentity MnemonicIdentity = 2;
+  repeated RangeRequestUnit Ranges = 3;
+}
+
 message DerivationAddressByRangeResponse {
   WalletIdentity WalletIdentity = 1;
   MnemonicWalletIdentity MnemonicIdentity= 2;
-  repeated DerivationAddressIdentity AddressIdentities = 3;
+  uint64 AddressIdentitiesCount = 3;
+  repeated DerivationAddressIdentity AddressIdentities = 4;
 }
 
 message SignTransactionRequest {
   string WalletUUID = 1;
   string MnemonicWalletUUID = 2;
   DerivationAddressIdentity AddressIdentity = 3;
-  bytes CreatedTxData = 4;
+  WalletSessionIdentity SessionIdentity = 4;
+  bytes CreatedTxData = 5;
 }
 
 message SignTransactionResponse {
   WalletIdentity WalletIdentity = 1;
   MnemonicWalletIdentity MnemonicIdentity= 2;
-  DerivationAddressIdentity TxOwnerIdentity = 3;
-  bytes SignedTxData = 4;
+  WalletSessionIdentity SessionIdentity = 3;
+  DerivationAddressIdentity TxOwnerIdentity = 4;
+  bytes SignedTxData = 5;
 }
 
 message GetWalletInfoRequest {
@@ -115,10 +124,76 @@ message GetWalletInfoResponse {
   WalletData WalletInfo = 2;
 }
 
-service HdWalletApi {
+message WalletSessionIdentity {
+  string SessionUUID = 1;
+}
+
+message StartWalletSessionRequest {
+  string WalletUUID = 1;
+  string MnemonicWalletUUID = 2;
+}
+
+message StartWalletSessionResponse {
+  WalletIdentity WalletIdentity = 1;
+  MnemonicWalletIdentity MnemonicIdentity = 2;
+  WalletSessionIdentity SessionIdentity = 3;
+  uint64 SessionStartedAt = 4;
+  uint64 SessionExpiredAt = 5;
+}
+
+message GetWalletSessionRequest {
+  string WalletUUID = 1;
+  string MnemonicWalletUUID = 2;
+}
+
+message GetWalletSessionResponse {
+  WalletIdentity WalletIdentity = 1;
+  MnemonicWalletIdentity MnemonicIdentity = 2;
+  WalletSessionIdentity SessionIdentity = 3;
+  uint64 SessionStartedAt = 4;
+  uint64 SessionExpiredAt = 5;
+}
+
+service HdWalletManagerApi {
   rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
   rpc GetWalletInfo                 (GetWalletInfoRequest)           returns (GetWalletInfoResponse) {}
   rpc GetEnabledWallets                 (GetEnabledWalletsRequest)           returns (GetEnabledWalletsResponse) {}
+  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+  rpc StartWalletSession                (StartWalletSessionRequest)    returns (StartWalletSessionResponse) {}
+  rpc GetWalletSession                  (GetWalletSessionRequest)   returns (GetWalletSessionResponse) {}
+  rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}
+}
+
+message GenerateMnemonicRequest {
+  MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message GenerateMnemonicResponse {
+  MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes EncryptedMnemonicData = 2;
+}
+
+message LoadMnemonicRequest {
+  MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message LoadMnemonicResponse {
+  MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMnemonicRequest {
+  MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMnemonicResponse {
+  MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+service HdWalletApi {
+  rpc GenerateMnemonic                 (GenerateMnemonicRequest)           returns (GenerateMnemonicResponse) {}
+  rpc LoadMnemonic                 (LoadMnemonicRequest)           returns (LoadMnemonicResponse) {}
+  rpc UnLoadMnemonic                 (UnLoadMnemonicRequest)           returns (UnLoadMnemonicResponse) {}
   rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
   rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
   rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}

@@ -18,7 +18,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson842a094aDecodeGithubComCryptoBundleBcWalletTronHdwalletInternalEntities(in *jlexer.Lexer, out *MnemonicWallet) {
+func easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(in *jlexer.Lexer, out *MnemonicWallet) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -97,7 +97,7 @@ func easyjson842a094aDecodeGithubComCryptoBundleBcWalletTronHdwalletInternalEnti
 		in.Consumed()
 	}
 }
-func easyjson842a094aEncodeGithubComCryptoBundleBcWalletTronHdwalletInternalEntities(out *jwriter.Writer, in MnemonicWallet) {
+func easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(out *jwriter.Writer, in MnemonicWallet) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -171,23 +171,23 @@ func easyjson842a094aEncodeGithubComCryptoBundleBcWalletTronHdwalletInternalEnti
 // MarshalJSON supports json.Marshaler interface
 func (v MnemonicWallet) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson842a094aEncodeGithubComCryptoBundleBcWalletTronHdwalletInternalEntities(&w, v)
+	easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MnemonicWallet) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson842a094aEncodeGithubComCryptoBundleBcWalletTronHdwalletInternalEntities(w, v)
+	easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *MnemonicWallet) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson842a094aDecodeGithubComCryptoBundleBcWalletTronHdwalletInternalEntities(&r, v)
+	easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MnemonicWallet) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson842a094aDecodeGithubComCryptoBundleBcWalletTronHdwalletInternalEntities(l, v)
+	easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(l, v)
 }

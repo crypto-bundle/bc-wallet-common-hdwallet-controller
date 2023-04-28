@@ -6,6 +6,9 @@
   },
   "tags": [
     {
+      "name": "HdWalletManagerApi"
+    },
+    {
       "name": "HdWalletApi"
     }
   ],
@@ -33,6 +36,10 @@
         },
         "MnemonicIdentity": {
           "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
+        },
+        "AddressIdentitiesCount": {
+          "type": "string",
+          "format": "uint64"
         },
         "AddressIdentities": {
           "type": "array",
@@ -71,8 +78,23 @@
         "MnemonicIdentity": {
           "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
         },
+        "SessionIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletSessionIdentity"
+        },
         "AddressIdentity": {
           "$ref": "#/definitions/hdwallet_apiDerivationAddressIdentity"
+        }
+      }
+    },
+    "hdwallet_apiGenerateMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
+        },
+        "EncryptedMnemonicData": {
+          "type": "string",
+          "format": "byte"
         }
       }
     },
@@ -102,6 +124,36 @@
         }
       }
     },
+    "hdwallet_apiGetWalletSessionResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletIdentity"
+        },
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletSessionIdentity"
+        },
+        "SessionStartedAt": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "SessionExpiredAt": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "hdwallet_apiLoadMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
+        }
+      }
+    },
     "hdwallet_apiMnemonicWalletData": {
       "type": "object",
       "properties": {
@@ -124,6 +176,27 @@
         }
       }
     },
+    "hdwallet_apiRangeRequestUnit": {
+      "type": "object",
+      "properties": {
+        "AccountIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "InternalIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndexFrom": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndexTo": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "hdwallet_apiSignTransactionResponse": {
       "type": "object",
       "properties": {
@@ -133,12 +206,45 @@
         "MnemonicIdentity": {
           "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
         },
+        "SessionIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletSessionIdentity"
+        },
         "TxOwnerIdentity": {
           "$ref": "#/definitions/hdwallet_apiDerivationAddressIdentity"
         },
         "SignedTxData": {
           "type": "string",
           "format": "byte"
+        }
+      }
+    },
+    "hdwallet_apiStartWalletSessionResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletIdentity"
+        },
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/hdwallet_apiWalletSessionIdentity"
+        },
+        "SessionStartedAt": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "SessionExpiredAt": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "hdwallet_apiUnLoadMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/hdwallet_apiMnemonicWalletIdentity"
         }
       }
     },
@@ -204,6 +310,14 @@
         "MULTIPLE_MNEMONIC_STRATEGY_TYPE"
       ],
       "default": "PLACEHOLDER_STRATEGY_TYPE"
+    },
+    "hdwallet_apiWalletSessionIdentity": {
+      "type": "object",
+      "properties": {
+        "SessionUUID": {
+          "type": "string"
+        }
+      }
     },
     "protobufAny": {
       "type": "object",
