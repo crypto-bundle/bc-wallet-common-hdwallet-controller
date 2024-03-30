@@ -2,12 +2,10 @@ package grpc
 
 import (
 	"context"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"sync"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-
-	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -32,11 +30,6 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 	req *pbApi.DerivationAddressRequest,
 ) (*pbApi.DerivationAddressResponse, error) {
 	var err error
-	_, span, finish := tracer.Trace(ctx)
-
-	defer func() { finish(err) }()
-
-	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
 	vf := &GetDerivationAddressForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
@@ -50,7 +43,7 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletPubData, err := h.walletSvc.GetWalletByUUID(ctx, vf.WalletUUIDRaw)
+	walletPubData, err := h.walletSvc.GetWalletByUUID(ctx, vf.MnemonicWalletUUIDRaw)
 	if err != nil {
 		h.l.Error("unable get wallet", zap.Error(err))
 
@@ -60,24 +53,19 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "wallet not found")
 	}
 
-	mnemoWalletData, isExists := walletPubData.MnemonicWalletsByUUID[vf.MnemonicWalletUUIDRaw]
-	if !isExists {
-		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
-	}
-
-	addressData, err := h.walletSvc.GetAddressByPath(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
+	addressData, err := h.walletSvc.GetAddressByPath(ctx, vf.MnemonicWalletUUIDRaw,
 		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
 	if err != nil {
 		return nil, err
 	}
 
-	addressEntity := h.pbAddrPool.Get().(*pbApi.DerivationAddressIdentity)
+	addressEntity := h.pbAddrPool.Get().(*pbCommon.DerivationAddressIdentity)
 	addressEntity.AccountIndex = addressData.AccountIndex
 	addressEntity.InternalIndex = addressData.InternalIndex
 	addressEntity.AddressIndex = addressData.AddressIndex
 	addressEntity.Address = addressData.Address
 
-	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(walletPubData, mnemoWalletData, addressEntity)
+	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(walletPubData, addressEntity)
 	if err != nil {
 		h.l.Error("unable to marshall public address data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

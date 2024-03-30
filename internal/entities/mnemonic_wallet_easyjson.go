@@ -4,6 +4,7 @@ package entities
 
 import (
 	json "encoding/json"
+	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -18,7 +19,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(in *jlexer.Lexer, out *MnemonicWallet) {
+func easyjson842a094aDecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(in *jlexer.Lexer, out *MnemonicWallet) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -43,25 +44,12 @@ func easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletIntern
 			if data := in.UnsafeBytes(); in.Ok() {
 				in.AddError((out.UUID).UnmarshalText(data))
 			}
-		case "wallet_uuid":
-			if data := in.UnsafeBytes(); in.Ok() {
-				in.AddError((out.WalletUUID).UnmarshalText(data))
-			}
 		case "mnemonic_hash":
 			out.MnemonicHash = string(in.String())
-		case "is_hot":
-			out.IsHotWallet = bool(in.Bool())
+		case "status":
+			out.Status = types.MnemonicWalletStatus(in.Uint8())
 		case "unload_interval":
 			out.UnloadInterval = time.Duration(in.Int64())
-		case "rsa_encrypted":
-			if in.IsNull() {
-				in.Skip()
-				out.RsaEncrypted = nil
-			} else {
-				out.RsaEncrypted = in.Bytes()
-			}
-		case "rsa_encrypted_hash":
-			out.RsaEncryptedHash = string(in.String())
 		case "vault_encrypted":
 			if in.IsNull() {
 				in.Skip()
@@ -97,7 +85,7 @@ func easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletIntern
 		in.Consumed()
 	}
 }
-func easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(out *jwriter.Writer, in MnemonicWallet) {
+func easyjson842a094aEncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(out *jwriter.Writer, in MnemonicWallet) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -112,34 +100,19 @@ func easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletIntern
 		out.RawText((in.UUID).MarshalText())
 	}
 	{
-		const prefix string = ",\"wallet_uuid\":"
-		out.RawString(prefix)
-		out.RawText((in.WalletUUID).MarshalText())
-	}
-	{
 		const prefix string = ",\"mnemonic_hash\":"
 		out.RawString(prefix)
 		out.String(string(in.MnemonicHash))
 	}
 	{
-		const prefix string = ",\"is_hot\":"
+		const prefix string = ",\"status\":"
 		out.RawString(prefix)
-		out.Bool(bool(in.IsHotWallet))
+		out.Uint8(uint8(in.Status))
 	}
 	{
 		const prefix string = ",\"unload_interval\":"
 		out.RawString(prefix)
 		out.Int64(int64(in.UnloadInterval))
-	}
-	{
-		const prefix string = ",\"rsa_encrypted\":"
-		out.RawString(prefix)
-		out.Base64Bytes(in.RsaEncrypted)
-	}
-	{
-		const prefix string = ",\"rsa_encrypted_hash\":"
-		out.RawString(prefix)
-		out.String(string(in.RsaEncryptedHash))
 	}
 	{
 		const prefix string = ",\"vault_encrypted\":"
@@ -171,23 +144,23 @@ func easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletIntern
 // MarshalJSON supports json.Marshaler interface
 func (v MnemonicWallet) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(&w, v)
+	easyjson842a094aEncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MnemonicWallet) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson842a094aEncodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(w, v)
+	easyjson842a094aEncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *MnemonicWallet) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(&r, v)
+	easyjson842a094aDecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MnemonicWallet) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson842a094aDecodeGitlabHeronodesIoBcPlatformBcWalletTronHdwalletInternalEntities(l, v)
+	easyjson842a094aDecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(l, v)
 }

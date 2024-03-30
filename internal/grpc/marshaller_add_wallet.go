@@ -1,9 +1,10 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 )
 
 func (m *grpcMarshaller) MarshallCreateWalletData(
@@ -11,22 +12,22 @@ func (m *grpcMarshaller) MarshallCreateWalletData(
 ) (*pbApi.AddNewWalletResponse, error) {
 	mnemonicsCount := uint32(len(walletData.MnemonicWallets))
 
-	resp := &pbApi.AddNewWalletResponse{Wallet: &pbApi.WalletData{
-		Identity:            &pbApi.WalletIdentity{WalletUUID: walletData.UUID.String()},
+	resp := &pbApi.AddNewWalletResponse{Wallet: &pbCommon.WalletData{
+		Identity:            &pbCommon.WalletIdentity{WalletUUID: walletData.UUID.String()},
 		Title:               walletData.Title,
 		Purpose:             walletData.Purpose,
-		Strategy:            pbApi.WalletMakerStrategy(walletData.Strategy),
+		Strategy:            pbCommon.WalletMakerStrategy(walletData.Strategy),
 		MnemonicWalletCount: uint32(len(walletData.MnemonicWallets)),
-		MnemonicWallets:     make([]*pbApi.MnemonicWalletData, mnemonicsCount),
-		Bookmarks: &pbApi.WalletBookmarks{
+		MnemonicWallets:     make([]*pbCommon.MnemonicWalletData, mnemonicsCount),
+		Bookmarks: &pbCommon.WalletBookmarks{
 			HotWalletIndex: 0,
 		},
 	}}
 
 	for i := uint32(0); i != mnemonicsCount; i++ {
 		mnemonicPublicData := walletData.MnemonicWallets[i]
-		resp.Wallet.MnemonicWallets[i] = &pbApi.MnemonicWalletData{
-			Identity: &pbApi.MnemonicWalletIdentity{
+		resp.Wallet.MnemonicWallets[i] = &pbCommon.MnemonicWalletData{
+			Identity: &pbCommon.MnemonicWalletIdentity{
 				WalletUUID: mnemonicPublicData.UUID.String(),
 				WalletHash: mnemonicPublicData.Hash,
 			},

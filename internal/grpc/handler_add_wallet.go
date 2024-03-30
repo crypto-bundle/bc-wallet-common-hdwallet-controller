@@ -2,12 +2,8 @@ package grpc
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-
-	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -29,11 +25,6 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 	req *pbApi.AddNewWalletRequest,
 ) (*pbApi.AddNewWalletResponse, error) {
 	var err error
-	_, span, finish := tracer.Trace(ctx)
-
-	defer func() { finish(err) }()
-
-	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
 	validationForm := &AddNewWalletForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
@@ -49,11 +40,7 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	if validationForm.Strategy == 0 {
-		validationForm.Strategy = types.WalletMakerMultipleMnemonicStrategy
-	}
-
-	wallet, err := h.walletSrv.CreateNewWallet(ctx, validationForm.Strategy,
+	wallet, err := h.walletSrv.CreateNewWallet(ctx,
 		validationForm.Title, validationForm.Purpose)
 	if err != nil {
 		h.l.Error("unable to create mnemonic wallet", zap.Error(err))

@@ -28,19 +28,33 @@ type MangerConfig struct {
 	// -------------------
 	// Internal configs
 	// -------------------
-	*GrpcConfig
 	// GRPCBindRaw port string, default "8080"
-	GRPCBindRaw                         string        `envconfig:"API_GRPC_PORT" default:"8080"`
+	GRPCBindRaw string `envconfig:"API_GRPC_PORT" default:"8080"`
+
+	ProcessingProvider string `envconfig:"PROCESSING_PROVIDER" default:"cryptobundle"`
+	ProcessingNetwork  string `envconfig:"PROCESSING_NETWORK" default:"placeholder"`
+
 	WalletManagerUnloadHotInterval      time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_HOT_INTERVAL" default:"15s"`
 	WalletManagerUnloadInterval         time.Duration `envconfig:"WALLET_MANAGER_UNLOAD_INTERVAL" default:"8s"`
 	WalletManagerMnemonicPerWalletCount uint8         `envconfig:"WALLET_MANAGER_MNEMONICS_PER_WALLET_COUNT" default:"3"`
 	// ----------------------------
 	// Calculated config parameters
 	GRPCBind string
+	// ----------------------------
+	// Dependencies
+	baseAppCfgSrv baseConfigService
 }
 
 func (c *MangerConfig) GetBindPort() string {
 	return c.GRPCBind
+}
+
+func (c *MangerConfig) GetProviderName() string {
+	return c.ProcessingProvider
+}
+
+func (c *MangerConfig) GetNetworkName() string {
+	return c.ProcessingNetwork
 }
 
 func (c *MangerConfig) GetDefaultHotWalletUnloadInterval() time.Duration {
@@ -63,5 +77,14 @@ func (c *MangerConfig) Prepare() error {
 }
 
 func (c *MangerConfig) PrepareWith(cfgSvcList ...interface{}) error {
+	for _, cfgSrv := range cfgSvcList {
+		switch castedCfg := cfgSrv.(type) {
+		case baseConfigService:
+			c.baseAppCfgSrv = castedCfg
+		default:
+			continue
+		}
+	}
+
 	return nil
 }

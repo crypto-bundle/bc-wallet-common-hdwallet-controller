@@ -1,29 +1,23 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 )
 
 func (m *grpcMarshaller) MarshallWalletInfo(
 	walletData *types.PublicWalletData,
-) *pbApi.WalletData {
+) *pbApi.MnemonicWalletData {
 	mnemonicWalletsCount := len(walletData.MnemonicWallets)
 	nonMnemonicWalletCount := mnemonicWalletsCount - 1
 
 	walletInfo := &pbApi.WalletData{
-		Identity: &pbApi.WalletIdentity{
+		Identity: &pbApi.MnemonicWalletIdentity{
 			WalletUUID: walletData.UUID.String(),
 		},
-		Title:               walletData.Title,
-		Purpose:             walletData.Purpose,
-		Strategy:            pbApi.WalletMakerStrategy(walletData.Strategy),
-		MnemonicWalletCount: uint32(mnemonicWalletsCount),
-		MnemonicWallets:     make([]*pbApi.MnemonicWalletData, mnemonicWalletsCount),
-		Bookmarks: &pbApi.WalletBookmarks{
-			HotWalletIndex:      0,
-			NonHotWalletIndexes: make([]uint32, nonMnemonicWalletCount),
-		},
+		Title:           walletData.Title,
+		Purpose:         walletData.Purpose,
+		MnemonicWallets: make([]*pbApi.MnemonicWalletData, mnemonicWalletsCount),
 	}
 
 	for j := 0; j != mnemonicWalletsCount; j++ {

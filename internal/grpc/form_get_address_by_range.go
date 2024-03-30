@@ -3,16 +3,14 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 	"github.com/google/uuid"
 
 	"github.com/asaskevich/govalidator"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 )
 
 type derivationAddressByRangeForm struct {
-	WalletUUID            string `valid:"type(string),uuid,required"`
-	WalletUUIDRaw         uuid.UUID
 	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
 	MnemonicWalletUUIDRaw uuid.UUID
 
@@ -51,11 +49,6 @@ func (f *derivationAddressByRangeForm) GetNext() *types.PublicDerivationAddressR
 func (f *derivationAddressByRangeForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.DerivationAddressByRangeRequest,
 ) (valid bool, err error) {
-	if req.WalletIdentity == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
-	}
-	f.WalletUUID = req.WalletIdentity.WalletUUID
-
 	if req.MnemonicIdentity == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "MnemonicWallet identity")
 	}
@@ -87,12 +80,6 @@ func (f *derivationAddressByRangeForm) LoadAndValidate(ctx context.Context,
 	if err != nil {
 		return false, err
 	}
-
-	walletUUIDRaw, err := uuid.Parse(f.WalletUUID)
-	if err != nil {
-		return false, err
-	}
-	f.WalletUUIDRaw = walletUUIDRaw
 
 	mnemonicWalletUUIDRaw, err := uuid.Parse(f.MnemonicWalletUUID)
 	if err != nil {

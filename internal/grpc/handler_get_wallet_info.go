@@ -2,9 +2,7 @@ package grpc
 
 import (
 	"context"
-	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -24,13 +22,8 @@ func (h *GetWalletInfoHandler) Handle(ctx context.Context,
 	req *pbApi.GetWalletInfoRequest,
 ) (*pbApi.GetWalletInfoResponse, error) {
 	var err error
-	_, span, finish := tracer.Trace(ctx)
 
-	defer func() { finish(err) }()
-
-	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
-
-	vf := &GetWalletInfoForm{}
+	vf := &DisableWalletForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))

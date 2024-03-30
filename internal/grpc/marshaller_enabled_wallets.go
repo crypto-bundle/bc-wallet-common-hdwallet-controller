@@ -1,19 +1,20 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 	"sync"
 )
 
 func (m *grpcMarshaller) MarshallGetEnabledWallets(
-	walletsData []*types.PublicWalletData,
+	walletsData []*entities.MnemonicWallet,
 ) (*pbApi.GetEnabledWalletsResponse, error) {
 	walletCount := uint32(len(walletsData))
 
 	response := &pbApi.GetEnabledWalletsResponse{
-		WalletsCount: walletCount,
-		Wallets:      make([]*pbApi.WalletData, walletCount),
+		WalletsCount:     walletCount,
+		WalletIdentities: make([]*pbCommon.MnemonicWalletIdentity, walletCount),
 	}
 
 	wg := sync.WaitGroup{}
@@ -27,9 +28,10 @@ func (m *grpcMarshaller) MarshallGetEnabledWallets(
 				return
 			}
 
-			walletInfo := m.MarshallWalletInfo(walletData)
-
-			response.Wallets[index] = walletInfo
+			response.WalletIdentities[index] = &pbCommon.MnemonicWalletIdentity{
+				WalletUUID: walletData.UUID.String(),
+				WalletHash: walletData.MnemonicHash,
+			}
 		}(i)
 	}
 	wg.Wait()

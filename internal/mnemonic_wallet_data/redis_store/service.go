@@ -3,11 +3,11 @@ package redis_store
 import (
 	"context"
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	"github.com/google/uuid"
 	"strings"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 
 	redis "github.com/go-redis/redis/v8"
 	"go.uber.org/zap"

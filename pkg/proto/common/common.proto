@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package common;
+
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common";
+
+message DerivationAddressIdentity {
+  uint32 AccountIndex = 1;
+  uint32 InternalIndex = 2;
+  uint32 AddressIndex = 3;
+
+  string Address = 4;
+}
+
+message MnemonicWalletIdentity {
+  string WalletUUID = 1;
+  string WalletHash = 2;
+}
+
+message MnemonicWalletData {
+  MnemonicWalletIdentity Identity = 1;
+}
+
+message RangeRequestUnit {
+  uint32 AccountIndex = 3;
+  uint32 InternalIndex = 4;
+  uint32 AddressIndexFrom = 5;
+  uint32 AddressIndexTo = 6;
+}

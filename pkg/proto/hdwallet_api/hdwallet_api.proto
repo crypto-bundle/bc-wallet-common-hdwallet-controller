@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package manager_api;
+
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet";
+
+import "common.proto";
+
+message GenerateMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message GenerateMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes EncryptedMnemonicData = 2;
+}
+
+message LoadMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message LoadMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message DerivationAddressRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity AddressIdentity = 2;
+}
+
+message DerivationAddressResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity AddressIdentity = 2;
+}
+
+message DerivationAddressByRangeRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  repeated common.RangeRequestUnit Ranges = 2;
+}
+
+message DerivationAddressByRangeResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  uint64 AddressIdentitiesCount = 3;
+  repeated common.DerivationAddressIdentity AddressIdentities = 4;
+}
+
+message SignTransactionRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
+  common.DerivationAddressIdentity AddressIdentifier = 2;
+  bytes CreatedTxData = 3;
+}
+
+message SignTransactionResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity TxOwnerIdentity = 2;
+  bytes SignedTxData = 3;
+}
+
+service HdWalletApi {
+  rpc GenerateMnemonic                 (GenerateMnemonicRequest)           returns (GenerateMnemonicResponse) {}
+  rpc LoadMnemonic                 (LoadMnemonicRequest)           returns (LoadMnemonicResponse) {}
+  rpc UnLoadMnemonic                 (UnLoadMnemonicRequest)           returns (UnLoadMnemonicResponse) {}
+  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+  rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}
+}

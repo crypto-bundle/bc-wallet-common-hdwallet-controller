@@ -9,7 +9,7 @@ CREATE TABLE mnemonic_wallets
     encrypted_data bytea NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
-)
+);
 -- +goose StatementEnd
 
 -- +goose Down

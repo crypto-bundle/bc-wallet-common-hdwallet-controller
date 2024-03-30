@@ -2,13 +2,11 @@ package grpc
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"sync"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-
-	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -31,11 +29,6 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 	req *pbApi.DerivationAddressByRangeRequest,
 ) (*pbApi.DerivationAddressByRangeResponse, error) {
 	var err error
-	_, span, finish := tracer.Trace(ctx)
-
-	defer func() { finish(err) }()
-
-	span.SetTag(app.BlockChainNameTag, app.BlockChainName)
 
 	vf := &derivationAddressByRangeForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
@@ -74,10 +67,10 @@ func (h *GetDerivationAddressByRangeHandler) processRequest(ctx context.Context,
 ) (*pbApi.DerivationAddressByRangeResponse, error) {
 	var err error
 
-	filedData := make([]*pbApi.DerivationAddressIdentity, vf.RangeSize)
+	filedData := make([]*pbCommon.DerivationAddressIdentity, vf.RangeSize)
 
 	marshallerCallback := func(accountIndex, internalIndex, addressIdx, position uint32, address string) {
-		addressEntity := h.respPool.Get().(*pbApi.DerivationAddressIdentity)
+		addressEntity := h.respPool.Get().(*pbCommon.DerivationAddressIdentity)
 
 		addressEntity.AccountIndex = accountIndex
 		addressEntity.InternalIndex = internalIndex

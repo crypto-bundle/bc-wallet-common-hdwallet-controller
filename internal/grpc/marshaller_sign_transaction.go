@@ -1,22 +1,20 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 )
 
 func (m *grpcMarshaller) MarshallSignTransaction(
 	publicSignTxData *types.PublicSignTxData,
 ) (*pbApi.SignTransactionResponse, error) {
 	return &pbApi.SignTransactionResponse{
-		WalletIdentity: &pbApi.WalletIdentity{
-			WalletUUID: publicSignTxData.WalletUUID.String(),
-		},
-		MnemonicIdentity: &pbApi.MnemonicWalletIdentity{
+		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: publicSignTxData.MnemonicUUID.String(),
 			WalletHash: publicSignTxData.MnemonicHash,
 		},
-		TxOwnerIdentity: &pbApi.DerivationAddressIdentity{
+		TxOwnerIdentity: &pbCommon.DerivationAddressIdentity{
 			AccountIndex:  publicSignTxData.AddressData.AccountIndex,
 			InternalIndex: publicSignTxData.AddressData.InternalIndex,
 			AddressIndex:  publicSignTxData.AddressData.AddressIndex,

@@ -7,9 +7,9 @@ import (
 	"github.com/google/uuid"
 	"strings"
 
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 
 	originNats "github.com/nats-io/nats.go"
 	"go.uber.org/zap"

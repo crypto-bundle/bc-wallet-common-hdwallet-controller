@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package manager_api;
+
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager";
+
+import "common.proto";
+
+message GetEnabledWalletsRequest {
+}
+
+message GetEnabledWalletsResponse {
+  uint32 WalletsCount = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentities = 2;
+  map<string, uint32> Bookmarks = 3;
+}
+
+message AddNewWalletRequest {
+  string Title = 1;
+  string Purpose = 2;
+}
+
+message AddNewWalletResponse {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message EnableWalletRequest {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message EnableWalletResponse {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message DisableWalletRequest {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message DisableWalletResponse {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message DisableWalletsRequest {
+  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+}
+
+message DisableWalletsResponse {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message DerivationAddressRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  WalletSessionIdentity SessionIdentity = 2;
+  common.DerivationAddressIdentity AddressIdentity = 3;
+}
+
+message DerivationAddressResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity= 1;
+  WalletSessionIdentity SessionIdentity = 2;
+  common.DerivationAddressIdentity AddressIdentity = 3;
+}
+
+message DerivationAddressByRangeRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  repeated common.RangeRequestUnit Ranges = 2;
+}
+
+message DerivationAddressByRangeResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity= 1;
+  uint64 AddressIdentitiesCount = 2;
+  repeated common.DerivationAddressIdentity AddressIdentities = 3;
+}
+
+message SignTransactionRequest {
+  string WalletUUID = 1;
+  string MnemonicWalletUUID = 2;
+  common.DerivationAddressIdentity AddressIdentity = 3;
+  WalletSessionIdentity SessionIdentity = 4;
+  bytes CreatedTxData = 5;
+}
+
+message SignTransactionResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity= 1;
+  WalletSessionIdentity SessionIdentity = 2;
+  common.DerivationAddressIdentity TxOwnerIdentity = 3;
+  bytes SignedTxData = 4;
+}
+
+message GetWalletInfoRequest {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message GetWalletInfoResponse {
+  common.MnemonicWalletIdentity WalletIdentity = 1;
+}
+
+message WalletSessionIdentity {
+  string SessionUUID = 1;
+}
+
+message StartWalletSessionRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message StartWalletSessionResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  WalletSessionIdentity SessionIdentity = 2;
+  uint64 SessionStartedAt = 3;
+  uint64 SessionExpiredAt = 4;
+}
+
+message GetWalletSessionRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message GetWalletSessionResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  WalletSessionIdentity SessionIdentity = 2;
+  uint64 SessionStartedAt = 3;
+  uint64 SessionExpiredAt = 4;
+}
+
+message GetWalletSessionsRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message GetWalletSessionsResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  WalletSessionIdentity SessionIdentity = 2;
+  uint64 SessionStartedAt = 3;
+  uint64 SessionExpiredAt = 4;
+}
+
+service HdWalletManagerApi {
+  rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
+  rpc EnableWallet                      (EnableWalletRequest)                returns (EnableWalletResponse) {}
+  rpc DisableWallet                      (DisableWalletRequest)                returns (DisableWalletResponse) {}
+  rpc DisableWallets                      (DisableWalletsRequest)                returns (DisableWalletsResponse) {}
+
+  rpc StartWalletSession                (StartWalletSessionRequest)    returns (StartWalletSessionResponse) {}
+  rpc GetWalletSession                  (GetWalletSessionRequest)   returns (GetWalletSessionResponse) {}
+  rpc GetAllWalletSessions                  (GetWalletSessionRequest)   returns (GetWalletSessionResponse) {}
+
+  rpc GetWalletInfo                 (GetWalletInfoRequest)           returns (GetWalletInfoResponse) {}
+  rpc GetEnabledWallets                 (GetEnabledWalletsRequest)           returns (GetEnabledWalletsResponse) {}
+  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+  rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}
+}

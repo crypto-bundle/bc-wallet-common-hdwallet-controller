@@ -4,8 +4,7 @@ import (
 	"context"
 	"net"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
 	commonGRPCServer "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/server"
 
@@ -20,7 +19,7 @@ type Server struct {
 	logger            *zap.Logger
 	grpcServer        *grpc.Server
 	grpcServerOptions []grpc.ServerOption
-	handlers          pbApi.HdWalletApiServer
+	handlers          pbApi.HdWalletManagerApiServer
 	config            configService
 
 	listener net.Listener
@@ -69,7 +68,7 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 		reflection.Register(s.grpcServer)
 	}
 
-	pbApi.RegisterHdWalletApiServer(s.grpcServer, s.handlers)
+	pbApi.RegisterHdWalletManagerApiServer(s.grpcServer, s.handlers)
 
 	s.logger.Info("grpc serve success")
 
@@ -90,11 +89,9 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 func NewServer(ctx context.Context,
 	loggerSrv *zap.Logger,
 	cfg configService,
-	handlers pbApi.HdWalletApiServer,
+	handlers pbApi.HdWalletManagerApiServer,
 ) (*Server, error) {
-	l := loggerSrv.Named("grpc.server").With(
-		zap.String(app.ApplicationNameTag, app.ApplicationManagerName),
-		zap.String(app.BlockChainNameTag, app.BlockChainName))
+	l := loggerSrv.Named("grpc.server")
 
 	srv := &Server{
 		logger:   l,
