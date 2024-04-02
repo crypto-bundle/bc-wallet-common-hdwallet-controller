@@ -6,7 +6,7 @@ import (
 )
 
 func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error) {
-	item, err := s.cacheStoreDataSvc.GetMnemonicWalletItemByUUID(ctx, walletUUID)
+	item, err := s.cacheStoreDataSvc.GetMnemonicWalletByUUID(ctx, walletUUID)
 	if err != nil {
 		return nil, err
 	}

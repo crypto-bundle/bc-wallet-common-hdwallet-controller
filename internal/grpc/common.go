@@ -63,6 +63,9 @@ type walletManagerService interface {
 		purpose string,
 	) (*types.PublicWalletData, error)
 	DisableWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
+	DisableWalletsByUUIDList(ctx context.Context,
+		walletUUID []string,
+	) (uint, []string, error)
 	EnableWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
 	GetAddressByPath(ctx context.Context,
 		mnemonicWalletUUID uuid.UUID,

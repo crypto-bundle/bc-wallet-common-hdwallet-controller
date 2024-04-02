@@ -12,4 +12,5 @@ var (
 	ErrPassedWalletAlreadyExists         = errors.New("passed wallet already exists")
 	ErrPassedMnemonicWalletNotFound      = errors.New("passed mnemonic wallet not found")
 	ErrMethodUnimplemented               = errors.New("called service method unimplemented")
+	ErrUnableDecodeGrpcErrorStatus       = errors.New("unable to decode grpc error status")
 )

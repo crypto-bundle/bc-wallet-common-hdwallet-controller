@@ -25,3 +25,10 @@ type MnemonicWallet struct {
 	CreatedAt time.Time  `db:"created_at" json:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
 }
+
+// MnemonicWalletFull struct for storing full wallet info with list of active sessions
+// easyjson:json
+type MnemonicWalletFull struct {
+	Wallet   MnemonicWallet           `json:"wallet"`
+	Sessions []*MnemonicWalletSession `json:"sessions"`
+}

@@ -195,7 +195,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 

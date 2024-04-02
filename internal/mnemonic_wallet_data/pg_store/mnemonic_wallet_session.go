@@ -3,6 +3,7 @@ package pg_store
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
@@ -81,22 +82,35 @@ func (s *pgRepository) GetWalletSessionByUUID(ctx context.Context,
 	var result *entities.MnemonicWalletSession = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT *
-	       FROM "mnemonic_wallet_sessions"
-	       WHERE "uuid" = $1`, sessionUUID)
+		query, args, clbErr := sqlx.In(`SELECT *
+			FROM "mnemonic_wallet_sessions"
+			WHERE "uuid" = ? AND
+			      "now()" < "expired_at" AND
+			      "status" IN (?)
+			ORDER BY "expired_at";`, sessionUUID, []types.MnemonicWalletSessionStatus{
+			types.MnemonicWalletSessionStatusPrepared,
+		})
+		if clbErr != nil {
+			return clbErr
+		}
+		bonded := stmt.Rebind(query)
+		row := stmt.QueryRowx(bonded, args...)
+		if clbErr != nil {
+			return clbErr
+		}
 
 		callbackErr := row.Err()
 		if callbackErr != nil {
 			return callbackErr
 		}
 
-		accessToken := &entities.MnemonicWalletSession{}
-		callbackErr = row.StructScan(&accessToken)
+		session := &entities.MnemonicWalletSession{}
+		callbackErr = row.StructScan(&session)
 		if callbackErr != nil {
-			return commonPostgres.EmptyOrError(callbackErr, "unable get wallet session by uuid")
+			return commonPostgres.EmptyOrError(callbackErr, "unable get session by UUID")
 		}
 
-		result = accessToken
+		result = session
 
 		return nil
 	}); err != nil {
@@ -106,26 +120,37 @@ func (s *pgRepository) GetWalletSessionByUUID(ctx context.Context,
 	return result, nil
 }
 
-func (s *pgRepository) GetActiveWalletSessionsByWalletUUID(ctx context.Context) (
+func (s *pgRepository) GetActiveWalletSessionsByWalletUUID(ctx context.Context, walletUUID string) (
 	count uint, list []*entities.MnemonicWalletSession, err error,
 ) {
-	return s.GetActiveWalletSessionsClb(ctx, nopSessionCallback)
+	return s.GetWalletSessionsByWalletUUIDAndStatusClb(ctx, walletUUID,
+		[]types.MnemonicWalletSessionStatus{
+			types.MnemonicWalletSessionStatusPrepared,
+		},
+		nopSessionCallback)
 }
 
-func (s *pgRepository) GetActiveWalletSessionsByWalletUUIDClb(ctx context.Context,
+func (s *pgRepository) GetWalletSessionsByWalletUUIDAndStatusClb(ctx context.Context,
 	walletUUID string,
+	sessionStatuses []types.MnemonicWalletSessionStatus,
 	onItemCallBack func(item *entities.MnemonicWalletSession) error,
 ) (count uint, list []*entities.MnemonicWalletSession, err error) {
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		rows, queryErr := stmt.Queryx(`SELECT *
+		query, args, clbErr := sqlx.In(`SELECT *
 			FROM "mnemonic_wallet_sessions"
-			WHERE "mnemonic_wallet_uuid" = $1 AND
-			      "now()" < "expired_at"
-			ORDER BY "expired_at";`, walletUUID)
-		if queryErr != nil {
-			return queryErr
+			WHERE "mnemonic_wallet_uuid" = ? AND
+			      "now()" < "expired_at" AND
+			      "status" IN (?)
+			ORDER BY "expired_at";`, walletUUID, sessionStatuses)
+		if clbErr != nil {
+			return clbErr
 		}
 
+		bonded := stmt.Rebind(query)
+		rows, clbErr := stmt.Queryx(bonded, args...)
+		if clbErr != nil {
+			return clbErr
+		}
 		defer rows.Close()
 
 		itemsList := make([]*entities.MnemonicWalletSession, 0)

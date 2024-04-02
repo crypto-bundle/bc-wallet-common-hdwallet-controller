@@ -7,7 +7,7 @@ import (
 )
 
 func (s *Service) GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
-	items, err := s.cacheStoreDataSvc.GetAllMnemonicWallets(ctx)
+	items, err := s.cacheStoreDataSvc.GetAllWallets(ctx)
 	if err != nil {
 		return nil, err
 	}

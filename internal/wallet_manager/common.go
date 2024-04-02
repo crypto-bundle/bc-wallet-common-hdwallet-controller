@@ -6,8 +6,6 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-
-	"github.com/google/uuid"
 )
 
 type configService interface {
@@ -20,17 +18,24 @@ type configService interface {
 type mnemonicWalletsCacheStoreService interface {
 	SetMnemonicWalletItem(ctx context.Context,
 		walletItem *entities.MnemonicWallet,
-	) (*entities.MnemonicWallet, error)
-	GetMnemonicWalletItemByUUID(ctx context.Context,
-		MnemonicWalletUUID string,
-	) (*entities.MnemonicWallet, error)
-	GetAllMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
-	FullUnsetWalletByUUID(ctx context.Context,
-		MnemonicWalletUUID string,
 	) error
-	GetMnemonicWalletItemByHash(ctx context.Context,
-		MnemonicWalletHash string,
+	GetAllWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+	GetMnemonicWalletByUUID(ctx context.Context,
+		MnemonicWalletUUID string,
 	) (*entities.MnemonicWallet, error)
+	GetMnemonicWalletInfoByUUID(ctx context.Context,
+		MnemonicWalletUUID string,
+	) (wallet *entities.MnemonicWallet, sessions []*entities.MnemonicWalletSession, err error)
+	GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
+	) (wallet *entities.MnemonicWallet, session *entities.MnemonicWalletSession, err error)
+	SetMnemonicWalletSessionItem(ctx context.Context,
+		sessionItem *entities.MnemonicWalletSession,
+	) error
+	FullUnsetMnemonicWallet(ctx context.Context,
+		mnemonicWalletUUID string,
+	) error
 }
 
 type mnemonicWalletsDataService interface {
@@ -41,6 +46,10 @@ type mnemonicWalletsDataService interface {
 		walletUUID string,
 		newStatus types.MnemonicWalletStatus,
 	) (*entities.MnemonicWallet, error)
+	UpdateMultipleWalletsStatus(ctx context.Context,
+		walletUUID []string,
+		newStatus types.MnemonicWalletStatus,
+	) (uint, []*entities.MnemonicWallet, error)
 	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletByUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletsByStatus(ctx context.Context,
@@ -57,20 +66,9 @@ type mnemonicWalletsDataService interface {
 	GetWalletSessionByUUID(ctx context.Context,
 		sessionUUID string,
 	) (*entities.MnemonicWalletSession, error)
-}
-
-type walletSessionsDataService interface {
-	AddNewWalletSession(ctx context.Context,
-		sessionItem *entities.MnemonicWalletSession,
-	) (*entities.MnemonicWalletSession, error)
-	UpdateSessionStatus(ctx context.Context,
-		sessionUUID uuid.UUID,
-		newStatus types.MnemonicWalletSessionStatus,
-	) error
-	GetAllActiveSessions(ctx context.Context) (uint32, []*entities.MnemonicWalletSession, error)
-	GetSessionByUUID(ctx context.Context,
-		sessionUUID uuid.UUID,
-	) (*entities.MnemonicWalletSession, error)
+	GetActiveWalletSessionsByWalletUUID(ctx context.Context, walletUUID string) (
+		count uint, list []*entities.MnemonicWalletSession, err error,
+	)
 }
 
 type mnemonicWalletConfig interface {

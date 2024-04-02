@@ -12,25 +12,25 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *Service) DisableWalletByUUID(ctx context.Context,
-	walletUUID string,
-) (*entities.MnemonicWallet, error) {
+func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
+	walletUUIDs []string,
+) (uint, []string, error) {
 	var resultItem *entities.MnemonicWallet = nil
 
 	item, err := s.mnemonicWalletsDataSrv.GetMnemonicWalletByUUID(ctx, walletUUID)
 	if err != nil {
 		s.logger.Error("unable to get wallet by uuid", zap.Error(err))
 
-		return nil, err
+		return 0, nil, err
 	}
 
 	if item == nil {
-		return nil, nil
+		return 0, nil, nil
 	}
 
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		updatedItem, clbErr := s.mnemonicWalletsDataSrv.UpdateWalletStatus(txStmtCtx,
-			walletUUID, types.MnemonicWalletStatusDisabled)
+		updatedCount, updatedItem, clbErr := s.mnemonicWalletsDataSrv.UpdateMultipleWalletsStatus(txStmtCtx,
+			walletUUIDs, types.MnemonicWalletStatusDisabled)
 		if clbErr != nil {
 			s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, walletUUID))

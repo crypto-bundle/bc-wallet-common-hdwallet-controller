@@ -87,34 +87,6 @@ func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, e
 	return resultItem, nil
 }
 
-func (s *Service) GetAddressByPath(ctx context.Context,
-	walletUUID uuid.UUID,
-	mnemonicWalletUUID uuid.UUID,
-	account, change, index uint32,
-) (*types.PublicDerivationAddressData, error) {
-	address, err := s.walletPoolSrv.GetAddressByPath(ctx, walletUUID, mnemonicWalletUUID, account, change, index)
-	if err != nil {
-		return nil, err
-	}
-
-	return &types.PublicDerivationAddressData{
-		AccountIndex:  account,
-		InternalIndex: change,
-		AddressIndex:  index,
-		Address:       address,
-	}, nil
-}
-
-func (s *Service) GetAddressesByPathByRange(ctx context.Context,
-	walletUUID uuid.UUID,
-	mnemonicWalletUUID uuid.UUID,
-	rangeIterable types.AddrRangeIterable,
-	marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
-) error {
-	return s.walletPoolSrv.GetAddressesByPathByRange(ctx, walletUUID, mnemonicWalletUUID,
-		rangeIterable, marshallerCallback)
-}
-
 func NewService(logger *zap.Logger,
 	cfg configService,
 	walletDataSrv walletsDataService,

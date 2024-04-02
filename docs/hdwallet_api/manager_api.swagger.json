@@ -120,8 +120,11 @@
     "manager_apiDisableWalletsResponse": {
       "type": "object",
       "properties": {
-        "WalletIdentity": {
-          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        "WalletIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
         }
       }
     },

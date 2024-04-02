@@ -25,7 +25,7 @@ func (s *Service) EnableWalletByUUID(ctx context.Context,
 			return clbErr
 		}
 
-		_, clbErr = s.cacheStoreDataSvc.SetMnemonicWalletItem(txStmtCtx, updatedItem)
+		clbErr = s.cacheStoreDataSvc.SetMnemonicWalletItem(txStmtCtx, updatedItem)
 		if clbErr != nil {
 			s.logger.Error("unable to unset mnemonic wallet data from cache store", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, walletUUID))

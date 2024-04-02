@@ -45,7 +45,7 @@ message DisableWalletsRequest {
 }
 
 message DisableWalletsResponse {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
 }
 
 message DerivationAddressRequest {

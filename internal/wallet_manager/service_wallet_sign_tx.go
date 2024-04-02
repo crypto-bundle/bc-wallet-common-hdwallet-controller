@@ -5,6 +5,9 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Service) SignTransaction(ctx context.Context,
@@ -68,7 +71,22 @@ func (s *Service) SignTransaction(ctx context.Context,
 		CreatedTxData: transactionData,
 	})
 	if err != nil {
-		return nil, nil, err
+		grpcStatus, statusExists := status.FromError(err)
+		if !statusExists {
+			s.logger.Error("unable get status from error", zap.Error(ErrUnableDecodeGrpcErrorStatus))
+			return nil, nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound, codes.ResourceExhausted:
+			return nil, nil, nil
+
+		default:
+			s.logger.Error("unable get block by hash from bc-adapter",
+				zap.Error(ErrUnableDecodeGrpcErrorStatus))
+
+			return nil, nil, err
+		}
 	}
 
 	return wallet, signResp.SignedTxData, nil
