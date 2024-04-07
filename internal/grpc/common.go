@@ -5,8 +5,6 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 	"github.com/google/uuid"
 )
@@ -58,61 +56,85 @@ type walletSessionDataService interface {
 }
 
 type walletManagerService interface {
-	CreateNewWallet(ctx context.Context,
-		title string,
-		purpose string,
-	) (*types.PublicWalletData, error)
-	DisableWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
+	AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, error)
+	ImportWallet(ctx context.Context, mnemonicData []byte) (*entities.MnemonicWallet, error)
+	EnableWalletByUUID(ctx context.Context,
+		walletUUID string,
+	) (*entities.MnemonicWallet, error)
+	DisableWalletByUUID(ctx context.Context,
+		walletUUID string,
+	) (*entities.MnemonicWallet, error)
 	DisableWalletsByUUIDList(ctx context.Context,
-		walletUUID []string,
-	) (uint, []string, error)
-	EnableWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
-	GetAddressByPath(ctx context.Context,
-		mnemonicWalletUUID uuid.UUID,
-		account, change, index uint32,
-	) (*types.PublicDerivationAddressData, error)
-
-	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID uuid.UUID,
-		mnemonicWalletUUID uuid.UUID,
-		rangeIterable types.AddrRangeIterable,
-		marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
-	) error
-
-	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.MnemonicWallet, error)
+		walletUUIDs []string,
+	) (count uint, list []string, err error)
 	GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+	GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error)
+	GetAddress(ctx context.Context,
+		mnemonicUUID string,
+		account, change, index uint32,
+		sessionUUID string,
+	) (ownerWallet *entities.MnemonicWallet, address *string, err error)
+	GetAddressesByRange(ctx context.Context,
+		mnemonicUUID string,
+		sessionUUID string,
+		addrRanges []*pbCommon.RangeRequestUnit,
+	) (ownerWallet *entities.MnemonicWallet, list []*pbCommon.DerivationAddressIdentity, err error)
 
-	SignTransaction(ctx context.Context,
-		walletUUID uuid.UUID,
-		mnemonicUUID uuid.UUID,
+	StartWalletSession(ctx context.Context,
+		walletUUID string,
+	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
+	CloseWalletSession(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
+	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
+	GetWalletSessionInfo(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
+	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
+	GetWalletSessionsByWalletUUID(ctx context.Context,
+		walletUUID string,
+	) (wallet *entities.MnemonicWallet, list []*entities.MnemonicWalletSession, err error)
+
+	SignTransactionWithWallet(ctx context.Context,
+		mnemonicUUID string,
+		sessionUUID string,
 		account, change, index uint32,
 		transactionData []byte,
-	) (*types.PublicSignTxData, error)
+	) (*entities.MnemonicWallet, []byte, error)
+	PrepareForSign(ctx context.Context,
+		mnemonicUUID string,
+		account, change, index uint32,
+	) (signerAddr *pbCommon.DerivationAddressIdentity, request *entities.SignRequest, err error)
+	SignTransaction(ctx context.Context,
+		mnemonicUUID string,
+		account, change, index uint32,
+		transactionData []byte,
+	) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error)
 }
 
 type marshallerService interface {
-	MarshallCreateWalletData(*types.PublicWalletData) (*pbApi.AddNewWalletResponse, error)
+	MarshallCreateWalletData(wallet *entities.MnemonicWallet) (*pbApi.AddNewWalletResponse, error)
 	MarshallGetAddressData(
 		walletPublicData *entities.MnemonicWallet,
 		addressPublicData *pbCommon.DerivationAddressIdentity,
 	) (*pbApi.DerivationAddressResponse, error)
 	MarshallGetAddressByRange(
-		walletPublicData *types.PublicWalletData,
-		mnemonicWalletPublicData *types.PublicMnemonicWalletData,
+		walletPublicData *entities.MnemonicWallet,
 		addressesData []*pbCommon.DerivationAddressIdentity,
 		size uint64,
 	) (*pbApi.DerivationAddressByRangeResponse, error)
 	MarshallGetEnabledWallets([]*entities.MnemonicWallet) (*pbApi.GetEnabledWalletsResponse, error)
-	MarshallSignTransaction(
-		publicSignTxData *types.PublicSignTxData,
-	) (*pbApi.SignTransactionResponse, error)
-	MarshallWalletInfo(
-		walletData *types.PublicWalletData,
-	) *pbCommon.WalletData
+	MarshallWalletSessions(
+		sessionsList []*entities.MnemonicWalletSession,
+	) []*pbApi.SessionInfo
 }
 
 type addWalletHandlerService interface {
 	Handle(ctx context.Context, request *pbApi.AddNewWalletRequest) (*pbApi.AddNewWalletResponse, error)
+}
+
+type importWalletHandlerService interface {
+	Handle(ctx context.Context, request *pbApi.ImportWalletRequest) (*pbApi.ImportWalletResponse, error)
 }
 
 type disableWalletHandlerService interface {
@@ -151,6 +173,10 @@ type getEnabledWalletsHandlerService interface {
 
 type startWalletSessionHandlerService interface {
 	Handle(ctx context.Context, request *pbApi.StartWalletSessionRequest) (*pbApi.StartWalletSessionResponse, error)
+}
+
+type closeWalletSessionHandlerService interface {
+	Handle(ctx context.Context, request *pbApi.CloseWalletSessionsRequest) (*pbApi.CloseWalletSessionsResponse, error)
 }
 
 type getWalletSessionHandlerService interface {

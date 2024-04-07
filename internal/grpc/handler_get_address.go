@@ -43,29 +43,23 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletPubData, err := h.walletSvc.GetWalletByUUID(ctx, vf.MnemonicWalletUUIDRaw)
-	if err != nil {
-		h.l.Error("unable get wallet", zap.Error(err))
-
-		return nil, status.Error(codes.Internal, "something went wrong")
-	}
-	if walletPubData == nil {
-		return nil, status.Error(codes.NotFound, "wallet not found")
-	}
-
-	addressData, err := h.walletSvc.GetAddressByPath(ctx, vf.MnemonicWalletUUIDRaw,
-		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
+	ownerWallet, addressData, err := h.walletSvc.GetAddress(ctx, vf.MnemonicWalletUUID,
+		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex, req.SessionIdentity.SessionUUID)
 	if err != nil {
 		return nil, err
 	}
 
-	addressEntity := h.pbAddrPool.Get().(*pbCommon.DerivationAddressIdentity)
-	addressEntity.AccountIndex = addressData.AccountIndex
-	addressEntity.InternalIndex = addressData.InternalIndex
-	addressEntity.AddressIndex = addressData.AddressIndex
-	addressEntity.Address = addressData.Address
+	if ownerWallet == nil {
+		return nil, status.Error(codes.NotFound, "wallet not found")
+	}
 
-	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(walletPubData, addressEntity)
+	addressEntity := h.pbAddrPool.Get().(*pbCommon.DerivationAddressIdentity)
+	addressEntity.AccountIndex = vf.AccountIndex
+	addressEntity.InternalIndex = vf.InternalIndex
+	addressEntity.AddressIndex = vf.AddressIndex
+	addressEntity.Address = *addressData
+
+	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(ownerWallet, addressEntity)
 	if err != nil {
 		h.l.Error("unable to marshall public address data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
@@ -79,13 +73,13 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 }
 
 func MakeGetDerivationAddressHandler(loggerEntry *zap.Logger,
-	walletSrv walletManagerService,
+	walletSvc walletManagerService,
 	marshallerSrv marshallerService,
 	pbAddrPool *sync.Pool,
 ) *GetDerivationAddressHandler {
 	return &GetDerivationAddressHandler{
 		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddress)),
-		walletSvc:     walletSrv,
+		walletSvc:     walletSvc,
 		marshallerSvc: marshallerSrv,
 		pbAddrPool:    pbAddrPool,
 	}

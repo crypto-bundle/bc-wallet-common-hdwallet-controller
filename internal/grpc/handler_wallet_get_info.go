@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -14,7 +16,7 @@ const (
 
 type GetWalletInfoHandler struct {
 	l             *zap.Logger
-	walletSrv     walletManagerService
+	walletSvc     walletManagerService
 	marshallerSrv marshallerService
 }
 
@@ -23,7 +25,7 @@ func (h *GetWalletInfoHandler) Handle(ctx context.Context,
 ) (*pbApi.GetWalletInfoResponse, error) {
 	var err error
 
-	vf := &DisableWalletForm{}
+	vf := &GetWalletInfoForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
@@ -35,31 +37,31 @@ func (h *GetWalletInfoHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletPubData, err := h.walletSrv.GetWalletByUUID(ctx, vf.WalletUUIDRaw)
+	walletItem, err := h.walletSvc.GetWalletByUUID(ctx, vf.WalletUUID)
 	if err != nil {
-		h.l.Error("unable get wallet", zap.Error(err))
+		h.l.Error("unable get wallet", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
-	if walletPubData == nil {
+	if walletItem == nil {
 		return nil, status.Error(codes.NotFound, "wallet not found")
 	}
 
-	walletInfo := h.marshallerSrv.MarshallWalletInfo(walletPubData)
-
 	return &pbApi.GetWalletInfoResponse{
-		WalletIdentity: walletInfo.Identity,
-		WalletInfo:     walletInfo,
+		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletItem.UUID.String(),
+			WalletHash: walletItem.MnemonicHash,
+		},
 	}, nil
 }
 
 func MakeGetWalletInfoHandler(loggerEntry *zap.Logger,
-	walletSrv walletManagerService,
-	marshallerSrv marshallerService,
+	walletSvc walletManagerService,
 ) *GetWalletInfoHandler {
 	return &GetWalletInfoHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetWalletInfo)),
-		walletSrv:     walletSrv,
-		marshallerSrv: marshallerSrv,
+		l: loggerEntry.With(zap.String(MethodNameTag, MethodGetWalletInfo)),
+
+		walletSvc: walletSvc,
 	}
 }

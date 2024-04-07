@@ -2,8 +2,7 @@ package grpc
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	"sync"
 
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
@@ -42,80 +41,46 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletPubData, err := h.walletSrv.GetWalletByUUID(ctx, vf.WalletUUIDRaw)
-	if err != nil {
-		h.l.Error("unable get wallet", zap.Error(err))
-
-		return nil, status.Error(codes.Internal, "something went wrong")
-	}
-	if walletPubData == nil {
-		return nil, status.Error(codes.NotFound, "wallet not found")
-	}
-
-	mnemoWalletData, isExists := walletPubData.MnemonicWalletsByUUID[vf.MnemonicWalletUUIDRaw]
-	if !isExists {
-		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
-	}
-
-	return h.processRequest(ctx, vf, walletPubData, mnemoWalletData)
+	return h.processRequest(ctx, vf)
 }
 
 func (h *GetDerivationAddressByRangeHandler) processRequest(ctx context.Context,
 	vf *derivationAddressByRangeForm,
-	walletPubData *types.PublicWalletData,
-	mnemoWalletData *types.PublicMnemonicWalletData,
 ) (*pbApi.DerivationAddressByRangeResponse, error) {
 	var err error
 
-	filedData := make([]*pbCommon.DerivationAddressIdentity, vf.RangeSize)
-
-	marshallerCallback := func(accountIndex, internalIndex, addressIdx, position uint32, address string) {
-		addressEntity := h.respPool.Get().(*pbCommon.DerivationAddressIdentity)
-
-		addressEntity.AccountIndex = accountIndex
-		addressEntity.InternalIndex = internalIndex
-		addressEntity.AddressIndex = addressIdx
-		addressEntity.Address = address
-
-		filedData[position] = addressEntity
-		return
-	}
-
-	err = h.walletSrv.GetAddressesByPathByRange(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
-		vf, marshallerCallback)
+	owner, addressesList, err := h.walletSrv.GetAddressesByRange(ctx, vf.MnemonicWalletUUID, vf.SessionUUID,
+		vf.Ranges)
 	if err != nil {
-		h.l.Error("unable get derivative addresses by range", zap.Error(err))
+		h.l.Error("unable get derivative addresses by range", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.MnemonicWalletUUID),
+			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID))
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletPubData, mnemoWalletData,
-		filedData, uint64(vf.RangeSize))
+	response, err := h.marshallerSrv.MarshallGetAddressByRange(owner, addressesList,
+		uint64(vf.RangeSize))
 	if err != nil {
-		h.l.Error("unable to marshall get addresses data", zap.Error(err))
+		h.l.Error("unable to marshall get addresses data", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.MnemonicWalletUUID),
+			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID))
+
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-
-	defer func(clearedSize uint32) {
-		go func(size uint32) {
-			for i := uint32(0); i != size; i++ {
-				h.respPool.Put(filedData[i])
-			}
-		}(clearedSize)
-	}(vf.RangeSize)
 
 	return response, nil
 }
 
 func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
-	walletSrv walletManagerService,
-	marshallerSrv marshallerService,
+	walletSvc walletManagerService,
+	marshallerSvc marshallerService,
 	pbAddrPool *sync.Pool,
 ) *GetDerivationAddressByRangeHandler {
 	return &GetDerivationAddressByRangeHandler{
 		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
-		walletSrv:     walletSrv,
-		marshallerSrv: marshallerSrv,
+		walletSrv:     walletSvc,
+		marshallerSrv: marshallerSvc,
 		respPool:      pbAddrPool,
 	}
 }

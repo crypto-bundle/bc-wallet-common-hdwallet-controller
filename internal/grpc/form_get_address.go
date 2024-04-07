@@ -14,6 +14,8 @@ type GetDerivationAddressForm struct {
 	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
 	MnemonicWalletUUIDRaw uuid.UUID
 
+	SessionUUID string `valid:"type(string),uuid,required"`
+
 	AccountIndex  uint32 `valid:"type(uint32),int"`
 	InternalIndex uint32 `valid:"type(uint32),int"`
 	AddressIndex  uint32 `valid:"type(uint32),int"`
@@ -27,6 +29,11 @@ func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "MnemonicWallet identity")
 	}
 	f.MnemonicWalletUUID = req.MnemonicIdentity.WalletUUID
+
+	if req.SessionIdentity == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Session identity")
+	}
+	f.SessionUUID = req.SessionIdentity.SessionUUID
 
 	if req.AddressIdentity == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Address identity")

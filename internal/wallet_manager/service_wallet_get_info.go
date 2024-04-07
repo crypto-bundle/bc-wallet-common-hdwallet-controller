@@ -15,7 +15,7 @@ func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID string) (*enti
 		return item, nil
 	}
 
-	item, err = s.mnemonicWalletsDataSrv.GetMnemonicWalletByUUID(ctx, walletUUID)
+	item, err = s.mnemonicWalletsDataSvc.GetMnemonicWalletByUUID(ctx, walletUUID)
 	if err != nil {
 		return nil, err
 	}

@@ -98,6 +98,18 @@
         }
       }
     },
+    "manager_apiEncryptMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "EncryptedMnemonicData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
     "manager_apiGenerateMnemonicResponse": {
       "type": "object",
       "properties": {
@@ -107,6 +119,17 @@
         "EncryptedMnemonicData": {
           "type": "string",
           "format": "byte"
+        }
+      }
+    },
+    "manager_apiLoadDerivationAddressResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicWalletIdentifier": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
         }
       }
     },
@@ -138,6 +161,17 @@
       "properties": {
         "MnemonicIdentity": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiUnLoadMultipleMnemonicsResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
         }
       }
     },

@@ -16,7 +16,7 @@ const (
 
 type DisableWalletsHandler struct {
 	l             *zap.Logger
-	walletSrv     walletManagerService
+	walletSvc     walletManagerService
 	marshallerSrv marshallerService
 }
 
@@ -38,7 +38,7 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	disabledCount, walletsIdentities, err := h.walletSrv.DisableWalletsByUUIDList(ctx, validationForm.WalletUUIDs)
+	disabledCount, walletsIdentities, err := h.walletSvc.DisableWalletsByUUIDList(ctx, validationForm.WalletUUIDs)
 	if err != nil {
 		h.l.Error("unable to disable wallets", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
@@ -61,12 +61,10 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 }
 
 func MakeDisableWalletsHandler(loggerEntry *zap.Logger,
-	walletSrv walletManagerService,
-	marshallerSrv marshallerService,
-) *DisableWalletHandler {
-	return &DisableWalletHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallets)),
-		walletSrv:     walletSrv,
-		marshallerSrv: marshallerSrv,
+	walletSvc walletManagerService,
+) *DisableWalletsHandler {
+	return &DisableWalletsHandler{
+		l:         loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallets)),
+		walletSvc: walletSvc,
 	}
 }

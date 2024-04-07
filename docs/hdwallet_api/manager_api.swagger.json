@@ -17,6 +17,17 @@
   ],
   "paths": {},
   "definitions": {
+    "SignRequestDataReqStatus": {
+      "type": "string",
+      "enum": [
+        "REQUEST_PLACEHOLDER",
+        "REQUEST_CREATED",
+        "REQUEST_PREPARED",
+        "REQUEST_SIGNED",
+        "REQUEST_FAILED"
+      ],
+      "default": "REQUEST_PLACEHOLDER"
+    },
     "commonDerivationAddressIdentity": {
       "type": "object",
       "properties": {
@@ -77,11 +88,25 @@
         }
       }
     },
+    "manager_apiCloseWalletSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        }
+      }
+    },
     "manager_apiDerivationAddressByRangeResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
         },
         "AddressIdentitiesCount": {
           "type": "string",
@@ -172,6 +197,53 @@
         "MnemonicIdentity": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
         },
+        "Session": {
+          "$ref": "#/definitions/manager_apiSessionInfo"
+        }
+      }
+    },
+    "manager_apiGetWalletSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "ActiveSessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/manager_apiSessionInfo"
+          }
+        }
+      }
+    },
+    "manager_apiImportWalletResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiPrepareSignResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        },
+        "SignatureRequestInfo": {
+          "$ref": "#/definitions/manager_apiSignRequestData"
+        }
+      }
+    },
+    "manager_apiSessionInfo": {
+      "type": "object",
+      "properties": {
         "SessionIdentity": {
           "$ref": "#/definitions/manager_apiWalletSessionIdentity"
         },
@@ -182,6 +254,29 @@
         "SessionExpiredAt": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "manager_apiSignRequestData": {
+      "type": "object",
+      "properties": {
+        "Identifier": {
+          "$ref": "#/definitions/manager_apiSignRequestIdentity"
+        },
+        "Status": {
+          "$ref": "#/definitions/SignRequestDataReqStatus"
+        },
+        "CreateAt": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "manager_apiSignRequestIdentity": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string"
         }
       }
     },
@@ -196,6 +291,9 @@
         },
         "TxOwnerIdentity": {
           "$ref": "#/definitions/commonDerivationAddressIdentity"
+        },
+        "SignRequestIdentifier": {
+          "$ref": "#/definitions/manager_apiSignRequestIdentity"
         },
         "SignedTxData": {
           "type": "string",

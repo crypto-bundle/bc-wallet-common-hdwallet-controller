@@ -19,7 +19,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(in *jlexer.Lexer, out *MnemonicWalletSession) {
+func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(in *jlexer.Lexer, out *SignRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -42,16 +42,12 @@ func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 			out.ID = uint32(in.Uint32())
 		case "uuid":
 			out.UUID = string(in.String())
-		case "access_token_uuid":
-			out.AccessTokenUUID = uint32(in.Uint32())
-		case "mnemonic_wallet_uuid":
-			out.MnemonicWalletUUID = string(in.String())
+		case "wallet_uuid":
+			out.WalletUUID = string(in.String())
+		case "session_uuid":
+			out.SessionUUID = string(in.String())
 		case "status":
-			out.Status = types.MnemonicWalletSessionStatus(in.Uint8())
-		case "expired_at":
-			if data := in.Raw(); in.Ok() {
-				in.AddError((out.ExpiredAt).UnmarshalJSON(data))
-			}
+			out.Status = types.SignRequestStatus(in.Uint8())
 		case "created_at":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.CreatedAt).UnmarshalJSON(data))
@@ -78,7 +74,7 @@ func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 		in.Consumed()
 	}
 }
-func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(out *jwriter.Writer, in MnemonicWalletSession) {
+func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(out *jwriter.Writer, in SignRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -93,24 +89,19 @@ func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 		out.String(string(in.UUID))
 	}
 	{
-		const prefix string = ",\"access_token_uuid\":"
+		const prefix string = ",\"wallet_uuid\":"
 		out.RawString(prefix)
-		out.Uint32(uint32(in.AccessTokenUUID))
+		out.String(string(in.WalletUUID))
 	}
 	{
-		const prefix string = ",\"mnemonic_wallet_uuid\":"
+		const prefix string = ",\"session_uuid\":"
 		out.RawString(prefix)
-		out.String(string(in.MnemonicWalletUUID))
+		out.String(string(in.SessionUUID))
 	}
 	{
 		const prefix string = ",\"status\":"
 		out.RawString(prefix)
 		out.Uint8(uint8(in.Status))
-	}
-	{
-		const prefix string = ",\"expired_at\":"
-		out.RawString(prefix)
-		out.Raw((in.ExpiredAt).MarshalJSON())
 	}
 	{
 		const prefix string = ",\"created_at\":"
@@ -130,25 +121,25 @@ func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 }
 
 // MarshalJSON supports json.Marshaler interface
-func (v MnemonicWalletSession) MarshalJSON() ([]byte, error) {
+func (v SignRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&w, v)
+	easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
-func (v MnemonicWalletSession) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(w, v)
+func (v SignRequest) MarshalEasyJSON(w *jwriter.Writer) {
+	easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
-func (v *MnemonicWalletSession) UnmarshalJSON(data []byte) error {
+func (v *SignRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&r, v)
+	easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
-func (v *MnemonicWalletSession) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(l, v)
+func (v *SignRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
+	easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(l, v)
 }

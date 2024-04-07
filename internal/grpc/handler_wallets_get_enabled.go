@@ -22,7 +22,7 @@ type GetEnabledWalletsHandler struct {
 
 // nolint:funlen // fixme
 func (h *GetEnabledWalletsHandler) Handle(ctx context.Context,
-	req *pbApi.GetEnabledWalletsRequest,
+	_ *pbApi.GetEnabledWalletsRequest,
 ) (*pbApi.GetEnabledWalletsResponse, error) {
 	var err error
 
@@ -46,12 +46,12 @@ func (h *GetEnabledWalletsHandler) Handle(ctx context.Context,
 }
 
 func MakeGetEnabledWalletsHandler(loggerEntry *zap.Logger,
-	walletSrv walletManagerService,
+	walletSvc walletManagerService,
 	marshallerSrv marshallerService,
 ) *GetEnabledWalletsHandler {
 	return &GetEnabledWalletsHandler{
 		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetEnabledWallets)),
-		walletSrv:     walletSrv,
+		walletSrv:     walletSvc,
 		marshallerSrv: marshallerSrv,
 	}
 }

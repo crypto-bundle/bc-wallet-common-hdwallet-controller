@@ -18,14 +18,14 @@ func (s *Service) GetWalletSessionsByWalletUUID(ctx context.Context,
 	}
 
 	if err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		walletItem, clbErr := s.mnemonicWalletsDataSrv.GetMnemonicWalletByUUID(ctx, walletUUID)
+		walletItem, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletByUUID(ctx, walletUUID)
 		if clbErr != nil {
 			return clbErr
 		}
 
 		wallet = walletItem
 
-		_, sessionsList, clbErr := s.mnemonicWalletsDataSrv.GetActiveWalletSessionsByWalletUUID(ctx, walletUUID)
+		_, sessionsList, clbErr := s.mnemonicWalletsDataSvc.GetActiveWalletSessionsByWalletUUID(ctx, walletUUID)
 		if clbErr != nil {
 			return clbErr
 		}

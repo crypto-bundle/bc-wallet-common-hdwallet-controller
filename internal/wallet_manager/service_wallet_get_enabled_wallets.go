@@ -16,7 +16,7 @@ func (s *Service) GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWa
 		return items, nil
 	}
 
-	items, err = s.mnemonicWalletsDataSrv.GetMnemonicWalletsByStatus(ctx, types.MnemonicWalletStatusEnabled)
+	items, err = s.mnemonicWalletsDataSvc.GetMnemonicWalletsByStatus(ctx, types.MnemonicWalletStatusEnabled)
 	if err != nil {
 		return nil, err
 	}

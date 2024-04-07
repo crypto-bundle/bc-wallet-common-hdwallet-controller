@@ -224,6 +224,22 @@ func (s *redisStore) SetMnemonicWalletSessionItem(ctx context.Context,
 	return nil
 }
 
+func (s *redisStore) UnsetWalletSession(ctx context.Context,
+	walletUUID string,
+	sessionUUID string,
+) error {
+	key := fmt.Sprintf("%s.%s-%s", s.walletSessionsKeyPrefix,
+		walletUUID, sessionUUID)
+	cmd := s.redisClient.Del(ctx, key)
+
+	_, err := cmd.Result()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *redisStore) FullUnsetMnemonicWallet(ctx context.Context,
 	mnemonicWalletUUID string,
 ) error {
@@ -242,6 +258,31 @@ func (s *redisStore) FullUnsetMnemonicWallet(ctx context.Context,
 
 	delCmd := s.redisClient.Del(ctx, keysForDelete...)
 	err = delCmd.Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *redisStore) UnsetMultipleWallets(ctx context.Context,
+	mnemonicWalletsUUIDs []string,
+	sessionsUUIDs []string,
+) error {
+	var j int
+
+	deleteKeys := make([]string, len(mnemonicWalletsUUIDs)+len(sessionsUUIDs))
+	for i, _ := range mnemonicWalletsUUIDs {
+		deleteKeys[j] = fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, mnemonicWalletsUUIDs[i])
+		j++
+	}
+
+	for i, _ := range sessionsUUIDs {
+		deleteKeys[j] = fmt.Sprintf("%s.%s", s.walletSessionsKeyPrefix, sessionsUUIDs[i])
+		j++
+	}
+
+	_, err := s.redisClient.Del(ctx, deleteKeys...).Result()
 	if err != nil {
 		return err
 	}

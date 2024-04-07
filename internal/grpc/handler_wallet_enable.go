@@ -12,22 +12,24 @@ import (
 )
 
 const (
-	MethodNameDisableWallet = "DisableWallet"
+	MethodNameEnableWallet = "EnableWallet"
 )
 
-type DisableWalletHandler struct {
-	l             *zap.Logger
-	walletSrv     walletManagerService
+type EnableWalletHandler struct {
+	l *zap.Logger
+
+	walletSvc walletManagerService
+
 	marshallerSrv marshallerService
 }
 
 // nolint:funlen // fixme
-func (h *DisableWalletHandler) Handle(ctx context.Context,
-	req *pbApi.DisableWalletRequest,
-) (*pbApi.DisableWalletResponse, error) {
+func (h *EnableWalletHandler) Handle(ctx context.Context,
+	req *pbApi.EnableWalletRequest,
+) (*pbApi.EnableWalletResponse, error) {
 	var err error
 
-	validationForm := &DisableWalletForm{}
+	validationForm := &EnableWalletForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err),
@@ -40,24 +42,22 @@ func (h *DisableWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	wallet, err := h.walletSrv.DisableWalletByUUID(ctx, validationForm.WalletUUIDRaw)
+	wallet, err := h.walletSvc.EnableWalletByUUID(ctx, validationForm.WalletUUID)
 	if err != nil {
-		h.l.Error("unable to disable wallet", zap.Error(err))
+		h.l.Error("unable to enable mnemonic wallet", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pbApi.DisableWalletResponse{
+	return &pbApi.EnableWalletResponse{
 		WalletIdentity: &pbCommon.MnemonicWalletIdentity{WalletUUID: wallet.UUID.String()},
 	}, nil
 }
 
-func MakeDisableWalletHandler(loggerEntry *zap.Logger,
-	walletSrv walletManagerService,
-	marshallerSrv marshallerService,
-) *DisableWalletHandler {
-	return &DisableWalletHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallet)),
-		walletSrv:     walletSrv,
-		marshallerSrv: marshallerSrv,
+func MakeEnableWalletHandler(loggerEntry *zap.Logger,
+	walletSvc walletManagerService,
+) *EnableWalletHandler {
+	return &EnableWalletHandler{
+		l:         loggerEntry.With(zap.String(MethodNameTag, MethodNameEnableWallet)),
+		walletSvc: walletSvc,
 	}
 }

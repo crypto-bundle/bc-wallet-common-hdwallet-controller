@@ -3,47 +3,25 @@ package wallet_manager
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (s *Service) SignTransaction(ctx context.Context,
+func (s *Service) SignTransactionWithWallet(ctx context.Context,
 	mnemonicUUID string,
-	account, change, index uint32,
 	sessionUUID string,
+	account, change, index uint32,
 	transactionData []byte,
-) (signer *entities.MnemonicWallet, signedData []byte, err error) {
+) (*entities.MnemonicWallet, []byte, error) {
 	var walletSession *entities.MnemonicWalletSession = nil
 	var wallet *entities.MnemonicWallet = nil
 
-	if err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		walletItem, clbErr := s.mnemonicWalletsDataSrv.GetMnemonicWalletByUUID(txStmtCtx, mnemonicUUID)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		if walletItem == nil {
-			return nil
-		}
-
-		wallet = walletItem
-
-		sessionItem, clbErr := s.mnemonicWalletsDataSrv.GetWalletSessionByUUID(ctx, sessionUUID)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		if sessionItem == nil {
-			return nil
-		}
-
-		walletSession = sessionItem
-
-		return nil
-	}); err != nil {
+	wallet, walletSession, err := s.getWalletAndSession(ctx, mnemonicUUID, sessionUUID)
+	if err != nil {
 		return nil, nil, err
 	}
 
@@ -59,11 +37,32 @@ func (s *Service) SignTransaction(ctx context.Context,
 		return wallet, nil, nil
 	}
 
+	_, signedData, err := s.signTransaction(ctx, mnemonicUUID, account, change, index, transactionData)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return wallet, signedData, nil
+}
+
+func (s *Service) SignTransaction(ctx context.Context,
+	mnemonicUUID string,
+	account, change, index uint32,
+	transactionData []byte,
+) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error) {
+	return s.signTransaction(ctx, mnemonicUUID, account, change, index, transactionData)
+}
+
+func (s *Service) signTransaction(ctx context.Context,
+	mnemonicUUID string,
+	account, change, index uint32,
+	transactionData []byte,
+) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error) {
 	signResp, err := s.hdwalletClientSvc.SignTransaction(ctx, &hdwallet.SignTransactionRequest{
-		MnemonicWalletIdentifier: &common.MnemonicWalletIdentity{
+		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
-		AddressIdentifier: &common.DerivationAddressIdentity{
+		AddressIdentifier: &pbCommon.DerivationAddressIdentity{
 			AccountIndex:  account,
 			InternalIndex: change,
 			AddressIndex:  index,
@@ -89,5 +88,5 @@ func (s *Service) SignTransaction(ctx context.Context,
 		}
 	}
 
-	return wallet, signResp.SignedTxData, nil
+	return signResp.TxOwnerIdentity, signResp.SignedTxData, nil
 }

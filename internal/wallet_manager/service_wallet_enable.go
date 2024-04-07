@@ -16,7 +16,7 @@ func (s *Service) EnableWalletByUUID(ctx context.Context,
 	var resultItem *entities.MnemonicWallet = nil
 
 	err := s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		updatedItem, clbErr := s.mnemonicWalletsDataSrv.UpdateWalletStatus(txStmtCtx,
+		updatedItem, clbErr := s.mnemonicWalletsDataSvc.UpdateWalletStatus(txStmtCtx,
 			walletUUID, types.MnemonicWalletStatusEnabled)
 		if clbErr != nil {
 			s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(clbErr),

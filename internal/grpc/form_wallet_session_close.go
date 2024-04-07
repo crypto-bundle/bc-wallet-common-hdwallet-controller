@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetWalletSessionForm struct {
+type CloseWalletSessionForm struct {
 	WalletUUID    string `valid:"type(string),uuid,required"`
 	WalletUUIDRaw uuid.UUID
 
@@ -16,14 +16,20 @@ type GetWalletSessionForm struct {
 	SessionUUIDRaw uuid.UUID
 }
 
-func (f *GetWalletSessionForm) LoadAndValidate(ctx context.Context,
-	req *pbApi.GetWalletSessionRequest,
+func (f *CloseWalletSessionForm) LoadAndValidate(ctx context.Context,
+	req *pbApi.CloseWalletSessionsRequest,
 ) (valid bool, err error) {
 	if req.MnemonicIdentity == nil {
-		return false,
-			fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData,
+			"Wallet identity")
 	}
 	f.WalletUUID = req.MnemonicIdentity.WalletUUID
+
+	if req.SessionIdentity == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData,
+			"Session identity")
+	}
+	f.SessionUUID = req.SessionIdentity.SessionUUID
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {
@@ -35,12 +41,6 @@ func (f *GetWalletSessionForm) LoadAndValidate(ctx context.Context,
 		return false, err
 	}
 	f.WalletUUIDRaw = walletUUIDRaw
-
-	sessionUUIDRaw, err := uuid.Parse(f.SessionUUID)
-	if err != nil {
-		return false, err
-	}
-	f.SessionUUIDRaw = sessionUUIDRaw
 
 	return true, nil
 }

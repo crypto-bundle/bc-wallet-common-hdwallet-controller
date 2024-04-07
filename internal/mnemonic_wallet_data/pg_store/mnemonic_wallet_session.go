@@ -2,6 +2,7 @@ package pg_store
 
 import (
 	"context"
+	"fmt"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
@@ -74,6 +75,80 @@ func (s *pgRepository) UpdateWalletSessionStatusByWalletUUID(ctx context.Context
 	}
 
 	return nil
+}
+
+func (s *pgRepository) UpdateWalletSessionStatusBySessionUUID(ctx context.Context,
+	sessionUUID string,
+	newStatus types.MnemonicWalletSessionStatus,
+) (result *entities.MnemonicWalletSession, err error) {
+
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		row := stmt.QueryRowx(`UPDATE "mnemonic_wallet_sessions" 
+			SET "status" = $1,
+				"updated_at" = now()
+			WHERE "uuid" = $2
+			RETURNING *`,
+			newStatus, sessionUUID)
+
+		sessionItem := &entities.MnemonicWalletSession{}
+
+		clbErr := row.Scan(sessionItem)
+		if clbErr != nil {
+			s.logger.Error("unable to update wallet session status", zap.Error(clbErr))
+
+			return fmt.Errorf("%s: %w", ErrUnableExecuteQuery.Error(), clbErr)
+		}
+
+		result = sessionItem
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return
+}
+
+func (s *pgRepository) UpdateMultipleWalletSessionStatus(ctx context.Context,
+	sessionsUUIDs []string,
+	newStatus types.MnemonicWalletSessionStatus,
+) (count uint, list []string, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallet_sessions"
+	       SET "status" = ?
+	       WHERE "uuid" IN (?)
+	       RETURNING "uuid"`, newStatus, sessionsUUIDs)
+
+		bonded := stmt.Rebind(query)
+		returnedRows, clbErr := stmt.Queryx(bonded, args...)
+		if clbErr != nil {
+			return clbErr
+		}
+		defer returnedRows.Close()
+
+		sessionsUUIDList := make([]string, 0)
+
+		for returnedRows.Next() {
+			var sessionUUID string
+
+			scanErr := returnedRows.Scan(&sessionUUID)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			sessionsUUIDList = append(sessionsUUIDList, sessionUUID)
+
+			count++
+		}
+
+		list = sessionsUUIDList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
 }
 
 func (s *pgRepository) GetWalletSessionByUUID(ctx context.Context,

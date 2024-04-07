@@ -8,14 +8,20 @@
     - [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse)
     - [DerivationAddressRequest](#manager_api.DerivationAddressRequest)
     - [DerivationAddressResponse](#manager_api.DerivationAddressResponse)
+    - [EncryptMnemonicRequest](#manager_api.EncryptMnemonicRequest)
+    - [EncryptMnemonicResponse](#manager_api.EncryptMnemonicResponse)
     - [GenerateMnemonicRequest](#manager_api.GenerateMnemonicRequest)
     - [GenerateMnemonicResponse](#manager_api.GenerateMnemonicResponse)
+    - [LoadDerivationAddressRequest](#manager_api.LoadDerivationAddressRequest)
+    - [LoadDerivationAddressResponse](#manager_api.LoadDerivationAddressResponse)
     - [LoadMnemonicRequest](#manager_api.LoadMnemonicRequest)
     - [LoadMnemonicResponse](#manager_api.LoadMnemonicResponse)
     - [SignTransactionRequest](#manager_api.SignTransactionRequest)
     - [SignTransactionResponse](#manager_api.SignTransactionResponse)
     - [UnLoadMnemonicRequest](#manager_api.UnLoadMnemonicRequest)
     - [UnLoadMnemonicResponse](#manager_api.UnLoadMnemonicResponse)
+    - [UnLoadMultipleMnemonicsRequest](#manager_api.UnLoadMultipleMnemonicsRequest)
+    - [UnLoadMultipleMnemonicsResponse](#manager_api.UnLoadMultipleMnemonicsResponse)
   
     - [HdWalletApi](#manager_api.HdWalletApi)
   
@@ -95,6 +101,38 @@
 
 
 
+<a name="manager_api.EncryptMnemonicRequest"></a>
+
+### EncryptMnemonicRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| MnemonicData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="manager_api.EncryptMnemonicResponse"></a>
+
+### EncryptMnemonicResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| EncryptedMnemonicData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
 <a name="manager_api.GenerateMnemonicRequest"></a>
 
 ### GenerateMnemonicRequest
@@ -126,6 +164,38 @@
 
 
 
+<a name="manager_api.LoadDerivationAddressRequest"></a>
+
+### LoadDerivationAddressRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AddressIdentifier | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+
+
+
+
+
+
+<a name="manager_api.LoadDerivationAddressResponse"></a>
+
+### LoadDerivationAddressResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+
+
+
+
+
+
 <a name="manager_api.LoadMnemonicRequest"></a>
 
 ### LoadMnemonicRequest
@@ -135,6 +205,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
 
@@ -219,6 +290,36 @@
 
 
 
+
+<a name="manager_api.UnLoadMultipleMnemonicsRequest"></a>
+
+### UnLoadMultipleMnemonicsRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+
+
+
+
+
+
+<a name="manager_api.UnLoadMultipleMnemonicsResponse"></a>
+
+### UnLoadMultipleMnemonicsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+
+
+
+
+
  
 
  
@@ -234,10 +335,13 @@
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | GenerateMnemonic | [GenerateMnemonicRequest](#manager_api.GenerateMnemonicRequest) | [GenerateMnemonicResponse](#manager_api.GenerateMnemonicResponse) |  |
+| EncryptMnemonic | [EncryptMnemonicRequest](#manager_api.EncryptMnemonicRequest) | [EncryptMnemonicResponse](#manager_api.EncryptMnemonicResponse) |  |
 | LoadMnemonic | [LoadMnemonicRequest](#manager_api.LoadMnemonicRequest) | [LoadMnemonicResponse](#manager_api.LoadMnemonicResponse) |  |
 | UnLoadMnemonic | [UnLoadMnemonicRequest](#manager_api.UnLoadMnemonicRequest) | [UnLoadMnemonicResponse](#manager_api.UnLoadMnemonicResponse) |  |
+| UnLoadMultipleMnemonics | [UnLoadMultipleMnemonicsRequest](#manager_api.UnLoadMultipleMnemonicsRequest) | [UnLoadMultipleMnemonicsResponse](#manager_api.UnLoadMultipleMnemonicsResponse) |  |
 | GetDerivationAddress | [DerivationAddressRequest](#manager_api.DerivationAddressRequest) | [DerivationAddressResponse](#manager_api.DerivationAddressResponse) |  |
 | GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse) |  |
+| LoadDerivationAddress | [LoadDerivationAddressRequest](#manager_api.LoadDerivationAddressRequest) | [LoadDerivationAddressResponse](#manager_api.LoadDerivationAddressResponse) |  |
 | SignTransaction | [SignTransactionRequest](#manager_api.SignTransactionRequest) | [SignTransactionResponse](#manager_api.SignTransactionResponse) |  |
 
  

@@ -36,6 +36,14 @@ type mnemonicWalletsCacheStoreService interface {
 	FullUnsetMnemonicWallet(ctx context.Context,
 		mnemonicWalletUUID string,
 	) error
+	UnsetWalletSession(ctx context.Context,
+		mnemonicWalletsUUID string,
+		sessionsUUID string,
+	) error
+	UnsetMultipleWallets(ctx context.Context,
+		mnemonicWalletsUUIDs []string,
+		sessionsUUIDs []string,
+	) error
 }
 
 type mnemonicWalletsDataService interface {
@@ -49,7 +57,7 @@ type mnemonicWalletsDataService interface {
 	UpdateMultipleWalletsStatus(ctx context.Context,
 		walletUUID []string,
 		newStatus types.MnemonicWalletStatus,
-	) (uint, []*entities.MnemonicWallet, error)
+	) (uint, []string, error)
 	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletByUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletsByStatus(ctx context.Context,
@@ -59,16 +67,37 @@ type mnemonicWalletsDataService interface {
 		UUIDList []string,
 	) ([]*entities.MnemonicWallet, error)
 
+	AddNewWalletSession(ctx context.Context,
+		sessionItem *entities.MnemonicWalletSession,
+	) (*entities.MnemonicWalletSession, error)
 	UpdateWalletSessionStatusByWalletUUID(ctx context.Context,
 		walletUUID string,
 		status types.MnemonicWalletSessionStatus,
 	) error
+	UpdateWalletSessionStatusBySessionUUID(ctx context.Context,
+		sessionUUID string,
+		newStatus types.MnemonicWalletSessionStatus,
+	) (result *entities.MnemonicWalletSession, err error)
+	UpdateMultipleWalletSessionStatus(ctx context.Context,
+		sessionsUUIDs []string,
+		newStatus types.MnemonicWalletSessionStatus,
+	) (count uint, sessions []string, err error)
 	GetWalletSessionByUUID(ctx context.Context,
 		sessionUUID string,
 	) (*entities.MnemonicWalletSession, error)
 	GetActiveWalletSessionsByWalletUUID(ctx context.Context, walletUUID string) (
 		count uint, list []*entities.MnemonicWalletSession, err error,
 	)
+}
+
+type signRequestDataService interface {
+	AddSignRequestItem(ctx context.Context,
+		toSaveItem *entities.SignRequest,
+	) (*entities.SignRequest, error)
+	UpdateSignRequestItemStatus(ctx context.Context,
+		signReqUUID string,
+		newStatus types.SignRequestStatus,
+	) error
 }
 
 type mnemonicWalletConfig interface {
@@ -84,20 +113,4 @@ type transactionalStatementManager interface {
 	BeginTxWithRollbackOnError(ctx context.Context,
 		callback func(txStmtCtx context.Context) error,
 	) error
-}
-
-type walleter interface {
-	GetAddress() (string, error)
-	GetPubKey() string
-	GetPrvKey() (string, error)
-	GetPath() string
-}
-
-type hdWalleter interface {
-	PublicHex() string
-	PublicHash() ([]byte, error)
-
-	NewTronWallet(account, change, address uint32) ([]byte, error)
-
-	ClearSecrets()
 }

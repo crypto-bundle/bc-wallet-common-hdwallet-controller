@@ -15,8 +15,19 @@ message GenerateMnemonicResponse {
   bytes EncryptedMnemonicData = 2;
 }
 
+message EncryptMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes MnemonicData = 2;
+}
+
+message EncryptMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes EncryptedMnemonicData = 2;
+}
+
 message LoadMnemonicRequest {
   common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes EncryptedMnemonicData = 2;
 }
 
 message LoadMnemonicResponse {
@@ -29,6 +40,14 @@ message UnLoadMnemonicRequest {
 
 message UnLoadMnemonicResponse {
   common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMultipleMnemonicsRequest {
+  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMultipleMnemonicsResponse {
+  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
 }
 
 message DerivationAddressRequest {
@@ -52,6 +71,16 @@ message DerivationAddressByRangeResponse {
   repeated common.DerivationAddressIdentity AddressIdentities = 4;
 }
 
+message LoadDerivationAddressRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
+  common.DerivationAddressIdentity AddressIdentifier = 2;
+}
+
+message LoadDerivationAddressResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity TxOwnerIdentity = 2;
+}
+
 message SignTransactionRequest {
   common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
   common.DerivationAddressIdentity AddressIdentifier = 2;
@@ -66,9 +95,14 @@ message SignTransactionResponse {
 
 service HdWalletApi {
   rpc GenerateMnemonic                 (GenerateMnemonicRequest)           returns (GenerateMnemonicResponse) {}
+  rpc EncryptMnemonic                 (EncryptMnemonicRequest)           returns (EncryptMnemonicResponse) {}
   rpc LoadMnemonic                 (LoadMnemonicRequest)           returns (LoadMnemonicResponse) {}
   rpc UnLoadMnemonic                 (UnLoadMnemonicRequest)           returns (UnLoadMnemonicResponse) {}
+  rpc UnLoadMultipleMnemonics           (UnLoadMultipleMnemonicsRequest)           returns (UnLoadMultipleMnemonicsResponse) {}
+
   rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
   rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+
+  rpc LoadDerivationAddress             (LoadDerivationAddressRequest)    returns (LoadDerivationAddressResponse) {}
   rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}
 }

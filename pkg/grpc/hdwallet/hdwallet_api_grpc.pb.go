@@ -19,10 +19,13 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type HdWalletApiClient interface {
 	GenerateMnemonic(ctx context.Context, in *GenerateMnemonicRequest, opts ...grpc.CallOption) (*GenerateMnemonicResponse, error)
+	EncryptMnemonic(ctx context.Context, in *EncryptMnemonicRequest, opts ...grpc.CallOption) (*EncryptMnemonicResponse, error)
 	LoadMnemonic(ctx context.Context, in *LoadMnemonicRequest, opts ...grpc.CallOption) (*LoadMnemonicResponse, error)
 	UnLoadMnemonic(ctx context.Context, in *UnLoadMnemonicRequest, opts ...grpc.CallOption) (*UnLoadMnemonicResponse, error)
+	UnLoadMultipleMnemonics(ctx context.Context, in *UnLoadMultipleMnemonicsRequest, opts ...grpc.CallOption) (*UnLoadMultipleMnemonicsResponse, error)
 	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
+	LoadDerivationAddress(ctx context.Context, in *LoadDerivationAddressRequest, opts ...grpc.CallOption) (*LoadDerivationAddressResponse, error)
 	SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error)
 }
 
@@ -37,6 +40,15 @@ func NewHdWalletApiClient(cc grpc.ClientConnInterface) HdWalletApiClient {
 func (c *hdWalletApiClient) GenerateMnemonic(ctx context.Context, in *GenerateMnemonicRequest, opts ...grpc.CallOption) (*GenerateMnemonicResponse, error) {
 	out := new(GenerateMnemonicResponse)
 	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/GenerateMnemonic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletApiClient) EncryptMnemonic(ctx context.Context, in *EncryptMnemonicRequest, opts ...grpc.CallOption) (*EncryptMnemonicResponse, error) {
+	out := new(EncryptMnemonicResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/EncryptMnemonic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +73,15 @@ func (c *hdWalletApiClient) UnLoadMnemonic(ctx context.Context, in *UnLoadMnemon
 	return out, nil
 }
 
+func (c *hdWalletApiClient) UnLoadMultipleMnemonics(ctx context.Context, in *UnLoadMultipleMnemonicsRequest, opts ...grpc.CallOption) (*UnLoadMultipleMnemonicsResponse, error) {
+	out := new(UnLoadMultipleMnemonicsResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/UnLoadMultipleMnemonics", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *hdWalletApiClient) GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error) {
 	out := new(DerivationAddressResponse)
 	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/GetDerivationAddress", in, out, opts...)
@@ -73,6 +94,15 @@ func (c *hdWalletApiClient) GetDerivationAddress(ctx context.Context, in *Deriva
 func (c *hdWalletApiClient) GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error) {
 	out := new(DerivationAddressByRangeResponse)
 	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/GetDerivationAddressByRange", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletApiClient) LoadDerivationAddress(ctx context.Context, in *LoadDerivationAddressRequest, opts ...grpc.CallOption) (*LoadDerivationAddressResponse, error) {
+	out := new(LoadDerivationAddressResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/LoadDerivationAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,10 +123,13 @@ func (c *hdWalletApiClient) SignTransaction(ctx context.Context, in *SignTransac
 // for forward compatibility
 type HdWalletApiServer interface {
 	GenerateMnemonic(context.Context, *GenerateMnemonicRequest) (*GenerateMnemonicResponse, error)
+	EncryptMnemonic(context.Context, *EncryptMnemonicRequest) (*EncryptMnemonicResponse, error)
 	LoadMnemonic(context.Context, *LoadMnemonicRequest) (*LoadMnemonicResponse, error)
 	UnLoadMnemonic(context.Context, *UnLoadMnemonicRequest) (*UnLoadMnemonicResponse, error)
+	UnLoadMultipleMnemonics(context.Context, *UnLoadMultipleMnemonicsRequest) (*UnLoadMultipleMnemonicsResponse, error)
 	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
+	LoadDerivationAddress(context.Context, *LoadDerivationAddressRequest) (*LoadDerivationAddressResponse, error)
 	SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error)
 	mustEmbedUnimplementedHdWalletApiServer()
 }
@@ -108,17 +141,26 @@ type UnimplementedHdWalletApiServer struct {
 func (UnimplementedHdWalletApiServer) GenerateMnemonic(context.Context, *GenerateMnemonicRequest) (*GenerateMnemonicResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateMnemonic not implemented")
 }
+func (UnimplementedHdWalletApiServer) EncryptMnemonic(context.Context, *EncryptMnemonicRequest) (*EncryptMnemonicResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EncryptMnemonic not implemented")
+}
 func (UnimplementedHdWalletApiServer) LoadMnemonic(context.Context, *LoadMnemonicRequest) (*LoadMnemonicResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoadMnemonic not implemented")
 }
 func (UnimplementedHdWalletApiServer) UnLoadMnemonic(context.Context, *UnLoadMnemonicRequest) (*UnLoadMnemonicResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UnLoadMnemonic not implemented")
 }
+func (UnimplementedHdWalletApiServer) UnLoadMultipleMnemonics(context.Context, *UnLoadMultipleMnemonicsRequest) (*UnLoadMultipleMnemonicsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnLoadMultipleMnemonics not implemented")
+}
 func (UnimplementedHdWalletApiServer) GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddress not implemented")
 }
 func (UnimplementedHdWalletApiServer) GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddressByRange not implemented")
+}
+func (UnimplementedHdWalletApiServer) LoadDerivationAddress(context.Context, *LoadDerivationAddressRequest) (*LoadDerivationAddressResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoadDerivationAddress not implemented")
 }
 func (UnimplementedHdWalletApiServer) SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignTransaction not implemented")
@@ -150,6 +192,24 @@ func _HdWalletApi_GenerateMnemonic_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).GenerateMnemonic(ctx, req.(*GenerateMnemonicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletApi_EncryptMnemonic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EncryptMnemonicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).EncryptMnemonic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletApi/EncryptMnemonic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).EncryptMnemonic(ctx, req.(*EncryptMnemonicRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -190,6 +250,24 @@ func _HdWalletApi_UnLoadMnemonic_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HdWalletApi_UnLoadMultipleMnemonics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnLoadMultipleMnemonicsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).UnLoadMultipleMnemonics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletApi/UnLoadMultipleMnemonics",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).UnLoadMultipleMnemonics(ctx, req.(*UnLoadMultipleMnemonicsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HdWalletApi_GetDerivationAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DerivationAddressRequest)
 	if err := dec(in); err != nil {
@@ -226,6 +304,24 @@ func _HdWalletApi_GetDerivationAddressByRange_Handler(srv interface{}, ctx conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _HdWalletApi_LoadDerivationAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoadDerivationAddressRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).LoadDerivationAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletApi/LoadDerivationAddress",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).LoadDerivationAddress(ctx, req.(*LoadDerivationAddressRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _HdWalletApi_SignTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(SignTransactionRequest)
 	if err := dec(in); err != nil {
@@ -256,6 +352,10 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HdWalletApi_GenerateMnemonic_Handler,
 		},
 		{
+			MethodName: "EncryptMnemonic",
+			Handler:    _HdWalletApi_EncryptMnemonic_Handler,
+		},
+		{
 			MethodName: "LoadMnemonic",
 			Handler:    _HdWalletApi_LoadMnemonic_Handler,
 		},
@@ -264,12 +364,20 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HdWalletApi_UnLoadMnemonic_Handler,
 		},
 		{
+			MethodName: "UnLoadMultipleMnemonics",
+			Handler:    _HdWalletApi_UnLoadMultipleMnemonics_Handler,
+		},
+		{
 			MethodName: "GetDerivationAddress",
 			Handler:    _HdWalletApi_GetDerivationAddress_Handler,
 		},
 		{
 			MethodName: "GetDerivationAddressByRange",
 			Handler:    _HdWalletApi_GetDerivationAddressByRange_Handler,
+		},
+		{
+			MethodName: "LoadDerivationAddress",
+			Handler:    _HdWalletApi_LoadDerivationAddress_Handler,
 		},
 		{
 			MethodName: "SignTransaction",

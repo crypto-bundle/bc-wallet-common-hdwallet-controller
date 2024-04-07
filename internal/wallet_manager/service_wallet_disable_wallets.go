@@ -2,11 +2,10 @@ package wallet_manager
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
 
 	"go.uber.org/zap"
@@ -14,66 +13,62 @@ import (
 
 func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 	walletUUIDs []string,
-) (uint, []string, error) {
-	var resultItem *entities.MnemonicWallet = nil
-
-	item, err := s.mnemonicWalletsDataSrv.GetMnemonicWalletByUUID(ctx, walletUUID)
-	if err != nil {
-		s.logger.Error("unable to get wallet by uuid", zap.Error(err))
-
-		return 0, nil, err
-	}
-
-	if item == nil {
-		return 0, nil, nil
-	}
-
+) (count uint, list []string, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		updatedCount, updatedItem, clbErr := s.mnemonicWalletsDataSrv.UpdateMultipleWalletsStatus(txStmtCtx,
+		updWalletsCount, updatedItemUUIDs, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletsStatus(txStmtCtx,
 			walletUUIDs, types.MnemonicWalletStatusDisabled)
 		if clbErr != nil {
-			s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
+			s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(clbErr),
+				zap.Strings(app.MnemonicWalletUUIDTag, walletUUIDs))
 
 			return clbErr
 		}
 
-		clbErr = s.mnemonicWalletsDataSrv.UpdateWalletSessionStatusByWalletUUID(txStmtCtx,
-			walletUUID, types.MnemonicWalletSessionStatusClosed)
+		_, updSessUUIDList, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletSessionStatus(txStmtCtx,
+			updatedItemUUIDs, types.MnemonicWalletSessionStatusClosed)
 		if clbErr != nil {
 			s.logger.Error("unable to update mnemonic sessions status", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
+				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
 
 			return clbErr
 		}
 
-		clbErr = s.cacheStoreDataSvc.FullUnsetMnemonicWallet(txStmtCtx, walletUUID)
+		clbErr = s.cacheStoreDataSvc.UnsetMultipleWallets(txStmtCtx, updatedItemUUIDs, updSessUUIDList)
 		if clbErr != nil {
-			s.logger.Error("unable to unset mnemonic wallet data from cache store", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
+			s.logger.Error("unable to unset mnemonics wallet data and sessions from cache store", zap.Error(clbErr),
+				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs),
+				zap.Strings(app.MnemonicWalletSessionUUIDTag, updSessUUIDList))
 
 			return clbErr
 		}
 
-		resultItem = updatedItem
+		pbIdentities := make([]*common.MnemonicWalletIdentity, updWalletsCount)
+		for i := uint(0); i != updWalletsCount; i++ {
+			pbIdentity := &common.MnemonicWalletIdentity{
+				WalletUUID: updatedItemUUIDs[i],
+			}
 
-		_, clbErr = s.hdwalletClientSvc.UnLoadMnemonic(txStmtCtx, &hdwallet.UnLoadMnemonicRequest{
-			MnemonicIdentity: &common.MnemonicWalletIdentity{
-				WalletUUID: walletUUID,
-			}})
+			pbIdentities[i] = pbIdentity
+		}
+
+		_, clbErr = s.hdwalletClientSvc.UnLoadMultipleMnemonics(txStmtCtx, &hdwallet.UnLoadMultipleMnemonicsRequest{
+			MnemonicIdentity: pbIdentities})
 		if clbErr != nil {
 			s.logger.Error("unable to unload mnemonics", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
+				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
 		}
+
+		list = updatedItemUUIDs
+		count = updWalletsCount
 
 		return nil
 	})
 	if err != nil {
-		s.logger.Error("unable to disable wallet", zap.Error(err),
-			zap.String(app.MnemonicWalletUUIDTag, walletUUID))
+		s.logger.Error("unable to disable wallets", zap.Error(err),
+			zap.Strings(app.MnemonicWalletUUIDTag, walletUUIDs))
 
-		return nil, err
+		return 0, nil, err
 	}
 
-	return resultItem, nil
+	return
 }

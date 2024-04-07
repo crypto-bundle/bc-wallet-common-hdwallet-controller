@@ -65,6 +65,48 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
 	return result, nil
 }
 
+func (s *pgRepository) UpdateMultipleWalletStatus(ctx context.Context,
+	walletUUIDs []string,
+	newStatus types.MnemonicWalletStatus,
+) (count uint, list []string, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallets"
+	       SET "status" = ?
+	       WHERE "wallet_uuid" IN (?)
+	       RETURNING "uuid"`, newStatus, walletUUIDs)
+
+		bonded := stmt.Rebind(query)
+		returnedRows, clbErr := stmt.Queryx(bonded, args...)
+		if clbErr != nil {
+			return clbErr
+		}
+		defer returnedRows.Close()
+
+		walletsUUIDList := make([]string, 0)
+
+		for returnedRows.Next() {
+			var walletUUID string
+
+			scanErr := returnedRows.StructScan(&walletUUID)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			walletsUUIDList = append(walletsUUIDList, walletUUID)
+
+			count++
+		}
+
+		list = walletsUUIDList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
 func (s *pgRepository) UpdateWalletStatus(ctx context.Context,
 	walletUUID string,
 	newStatus types.MnemonicWalletStatus,
@@ -175,7 +217,7 @@ func (s *pgRepository) GetMnemonicWalletsByStatus(ctx context.Context,
 
 			scanErr := rows.StructScan(walletData)
 			if scanErr != nil {
-				return err
+				return scanErr
 			}
 
 			wallets = append(wallets, walletData)

@@ -4,12 +4,13 @@ const (
 	ApplicationNameTag = "application"
 	BlockChainNameTag  = "blockchain_name"
 
-	WalletTitleTag        = "title"
-	WalletUUIDTag         = "wallet_uuid"
-	MnemonicWalletUUIDTag = "mnemonic_wallet_uuid"
-	MnemonicWalletHashTag = "mnemonic_wallet_hash"
-	WalletPurposeTag      = "purpose"
-	WalletIsHotTag        = "is_hot"
+	WalletTitleTag               = "title"
+	WalletUUIDTag                = "wallet_uuid"
+	MnemonicWalletUUIDTag        = "mnemonic_wallet_uuid"
+	MnemonicWalletSessionUUIDTag = "mnemonic_wallet_session_uuid"
+	MnemonicWalletHashTag        = "mnemonic_wallet_hash"
+	WalletPurposeTag             = "purpose"
+	WalletIsHotTag               = "is_hot"
 
 	GRPCBindPortTag = "grpc_bind_port"
 

@@ -3,78 +3,70 @@ package wallet_manager
 import (
 	"context"
 	"crypto/sha256"
-	"errors"
 	"fmt"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
-var (
-	ErrMissingHdWalletResp = errors.New("missing hd-wallet api response")
-)
+func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, error) {
+	toSaveItem := &entities.MnemonicWallet{
+		UUID:               uuid.New(),
+		MnemonicHash:       "",
+		Status:             types.MnemonicWalletStatusCreated,
+		UnloadInterval:     s.cfg.GetDefaultWalletUnloadInterval(),
+		VaultEncrypted:     nil,
+		VaultEncryptedHash: "",
+		CreatedAt:          time.Now(),
+		UpdatedAt:          nil,
+	}
 
-type Service struct {
-	logger *zap.Logger
-	cfg    configService
+	resp, err := s.hdwalletClientSvc.GenerateMnemonic(ctx, &hdwallet.GenerateMnemonicRequest{
+		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: toSaveItem.UUID.String(),
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	mnemonicWalletsDataSrv mnemonicWalletsDataService
-	cacheStoreDataSvc      mnemonicWalletsCacheStoreService
+	if resp == nil {
+		s.logger.Error("missing resp in generate mnemonic request", zap.Error(ErrMissingHdWalletResp),
+			zap.String(app.MnemonicWalletUUIDTag, toSaveItem.UUID.String()))
 
-	hdwalletClientSvc hdwallet.HdWalletApiClient
+		return nil, ErrMissingHdWalletResp
+	}
 
-	txStmtManager transactionalStatementManager
+	return s.saveWallet(ctx, toSaveItem, resp.MnemonicIdentity, resp.EncryptedMnemonicData)
 }
 
-func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, error) {
-	var resultItem *entities.MnemonicWallet = nil
+func (s *Service) saveWallet(ctx context.Context,
+	walletItem *entities.MnemonicWallet,
+	hdWalletInfo *pbCommon.MnemonicWalletIdentity,
+	encryptedData []byte,
+) (wallet *entities.MnemonicWallet, err error) {
+	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
+		walletItem.MnemonicHash = hdWalletInfo.WalletHash
+		walletItem.VaultEncryptedHash = fmt.Sprintf("%x", sha256.Sum256(encryptedData))
+		walletItem.VaultEncrypted = encryptedData
 
-	err := s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		toSaveItem := &entities.MnemonicWallet{
-			UUID:               uuid.New(),
-			MnemonicHash:       "",
-			Status:             types.MnemonicWalletStatusCreated,
-			UnloadInterval:     s.cfg.GetDefaultWalletUnloadInterval(),
-			VaultEncrypted:     nil,
-			VaultEncryptedHash: "",
-			CreatedAt:          time.Time{},
-			UpdatedAt:          nil,
-		}
-
-		resp, clbErr := s.hdwalletClientSvc.GenerateMnemonic(txStmtCtx, &hdwallet.GenerateMnemonicRequest{
-			MnemonicIdentity: &common.MnemonicWalletIdentity{
-				WalletUUID: toSaveItem.UUID.String(),
-			},
-		})
-
-		if resp == nil {
-			s.logger.Error("missing resp in generate mnemonic request", zap.Error(ErrMissingHdWalletResp),
-				zap.String(app.MnemonicWalletUUIDTag, toSaveItem.UUID.String()))
-
-			return ErrMissingHdWalletResp
-		}
-
-		toSaveItem.MnemonicHash = resp.MnemonicIdentity.WalletHash
-		toSaveItem.VaultEncryptedHash = fmt.Sprintf("%x", sha256.Sum256(resp.EncryptedMnemonicData))
-		toSaveItem.VaultEncrypted = resp.EncryptedMnemonicData
-
-		savedItem, clbErr := s.mnemonicWalletsDataSrv.AddNewMnemonicWallet(txStmtCtx,
-			toSaveItem)
+		savedItem, clbErr := s.mnemonicWalletsDataSvc.AddNewMnemonicWallet(txStmtCtx,
+			walletItem)
 		if clbErr != nil {
 			s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, toSaveItem.UUID.String()))
+				zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()))
 
 			return clbErr
 		}
 
-		resultItem = savedItem
+		wallet = savedItem
 
 		return nil
 	})
@@ -84,21 +76,5 @@ func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, e
 		return nil, err
 	}
 
-	return resultItem, nil
-}
-
-func NewService(logger *zap.Logger,
-	cfg configService,
-	walletDataSrv walletsDataService,
-	mnemonicWalletDataSrv mnemonicWalletsDataService,
-	txStmtManager transactionalStatementManager,
-) (*Service, error) {
-	return &Service{
-		logger: logger,
-		cfg:    cfg,
-
-		txStmtManager:          txStmtManager,
-		walletsDataSrv:         walletDataSrv,
-		mnemonicWalletsDataSrv: mnemonicWalletDataSrv,
-	}, nil
+	return
 }

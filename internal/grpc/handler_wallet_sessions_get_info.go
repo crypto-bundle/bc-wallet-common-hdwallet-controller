@@ -2,9 +2,8 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
-	"sync"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
 	"go.uber.org/zap"
@@ -21,8 +20,6 @@ type GetWalletSessionsHandler struct {
 
 	walletSvc     walletManagerService
 	marshallerSvc marshallerService
-
-	pbAddrPool *sync.Pool
 }
 
 // nolint:funlen // fixme
@@ -43,55 +40,38 @@ func (h *GetWalletSessionsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletPubData, err := h.walletSvc.GetWalletByUUID(ctx, vf.WalletUUIDRaw)
+	walletItem, sessionsList, err := h.walletSvc.GetWalletSessionsByWalletUUID(ctx, vf.WalletUUID)
 	if err != nil {
-		h.l.Error("unable get wallet", zap.Error(err))
+		h.l.Error("unable to get wallet and all walltes sessions", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
-	if walletPubData == nil {
-		return nil, status.Error(codes.NotFound, "wallet not found")
-	}
 
-	mnemoWalletData, isExists := walletPubData.MnemonicWalletsByUUID[vf.MnemonicWalletUUIDRaw]
-	if !isExists {
+	if walletItem == nil {
 		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
 	}
 
-	addressData, err := h.walletSvc.GetAddressByPath(ctx, vf.WalletUUIDRaw, vf.MnemonicWalletUUIDRaw,
-		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
-	if err != nil {
-		return nil, err
+	if sessionsList == nil {
+		return nil, status.Error(codes.ResourceExhausted, "mnemonic wallet sessions not found or expired")
 	}
 
-	addressEntity := h.pbAddrPool.Get().(*pbCommon.DerivationAddressIdentity)
-	addressEntity.AccountIndex = addressData.AccountIndex
-	addressEntity.InternalIndex = addressData.InternalIndex
-	addressEntity.AddressIndex = addressData.AddressIndex
-	addressEntity.Address = addressData.Address
-
-	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(walletPubData, mnemoWalletData, addressEntity)
-	if err != nil {
-		h.l.Error("unable to marshall public address data", zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	defer func() {
-		h.pbAddrPool.Put(addressEntity)
-	}()
-
-	return marshalledData, nil
+	return &pbApi.GetWalletSessionsResponse{
+		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletItem.UUID.String(),
+			WalletHash: walletItem.MnemonicHash,
+		},
+		ActiveSessions: h.marshallerSvc.MarshallWalletSessions(sessionsList),
+	}, nil
 }
 
 func MakeGetWalletSessionsHandler(loggerEntry *zap.Logger,
 	walletSrv walletManagerService,
 	marshallerSrv marshallerService,
-	pbAddrPool *sync.Pool,
 ) *GetWalletSessionsHandler {
 	return &GetWalletSessionsHandler{
 		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetWalletSessions)),
 		walletSvc:     walletSrv,
 		marshallerSvc: marshallerSrv,
-		pbAddrPool:    pbAddrPool,
 	}
 }
