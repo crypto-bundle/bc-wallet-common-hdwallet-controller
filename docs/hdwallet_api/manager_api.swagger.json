@@ -161,6 +161,27 @@
         }
       }
     },
+    "manager_apiExecuteSignRequestResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        },
+        "SignRequestIdentifier": {
+          "$ref": "#/definitions/manager_apiSignRequestIdentity"
+        },
+        "SignedTxData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
     "manager_apiGetEnabledWalletsResponse": {
       "type": "object",
       "properties": {
@@ -224,7 +245,7 @@
         }
       }
     },
-    "manager_apiPrepareSignResponse": {
+    "manager_apiPrepareSignRequestResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {
@@ -257,6 +278,14 @@
         }
       }
     },
+    "manager_apiSignPurposeIdentity": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string"
+        }
+      }
+    },
     "manager_apiSignRequestData": {
       "type": "object",
       "properties": {
@@ -277,27 +306,6 @@
       "properties": {
         "UUID": {
           "type": "string"
-        }
-      }
-    },
-    "manager_apiSignTransactionResponse": {
-      "type": "object",
-      "properties": {
-        "MnemonicIdentity": {
-          "$ref": "#/definitions/commonMnemonicWalletIdentity"
-        },
-        "SessionIdentity": {
-          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
-        },
-        "TxOwnerIdentity": {
-          "$ref": "#/definitions/commonDerivationAddressIdentity"
-        },
-        "SignRequestIdentifier": {
-          "$ref": "#/definitions/manager_apiSignRequestIdentity"
-        },
-        "SignedTxData": {
-          "type": "string",
-          "format": "byte"
         }
       }
     },

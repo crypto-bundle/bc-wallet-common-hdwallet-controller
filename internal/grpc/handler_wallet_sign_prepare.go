@@ -17,18 +17,21 @@ const (
 )
 
 type SignPrepareHandler struct {
-	l             *zap.Logger
-	walletSvc     walletManagerService
+	l *zap.Logger
+
+	walletSvc      walletManagerService
+	signManagerSvc signManagerService
+
 	marshallerSrv marshallerService
 }
 
 // nolint:funlen // fixme
 func (h *SignPrepareHandler) Handle(ctx context.Context,
-	req *pbApi.PrepareSignRequest,
-) (*pbApi.PrepareSignResponse, error) {
+	req *pbApi.PrepareSignRequestReq,
+) (*pbApi.PrepareSignRequestResponse, error) {
 	var err error
 
-	vf := &SignPrepareForm{}
+	vf := &SignRequestPrepareForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
@@ -57,7 +60,7 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "mnemonic wallet session not found or expired")
 	}
 
-	signOwner, signReqItem, err := h.walletSvc.PrepareForSign(ctx, vf.WalletUUID,
+	signOwner, signReqItem, err := h.signManagerSvc.PrepareSignRequest(ctx, vf.WalletUUID, vf.PurposeUUID,
 		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
 	if err != nil {
 		h.l.Error("unable to sign transaction", zap.Error(err),
@@ -72,7 +75,11 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 			"signer account not found or signature session expired")
 	}
 
-	return &pbApi.PrepareSignResponse{
+	if signReqItem.DerivationPath == nil {
+
+	}
+
+	return &pbApi.PrepareSignRequestResponse{
 		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
@@ -91,11 +98,13 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 
 func MakeSignPrepareHandler(loggerEntry *zap.Logger,
 	walletSrv walletManagerService,
+	signManagerSvc signManagerService,
 	marshallerSrv marshallerService,
 ) *SignPrepareHandler {
 	return &SignPrepareHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodSignPrepare)),
-		walletSvc:     walletSrv,
-		marshallerSrv: marshallerSrv,
+		l:              loggerEntry.With(zap.String(MethodNameTag, MethodSignPrepare)),
+		signManagerSvc: signManagerSvc,
+		walletSvc:      walletSrv,
+		marshallerSrv:  marshallerSrv,
 	}
 }

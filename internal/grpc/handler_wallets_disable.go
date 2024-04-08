@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
@@ -15,9 +16,10 @@ const (
 )
 
 type DisableWalletsHandler struct {
-	l             *zap.Logger
-	walletSvc     walletManagerService
-	marshallerSrv marshallerService
+	l *zap.Logger
+
+	walletSvc      walletManagerService
+	signManagerSvc signManagerService
 }
 
 // nolint:funlen // fixme
@@ -48,6 +50,14 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "there are no wallets available to disable")
 	}
 
+	_, _, err = h.signManagerSvc.CloseSignRequestByMultipleWallets(ctx, walletsIdentities)
+	if err != nil {
+		h.l.Error("unable to close sign requests by session", zap.Error(err),
+			zap.Strings(app.MnemonicWalletUUIDTag, walletsIdentities))
+
+		// no return err - it's ok
+	}
+
 	pbIdentities := make([]*common.MnemonicWalletIdentity, disabledCount)
 	for i := uint(0); i != disabledCount; i++ {
 		pbIdentities[i] = &common.MnemonicWalletIdentity{
@@ -62,9 +72,11 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 
 func MakeDisableWalletsHandler(loggerEntry *zap.Logger,
 	walletSvc walletManagerService,
+	signManagerSvc signManagerService,
 ) *DisableWalletsHandler {
 	return &DisableWalletsHandler{
-		l:         loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallets)),
-		walletSvc: walletSvc,
+		l:              loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallets)),
+		walletSvc:      walletSvc,
+		signManagerSvc: signManagerSvc,
 	}
 }

@@ -7,9 +7,10 @@ import (
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 )
 
-type SignTransactionForm struct {
-	WalletUUID  string `valid:"type(string),uuid,required"`
-	SessionUUID string `valid:"type(string),uuid,required"`
+type SignRequestExecForm struct {
+	WalletUUID      string `valid:"type(string),uuid,required"`
+	SessionUUID     string `valid:"type(string),uuid,required"`
+	SignRequestUUID string `valid:"type(string),uuid,required"`
 
 	AccountIndex  uint32 `valid:"type(uint)"`
 	InternalIndex uint32 `valid:"type(uint)"`
@@ -18,8 +19,8 @@ type SignTransactionForm struct {
 	SignData []byte `valid:"type([]byte]),required"`
 }
 
-func (f *SignTransactionForm) LoadAndValidate(ctx context.Context,
-	req *pbApi.SignTransactionRequest,
+func (f *SignRequestExecForm) LoadAndValidate(ctx context.Context,
+	req *pbApi.ExecuteSignRequestReq,
 ) (valid bool, err error) {
 	if req.MnemonicIdentity == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
@@ -30,6 +31,11 @@ func (f *SignTransactionForm) LoadAndValidate(ctx context.Context,
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet sesssion identity")
 	}
 	f.SessionUUID = req.SessionIdentity.SessionUUID
+
+	if req.SignRequestIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Sign request identity")
+	}
+	f.SignRequestUUID = req.SignRequestIdentifier.UUID
 
 	if req.AddressIdentity == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Address identity")

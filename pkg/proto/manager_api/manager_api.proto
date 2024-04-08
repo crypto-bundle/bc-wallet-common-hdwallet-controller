@@ -14,6 +14,10 @@ message SignRequestIdentity {
   string UUID = 1;
 }
 
+message SignPurposeIdentity {
+  string UUID = 1;
+}
+
 message SignRequestData {
   enum ReqStatus{
     REQUEST_PLACEHOLDER = 0;
@@ -154,7 +158,7 @@ message CloseWalletSessionsResponse {
   WalletSessionIdentity SessionIdentity = 2;
 }
 
-message SignTransactionRequest {
+message ExecuteSignRequestReq {
   common.MnemonicWalletIdentity MnemonicIdentity= 1;
   common.DerivationAddressIdentity AddressIdentity = 2;
   WalletSessionIdentity SessionIdentity = 3;
@@ -162,7 +166,7 @@ message SignTransactionRequest {
   bytes CreatedTxData = 5;
 }
 
-message SignTransactionResponse {
+message ExecuteSignRequestResponse {
   common.MnemonicWalletIdentity MnemonicIdentity= 1;
   WalletSessionIdentity SessionIdentity = 2;
   common.DerivationAddressIdentity TxOwnerIdentity = 3;
@@ -170,13 +174,14 @@ message SignTransactionResponse {
   bytes SignedTxData = 5;
 }
 
-message PrepareSignRequest {
+message PrepareSignRequestReq {
   common.MnemonicWalletIdentity MnemonicIdentity= 1;
   common.DerivationAddressIdentity AddressIdentity = 2;
   WalletSessionIdentity SessionIdentity = 3;
+  SignPurposeIdentity SignPurposeIdentifier = 4;
 }
 
-message PrepareSignResponse {
+message PrepareSignRequestResponse {
   common.MnemonicWalletIdentity MnemonicIdentity= 1;
   WalletSessionIdentity SessionIdentity = 2;
   common.DerivationAddressIdentity TxOwnerIdentity = 3;
@@ -200,6 +205,6 @@ service HdWalletManagerApi {
   rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
   rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
 
-  rpc PrepareSign                   (PrepareSignRequest)    returns (PrepareSignResponse) {}
-  rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}
+  rpc PrepareSignRequest                   (PrepareSignRequestReq)    returns (PrepareSignRequestResponse) {}
+  rpc ExecuteSignRequest                   (ExecuteSignRequestReq)    returns (ExecuteSignRequestResponse) {}
 }

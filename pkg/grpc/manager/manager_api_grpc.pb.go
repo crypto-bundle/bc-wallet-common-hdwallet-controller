@@ -31,8 +31,8 @@ type HdWalletManagerApiClient interface {
 	CloseWalletSession(ctx context.Context, in *CloseWalletSessionsRequest, opts ...grpc.CallOption) (*CloseWalletSessionsResponse, error)
 	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
-	PrepareSign(ctx context.Context, in *PrepareSignRequest, opts ...grpc.CallOption) (*PrepareSignResponse, error)
-	SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error)
+	PrepareSignRequest(ctx context.Context, in *PrepareSignRequestReq, opts ...grpc.CallOption) (*PrepareSignRequestResponse, error)
+	ExecuteSignRequest(ctx context.Context, in *ExecuteSignRequestReq, opts ...grpc.CallOption) (*ExecuteSignRequestResponse, error)
 }
 
 type hdWalletManagerApiClient struct {
@@ -160,18 +160,18 @@ func (c *hdWalletManagerApiClient) GetDerivationAddressByRange(ctx context.Conte
 	return out, nil
 }
 
-func (c *hdWalletManagerApiClient) PrepareSign(ctx context.Context, in *PrepareSignRequest, opts ...grpc.CallOption) (*PrepareSignResponse, error) {
-	out := new(PrepareSignResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletManagerApi/PrepareSign", in, out, opts...)
+func (c *hdWalletManagerApiClient) PrepareSignRequest(ctx context.Context, in *PrepareSignRequestReq, opts ...grpc.CallOption) (*PrepareSignRequestResponse, error) {
+	out := new(PrepareSignRequestResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletManagerApi/PrepareSignRequest", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletManagerApiClient) SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error) {
-	out := new(SignTransactionResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletManagerApi/SignTransaction", in, out, opts...)
+func (c *hdWalletManagerApiClient) ExecuteSignRequest(ctx context.Context, in *ExecuteSignRequestReq, opts ...grpc.CallOption) (*ExecuteSignRequestResponse, error) {
+	out := new(ExecuteSignRequestResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletManagerApi/ExecuteSignRequest", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -195,8 +195,8 @@ type HdWalletManagerApiServer interface {
 	CloseWalletSession(context.Context, *CloseWalletSessionsRequest) (*CloseWalletSessionsResponse, error)
 	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
-	PrepareSign(context.Context, *PrepareSignRequest) (*PrepareSignResponse, error)
-	SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error)
+	PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error)
+	ExecuteSignRequest(context.Context, *ExecuteSignRequestReq) (*ExecuteSignRequestResponse, error)
 	mustEmbedUnimplementedHdWalletManagerApiServer()
 }
 
@@ -243,11 +243,11 @@ func (UnimplementedHdWalletManagerApiServer) GetDerivationAddress(context.Contex
 func (UnimplementedHdWalletManagerApiServer) GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddressByRange not implemented")
 }
-func (UnimplementedHdWalletManagerApiServer) PrepareSign(context.Context, *PrepareSignRequest) (*PrepareSignResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PrepareSign not implemented")
+func (UnimplementedHdWalletManagerApiServer) PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PrepareSignRequest not implemented")
 }
-func (UnimplementedHdWalletManagerApiServer) SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SignTransaction not implemented")
+func (UnimplementedHdWalletManagerApiServer) ExecuteSignRequest(context.Context, *ExecuteSignRequestReq) (*ExecuteSignRequestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExecuteSignRequest not implemented")
 }
 func (UnimplementedHdWalletManagerApiServer) mustEmbedUnimplementedHdWalletManagerApiServer() {}
 
@@ -496,38 +496,38 @@ func _HdWalletManagerApi_GetDerivationAddressByRange_Handler(srv interface{}, ct
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletManagerApi_PrepareSign_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PrepareSignRequest)
+func _HdWalletManagerApi_PrepareSignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PrepareSignRequestReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletManagerApiServer).PrepareSign(ctx, in)
+		return srv.(HdWalletManagerApiServer).PrepareSignRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletManagerApi/PrepareSign",
+		FullMethod: "/manager_api.HdWalletManagerApi/PrepareSignRequest",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletManagerApiServer).PrepareSign(ctx, req.(*PrepareSignRequest))
+		return srv.(HdWalletManagerApiServer).PrepareSignRequest(ctx, req.(*PrepareSignRequestReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletManagerApi_SignTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignTransactionRequest)
+func _HdWalletManagerApi_ExecuteSignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteSignRequestReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletManagerApiServer).SignTransaction(ctx, in)
+		return srv.(HdWalletManagerApiServer).ExecuteSignRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletManagerApi/SignTransaction",
+		FullMethod: "/manager_api.HdWalletManagerApi/ExecuteSignRequest",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletManagerApiServer).SignTransaction(ctx, req.(*SignTransactionRequest))
+		return srv.(HdWalletManagerApiServer).ExecuteSignRequest(ctx, req.(*ExecuteSignRequestReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -592,12 +592,12 @@ var HdWalletManagerApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HdWalletManagerApi_GetDerivationAddressByRange_Handler,
 		},
 		{
-			MethodName: "PrepareSign",
-			Handler:    _HdWalletManagerApi_PrepareSign_Handler,
+			MethodName: "PrepareSignRequest",
+			Handler:    _HdWalletManagerApi_PrepareSignRequest_Handler,
 		},
 		{
-			MethodName: "SignTransaction",
-			Handler:    _HdWalletManagerApi_SignTransaction_Handler,
+			MethodName: "ExecuteSignRequest",
+			Handler:    _HdWalletManagerApi_ExecuteSignRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

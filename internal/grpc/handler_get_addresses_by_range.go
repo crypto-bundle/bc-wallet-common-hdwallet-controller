@@ -3,8 +3,6 @@ package grpc
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
-	"sync"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
 	"go.uber.org/zap"
@@ -20,7 +18,6 @@ type GetDerivationAddressByRangeHandler struct {
 	l             *zap.Logger
 	walletSrv     walletManagerService
 	marshallerSrv marshallerService
-	respPool      *sync.Pool
 }
 
 // nolint:funlen // fixme
@@ -75,12 +72,10 @@ func (h *GetDerivationAddressByRangeHandler) processRequest(ctx context.Context,
 func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
 	walletSvc walletManagerService,
 	marshallerSvc marshallerService,
-	pbAddrPool *sync.Pool,
 ) *GetDerivationAddressByRangeHandler {
 	return &GetDerivationAddressByRangeHandler{
 		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
 		walletSrv:     walletSvc,
 		marshallerSrv: marshallerSvc,
-		respPool:      pbAddrPool,
 	}
 }

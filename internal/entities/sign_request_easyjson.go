@@ -5,6 +5,7 @@ package entities
 import (
 	json "encoding/json"
 	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	pq "github.com/lib/pq"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -46,8 +47,33 @@ func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 			out.WalletUUID = string(in.String())
 		case "session_uuid":
 			out.SessionUUID = string(in.String())
+		case "purpose_uuid":
+			out.PurposeUUID = string(in.String())
 		case "status":
 			out.Status = types.SignRequestStatus(in.Uint8())
+		case "derivation_path":
+			if in.IsNull() {
+				in.Skip()
+				out.DerivationPath = nil
+			} else {
+				in.Delim('[')
+				if out.DerivationPath == nil {
+					if !in.IsDelim(']') {
+						out.DerivationPath = make(pq.Int64Array, 0, 8)
+					} else {
+						out.DerivationPath = pq.Int64Array{}
+					}
+				} else {
+					out.DerivationPath = (out.DerivationPath)[:0]
+				}
+				for !in.IsDelim(']') {
+					var v1 int64
+					v1 = int64(in.Int64())
+					out.DerivationPath = append(out.DerivationPath, v1)
+					in.WantComma()
+				}
+				in.Delim(']')
+			}
 		case "created_at":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.CreatedAt).UnmarshalJSON(data))
@@ -99,23 +125,38 @@ func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 		out.String(string(in.SessionUUID))
 	}
 	{
+		const prefix string = ",\"purpose_uuid\":"
+		out.RawString(prefix)
+		out.String(string(in.PurposeUUID))
+	}
+	{
 		const prefix string = ",\"status\":"
 		out.RawString(prefix)
 		out.Uint8(uint8(in.Status))
+	}
+	if len(in.DerivationPath) != 0 {
+		const prefix string = ",\"derivation_path\":"
+		out.RawString(prefix)
+		{
+			out.RawByte('[')
+			for v2, v3 := range in.DerivationPath {
+				if v2 > 0 {
+					out.RawByte(',')
+				}
+				out.Int64(int64(v3))
+			}
+			out.RawByte(']')
+		}
 	}
 	{
 		const prefix string = ",\"created_at\":"
 		out.RawString(prefix)
 		out.Raw((in.CreatedAt).MarshalJSON())
 	}
-	{
+	if in.UpdatedAt != nil {
 		const prefix string = ",\"updated_at\":"
 		out.RawString(prefix)
-		if in.UpdatedAt == nil {
-			out.RawString("null")
-		} else {
-			out.Raw((*in.UpdatedAt).MarshalJSON())
-		}
+		out.Raw((*in.UpdatedAt).MarshalJSON())
 	}
 	out.RawByte('}')
 }

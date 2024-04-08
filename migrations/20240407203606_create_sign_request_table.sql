@@ -2,11 +2,14 @@
 -- +goose StatementBegin
 CREATE TABLE sign_requests
 (
-    id                   serial PRIMARY KEY,
-    uuid                 uuid      NOT NULL,
+    id   serial PRIMARY KEY,
+    uuid uuid      NOT NULL,
 
-    mnemonic_wallet_uuid uuid      NOT NULL,
-    session_uuid uuid      NOT NULL,
+    mnemonic_wallet_uuid uuid NOT NULL,
+    session_uuid uuid NOT NULL,
+    purpose_uuid uuid NOT NULL,
+
+    derivation_path integer[],
 
     status smallint NOT NULL check (status >= 1),
 

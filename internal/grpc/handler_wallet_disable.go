@@ -18,7 +18,8 @@ const (
 type DisableWalletHandler struct {
 	l *zap.Logger
 
-	walletSvc walletManagerService
+	walletSvc      walletManagerService
+	signManagerSvc signManagerService
 
 	marshallerSrv marshallerService
 }
@@ -45,7 +46,16 @@ func (h *DisableWalletHandler) Handle(ctx context.Context,
 	wallet, err := h.walletSvc.DisableWalletByUUID(ctx, validationForm.WalletUUID)
 	if err != nil {
 		h.l.Error("unable to disable wallet", zap.Error(err))
+
 		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	_, _, err = h.signManagerSvc.CloseSignRequestByWallet(ctx, wallet.UUID.String())
+	if err != nil {
+		h.l.Error("unable to close sign requests by session", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
+
+		// no return err - it's ok
 	}
 
 	return &pbApi.DisableWalletResponse{
@@ -55,9 +65,11 @@ func (h *DisableWalletHandler) Handle(ctx context.Context,
 
 func MakeDisableWalletHandler(loggerEntry *zap.Logger,
 	walletSvc walletManagerService,
+	signManagerSvc signManagerService,
 ) *DisableWalletHandler {
 	return &DisableWalletHandler{
-		l:         loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallet)),
-		walletSvc: walletSvc,
+		l:              loggerEntry.With(zap.String(MethodNameTag, MethodNameDisableWallet)),
+		walletSvc:      walletSvc,
+		signManagerSvc: signManagerSvc,
 	}
 }

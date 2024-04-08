@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
 
@@ -17,8 +18,9 @@ const (
 type CloseWalletSessionHandler struct {
 	l *zap.Logger
 
-	walletSvc     walletManagerService
-	marshallerSvc marshallerService
+	walletSvc      walletManagerService
+	signManagerSvc signManagerService
+	marshallerSvc  marshallerService
 }
 
 // nolint:funlen // fixme
@@ -50,6 +52,15 @@ func (h *CloseWalletSessionHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
 	}
 
+	_, err = h.signManagerSvc.CloseSignRequestBySession(ctx, vf.SessionUUID)
+	if err != nil {
+		h.l.Error("unable to close sign requests by session", zap.Error(err),
+			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID),
+			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))
+
+		// no return err - it's ok
+	}
+
 	return &pbApi.CloseWalletSessionsResponse{
 		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
@@ -63,10 +74,12 @@ func (h *CloseWalletSessionHandler) Handle(ctx context.Context,
 
 func MakeCloseWalletSessionHandler(loggerEntry *zap.Logger,
 	walletSvc walletManagerService,
+	signManagerSvc signManagerService,
 ) *CloseWalletSessionHandler {
 	return &CloseWalletSessionHandler{
 		l: loggerEntry.With(zap.String(MethodNameTag, MethodCloseWalletSession)),
 
-		walletSvc: walletSvc,
+		walletSvc:      walletSvc,
+		signManagerSvc: signManagerSvc,
 	}
 }

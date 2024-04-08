@@ -38,8 +38,12 @@ type grpcServerHandle struct {
 
 	getDerivationAddressHandlerSvc        getAddressHandlerService
 	getDerivationAddressByRangeHandlerSvc getAddressByRangeHandlerService
-	signTransactionHandle                 signTransactionRequestHandlerService
+
+	prepareSignReqHandlerSvc prepareSignRequestHandlerService
+	executeSignReqHandleSvc  executeSignRequestHandlerService
 }
+
+// Wallet management handler
 
 func (h *grpcServerHandle) AddNewWallet(ctx context.Context,
 	req *pbApi.AddNewWalletRequest,
@@ -123,15 +127,24 @@ func (h *grpcServerHandle) GetDerivationAddressByRange(ctx context.Context,
 	return h.getDerivationAddressByRangeHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) SignTransaction(ctx context.Context,
-	req *pbApi.SignTransactionRequest,
-) (*pbApi.SignTransactionResponse, error) {
-	return h.signTransactionHandle.Handle(ctx, req)
+// Sign flow handlers
+
+func (h *grpcServerHandle) PrepareSignRequest(ctx context.Context,
+	req *pbApi.PrepareSignRequestReq,
+) (*pbApi.PrepareSignRequestResponse, error) {
+	return h.prepareSignReqHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) ExecuteSignRequest(ctx context.Context,
+	req *pbApi.ExecuteSignRequestReq,
+) (*pbApi.ExecuteSignRequestResponse, error) {
+	return h.executeSignReqHandleSvc.Handle(ctx, req)
 }
 
 // New instance of service
 func New(loggerSrv *zap.Logger,
 	walletManagerSvc walletManagerService,
+	signManagerSvc signManagerService,
 ) pbApi.HdWalletManagerApiServer {
 
 	l := loggerSrv.Named("grpc.server.handler")
@@ -153,18 +166,19 @@ func New(loggerSrv *zap.Logger,
 		enableWalletHandlerSvc:   MakeEnableWalletHandler(l, walletManagerSvc),
 		getWalletInfoHandlerSvc:  MakeGetWalletInfoHandler(l, walletManagerSvc),
 		getEnabledWalletsHandler: MakeGetEnabledWalletsHandler(l, walletManagerSvc, marshallerSvc),
-		disableWalletHandlerSvc:  MakeDisableWalletHandler(l, walletManagerSvc),
-		disableWalletsHandlerSvc: MakeDisableWalletsHandler(l, walletManagerSvc),
+		disableWalletHandlerSvc:  MakeDisableWalletHandler(l, walletManagerSvc, signManagerSvc),
+		disableWalletsHandlerSvc: MakeDisableWalletsHandler(l, walletManagerSvc, signManagerSvc),
 
 		startWalletSessionHandlerSvc: MakeStartWalletSessionHandler(l, walletManagerSvc),
 		getWalletSessionHandleSvc:    MakeGetWalletSessionHandler(l, walletManagerSvc),
 		getWalletSessionsHandleSvc:   MakeGetWalletSessionsHandler(l, walletManagerSvc, marshallerSvc),
-		closeWalletSessionHandlerSvc: MakeCloseWalletSessionHandler(l, walletManagerSvc),
+		closeWalletSessionHandlerSvc: MakeCloseWalletSessionHandler(l, walletManagerSvc, signManagerSvc),
 
 		getDerivationAddressHandlerSvc: MakeGetDerivationAddressHandler(l, walletManagerSvc,
 			marshallerSvc, addrRespPool),
 		getDerivationAddressByRangeHandlerSvc: MakeGetDerivationAddressByRangeHandler(l, walletManagerSvc,
-			marshallerSvc, addrRespPool),
-		signTransactionHandle: MakeSignTransactionsHandler(l, walletManagerSvc, marshallerSvc),
+			marshallerSvc),
+		prepareSignReqHandlerSvc: MakeSignPrepareHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
+		executeSignReqHandleSvc:  MakeSignTransactionsHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
 	}
 }

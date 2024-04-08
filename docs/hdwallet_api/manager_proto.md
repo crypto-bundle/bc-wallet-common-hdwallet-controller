@@ -18,6 +18,8 @@
     - [DisableWalletsResponse](#manager_api.DisableWalletsResponse)
     - [EnableWalletRequest](#manager_api.EnableWalletRequest)
     - [EnableWalletResponse](#manager_api.EnableWalletResponse)
+    - [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq)
+    - [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse)
     - [GetEnabledWalletsRequest](#manager_api.GetEnabledWalletsRequest)
     - [GetEnabledWalletsResponse](#manager_api.GetEnabledWalletsResponse)
     - [GetEnabledWalletsResponse.BookmarksEntry](#manager_api.GetEnabledWalletsResponse.BookmarksEntry)
@@ -29,13 +31,12 @@
     - [GetWalletSessionsResponse](#manager_api.GetWalletSessionsResponse)
     - [ImportWalletRequest](#manager_api.ImportWalletRequest)
     - [ImportWalletResponse](#manager_api.ImportWalletResponse)
-    - [PrepareSignRequest](#manager_api.PrepareSignRequest)
-    - [PrepareSignResponse](#manager_api.PrepareSignResponse)
+    - [PrepareSignRequestReq](#manager_api.PrepareSignRequestReq)
+    - [PrepareSignRequestResponse](#manager_api.PrepareSignRequestResponse)
     - [SessionInfo](#manager_api.SessionInfo)
+    - [SignPurposeIdentity](#manager_api.SignPurposeIdentity)
     - [SignRequestData](#manager_api.SignRequestData)
     - [SignRequestIdentity](#manager_api.SignRequestIdentity)
-    - [SignTransactionRequest](#manager_api.SignTransactionRequest)
-    - [SignTransactionResponse](#manager_api.SignTransactionResponse)
     - [StartWalletSessionRequest](#manager_api.StartWalletSessionRequest)
     - [StartWalletSessionResponse](#manager_api.StartWalletSessionResponse)
     - [WalletSessionIdentity](#manager_api.WalletSessionIdentity)
@@ -271,6 +272,44 @@
 
 
 
+<a name="manager_api.ExecuteSignRequestReq"></a>
+
+### ExecuteSignRequestReq
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
+| CreatedTxData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="manager_api.ExecuteSignRequestResponse"></a>
+
+### ExecuteSignRequestResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
+| SignedTxData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
 <a name="manager_api.GetEnabledWalletsRequest"></a>
 
 ### GetEnabledWalletsRequest
@@ -436,9 +475,9 @@
 
 
 
-<a name="manager_api.PrepareSignRequest"></a>
+<a name="manager_api.PrepareSignRequestReq"></a>
 
-### PrepareSignRequest
+### PrepareSignRequestReq
 
 
 
@@ -447,15 +486,16 @@
 | MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
 | SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SignPurposeIdentifier | [SignPurposeIdentity](#manager_api.SignPurposeIdentity) |  |  |
 
 
 
 
 
 
-<a name="manager_api.PrepareSignResponse"></a>
+<a name="manager_api.PrepareSignRequestResponse"></a>
 
-### PrepareSignResponse
+### PrepareSignRequestResponse
 
 
 
@@ -488,6 +528,21 @@
 
 
 
+<a name="manager_api.SignPurposeIdentity"></a>
+
+### SignPurposeIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| UUID | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="manager_api.SignRequestData"></a>
 
 ### SignRequestData
@@ -514,44 +569,6 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | UUID | [string](#string) |  |  |
-
-
-
-
-
-
-<a name="manager_api.SignTransactionRequest"></a>
-
-### SignTransactionRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
-| CreatedTxData | [bytes](#bytes) |  |  |
-
-
-
-
-
-
-<a name="manager_api.SignTransactionResponse"></a>
-
-### SignTransactionResponse
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
-| SignedTxData | [bytes](#bytes) |  |  |
 
 
 
@@ -647,8 +664,8 @@
 | CloseWalletSession | [CloseWalletSessionsRequest](#manager_api.CloseWalletSessionsRequest) | [CloseWalletSessionsResponse](#manager_api.CloseWalletSessionsResponse) |  |
 | GetDerivationAddress | [DerivationAddressRequest](#manager_api.DerivationAddressRequest) | [DerivationAddressResponse](#manager_api.DerivationAddressResponse) |  |
 | GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse) |  |
-| PrepareSign | [PrepareSignRequest](#manager_api.PrepareSignRequest) | [PrepareSignResponse](#manager_api.PrepareSignResponse) |  |
-| SignTransaction | [SignTransactionRequest](#manager_api.SignTransactionRequest) | [SignTransactionResponse](#manager_api.SignTransactionResponse) |  |
+| PrepareSignRequest | [PrepareSignRequestReq](#manager_api.PrepareSignRequestReq) | [PrepareSignRequestResponse](#manager_api.PrepareSignRequestResponse) |  |
+| ExecuteSignRequest | [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq) | [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse) |  |
 
  
 

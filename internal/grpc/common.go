@@ -94,22 +94,33 @@ type walletManagerService interface {
 	GetWalletSessionsByWalletUUID(ctx context.Context,
 		walletUUID string,
 	) (wallet *entities.MnemonicWallet, list []*entities.MnemonicWalletSession, err error)
+}
 
-	SignTransactionWithWallet(ctx context.Context,
+type signManagerService interface {
+	GetActiveSignRequest(ctx context.Context,
+		signUUID string,
+	) (signReqItem *entities.SignRequest, err error)
+	PrepareSignRequest(ctx context.Context,
 		mnemonicUUID string,
-		sessionUUID string,
-		account, change, index uint32,
-		transactionData []byte,
-	) (*entities.MnemonicWallet, []byte, error)
-	PrepareForSign(ctx context.Context,
-		mnemonicUUID string,
+		purposeUUID string,
 		account, change, index uint32,
 	) (signerAddr *pbCommon.DerivationAddressIdentity, request *entities.SignRequest, err error)
-	SignTransaction(ctx context.Context,
-		mnemonicUUID string,
-		account, change, index uint32,
+	ExecuteSignRequest(ctx context.Context,
+		signReqItem *entities.SignRequest,
 		transactionData []byte,
 	) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error)
+	CloseSignRequest(ctx context.Context,
+		signReqUUID string,
+	) (*entities.SignRequest, error)
+	CloseSignRequestBySession(ctx context.Context,
+		sessionUUID string,
+	) (count uint, list []*entities.SignRequest, err error)
+	CloseSignRequestByWallet(ctx context.Context,
+		walletUUID string,
+	) (count uint, list []*entities.SignRequest, err error)
+	CloseSignRequestByMultipleWallets(ctx context.Context,
+		walletUUIDs []string,
+	) (uint, []*entities.SignRequest, error)
 }
 
 type marshallerService interface {
@@ -163,8 +174,12 @@ type getAddressByRangeHandlerService interface {
 	) (*pbApi.DerivationAddressByRangeResponse, error)
 }
 
-type signTransactionRequestHandlerService interface {
-	Handle(ctx context.Context, request *pbApi.SignTransactionRequest) (*pbApi.SignTransactionResponse, error)
+type prepareSignRequestHandlerService interface {
+	Handle(ctx context.Context, request *pbApi.PrepareSignRequestReq) (*pbApi.PrepareSignRequestResponse, error)
+}
+
+type executeSignRequestHandlerService interface {
+	Handle(ctx context.Context, request *pbApi.ExecuteSignRequestReq) (*pbApi.ExecuteSignRequestResponse, error)
 }
 
 type getEnabledWalletsHandlerService interface {

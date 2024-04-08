@@ -7,14 +7,14 @@ const (
 	SignRequestStatusCreated
 	SignRequestStatusPrepared
 	SignRequestStatusSigned
-	SignRequestStatusFailed
+	SignRequestStatusClosed
 )
 
 const (
 	SignRequestStatusCreatedName  = "created"
 	SignRequestStatusPreparedName = "prepared"
 	SignRequestStatusSignedName   = "signed"
-	SignRequestStatusFailedName   = "failed"
+	SignRequestStatusClosedName   = "closed"
 )
 
 func (d SignRequestStatus) String() string {
@@ -25,8 +25,8 @@ func (d SignRequestStatus) String() string {
 		return SignRequestStatusPreparedName
 	case SignRequestStatusSigned:
 		return SignRequestStatusSignedName
-	case SignRequestStatusFailed:
-		return SignRequestStatusFailedName
+	case SignRequestStatusClosed:
+		return SignRequestStatusClosedName
 
 	case SignRequestStatusPlaceholder:
 		fallthrough

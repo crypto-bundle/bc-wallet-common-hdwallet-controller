@@ -1,22 +1,24 @@
-package wallet_manager
+package sign_manager
 
 import (
 	"context"
+	"time"
+
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
-	"github.com/google/uuid"
-	"time"
 
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (s *Service) SignPrepare(ctx context.Context,
+func (s *Service) PrepareSignRequest(ctx context.Context,
 	mnemonicUUID string,
 	sessionUUID string,
+	purposeUUID string,
 	account, change, index uint32,
 ) (addr *pbCommon.DerivationAddressIdentity, signReqItem *entities.SignRequest, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
@@ -24,6 +26,7 @@ func (s *Service) SignPrepare(ctx context.Context,
 			UUID:        uuid.NewString(),
 			WalletUUID:  mnemonicUUID,
 			SessionUUID: sessionUUID,
+			PurposeUUID: purposeUUID,
 			Status:      types.SignRequestStatusCreated,
 			CreatedAt:   time.Time{},
 			UpdatedAt:   nil,
