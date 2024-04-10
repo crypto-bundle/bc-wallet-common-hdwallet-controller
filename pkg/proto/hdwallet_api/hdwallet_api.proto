@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package manager_api;
+package hdwallet_api;
 
 option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet";
 

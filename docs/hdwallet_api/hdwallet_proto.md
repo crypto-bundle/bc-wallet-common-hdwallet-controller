@@ -4,26 +4,26 @@
 ## Table of Contents
 
 - [hdwallet_api.proto](#hdwallet_api.proto)
-    - [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest)
-    - [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse)
-    - [DerivationAddressRequest](#manager_api.DerivationAddressRequest)
-    - [DerivationAddressResponse](#manager_api.DerivationAddressResponse)
-    - [EncryptMnemonicRequest](#manager_api.EncryptMnemonicRequest)
-    - [EncryptMnemonicResponse](#manager_api.EncryptMnemonicResponse)
-    - [GenerateMnemonicRequest](#manager_api.GenerateMnemonicRequest)
-    - [GenerateMnemonicResponse](#manager_api.GenerateMnemonicResponse)
-    - [LoadDerivationAddressRequest](#manager_api.LoadDerivationAddressRequest)
-    - [LoadDerivationAddressResponse](#manager_api.LoadDerivationAddressResponse)
-    - [LoadMnemonicRequest](#manager_api.LoadMnemonicRequest)
-    - [LoadMnemonicResponse](#manager_api.LoadMnemonicResponse)
-    - [SignTransactionRequest](#manager_api.SignTransactionRequest)
-    - [SignTransactionResponse](#manager_api.SignTransactionResponse)
-    - [UnLoadMnemonicRequest](#manager_api.UnLoadMnemonicRequest)
-    - [UnLoadMnemonicResponse](#manager_api.UnLoadMnemonicResponse)
-    - [UnLoadMultipleMnemonicsRequest](#manager_api.UnLoadMultipleMnemonicsRequest)
-    - [UnLoadMultipleMnemonicsResponse](#manager_api.UnLoadMultipleMnemonicsResponse)
+    - [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest)
+    - [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse)
+    - [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest)
+    - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
+    - [EncryptMnemonicRequest](#hdwallet_api.EncryptMnemonicRequest)
+    - [EncryptMnemonicResponse](#hdwallet_api.EncryptMnemonicResponse)
+    - [GenerateMnemonicRequest](#hdwallet_api.GenerateMnemonicRequest)
+    - [GenerateMnemonicResponse](#hdwallet_api.GenerateMnemonicResponse)
+    - [LoadDerivationAddressRequest](#hdwallet_api.LoadDerivationAddressRequest)
+    - [LoadDerivationAddressResponse](#hdwallet_api.LoadDerivationAddressResponse)
+    - [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest)
+    - [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse)
+    - [SignTransactionRequest](#hdwallet_api.SignTransactionRequest)
+    - [SignTransactionResponse](#hdwallet_api.SignTransactionResponse)
+    - [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest)
+    - [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse)
+    - [UnLoadMultipleMnemonicsRequest](#hdwallet_api.UnLoadMultipleMnemonicsRequest)
+    - [UnLoadMultipleMnemonicsResponse](#hdwallet_api.UnLoadMultipleMnemonicsResponse)
   
-    - [HdWalletApi](#manager_api.HdWalletApi)
+    - [HdWalletApi](#hdwallet_api.HdWalletApi)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -36,7 +36,7 @@
 
 
 
-<a name="manager_api.DerivationAddressByRangeRequest"></a>
+<a name="hdwallet_api.DerivationAddressByRangeRequest"></a>
 
 ### DerivationAddressByRangeRequest
 
@@ -52,7 +52,7 @@
 
 
 
-<a name="manager_api.DerivationAddressByRangeResponse"></a>
+<a name="hdwallet_api.DerivationAddressByRangeResponse"></a>
 
 ### DerivationAddressByRangeResponse
 
@@ -69,7 +69,7 @@
 
 
 
-<a name="manager_api.DerivationAddressRequest"></a>
+<a name="hdwallet_api.DerivationAddressRequest"></a>
 
 ### DerivationAddressRequest
 
@@ -85,7 +85,7 @@
 
 
 
-<a name="manager_api.DerivationAddressResponse"></a>
+<a name="hdwallet_api.DerivationAddressResponse"></a>
 
 ### DerivationAddressResponse
 
@@ -101,7 +101,7 @@
 
 
 
-<a name="manager_api.EncryptMnemonicRequest"></a>
+<a name="hdwallet_api.EncryptMnemonicRequest"></a>
 
 ### EncryptMnemonicRequest
 
@@ -117,7 +117,7 @@
 
 
 
-<a name="manager_api.EncryptMnemonicResponse"></a>
+<a name="hdwallet_api.EncryptMnemonicResponse"></a>
 
 ### EncryptMnemonicResponse
 
@@ -133,7 +133,7 @@
 
 
 
-<a name="manager_api.GenerateMnemonicRequest"></a>
+<a name="hdwallet_api.GenerateMnemonicRequest"></a>
 
 ### GenerateMnemonicRequest
 
@@ -148,7 +148,7 @@
 
 
 
-<a name="manager_api.GenerateMnemonicResponse"></a>
+<a name="hdwallet_api.GenerateMnemonicResponse"></a>
 
 ### GenerateMnemonicResponse
 
@@ -164,7 +164,7 @@
 
 
 
-<a name="manager_api.LoadDerivationAddressRequest"></a>
+<a name="hdwallet_api.LoadDerivationAddressRequest"></a>
 
 ### LoadDerivationAddressRequest
 
@@ -180,7 +180,7 @@
 
 
 
-<a name="manager_api.LoadDerivationAddressResponse"></a>
+<a name="hdwallet_api.LoadDerivationAddressResponse"></a>
 
 ### LoadDerivationAddressResponse
 
@@ -196,7 +196,7 @@
 
 
 
-<a name="manager_api.LoadMnemonicRequest"></a>
+<a name="hdwallet_api.LoadMnemonicRequest"></a>
 
 ### LoadMnemonicRequest
 
@@ -213,7 +213,7 @@
 
 
 
-<a name="manager_api.LoadMnemonicResponse"></a>
+<a name="hdwallet_api.LoadMnemonicResponse"></a>
 
 ### LoadMnemonicResponse
 
@@ -228,7 +228,7 @@
 
 
 
-<a name="manager_api.SignTransactionRequest"></a>
+<a name="hdwallet_api.SignTransactionRequest"></a>
 
 ### SignTransactionRequest
 
@@ -245,7 +245,7 @@
 
 
 
-<a name="manager_api.SignTransactionResponse"></a>
+<a name="hdwallet_api.SignTransactionResponse"></a>
 
 ### SignTransactionResponse
 
@@ -262,7 +262,7 @@
 
 
 
-<a name="manager_api.UnLoadMnemonicRequest"></a>
+<a name="hdwallet_api.UnLoadMnemonicRequest"></a>
 
 ### UnLoadMnemonicRequest
 
@@ -277,7 +277,7 @@
 
 
 
-<a name="manager_api.UnLoadMnemonicResponse"></a>
+<a name="hdwallet_api.UnLoadMnemonicResponse"></a>
 
 ### UnLoadMnemonicResponse
 
@@ -292,7 +292,7 @@
 
 
 
-<a name="manager_api.UnLoadMultipleMnemonicsRequest"></a>
+<a name="hdwallet_api.UnLoadMultipleMnemonicsRequest"></a>
 
 ### UnLoadMultipleMnemonicsRequest
 
@@ -307,7 +307,7 @@
 
 
 
-<a name="manager_api.UnLoadMultipleMnemonicsResponse"></a>
+<a name="hdwallet_api.UnLoadMultipleMnemonicsResponse"></a>
 
 ### UnLoadMultipleMnemonicsResponse
 
@@ -328,22 +328,22 @@
  
 
 
-<a name="manager_api.HdWalletApi"></a>
+<a name="hdwallet_api.HdWalletApi"></a>
 
 ### HdWalletApi
 
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| GenerateMnemonic | [GenerateMnemonicRequest](#manager_api.GenerateMnemonicRequest) | [GenerateMnemonicResponse](#manager_api.GenerateMnemonicResponse) |  |
-| EncryptMnemonic | [EncryptMnemonicRequest](#manager_api.EncryptMnemonicRequest) | [EncryptMnemonicResponse](#manager_api.EncryptMnemonicResponse) |  |
-| LoadMnemonic | [LoadMnemonicRequest](#manager_api.LoadMnemonicRequest) | [LoadMnemonicResponse](#manager_api.LoadMnemonicResponse) |  |
-| UnLoadMnemonic | [UnLoadMnemonicRequest](#manager_api.UnLoadMnemonicRequest) | [UnLoadMnemonicResponse](#manager_api.UnLoadMnemonicResponse) |  |
-| UnLoadMultipleMnemonics | [UnLoadMultipleMnemonicsRequest](#manager_api.UnLoadMultipleMnemonicsRequest) | [UnLoadMultipleMnemonicsResponse](#manager_api.UnLoadMultipleMnemonicsResponse) |  |
-| GetDerivationAddress | [DerivationAddressRequest](#manager_api.DerivationAddressRequest) | [DerivationAddressResponse](#manager_api.DerivationAddressResponse) |  |
-| GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse) |  |
-| LoadDerivationAddress | [LoadDerivationAddressRequest](#manager_api.LoadDerivationAddressRequest) | [LoadDerivationAddressResponse](#manager_api.LoadDerivationAddressResponse) |  |
-| SignTransaction | [SignTransactionRequest](#manager_api.SignTransactionRequest) | [SignTransactionResponse](#manager_api.SignTransactionResponse) |  |
+| GenerateMnemonic | [GenerateMnemonicRequest](#hdwallet_api.GenerateMnemonicRequest) | [GenerateMnemonicResponse](#hdwallet_api.GenerateMnemonicResponse) |  |
+| EncryptMnemonic | [EncryptMnemonicRequest](#hdwallet_api.EncryptMnemonicRequest) | [EncryptMnemonicResponse](#hdwallet_api.EncryptMnemonicResponse) |  |
+| LoadMnemonic | [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest) | [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse) |  |
+| UnLoadMnemonic | [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest) | [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse) |  |
+| UnLoadMultipleMnemonics | [UnLoadMultipleMnemonicsRequest](#hdwallet_api.UnLoadMultipleMnemonicsRequest) | [UnLoadMultipleMnemonicsResponse](#hdwallet_api.UnLoadMultipleMnemonicsResponse) |  |
+| GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
+| GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
+| LoadDerivationAddress | [LoadDerivationAddressRequest](#hdwallet_api.LoadDerivationAddressRequest) | [LoadDerivationAddressResponse](#hdwallet_api.LoadDerivationAddressResponse) |  |
+| SignTransaction | [SignTransactionRequest](#hdwallet_api.SignTransactionRequest) | [SignTransactionResponse](#hdwallet_api.SignTransactionResponse) |  |
 
  
 

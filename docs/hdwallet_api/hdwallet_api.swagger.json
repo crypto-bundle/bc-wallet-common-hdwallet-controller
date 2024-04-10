@@ -69,7 +69,7 @@
         }
       }
     },
-    "manager_apiDerivationAddressByRangeResponse": {
+    "hdwallet_apiDerivationAddressByRangeResponse": {
       "type": "object",
       "properties": {
         "MnemonicWalletIdentifier": {
@@ -87,7 +87,7 @@
         }
       }
     },
-    "manager_apiDerivationAddressResponse": {
+    "hdwallet_apiDerivationAddressResponse": {
       "type": "object",
       "properties": {
         "MnemonicWalletIdentifier": {
@@ -98,7 +98,7 @@
         }
       }
     },
-    "manager_apiEncryptMnemonicResponse": {
+    "hdwallet_apiEncryptMnemonicResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {
@@ -110,7 +110,7 @@
         }
       }
     },
-    "manager_apiGenerateMnemonicResponse": {
+    "hdwallet_apiGenerateMnemonicResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {
@@ -122,7 +122,7 @@
         }
       }
     },
-    "manager_apiLoadDerivationAddressResponse": {
+    "hdwallet_apiLoadDerivationAddressResponse": {
       "type": "object",
       "properties": {
         "MnemonicWalletIdentifier": {
@@ -133,7 +133,7 @@
         }
       }
     },
-    "manager_apiLoadMnemonicResponse": {
+    "hdwallet_apiLoadMnemonicResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {
@@ -141,7 +141,7 @@
         }
       }
     },
-    "manager_apiSignTransactionResponse": {
+    "hdwallet_apiSignTransactionResponse": {
       "type": "object",
       "properties": {
         "MnemonicWalletIdentifier": {
@@ -156,7 +156,7 @@
         }
       }
     },
-    "manager_apiUnLoadMnemonicResponse": {
+    "hdwallet_apiUnLoadMnemonicResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {
@@ -164,7 +164,7 @@
         }
       }
     },
-    "manager_apiUnLoadMultipleMnemonicsResponse": {
+    "hdwallet_apiUnLoadMultipleMnemonicsResponse": {
       "type": "object",
       "properties": {
         "MnemonicIdentity": {

@@ -39,7 +39,7 @@ func NewHdWalletApiClient(cc grpc.ClientConnInterface) HdWalletApiClient {
 
 func (c *hdWalletApiClient) GenerateMnemonic(ctx context.Context, in *GenerateMnemonicRequest, opts ...grpc.CallOption) (*GenerateMnemonicResponse, error) {
 	out := new(GenerateMnemonicResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/GenerateMnemonic", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GenerateMnemonic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func (c *hdWalletApiClient) GenerateMnemonic(ctx context.Context, in *GenerateMn
 
 func (c *hdWalletApiClient) EncryptMnemonic(ctx context.Context, in *EncryptMnemonicRequest, opts ...grpc.CallOption) (*EncryptMnemonicResponse, error) {
 	out := new(EncryptMnemonicResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/EncryptMnemonic", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/EncryptMnemonic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *hdWalletApiClient) EncryptMnemonic(ctx context.Context, in *EncryptMnem
 
 func (c *hdWalletApiClient) LoadMnemonic(ctx context.Context, in *LoadMnemonicRequest, opts ...grpc.CallOption) (*LoadMnemonicResponse, error) {
 	out := new(LoadMnemonicResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/LoadMnemonic", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/LoadMnemonic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (c *hdWalletApiClient) LoadMnemonic(ctx context.Context, in *LoadMnemonicRe
 
 func (c *hdWalletApiClient) UnLoadMnemonic(ctx context.Context, in *UnLoadMnemonicRequest, opts ...grpc.CallOption) (*UnLoadMnemonicResponse, error) {
 	out := new(UnLoadMnemonicResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/UnLoadMnemonic", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/UnLoadMnemonic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (c *hdWalletApiClient) UnLoadMnemonic(ctx context.Context, in *UnLoadMnemon
 
 func (c *hdWalletApiClient) UnLoadMultipleMnemonics(ctx context.Context, in *UnLoadMultipleMnemonicsRequest, opts ...grpc.CallOption) (*UnLoadMultipleMnemonicsResponse, error) {
 	out := new(UnLoadMultipleMnemonicsResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/UnLoadMultipleMnemonics", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/UnLoadMultipleMnemonics", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (c *hdWalletApiClient) UnLoadMultipleMnemonics(ctx context.Context, in *UnL
 
 func (c *hdWalletApiClient) GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error) {
 	out := new(DerivationAddressResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/GetDerivationAddress", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GetDerivationAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (c *hdWalletApiClient) GetDerivationAddress(ctx context.Context, in *Deriva
 
 func (c *hdWalletApiClient) GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error) {
 	out := new(DerivationAddressByRangeResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/GetDerivationAddressByRange", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/GetDerivationAddressByRange", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (c *hdWalletApiClient) GetDerivationAddressByRange(ctx context.Context, in 
 
 func (c *hdWalletApiClient) LoadDerivationAddress(ctx context.Context, in *LoadDerivationAddressRequest, opts ...grpc.CallOption) (*LoadDerivationAddressResponse, error) {
 	out := new(LoadDerivationAddressResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/LoadDerivationAddress", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/LoadDerivationAddress", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (c *hdWalletApiClient) LoadDerivationAddress(ctx context.Context, in *LoadD
 
 func (c *hdWalletApiClient) SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error) {
 	out := new(SignTransactionResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletApi/SignTransaction", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/SignTransaction", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +188,7 @@ func _HdWalletApi_GenerateMnemonic_Handler(srv interface{}, ctx context.Context,
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/GenerateMnemonic",
+		FullMethod: "/hdwallet_api.HdWalletApi/GenerateMnemonic",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).GenerateMnemonic(ctx, req.(*GenerateMnemonicRequest))
@@ -206,7 +206,7 @@ func _HdWalletApi_EncryptMnemonic_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/EncryptMnemonic",
+		FullMethod: "/hdwallet_api.HdWalletApi/EncryptMnemonic",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).EncryptMnemonic(ctx, req.(*EncryptMnemonicRequest))
@@ -224,7 +224,7 @@ func _HdWalletApi_LoadMnemonic_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/LoadMnemonic",
+		FullMethod: "/hdwallet_api.HdWalletApi/LoadMnemonic",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).LoadMnemonic(ctx, req.(*LoadMnemonicRequest))
@@ -242,7 +242,7 @@ func _HdWalletApi_UnLoadMnemonic_Handler(srv interface{}, ctx context.Context, d
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/UnLoadMnemonic",
+		FullMethod: "/hdwallet_api.HdWalletApi/UnLoadMnemonic",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).UnLoadMnemonic(ctx, req.(*UnLoadMnemonicRequest))
@@ -260,7 +260,7 @@ func _HdWalletApi_UnLoadMultipleMnemonics_Handler(srv interface{}, ctx context.C
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/UnLoadMultipleMnemonics",
+		FullMethod: "/hdwallet_api.HdWalletApi/UnLoadMultipleMnemonics",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).UnLoadMultipleMnemonics(ctx, req.(*UnLoadMultipleMnemonicsRequest))
@@ -278,7 +278,7 @@ func _HdWalletApi_GetDerivationAddress_Handler(srv interface{}, ctx context.Cont
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/GetDerivationAddress",
+		FullMethod: "/hdwallet_api.HdWalletApi/GetDerivationAddress",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).GetDerivationAddress(ctx, req.(*DerivationAddressRequest))
@@ -296,7 +296,7 @@ func _HdWalletApi_GetDerivationAddressByRange_Handler(srv interface{}, ctx conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/GetDerivationAddressByRange",
+		FullMethod: "/hdwallet_api.HdWalletApi/GetDerivationAddressByRange",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).GetDerivationAddressByRange(ctx, req.(*DerivationAddressByRangeRequest))
@@ -314,7 +314,7 @@ func _HdWalletApi_LoadDerivationAddress_Handler(srv interface{}, ctx context.Con
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/LoadDerivationAddress",
+		FullMethod: "/hdwallet_api.HdWalletApi/LoadDerivationAddress",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).LoadDerivationAddress(ctx, req.(*LoadDerivationAddressRequest))
@@ -332,7 +332,7 @@ func _HdWalletApi_SignTransaction_Handler(srv interface{}, ctx context.Context, 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletApi/SignTransaction",
+		FullMethod: "/hdwallet_api.HdWalletApi/SignTransaction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).SignTransaction(ctx, req.(*SignTransactionRequest))
@@ -344,7 +344,7 @@ func _HdWalletApi_SignTransaction_Handler(srv interface{}, ctx context.Context, 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "manager_api.HdWalletApi",
+	ServiceName: "hdwallet_api.HdWalletApi",
 	HandlerType: (*HdWalletApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
