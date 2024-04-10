@@ -293,7 +293,7 @@ func (s *redisStore) UnsetMultipleWallets(ctx context.Context,
 func NewRedisStore(logger *zap.Logger,
 	cfgSvc configurationService,
 	redisClient *redis.Client,
-) (*redisStore, error) {
+) *redisStore {
 	prefixName := strings.ToUpper(fmt.Sprintf("%s__%s__%s", cfgSvc.GetStageName(),
 		app.ApplicationManagerName,
 		RedisMnemonicWalletPrefix),
@@ -309,5 +309,5 @@ func NewRedisStore(logger *zap.Logger,
 		logger:                  logger,
 		walletInfoKeyPrefix:     prefixName,
 		walletSessionsKeyPrefix: sessionsPrefixName,
-	}, nil
+	}
 }

@@ -9,7 +9,6 @@ import (
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -65,7 +64,7 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
 	return result, nil
 }
 
-func (s *pgRepository) UpdateMultipleWalletStatus(ctx context.Context,
+func (s *pgRepository) UpdateMultipleWalletsStatus(ctx context.Context,
 	walletUUIDs []string,
 	newStatus types.MnemonicWalletStatus,
 ) (count uint, list []string, err error) {
@@ -168,14 +167,14 @@ func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string)
 }
 
 func (s *pgRepository) GetMnemonicWalletByUUID(ctx context.Context,
-	uuid uuid.UUID,
+	uuid string,
 ) (*entities.MnemonicWallet, error) {
 	var wallet *entities.MnemonicWallet = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		row := stmt.QueryRowx(`SELECT *
 	       FROM "mnemonic_wallets"
-	       WHERE "uuid" = $1`, uuid.String())
+	       WHERE "uuid" = $1`, uuid)
 
 		queryErr := row.Err()
 		if queryErr != nil {
@@ -208,6 +207,7 @@ func (s *pgRepository) GetMnemonicWalletsByStatus(ctx context.Context,
 		if err != nil {
 			return err
 		}
+
 		defer rows.Close()
 
 		wallets = make([]*entities.MnemonicWallet, 0)

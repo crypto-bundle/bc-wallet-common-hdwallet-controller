@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 	"github.com/jmoiron/sqlx"
 	"time"
 
@@ -58,4 +59,194 @@ func (s *pgRepository) AddSignRequestItem(ctx context.Context,
 	}
 
 	return result, nil
+}
+
+func (s *pgRepository) UpdateSignRequestItemStatus(ctx context.Context,
+	signReqUUID string,
+	newStatus types.SignRequestStatus,
+) error {
+	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		_, clbErr := stmt.Exec(`UPDATE "sign_requests" 
+			SET "status" = $1,
+			    "updated_at" = now()
+			WHERE "uuid" = $2`, newStatus,
+			signReqUUID)
+		if clbErr != nil {
+			return commonPostgres.EmptyOrError(clbErr, "unable to update sign_requests item status")
+		}
+
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *pgRepository) UpdateSignRequestItemStatusBySessionUUID(ctx context.Context,
+	sessionUUID string,
+	newStatus types.SignRequestStatus,
+) (count uint, list []*entities.SignRequest, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		rows, clbErr := stmt.Queryx(`UPDATE "sign_requests" 
+			SET "status" = $1,
+				"updated_at" = now()
+			WHERE "session_uuid" = $2
+			RETURNING *`,
+			newStatus, sessionUUID)
+		if clbErr != nil {
+			return commonPostgres.EmptyOrError(clbErr,
+				"unable to update request items by session uuid")
+		}
+
+		defer rows.Close()
+
+		signRequestsList := make([]*entities.SignRequest, 0)
+
+		for rows.Next() {
+			updatedReq := &entities.SignRequest{}
+
+			scanErr := rows.StructScan(updatedReq)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			signRequestsList = append(signRequestsList, updatedReq)
+			count++
+		}
+
+		list = signRequestsList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
+func (s *pgRepository) UpdateSignRequestItemStatusByWalletsUUIDList(ctx context.Context,
+	walletUUIDs []string,
+	newStatus types.SignRequestStatus,
+) (count uint, list []*entities.SignRequest, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		query, args, clbErr := sqlx.In(`UPDATE "sign_requests"
+	       	SET "status" = ?,
+	    		"updated_at" = now(),
+	       	WHERE "wallet_uuid" IN (?)
+	       	RETURNING *`, newStatus, walletUUIDs)
+
+		bonded := stmt.Rebind(query)
+		returnedRows, clbErr := stmt.Queryx(bonded, args...)
+		if clbErr != nil {
+			return commonPostgres.EmptyOrError(clbErr,
+				"unable to update request items by wallets uuid list")
+		}
+
+		defer returnedRows.Close()
+
+		signRequestsList := make([]*entities.SignRequest, 0)
+
+		for returnedRows.Next() {
+			updatedReq := &entities.SignRequest{}
+
+			scanErr := returnedRows.StructScan(updatedReq)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			signRequestsList = append(signRequestsList, updatedReq)
+
+			count++
+		}
+
+		list = signRequestsList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
+func (s *pgRepository) UpdateSignRequestItemStatusByWalletUUID(ctx context.Context,
+	walletUUID string,
+	newStatus types.SignRequestStatus,
+) (count uint, list []*entities.SignRequest, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		rows, clbErr := stmt.Queryx(`UPDATE "sign_requests" 
+			SET "status" = $1,
+				"updated_at" = now()
+			WHERE "wallet_uuid" = $2
+			RETURNING *`,
+			newStatus, walletUUID)
+		if clbErr != nil {
+			return commonPostgres.EmptyOrError(clbErr,
+				"unable to update request items by wallet uuid")
+		}
+
+		defer rows.Close()
+
+		signRequestsList := make([]*entities.SignRequest, 0)
+
+		for rows.Next() {
+			updatedReq := &entities.SignRequest{}
+
+			scanErr := rows.StructScan(updatedReq)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			signRequestsList = append(signRequestsList, updatedReq)
+			count++
+		}
+
+		list = signRequestsList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
+func (s *pgRepository) GetSignRequestItemByUUIDAndStatus(ctx context.Context,
+	signReqUUID string,
+	status types.SignRequestStatus,
+) (*entities.SignRequest, error) {
+	var item *entities.SignRequest = nil
+
+	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		row := stmt.QueryRowx(`SELECT *
+	       FROM "sign_requests"
+	       WHERE "uuid" = $1 AND "status" = $2`, signReqUUID, status)
+
+		queryErr := row.Err()
+		if queryErr != nil {
+			return queryErr
+		}
+
+		item = &entities.SignRequest{}
+		err := row.StructScan(item)
+		if err != nil {
+			return commonPostgres.EmptyOrError(err, "unable get sign request by uuid")
+		}
+
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
+func NewPostgresStore(logger *zap.Logger,
+	pgConn *commonPostgres.Connection,
+) *pgRepository {
+	return &pgRepository{
+		pgConn: pgConn,
+		logger: logger,
+	}
 }

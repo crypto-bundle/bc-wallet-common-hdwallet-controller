@@ -102,16 +102,17 @@ type signManagerService interface {
 	) (signReqItem *entities.SignRequest, err error)
 	PrepareSignRequest(ctx context.Context,
 		mnemonicUUID string,
+		sessionUUID string,
 		purposeUUID string,
 		account, change, index uint32,
-	) (signerAddr *pbCommon.DerivationAddressIdentity, request *entities.SignRequest, err error)
+	) (addr *pbCommon.DerivationAddressIdentity, signReqItem *entities.SignRequest, err error)
 	ExecuteSignRequest(ctx context.Context,
 		signReqItem *entities.SignRequest,
 		transactionData []byte,
 	) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error)
 	CloseSignRequest(ctx context.Context,
 		signReqUUID string,
-	) (*entities.SignRequest, error)
+	) error
 	CloseSignRequestBySession(ctx context.Context,
 		sessionUUID string,
 	) (count uint, list []*entities.SignRequest, err error)
@@ -120,7 +121,7 @@ type signManagerService interface {
 	) (count uint, list []*entities.SignRequest, err error)
 	CloseSignRequestByMultipleWallets(ctx context.Context,
 		walletUUIDs []string,
-	) (uint, []*entities.SignRequest, error)
+	) (count uint, list []*entities.SignRequest, err error)
 }
 
 type marshallerService interface {

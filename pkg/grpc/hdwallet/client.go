@@ -1,4 +1,4 @@
-package manager
+package hdwallet
 
 import (
 	"context"
@@ -12,12 +12,12 @@ import (
 )
 
 type Client struct {
-	cfg HdWalletControllerGRPCClientConfig
+	cfg hdWalletClientConfig
 
 	grpcClientOptions []originGRPC.DialOption
 
 	grpcConn *originGRPC.ClientConn
-	client   HdWalletManagerApiClient
+	HdWalletApiClient
 }
 
 // Init bc-wallet-tron-hdwallet GRPC-client service
@@ -44,19 +44,25 @@ func (s *Client) Init(ctx context.Context) error {
 }
 
 func (s *Client) Dial(ctx context.Context) error {
-	grpcConn, err := originGRPC.Dial("/tmp/grpc.sock", s.grpcClientOptions...)
+	grpcConn, err := originGRPC.Dial(s.cfg.GetConnectionPath(), s.grpcClientOptions...)
 	if err != nil {
 		return err
 	}
 	s.grpcConn = grpcConn
 
-	s.client = NewHdWalletManagerApiClient(grpcConn)
+	s.HdWalletApiClient = NewHdWalletApiClient(grpcConn)
+
+	go func() {
+		<-ctx.Done()
+
+		_ = s.shutdown()
+	}()
 
 	return nil
 }
 
 // Shutdown grpc hdwallet-client service
-func (s *Client) Shutdown(ctx context.Context) error {
+func (s *Client) shutdown() error {
 	err := s.grpcConn.Close()
 	if err != nil {
 		return err
@@ -66,12 +72,10 @@ func (s *Client) Shutdown(ctx context.Context) error {
 }
 
 // nolint:revive // fixme
-func NewClient(ctx context.Context,
-	cfg HdWalletControllerGRPCClientConfig,
-) (*Client, error) {
+func NewClient(cfg hdWalletClientConfig) *Client {
 	srv := &Client{
 		cfg: cfg,
 	}
 
-	return srv, nil
+	return srv
 }

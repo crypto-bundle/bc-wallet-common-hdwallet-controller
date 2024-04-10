@@ -19,12 +19,12 @@ func NewService(logger *zap.Logger,
 	signReqDataSvc signRequestDataService,
 	hdwalletClient hdwallet.HdWalletApiClient,
 	txStmtManager transactionalStatementManager,
-) (*Service, error) {
+) *Service {
 	return &Service{
 		logger: logger,
 
 		txStmtManager:     txStmtManager,
 		hdwalletClientSvc: hdwalletClient,
 		signReqDataSvc:    signReqDataSvc,
-	}, nil
+	}
 }

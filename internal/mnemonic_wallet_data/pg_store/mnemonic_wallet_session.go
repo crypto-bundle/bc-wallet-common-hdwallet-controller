@@ -48,6 +48,7 @@ func (s *pgRepository) AddNewWalletSession(ctx context.Context,
 
 func (s *pgRepository) UpdateWalletSessionStatusByWalletUUID(ctx context.Context,
 	walletUUID string,
+	newStatus types.MnemonicWalletSessionStatus,
 ) error {
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
@@ -55,7 +56,7 @@ func (s *pgRepository) UpdateWalletSessionStatusByWalletUUID(ctx context.Context
 			SET "status" = $1,
 				"updated_at" = now()
 			WHERE "mnemonic_wallet_uuid" = $2`,
-			walletUUID)
+			newStatus, walletUUID)
 		if callbackErr != nil {
 			return callbackErr
 		}

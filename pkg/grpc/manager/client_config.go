@@ -1,28 +1,58 @@
 package manager
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"strconv"
+)
 
-type HdWalletGRPCClientConfig struct {
-	ApiHost string `envconfig:"BC_WALLET_COMMON_HDWALLET_API_SERVICE_HOST" default:"bc-wallet-tron-hdwallet-api"`
-	ApiPort uint   `envconfig:"BC_WALLET_COMMON_HDWALLET_API_SERVICE_PORT" default:"8100"`
+const (
+	hostTemplate = "BC_WALLET_%s_HDWALLET_CONTROLLER_SERVICE_HOST"
+	portTemplate = "BC_WALLET_%s_HDWALLET_CONTROLLER_SERVICE_PORT"
+)
 
+type HdWalletControllerGRPCClientConfig struct {
+
+	// dependencies
+	processingEnvCfg processingEnvConfig
+
+	// calculated
 	serverAddress string
+	apiHost       string
+	apiPort       uint
 }
 
-func (o *HdWalletGRPCClientConfig) GetHdWalletApiHost() string {
-	return o.ApiHost
+func (o *HdWalletControllerGRPCClientConfig) GetHdWalletApiHost() string {
+	return o.apiHost
 }
 
-func (o *HdWalletGRPCClientConfig) GetHdWalletApiPort() uint {
-	return o.ApiPort
+func (o *HdWalletControllerGRPCClientConfig) GetHdWalletApiPort() uint {
+	return o.apiPort
 }
 
-func (o *HdWalletGRPCClientConfig) Prepare() error {
-	o.serverAddress = fmt.Sprintf("%s:%d", o.ApiHost, o.ApiPort)
+func (o *HdWalletControllerGRPCClientConfig) Prepare() error {
+	o.apiHost = os.Getenv(fmt.Sprintf(hostTemplate, o.processingEnvCfg.GetNetworkName()))
+	portRaw := os.Getenv(fmt.Sprintf(portTemplate, o.processingEnvCfg.GetNetworkName()))
+	port, err := strconv.ParseUint(portRaw, 10, 0)
+	if err != nil {
+		return err
+	}
+	o.apiPort = uint(port)
+
+	o.serverAddress = fmt.Sprintf("%s:%d", o.apiHost, o.apiPort)
 
 	return nil
 }
 
-func (o *HdWalletGRPCClientConfig) PrepareWith(cfgSrvList ...interface{}) error {
+func (o *HdWalletControllerGRPCClientConfig) PrepareWith(cfgSrvList ...interface{}) error {
+	for _, cfgSrv := range cfgSrvList {
+		switch castedCfg := cfgSrv.(type) {
+		case processingEnvConfig:
+			o.processingEnvCfg = castedCfg
+		default:
+			continue
+		}
+	}
+
 	return nil
 }

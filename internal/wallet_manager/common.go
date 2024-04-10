@@ -2,17 +2,11 @@ package wallet_manager
 
 import (
 	"context"
-	"time"
-
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
 )
 
 type configService interface {
-	GetDefaultHotWalletUnloadInterval() time.Duration
-	GetDefaultWalletUnloadInterval() time.Duration
-
-	GetMnemonicsCountPerWallet() uint8
 }
 
 type mnemonicWalletsCacheStoreService interface {

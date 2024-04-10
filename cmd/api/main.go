@@ -10,7 +10,13 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/config"
 	grpcHandlers "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/grpc"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/mnemonic_wallet_data"
+	walletData "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/mnemonic_wallet_data/pg_store"
+	walletRedisData "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/mnemonic_wallet_data/redis_store"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/sign_manager"
+	signReqData "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/sign_request_data/postgres"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/wallet_manager"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+
 	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
@@ -27,7 +33,7 @@ var (
 	// Version - version time.RFC3339.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
 	// DO NOT USE THESE VARIABLES IN APPLICATION CODE
-	Version = "DEVELOPMENT.VESION"
+	Version = "DEVELOPMENT.VERSION"
 
 	// ReleaseTag - release tag in TAG.%Y-%m-%dT%H-%M-%SZ.
 	// DO NOT EDIT THIS VARIABLE DIRECTLY. These are build-time constants
@@ -59,7 +65,7 @@ func main() {
 	var err error
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
-	appCfg, secretSrv, err := config.Prepare(ctx, Version, ReleaseTag,
+	appCfg, _, err := config.Prepare(ctx, Version, ReleaseTag,
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS)
 	if err != nil {
@@ -99,40 +105,47 @@ func main() {
 	redisClient := redisConn.GetClient()
 	loggerEntry.Info("redis connected")
 
-	mnemonicWalletDataSrv, err := mnemonic_wallet_data.NewService(loggerEntry, appCfg,
-		pgConn, redisClient, natsConnSvc)
-	if err != nil {
-		loggerEntry.Fatal("unable to create mnemonic wallet data service", zap.Error(err))
-	}
+	mnemonicWalletDataSvc := walletData.NewPostgresStore(loggerEntry, pgConn)
+	mnemonicWalletCacheDataSvc := walletRedisData.NewRedisStore(loggerEntry, appCfg, redisClient)
 
-	apiHandlers := grpcHandlers.New(ctx, loggerEntry, walletService)
+	signReqDataSvc := signReqData.NewPostgresStore(loggerEntry, pgConn)
 
-	srv, err := grpcHandlers.NewServer(ctx, loggerEntry, appCfg, apiHandlers)
+	hdWalletClient := hdwallet.NewClient(appCfg)
+
+	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
+		hdWalletClient, pgConn)
+	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, pgConn)
+
+	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
+
+	GRPCSrv, err := grpcHandlers.NewServer(ctx, loggerEntry, appCfg, apiHandlers)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
 	}
 
-	err = walletService.Init(ctx)
+	err = hdWalletClient.Init(ctx)
 	if err != nil {
-		loggerEntry.Fatal("unable to init wallet service", zap.Error(err))
+		loggerEntry.Fatal("unable to init hd-wallet grpc client", zap.Error(err),
+			zap.String("unix path", appCfg.HdWalletClientConfig.GetConnectionPath()))
 	}
 
-	err = walletService.Run(ctx)
-	if err != nil {
-		loggerEntry.Fatal("unable to run wallet service", zap.Error(err))
-	}
-
-	err = srv.Init(ctx)
+	err = GRPCSrv.Init(ctx)
 	if err != nil {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
 	}
 
+	err = hdWalletClient.Dial(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to dial hd-wallet grpc client", zap.Error(err),
+			zap.String("unix path", appCfg.HdWalletClientConfig.GetConnectionPath()))
+	}
+
 	commonHealthcheck.NewHTTPHealthChecker(loggerEntry)
 
 	go func() {
-		err = srv.ListenAndServe(ctx)
+		err = GRPCSrv.ListenAndServe(ctx)
 		if err != nil {
 			loggerEntry.Error("unable to start grpc", zap.Error(err),
 				zap.String("port", appCfg.GetBindPort()))
@@ -146,11 +159,6 @@ func main() {
 	<-c
 	loggerEntry.Warn("shutdown application")
 	cancelCtxFunc()
-
-	walletShutdownErr := walletService.Shutdown(ctx)
-	if walletShutdownErr != nil {
-		log.Printf("%s:%e", walletShutdownErr.Error(), walletShutdownErr)
-	}
 
 	syncErr := loggerEntry.Sync()
 	if syncErr != nil {
