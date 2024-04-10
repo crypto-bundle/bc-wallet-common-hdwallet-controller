@@ -9,6 +9,9 @@ type Service struct {
 	logger *zap.Logger
 	cfg    configService
 
+	transitEncryptorSvc encryptService
+	appEncryptorSvc     encryptService
+
 	mnemonicWalletsDataSvc mnemonicWalletsDataService
 	cacheStoreDataSvc      mnemonicWalletsCacheStoreService
 	signReqDataSvc         signRequestDataService
@@ -20,6 +23,8 @@ type Service struct {
 
 func NewService(logger *zap.Logger,
 	cfg configService,
+	transitEncryptorSvc encryptService,
+	appEncryptorSvc encryptService,
 	mnemonicWalletDataSrv mnemonicWalletsDataService,
 	cacheDataSvc mnemonicWalletsCacheStoreService,
 	signReqDataSvc signRequestDataService,
@@ -29,6 +34,9 @@ func NewService(logger *zap.Logger,
 	return &Service{
 		logger: logger,
 		cfg:    cfg,
+
+		transitEncryptorSvc: transitEncryptorSvc,
+		appEncryptorSvc:     appEncryptorSvc,
 
 		txStmtManager:          txStmtManager,
 		hdwalletClientSvc:      hdwalletClient,

@@ -59,16 +59,16 @@ func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 				in.Delim('[')
 				if out.DerivationPath == nil {
 					if !in.IsDelim(']') {
-						out.DerivationPath = make(pq.Int64Array, 0, 8)
+						out.DerivationPath = make(pq.Int32Array, 0, 16)
 					} else {
-						out.DerivationPath = pq.Int64Array{}
+						out.DerivationPath = pq.Int32Array{}
 					}
 				} else {
 					out.DerivationPath = (out.DerivationPath)[:0]
 				}
 				for !in.IsDelim(']') {
-					var v1 int64
-					v1 = int64(in.Int64())
+					var v1 int32
+					v1 = int32(in.Int32())
 					out.DerivationPath = append(out.DerivationPath, v1)
 					in.WantComma()
 				}
@@ -143,7 +143,7 @@ func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 				if v2 > 0 {
 					out.RawByte(',')
 				}
-				out.Int64(int64(v3))
+				out.Int32(int32(v3))
 			}
 			out.RawByte(']')
 		}

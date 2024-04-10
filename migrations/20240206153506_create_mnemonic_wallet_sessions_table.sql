@@ -10,7 +10,11 @@ CREATE TABLE mnemonic_wallet_sessions
 
     status smallint NOT NULL check (status >= 1),
 
-    expired_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + (20 * interval '1 seconds'),
+    -- started_at default value = CURRENT_TIMESTAMP + 2s delay
+    started_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + (2 * interval '1 seconds'),
+    -- expired_at default = started_at + 20 sec (CURRENT_TIMESTAMP + 2s + 20s)
+    expired_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP + (22 * interval '1 seconds'),
+
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 )

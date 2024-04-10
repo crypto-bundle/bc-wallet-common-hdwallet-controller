@@ -49,14 +49,19 @@ func (s *Service) startWalletSession(ctx context.Context,
 ) (session *entities.MnemonicWalletSession, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		currentTime := time.Now()
+		startedAt := currentTime.Add(s.cfg.GetDefaultWalletSessionDelay())
+		expiredAt := startedAt.Add(wallet.UnloadInterval)
+
 		sessionToSave := &entities.MnemonicWalletSession{
 			UUID:               uuid.NewString(),
 			AccessTokenUUID:    0,
 			MnemonicWalletUUID: wallet.UUID.String(),
 			Status:             types.MnemonicWalletSessionStatusPrepared,
-			ExpiredAt:          currentTime.Add(wallet.UnloadInterval),
-			CreatedAt:          currentTime,
-			UpdatedAt:          nil,
+			StartedAt:          startedAt,
+			ExpiredAt:          expiredAt,
+
+			CreatedAt: currentTime,
+			UpdatedAt: nil,
 		}
 
 		sessionToSave, clbErr := s.mnemonicWalletsDataSvc.AddNewWalletSession(txStmtCtx,
@@ -68,11 +73,14 @@ func (s *Service) startWalletSession(ctx context.Context,
 			return clbErr
 		}
 
+		timeToLive := s.cfg.GetDefaultWalletSessionDelay() + wallet.UnloadInterval
+
 		_, clbErr = s.hdwalletClientSvc.LoadMnemonic(txStmtCtx, &pbHdwallet.LoadMnemonicRequest{
 			MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
 				WalletUUID: wallet.UUID.String(),
 				WalletHash: wallet.MnemonicHash,
 			},
+			TimeToLive:            uint64(timeToLive.Milliseconds()),
 			EncryptedMnemonicData: wallet.VaultEncrypted,
 		})
 		if clbErr != nil {

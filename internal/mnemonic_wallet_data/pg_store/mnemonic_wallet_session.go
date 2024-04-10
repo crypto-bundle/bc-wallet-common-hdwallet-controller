@@ -21,12 +21,12 @@ func (s *pgRepository) AddNewWalletSession(ctx context.Context,
 		var sessionID uint32
 		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallet_sessions" ("uuid", 
 				"access_token_uuid", "mnemonic_wallet_uuid",
-			  	"expired_at",           
+			  	"started_at", "expired_at",           
        			"created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;`,
 			sessionItem.UUID,
 			sessionItem.AccessTokenUUID, sessionItem.MnemonicWalletUUID,
-			sessionItem.ExpiredAt,
+			sessionItem.StartedAt, sessionItem.ExpiredAt,
 			sessionItem.CreatedAt, sessionItem.UpdatedAt)
 
 		err := row.Scan(&sessionID)
@@ -161,8 +161,9 @@ func (s *pgRepository) GetWalletSessionByUUID(ctx context.Context,
 		query, args, clbErr := sqlx.In(`SELECT *
 			FROM "mnemonic_wallet_sessions"
 			WHERE "uuid" = ? AND
-			      "now()" < "expired_at" AND
-			      "status" IN (?)
+					now() BETWEEN "started_at" AND "expired_at" 
+				AND
+			    	"status" IN (?)
 			ORDER BY "expired_at";`, sessionUUID, []types.MnemonicWalletSessionStatus{
 			types.MnemonicWalletSessionStatusPrepared,
 		})
@@ -215,8 +216,9 @@ func (s *pgRepository) GetWalletSessionsByWalletUUIDAndStatusClb(ctx context.Con
 		query, args, clbErr := sqlx.In(`SELECT *
 			FROM "mnemonic_wallet_sessions"
 			WHERE "mnemonic_wallet_uuid" = ? AND
-			      "now()" < "expired_at" AND
-			      "status" IN (?)
+					now() BETWEEN "started_at" AND "expired_at" 
+				AND
+			      	"status" IN (?)
 			ORDER BY "expired_at";`, walletUUID, sessionStatuses)
 		if clbErr != nil {
 			return clbErr
@@ -276,8 +278,9 @@ func (s *pgRepository) GetActiveWalletSessionsClb(ctx context.Context,
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		rows, queryErr := stmt.Queryx(`SELECT *
 			FROM "mnemonic_wallet_sessions"
-			WHERE "now()" < "expired_at"
-			ORDER BY "expired_at";`)
+			WHERE now() BETWEEN "started_at" AND "expired_at" 
+				AND "status" = $1
+			ORDER BY "expired_at";`, types.MnemonicWalletSessionStatusPrepared)
 		if queryErr != nil {
 			return queryErr
 		}

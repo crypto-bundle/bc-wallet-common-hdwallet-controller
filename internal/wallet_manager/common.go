@@ -4,9 +4,12 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	"time"
 )
 
 type configService interface {
+	GetDefaultWalletSessionDelay() time.Duration
+	GetDefaultWalletUnloadInterval() time.Duration
 }
 
 type mnemonicWalletsCacheStoreService interface {
@@ -94,12 +97,6 @@ type signRequestDataService interface {
 	) error
 }
 
-type mnemonicWalletConfig interface {
-	GetMnemonicWalletPurpose() string
-	GetMnemonicWalletHash() string
-	IsHotWallet() bool
-}
-
 type transactionalStatementManager interface {
 	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
 	CommitContextualTxStatement(ctx context.Context) error
@@ -107,4 +104,9 @@ type transactionalStatementManager interface {
 	BeginTxWithRollbackOnError(ctx context.Context,
 		callback func(txStmtCtx context.Context) error,
 	) error
+}
+
+type encryptService interface {
+	Encrypt(msg []byte) ([]byte, error)
+	Decrypt(encMsg []byte) ([]byte, error)
 }

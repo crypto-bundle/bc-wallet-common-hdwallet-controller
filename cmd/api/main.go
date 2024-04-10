@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	"log"
 	"os"
 	"os/signal"
@@ -65,12 +66,15 @@ func main() {
 	var err error
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
-	appCfg, _, err := config.Prepare(ctx, Version, ReleaseTag,
+	appCfg, vaultSvc, err := config.Prepare(ctx, Version, ReleaseTag,
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
+
+	transitSvc := commonVault.NewEncryptService(vaultSvc, appCfg.GetVaultCommonTransit())
+	encryptorSvc := commonVault.NewEncryptService(vaultSvc, appCfg.GetVaultCommonTransit())
 
 	loggerSrv, err := commonLogger.NewService(appCfg)
 	if err != nil {
@@ -112,7 +116,8 @@ func main() {
 
 	hdWalletClient := hdwallet.NewClient(appCfg)
 
-	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
+	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, transitSvc, encryptorSvc,
+		mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
 		hdWalletClient, pgConn)
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, pgConn)
 

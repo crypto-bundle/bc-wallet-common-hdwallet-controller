@@ -18,6 +18,7 @@ type MnemonicWalletSession struct {
 
 	Status types.MnemonicWalletSessionStatus `db:"status" json:"status"`
 
+	StartedAt time.Time `db:"started_at" json:"started_at"`
 	ExpiredAt time.Time `db:"expired_at" json:"expired_at"`
 
 	CreatedAt time.Time  `db:"created_at" json:"created_at"`

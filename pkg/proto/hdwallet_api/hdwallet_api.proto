@@ -27,7 +27,8 @@ message EncryptMnemonicResponse {
 
 message LoadMnemonicRequest {
   common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  bytes EncryptedMnemonicData = 2;
+  uint64 TimeToLive = 2;
+  bytes EncryptedMnemonicData = 3;
 }
 
 message LoadMnemonicResponse {

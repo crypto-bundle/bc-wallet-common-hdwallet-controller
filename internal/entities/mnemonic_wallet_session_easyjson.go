@@ -48,6 +48,10 @@ func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 			out.MnemonicWalletUUID = string(in.String())
 		case "status":
 			out.Status = types.MnemonicWalletSessionStatus(in.Uint8())
+		case "started_at":
+			if data := in.Raw(); in.Ok() {
+				in.AddError((out.StartedAt).UnmarshalJSON(data))
+			}
 		case "expired_at":
 			if data := in.Raw(); in.Ok() {
 				in.AddError((out.ExpiredAt).UnmarshalJSON(data))
@@ -106,6 +110,11 @@ func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 		const prefix string = ",\"status\":"
 		out.RawString(prefix)
 		out.Uint8(uint8(in.Status))
+	}
+	{
+		const prefix string = ",\"started_at\":"
+		out.RawString(prefix)
+		out.Raw((in.StartedAt).MarshalJSON())
 	}
 	{
 		const prefix string = ",\"expired_at\":"

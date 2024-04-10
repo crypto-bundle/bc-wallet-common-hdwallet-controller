@@ -205,6 +205,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| TimeToLive | [uint64](#uint64) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
