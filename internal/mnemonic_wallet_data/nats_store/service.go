@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"strings"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
 
 	originNats "github.com/nats-io/nats.go"

@@ -3,7 +3,7 @@ package pg_store
 import (
 	"context"
 	"errors"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/jmoiron/sqlx"
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"

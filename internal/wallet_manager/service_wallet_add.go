@@ -4,13 +4,13 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"time"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

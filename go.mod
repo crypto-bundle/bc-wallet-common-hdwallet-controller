@@ -1,4 +1,4 @@
-module github.com/crypto-bundle/bc-wallet-common-hdwallet-manager
+module github.com/crypto-bundle/bc-wallet-common-hdwallet-controller
 
 go 1.19
 

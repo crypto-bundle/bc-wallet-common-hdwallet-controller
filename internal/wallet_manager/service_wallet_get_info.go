@@ -2,7 +2,7 @@ package wallet_manager
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 )
 
 func (s *Service) GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error) {

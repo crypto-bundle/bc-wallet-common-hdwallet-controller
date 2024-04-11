@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package common;
 
-option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common";
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common";
 
 message DerivationAddressIdentity {
   uint32 AccountIndex = 1;

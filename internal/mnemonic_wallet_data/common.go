@@ -2,9 +2,9 @@ package mnemonic_wallet_data
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 
 	"github.com/google/uuid"
 )

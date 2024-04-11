@@ -26,7 +26,7 @@ type HdWalletApiClient interface {
 	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
 	LoadDerivationAddress(ctx context.Context, in *LoadDerivationAddressRequest, opts ...grpc.CallOption) (*LoadDerivationAddressResponse, error)
-	SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error)
+	SignData(ctx context.Context, in *SignDataRequest, opts ...grpc.CallOption) (*SignDataResponse, error)
 }
 
 type hdWalletApiClient struct {
@@ -109,9 +109,9 @@ func (c *hdWalletApiClient) LoadDerivationAddress(ctx context.Context, in *LoadD
 	return out, nil
 }
 
-func (c *hdWalletApiClient) SignTransaction(ctx context.Context, in *SignTransactionRequest, opts ...grpc.CallOption) (*SignTransactionResponse, error) {
-	out := new(SignTransactionResponse)
-	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/SignTransaction", in, out, opts...)
+func (c *hdWalletApiClient) SignData(ctx context.Context, in *SignDataRequest, opts ...grpc.CallOption) (*SignDataResponse, error) {
+	out := new(SignDataResponse)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/SignData", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +130,7 @@ type HdWalletApiServer interface {
 	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
 	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
 	LoadDerivationAddress(context.Context, *LoadDerivationAddressRequest) (*LoadDerivationAddressResponse, error)
-	SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error)
+	SignData(context.Context, *SignDataRequest) (*SignDataResponse, error)
 	mustEmbedUnimplementedHdWalletApiServer()
 }
 
@@ -162,8 +162,8 @@ func (UnimplementedHdWalletApiServer) GetDerivationAddressByRange(context.Contex
 func (UnimplementedHdWalletApiServer) LoadDerivationAddress(context.Context, *LoadDerivationAddressRequest) (*LoadDerivationAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoadDerivationAddress not implemented")
 }
-func (UnimplementedHdWalletApiServer) SignTransaction(context.Context, *SignTransactionRequest) (*SignTransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SignTransaction not implemented")
+func (UnimplementedHdWalletApiServer) SignData(context.Context, *SignDataRequest) (*SignDataResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SignData not implemented")
 }
 func (UnimplementedHdWalletApiServer) mustEmbedUnimplementedHdWalletApiServer() {}
 
@@ -322,20 +322,20 @@ func _HdWalletApi_LoadDerivationAddress_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletApi_SignTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(SignTransactionRequest)
+func _HdWalletApi_SignData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SignDataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletApiServer).SignTransaction(ctx, in)
+		return srv.(HdWalletApiServer).SignData(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/hdwallet_api.HdWalletApi/SignTransaction",
+		FullMethod: "/hdwallet_api.HdWalletApi/SignData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletApiServer).SignTransaction(ctx, req.(*SignTransactionRequest))
+		return srv.(HdWalletApiServer).SignData(ctx, req.(*SignDataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -380,8 +380,8 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HdWalletApi_LoadDerivationAddress_Handler,
 		},
 		{
-			MethodName: "SignTransaction",
-			Handler:    _HdWalletApi_SignTransaction_Handler,
+			MethodName: "SignData",
+			Handler:    _HdWalletApi_SignData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

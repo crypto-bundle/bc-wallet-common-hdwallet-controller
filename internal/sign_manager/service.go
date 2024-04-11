@@ -1,7 +1,7 @@
 package sign_manager
 
 import (
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 	"go.uber.org/zap"
 )
 

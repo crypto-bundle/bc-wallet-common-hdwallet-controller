@@ -3,9 +3,9 @@ package wallet_manager
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 
 	"go.uber.org/zap"
 )

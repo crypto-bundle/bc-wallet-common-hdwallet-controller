@@ -1,4 +1,4 @@
-# bc-wallet-tron-hdwallet
+# bc-wallet-common-hdwallet-controller
 
 ## Description
 

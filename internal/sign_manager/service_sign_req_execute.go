@@ -2,11 +2,11 @@ package sign_manager
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -48,7 +48,7 @@ func (s *Service) signTransaction(ctx context.Context,
 	account, change, index uint32,
 	transactionData []byte,
 ) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error) {
-	signResp, err := s.hdwalletClientSvc.SignTransaction(ctx, &hdwallet.SignTransactionRequest{
+	signResp, err := s.hdwalletClientSvc.SignData(ctx, &hdwallet.SignDataRequest{
 		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
@@ -57,7 +57,7 @@ func (s *Service) signTransaction(ctx context.Context,
 			InternalIndex: change,
 			AddressIndex:  index,
 		},
-		CreatedTxData: transactionData,
+		DataForSign: transactionData,
 	})
 	if err != nil {
 		grpcStatus, statusExists := status.FromError(err)
@@ -78,5 +78,5 @@ func (s *Service) signTransaction(ctx context.Context,
 		}
 	}
 
-	return signResp.TxOwnerIdentity, signResp.SignedTxData, nil
+	return signResp.TxOwnerIdentity, signResp.SignedData, nil
 }

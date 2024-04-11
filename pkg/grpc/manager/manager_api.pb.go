@@ -7,7 +7,7 @@
 package manager
 
 import (
-	common "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	common "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"

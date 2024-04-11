@@ -16,8 +16,8 @@
     - [LoadDerivationAddressResponse](#hdwallet_api.LoadDerivationAddressResponse)
     - [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest)
     - [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse)
-    - [SignTransactionRequest](#hdwallet_api.SignTransactionRequest)
-    - [SignTransactionResponse](#hdwallet_api.SignTransactionResponse)
+    - [SignDataRequest](#hdwallet_api.SignDataRequest)
+    - [SignDataResponse](#hdwallet_api.SignDataResponse)
     - [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest)
     - [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse)
     - [UnLoadMultipleMnemonicsRequest](#hdwallet_api.UnLoadMultipleMnemonicsRequest)
@@ -228,9 +228,9 @@
 
 
 
-<a name="hdwallet_api.SignTransactionRequest"></a>
+<a name="hdwallet_api.SignDataRequest"></a>
 
-### SignTransactionRequest
+### SignDataRequest
 
 
 
@@ -238,16 +238,16 @@
 | ----- | ---- | ----- | ----------- |
 | MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AddressIdentifier | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| CreatedTxData | [bytes](#bytes) |  |  |
+| DataForSign | [bytes](#bytes) |  |  |
 
 
 
 
 
 
-<a name="hdwallet_api.SignTransactionResponse"></a>
+<a name="hdwallet_api.SignDataResponse"></a>
 
-### SignTransactionResponse
+### SignDataResponse
 
 
 
@@ -255,7 +255,7 @@
 | ----- | ---- | ----- | ----------- |
 | MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| SignedTxData | [bytes](#bytes) |  |  |
+| SignedData | [bytes](#bytes) |  |  |
 
 
 
@@ -343,7 +343,7 @@
 | GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
 | GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
 | LoadDerivationAddress | [LoadDerivationAddressRequest](#hdwallet_api.LoadDerivationAddressRequest) | [LoadDerivationAddressResponse](#hdwallet_api.LoadDerivationAddressResponse) |  |
-| SignTransaction | [SignTransactionRequest](#hdwallet_api.SignTransactionRequest) | [SignTransactionResponse](#hdwallet_api.SignTransactionResponse) |  |
+| SignData | [SignDataRequest](#hdwallet_api.SignDataRequest) | [SignDataResponse](#hdwallet_api.SignDataResponse) |  |
 
  
 

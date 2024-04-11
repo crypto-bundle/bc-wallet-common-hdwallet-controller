@@ -3,11 +3,11 @@ package postgres
 import (
 	"context"
 	"errors"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"github.com/jmoiron/sqlx"
 	"time"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"go.uber.org/zap"

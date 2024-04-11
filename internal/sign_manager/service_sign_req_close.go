@@ -2,8 +2,8 @@ package sign_manager
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 )
 
 func (s *Service) CloseSignRequest(ctx context.Context,

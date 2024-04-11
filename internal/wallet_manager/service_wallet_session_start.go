@@ -3,11 +3,11 @@ package wallet_manager
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/app"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
-	pbHdwallet "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	pbHdwallet "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"

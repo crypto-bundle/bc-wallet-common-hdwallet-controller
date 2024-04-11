@@ -3,11 +3,11 @@ package grpc
 import (
 	"context"
 	"fmt"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/google/uuid"
 
 	"github.com/asaskevich/govalidator"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
 )
 
 type derivationAddressByRangeForm struct {

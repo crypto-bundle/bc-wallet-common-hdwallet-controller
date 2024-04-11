@@ -4,7 +4,7 @@ package entities
 
 import (
 	json "encoding/json"
-	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	pq "github.com/lib/pq"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
@@ -20,7 +20,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(in *jlexer.Lexer, out *SignRequest) {
+func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(in *jlexer.Lexer, out *SignRequest) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -100,7 +100,7 @@ func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 		in.Consumed()
 	}
 }
-func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(out *jwriter.Writer, in SignRequest) {
+func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(out *jwriter.Writer, in SignRequest) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -164,23 +164,23 @@ func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 // MarshalJSON supports json.Marshaler interface
 func (v SignRequest) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&w, v)
+	easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v SignRequest) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(w, v)
+	easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *SignRequest) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&r, v)
+	easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *SignRequest) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(l, v)
+	easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(l, v)
 }

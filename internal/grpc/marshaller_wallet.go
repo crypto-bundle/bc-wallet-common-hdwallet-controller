@@ -1,8 +1,8 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 )
 
 func (m *grpcMarshaller) MarshallWalletInfo(

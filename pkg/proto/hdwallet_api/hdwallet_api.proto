@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package hdwallet_api;
 
-option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/hdwallet";
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet";
 
 import "common.proto";
 
@@ -82,16 +82,16 @@ message LoadDerivationAddressResponse {
   common.DerivationAddressIdentity TxOwnerIdentity = 2;
 }
 
-message SignTransactionRequest {
+message SignDataRequest {
   common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
   common.DerivationAddressIdentity AddressIdentifier = 2;
-  bytes CreatedTxData = 3;
+  bytes DataForSign = 3;
 }
 
-message SignTransactionResponse {
+message SignDataResponse {
   common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
   common.DerivationAddressIdentity TxOwnerIdentity = 2;
-  bytes SignedTxData = 3;
+  bytes SignedData = 3;
 }
 
 service HdWalletApi {
@@ -105,5 +105,5 @@ service HdWalletApi {
   rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
 
   rpc LoadDerivationAddress             (LoadDerivationAddressRequest)    returns (LoadDerivationAddressResponse) {}
-  rpc SignTransaction                   (SignTransactionRequest)    returns (SignTransactionResponse) {}
+  rpc SignData                   (SignDataRequest)    returns (SignDataResponse) {}
 }

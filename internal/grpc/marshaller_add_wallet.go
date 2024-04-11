@@ -1,10 +1,10 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/entities"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
 )
 
 func (m *grpcMarshaller) MarshallCreateWalletData(

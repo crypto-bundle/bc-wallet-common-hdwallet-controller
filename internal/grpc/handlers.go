@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/config"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/common"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/pkg/grpc/manager"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/config"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
 
 	"go.uber.org/zap"
 )

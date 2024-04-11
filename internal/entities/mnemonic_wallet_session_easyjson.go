@@ -4,7 +4,7 @@ package entities
 
 import (
 	json "encoding/json"
-	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-manager/internal/types"
+	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -19,7 +19,7 @@ var (
 	_ easyjson.Marshaler
 )
 
-func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(in *jlexer.Lexer, out *MnemonicWalletSession) {
+func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(in *jlexer.Lexer, out *MnemonicWalletSession) {
 	isTopLevel := in.IsStart()
 	if in.IsNull() {
 		if isTopLevel {
@@ -82,7 +82,7 @@ func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 		in.Consumed()
 	}
 }
-func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(out *jwriter.Writer, in MnemonicWalletSession) {
+func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(out *jwriter.Writer, in MnemonicWalletSession) {
 	out.RawByte('{')
 	first := true
 	_ = first
@@ -141,23 +141,23 @@ func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInt
 // MarshalJSON supports json.Marshaler interface
 func (v MnemonicWalletSession) MarshalJSON() ([]byte, error) {
 	w := jwriter.Writer{}
-	easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&w, v)
+	easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(&w, v)
 	return w.Buffer.BuildBytes(), w.Error
 }
 
 // MarshalEasyJSON supports easyjson.Marshaler interface
 func (v MnemonicWalletSession) MarshalEasyJSON(w *jwriter.Writer) {
-	easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(w, v)
+	easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(w, v)
 }
 
 // UnmarshalJSON supports json.Unmarshaler interface
 func (v *MnemonicWalletSession) UnmarshalJSON(data []byte) error {
 	r := jlexer.Lexer{Data: data}
-	easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(&r, v)
+	easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(&r, v)
 	return r.Error()
 }
 
 // UnmarshalEasyJSON supports easyjson.Unmarshaler interface
 func (v *MnemonicWalletSession) UnmarshalEasyJSON(l *jlexer.Lexer) {
-	easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletManagerInternalEntities(l, v)
+	easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletControllerInternalEntities(l, v)
 }

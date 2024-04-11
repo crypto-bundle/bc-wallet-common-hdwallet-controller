@@ -141,7 +141,7 @@
         }
       }
     },
-    "hdwallet_apiSignTransactionResponse": {
+    "hdwallet_apiSignDataResponse": {
       "type": "object",
       "properties": {
         "MnemonicWalletIdentifier": {
@@ -150,7 +150,7 @@
         "TxOwnerIdentity": {
           "$ref": "#/definitions/commonDerivationAddressIdentity"
         },
-        "SignedTxData": {
+        "SignedData": {
           "type": "string",
           "format": "byte"
         }
