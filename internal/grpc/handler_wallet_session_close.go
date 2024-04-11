@@ -2,9 +2,10 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -52,7 +53,7 @@ func (h *CloseWalletSessionHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
 	}
 
-	_, err = h.signManagerSvc.CloseSignRequestBySession(ctx, vf.SessionUUID)
+	_, _, err = h.signManagerSvc.CloseSignRequestBySession(ctx, vf.SessionUUID)
 	if err != nil {
 		h.l.Error("unable to close sign requests by session", zap.Error(err),
 			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID),

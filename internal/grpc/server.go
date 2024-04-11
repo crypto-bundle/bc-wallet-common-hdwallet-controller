@@ -4,7 +4,7 @@ import (
 	"context"
 	"net"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	commonGRPCServer "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/server"
 

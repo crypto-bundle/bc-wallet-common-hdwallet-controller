@@ -3,7 +3,7 @@ package grpc
 import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 )
 
 func (m *grpcMarshaller) MarshallGetAddressByRange(

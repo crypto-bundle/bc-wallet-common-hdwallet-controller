@@ -6,7 +6,7 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/config"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
 )

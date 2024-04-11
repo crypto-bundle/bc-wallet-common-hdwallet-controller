@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 )
 
 func (m *grpcMarshaller) MarshallWalletSessions(

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package manager_api;
 
-option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager";
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller";
 
 import "common.proto";
 

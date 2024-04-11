@@ -7,7 +7,7 @@ Application purpose - create new mnemonic wallet, sign transaction, get derivati
 
 ## Api
 
-Service has a GRPC-api - api doc [here](./docs/hdwallet_api/hdwallet_proto.md)
+Service has a GRPC-api - api doc [here](docs/api/hdwallet_proto.md)
 
 ## Mnemmonic wallets
 

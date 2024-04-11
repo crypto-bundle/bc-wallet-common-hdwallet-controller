@@ -2,10 +2,10 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -60,7 +60,8 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "mnemonic wallet session not found or expired")
 	}
 
-	signOwner, signReqItem, err := h.signManagerSvc.PrepareSignRequest(ctx, vf.WalletUUID, vf.PurposeUUID,
+	signOwner, signReqItem, err := h.signManagerSvc.PrepareSignRequest(ctx, vf.WalletUUID, vf.SessionUUID,
+		vf.PurposeUUID,
 		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
 	if err != nil {
 		h.l.Error("unable to sign transaction", zap.Error(err),

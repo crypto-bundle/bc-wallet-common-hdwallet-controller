@@ -11,11 +11,11 @@ common_proto:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=./pkg/grpc/common \
 		--go-grpc_opt=paths=source_relative \
-		--openapiv2_out=logtostderr=true:./docs/hdwallet_api/ \
+		--openapiv2_out=logtostderr=true:./docs/api/ \
 		--grpc-gateway_out=./pkg/grpc/common \
 		--grpc-gateway_opt=logtostderr=true \
 		--grpc-gateway_opt=paths=source_relative \
-		--doc_out=./docs/hdwallet_api/ \
+		--doc_out=./docs/api/ \
 		--doc_opt=markdown,$@.md \
 		./pkg/proto/common/*.proto
 
@@ -25,27 +25,27 @@ hdwallet_proto:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=./pkg/grpc/hdwallet/ \
 		--go-grpc_opt=paths=source_relative \
-		--openapiv2_out=logtostderr=true:./docs/hdwallet_api/ \
+		--openapiv2_out=logtostderr=true:./docs/api/ \
 		--grpc-gateway_out=./pkg/grpc/hdwallet/ \
 		--grpc-gateway_opt=logtostderr=true \
 		--grpc-gateway_opt=paths=source_relative \
-		--doc_out=./docs/hdwallet_api/ \
+		--doc_out=./docs/api/ \
 		--doc_opt=markdown,$@.md \
 		./pkg/proto/hdwallet_api/*.proto
 
-manager_proto:
-	protoc -I ./pkg/proto/manager_api/ -I ./pkg/proto/common/ \
-    		--go_out=./pkg/grpc/manager/ \
+controller_proto:
+	protoc -I ./pkg/proto/controller_api/ -I ./pkg/proto/common/ \
+    		--go_out=./pkg/grpc/controller/ \
     		--go_opt=paths=source_relative \
-    		--go-grpc_out=./pkg/grpc/manager/ \
+    		--go-grpc_out=./pkg/grpc/controller/ \
     		--go-grpc_opt=paths=source_relative \
-    		--openapiv2_out=logtostderr=true:./docs/hdwallet_api/ \
-    		--grpc-gateway_out=./pkg/grpc/manager/ \
+    		--openapiv2_out=logtostderr=true:./docs/api/ \
+    		--grpc-gateway_out=./pkg/grpc/controller/ \
     		--grpc-gateway_opt=logtostderr=true \
     		--grpc-gateway_opt=paths=source_relative \
-    		--doc_out=./docs/hdwallet_api/ \
+    		--doc_out=./docs/api/ \
     		--doc_opt=markdown,$@.md \
-    		./pkg/proto/manager_api/*.proto
+    		./pkg/proto/controller_api/*.proto
 
 default: hdwallet
 

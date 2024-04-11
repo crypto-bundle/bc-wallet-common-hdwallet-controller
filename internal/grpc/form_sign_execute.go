@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/asaskevich/govalidator"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 )
 
 type SignRequestExecForm struct {

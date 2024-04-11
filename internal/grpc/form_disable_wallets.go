@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/manager"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"github.com/asaskevich/govalidator"
 )
