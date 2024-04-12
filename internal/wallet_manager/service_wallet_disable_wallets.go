@@ -51,7 +51,7 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			pbIdentities[i] = pbIdentity
 		}
 
-		_, clbErr = s.hdwalletClientSvc.UnLoadMultipleMnemonics(txStmtCtx, &hdwallet.UnLoadMultipleMnemonicsRequest{
+		_, clbErr = s.hdWalletClientSvc.UnLoadMultipleMnemonics(txStmtCtx, &hdwallet.UnLoadMultipleMnemonicsRequest{
 			MnemonicIdentity: pbIdentities})
 		if clbErr != nil {
 			s.logger.Error("unable to unload mnemonics", zap.Error(clbErr),

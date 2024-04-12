@@ -41,6 +41,15 @@ func (s *Service) StartWalletSession(ctx context.Context,
 		return nil, nil, err
 	}
 
+	err = s.eventPublisher.SendSessionStartEvent(ctx, walletItem.UUID.String(), sessionItem.UUID)
+	if err != nil {
+		s.logger.Error("unable to broadcast session start event", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()),
+			zap.String(app.MnemonicWalletSessionUUIDTag, sessionItem.UUID))
+		
+		// no return - it's ok
+	}
+
 	return walletItem, sessionItem, nil
 }
 
@@ -75,7 +84,7 @@ func (s *Service) startWalletSession(ctx context.Context,
 
 		timeToLive := s.cfg.GetDefaultWalletSessionDelay() + wallet.UnloadInterval
 
-		_, clbErr = s.hdwalletClientSvc.LoadMnemonic(txStmtCtx, &pbHdwallet.LoadMnemonicRequest{
+		_, clbErr = s.hdWalletClientSvc.LoadMnemonic(txStmtCtx, &pbHdwallet.LoadMnemonicRequest{
 			MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
 				WalletUUID: wallet.UUID.String(),
 				WalletHash: wallet.MnemonicHash,

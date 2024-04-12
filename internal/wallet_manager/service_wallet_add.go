@@ -28,7 +28,7 @@ func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, e
 		UpdatedAt:          nil,
 	}
 
-	resp, err := s.hdwalletClientSvc.GenerateMnemonic(ctx, &hdwallet.GenerateMnemonicRequest{
+	resp, err := s.hdWalletClientSvc.GenerateMnemonic(ctx, &hdwallet.GenerateMnemonicRequest{
 		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: toSaveItem.UUID.String(),
 		},

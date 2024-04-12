@@ -38,7 +38,7 @@ func (s *Service) GetAddressesByRange(ctx context.Context,
 		return wallet, nil, nil
 	}
 
-	resp, err := s.hdwalletClientSvc.GetDerivationAddressByRange(ctx, &hdwallet.DerivationAddressByRangeRequest{
+	resp, err := s.hdWalletClientSvc.GetDerivationAddressByRange(ctx, &hdwallet.DerivationAddressByRangeRequest{
 		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},

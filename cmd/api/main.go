@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/events"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	"log"
 	"os"
@@ -18,7 +19,6 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
-	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
@@ -116,10 +116,12 @@ func main() {
 
 	hdWalletClient := hdwallet.NewClient(appCfg)
 
+	eventPublisher := events.NewEventsBroadcaster(appCfg, natsConnSvc, redisConn)
+
 	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, transitSvc, encryptorSvc,
 		mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
-		hdWalletClient, pgConn)
-	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, pgConn)
+		hdWalletClient, eventPublisher, pgConn)
+	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 
 	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
 
@@ -128,6 +130,9 @@ func main() {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
 	}
+
+	eventWatcher := events.NewEventWatcher(loggerEntry, appCfg, redisConn, natsConnSvc,
+		mnemonicWalletCacheDataSvc, mnemonicWalletDataSvc, signReqDataSvc, hdWalletClient, pgConn)
 
 	err = hdWalletClient.Init(ctx)
 	if err != nil {
@@ -146,8 +151,17 @@ func main() {
 		loggerEntry.Fatal("unable to dial hd-wallet grpc client", zap.Error(err),
 			zap.String("unix path", appCfg.HdWalletClientConfig.GetConnectionPath()))
 	}
+	loggerEntry.Info("hd-wallet client successfully connected")
 
-	commonHealthcheck.NewHTTPHealthChecker(loggerEntry)
+	err = eventWatcher.Run(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to start event watcher service", zap.Error(err))
+	}
+	loggerEntry.Info("event-wachet started successfully")
+
+	// TODO: add healthcheck flow
+	//checker := commonHealthcheck.NewHTTPHealthChecker(loggerEntry)
+	//checker.AddLivenessProbe()
 
 	go func() {
 		err = GRPCSrv.ListenAndServe(ctx)

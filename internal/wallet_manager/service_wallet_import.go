@@ -41,7 +41,7 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 		UpdatedAt:          nil,
 	}
 
-	resp, err := s.hdwalletClientSvc.LoadMnemonic(ctx, &hdwallet.LoadMnemonicRequest{
+	resp, err := s.hdWalletClientSvc.LoadMnemonic(ctx, &hdwallet.LoadMnemonicRequest{
 		MnemonicIdentity: &common.MnemonicWalletIdentity{
 			WalletUUID: toSaveItem.UUID.String(),
 		},
@@ -58,7 +58,7 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 		return nil, ErrMissingHdWalletResp
 	}
 
-	unLoadResp, err := s.hdwalletClientSvc.UnLoadMnemonic(ctx, &hdwallet.UnLoadMnemonicRequest{
+	unLoadResp, err := s.hdWalletClientSvc.UnLoadMnemonic(ctx, &hdwallet.UnLoadMnemonicRequest{
 		MnemonicIdentity: &common.MnemonicWalletIdentity{
 			WalletUUID: toSaveItem.UUID.String(),
 		},

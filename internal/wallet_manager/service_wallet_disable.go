@@ -57,7 +57,7 @@ func (s *Service) DisableWalletByUUID(ctx context.Context,
 
 		resultItem = updatedItem
 
-		_, clbErr = s.hdwalletClientSvc.UnLoadMnemonic(txStmtCtx, &hdwallet.UnLoadMnemonicRequest{
+		_, clbErr = s.hdWalletClientSvc.UnLoadMnemonic(txStmtCtx, &hdwallet.UnLoadMnemonicRequest{
 			MnemonicIdentity: &common.MnemonicWalletIdentity{
 				WalletUUID: walletUUID,
 			}})

@@ -1,5 +1,5 @@
 package app
 
 const (
-	ApplicationManagerName = "bc-wallet-common-hdwallet-manager"
+	ApplicationManagerNameTpl = "bc-wallet-%s-hdwallet-manager"
 )

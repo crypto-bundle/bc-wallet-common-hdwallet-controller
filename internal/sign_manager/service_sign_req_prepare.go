@@ -2,6 +2,7 @@ package sign_manager
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
@@ -55,6 +56,16 @@ func (s *Service) PrepareSignRequest(ctx context.Context,
 		return nil, nil, err
 	}
 
+	err = s.eventPublisherSvc.SendSignPreparedEvent(ctx, signReqItem.UUID)
+	if err != nil {
+		s.logger.Error("unable to broadcast sign request prepared event", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, mnemonicUUID),
+			zap.String(app.MnemonicWalletSessionUUIDTag, sessionUUID),
+			zap.String(app.SignRequestUUIDTag, signReqItem.UUID))
+
+		// no return - it's ok
+	}
+
 	return
 }
 
@@ -62,7 +73,7 @@ func (s *Service) signPrepare(ctx context.Context,
 	mnemonicUUID string,
 	account, change, index uint32,
 ) (signerAddr *pbCommon.DerivationAddressIdentity, err error) {
-	resp, err := s.hdwalletClientSvc.LoadDerivationAddress(ctx, &hdwallet.LoadDerivationAddressRequest{
+	resp, err := s.hdWalletClientSvc.LoadDerivationAddress(ctx, &hdwallet.LoadDerivationAddressRequest{
 		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},

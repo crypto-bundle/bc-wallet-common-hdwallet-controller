@@ -97,6 +97,22 @@ type signRequestDataService interface {
 	) error
 }
 
+type encryptService interface {
+	Encrypt(msg []byte) ([]byte, error)
+	Decrypt(encMsg []byte) ([]byte, error)
+}
+
+type eventPublisherService interface {
+	SendSessionStartEvent(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
+	) error
+	SendSessionClosedEvent(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
+	) error
+}
+
 type transactionalStatementManager interface {
 	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
 	CommitContextualTxStatement(ctx context.Context) error
@@ -104,9 +120,4 @@ type transactionalStatementManager interface {
 	BeginTxWithRollbackOnError(ctx context.Context,
 		callback func(txStmtCtx context.Context) error,
 	) error
-}
-
-type encryptService interface {
-	Encrypt(msg []byte) ([]byte, error)
-	Decrypt(encMsg []byte) ([]byte, error)
 }

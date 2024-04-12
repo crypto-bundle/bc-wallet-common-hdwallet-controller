@@ -32,6 +32,12 @@ type signRequestDataService interface {
 	) (*entities.SignRequest, error)
 }
 
+type eventPublisherService interface {
+	SendSignPreparedEvent(ctx context.Context,
+		signReqUUID string,
+	) error
+}
+
 type transactionalStatementManager interface {
 	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
 	CommitContextualTxStatement(ctx context.Context) error

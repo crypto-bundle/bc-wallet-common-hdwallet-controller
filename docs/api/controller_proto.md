@@ -6,6 +6,7 @@
 - [manager_api.proto](#manager_api.proto)
     - [AddNewWalletRequest](#manager_api.AddNewWalletRequest)
     - [AddNewWalletResponse](#manager_api.AddNewWalletResponse)
+    - [AppInstanceIdentity](#manager_api.AppInstanceIdentity)
     - [CloseWalletSessionsRequest](#manager_api.CloseWalletSessionsRequest)
     - [CloseWalletSessionsResponse](#manager_api.CloseWalletSessionsResponse)
     - [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest)
@@ -18,6 +19,7 @@
     - [DisableWalletsResponse](#manager_api.DisableWalletsResponse)
     - [EnableWalletRequest](#manager_api.EnableWalletRequest)
     - [EnableWalletResponse](#manager_api.EnableWalletResponse)
+    - [Event](#manager_api.Event)
     - [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq)
     - [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse)
     - [GetEnabledWalletsRequest](#manager_api.GetEnabledWalletsRequest)
@@ -36,12 +38,17 @@
     - [SessionInfo](#manager_api.SessionInfo)
     - [SignPurposeIdentity](#manager_api.SignPurposeIdentity)
     - [SignRequestData](#manager_api.SignRequestData)
+    - [SignRequestEvent](#manager_api.SignRequestEvent)
     - [SignRequestIdentity](#manager_api.SignRequestIdentity)
     - [StartWalletSessionRequest](#manager_api.StartWalletSessionRequest)
     - [StartWalletSessionResponse](#manager_api.StartWalletSessionResponse)
+    - [WalletSessionEvent](#manager_api.WalletSessionEvent)
     - [WalletSessionIdentity](#manager_api.WalletSessionIdentity)
   
+    - [Event.Type](#manager_api.Event.Type)
     - [SignRequestData.ReqStatus](#manager_api.SignRequestData.ReqStatus)
+    - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
+    - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
   
     - [HdWalletManagerApi](#manager_api.HdWalletManagerApi)
   
@@ -75,6 +82,21 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="manager_api.AppInstanceIdentity"></a>
+
+### AppInstanceIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| UUID | [string](#string) |  |  |
 
 
 
@@ -266,6 +288,23 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="manager_api.Event"></a>
+
+### Event
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| EventType | [Event.Type](#manager_api.Event.Type) |  |  |
+| AppInstanceIdentifier | [AppInstanceIdentity](#manager_api.AppInstanceIdentity) |  |  |
+| Data | [bytes](#bytes) |  |  |
 
 
 
@@ -560,6 +599,22 @@
 
 
 
+<a name="manager_api.SignRequestEvent"></a>
+
+### SignRequestEvent
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| EventType | [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type) |  |  |
+| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
+
+
+
+
+
+
 <a name="manager_api.SignRequestIdentity"></a>
 
 ### SignRequestIdentity
@@ -608,6 +663,23 @@
 
 
 
+<a name="manager_api.WalletSessionEvent"></a>
+
+### WalletSessionEvent
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| EventType | [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+
+
+
+
+
+
 <a name="manager_api.WalletSessionIdentity"></a>
 
 ### WalletSessionIdentity
@@ -625,6 +697,19 @@
  
 
 
+<a name="manager_api.Event.Type"></a>
+
+### Event.Type
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| EVENT_TYPE_PLACEHOLDER | 0 |  |
+| EVENT_TYPE_SESSION | 1 |  |
+| EVENT_TYPE_SIGN_REQUEST | 2 |  |
+
+
+
 <a name="manager_api.SignRequestData.ReqStatus"></a>
 
 ### SignRequestData.ReqStatus
@@ -637,6 +722,32 @@
 | REQUEST_PREPARED | 2 |  |
 | REQUEST_SIGNED | 3 |  |
 | REQUEST_FAILED | 4 |  |
+
+
+
+<a name="manager_api.SignRequestEvent.Type"></a>
+
+### SignRequestEvent.Type
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| PLACEHOLDER | 0 |  |
+| PREPARED | 1 |  |
+| CLOSED | 2 |  |
+
+
+
+<a name="manager_api.WalletSessionEvent.Type"></a>
+
+### WalletSessionEvent.Type
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| PLACEHOLDER | 0 |  |
+| STARTED | 1 |  |
+| CLOSED | 2 |  |
 
 
  

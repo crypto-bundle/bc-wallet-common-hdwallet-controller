@@ -36,7 +36,7 @@ func (s *Service) GetAddress(ctx context.Context,
 		return wallet, nil, nil
 	}
 
-	resp, err := s.hdwalletClientSvc.GetDerivationAddress(ctx, &hdwallet.DerivationAddressRequest{
+	resp, err := s.hdWalletClientSvc.GetDerivationAddress(ctx, &hdwallet.DerivationAddressRequest{
 		MnemonicWalletIdentifier: &common.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},

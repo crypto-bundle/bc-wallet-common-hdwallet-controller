@@ -6,6 +6,10 @@ option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controll
 
 import "common.proto";
 
+message AppInstanceIdentity {
+  string UUID = 1;
+}
+
 message WalletSessionIdentity {
   string SessionUUID = 1;
 }
@@ -186,6 +190,38 @@ message PrepareSignRequestResponse {
   WalletSessionIdentity SessionIdentity = 2;
   common.DerivationAddressIdentity TxOwnerIdentity = 3;
   SignRequestData SignatureRequestInfo = 4;
+}
+
+message Event {
+  enum Type{
+    EVENT_TYPE_PLACEHOLDER = 0;
+    EVENT_TYPE_SESSION = 1;
+    EVENT_TYPE_SIGN_REQUEST = 2;
+  }
+  Type EventType = 1;
+  AppInstanceIdentity AppInstanceIdentifier = 2;
+  bytes Data = 3;
+}
+
+message WalletSessionEvent {
+  enum Type{
+    PLACEHOLDER = 0;
+    STARTED = 1;
+    CLOSED = 2;
+  }
+  Type EventType = 1;
+  common.MnemonicWalletIdentity WalletIdentifier= 2;
+  WalletSessionIdentity SessionIdentifier = 3;
+}
+
+message SignRequestEvent {
+  enum Type{
+    PLACEHOLDER = 0;
+    PREPARED = 1;
+    CLOSED = 2;
+  }
+  Type EventType = 1;
+  SignRequestIdentity SignRequestIdentifier = 2;
 }
 
 service HdWalletManagerApi {

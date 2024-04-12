@@ -16,7 +16,9 @@ type Service struct {
 	cacheStoreDataSvc      mnemonicWalletsCacheStoreService
 	signReqDataSvc         signRequestDataService
 
-	hdwalletClientSvc hdwallet.HdWalletApiClient
+	hdWalletClientSvc hdwallet.HdWalletApiClient
+
+	eventPublisher eventPublisherService
 
 	txStmtManager transactionalStatementManager
 }
@@ -28,7 +30,8 @@ func NewService(logger *zap.Logger,
 	mnemonicWalletDataSrv mnemonicWalletsDataService,
 	cacheDataSvc mnemonicWalletsCacheStoreService,
 	signReqDataSvc signRequestDataService,
-	hdwalletClient hdwallet.HdWalletApiClient,
+	hdWalletClient hdwallet.HdWalletApiClient,
+	eventPublisher eventPublisherService,
 	txStmtManager transactionalStatementManager,
 ) *Service {
 	return &Service{
@@ -39,9 +42,11 @@ func NewService(logger *zap.Logger,
 		appEncryptorSvc:     appEncryptorSvc,
 
 		txStmtManager:          txStmtManager,
-		hdwalletClientSvc:      hdwalletClient,
+		hdWalletClientSvc:      hdWalletClient,
 		cacheStoreDataSvc:      cacheDataSvc,
 		mnemonicWalletsDataSvc: mnemonicWalletDataSrv,
 		signReqDataSvc:         signReqDataSvc,
+
+		eventPublisher: eventPublisher,
 	}
 }

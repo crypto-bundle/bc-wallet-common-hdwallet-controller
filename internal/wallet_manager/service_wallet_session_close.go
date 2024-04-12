@@ -52,6 +52,15 @@ func (s *Service) CloseWalletSession(ctx context.Context,
 		return nil, nil, err
 	}
 
+	err = s.eventPublisher.SendSessionClosedEvent(ctx, walletItem.UUID.String(), sessionItem.UUID)
+	if err != nil {
+		s.logger.Error("unable to broadcast session close event", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()),
+			zap.String(app.MnemonicWalletSessionUUIDTag, sessionItem.UUID))
+
+		// no return - it's ok
+	}
+
 	return walletItem, sessionItem, nil
 }
 

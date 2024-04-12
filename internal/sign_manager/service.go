@@ -10,21 +10,26 @@ type Service struct {
 
 	signReqDataSvc signRequestDataService
 
-	hdwalletClientSvc hdwallet.HdWalletApiClient
+	hdWalletClientSvc hdwallet.HdWalletApiClient
+
+	eventPublisherSvc eventPublisherService
 
 	txStmtManager transactionalStatementManager
 }
 
 func NewService(logger *zap.Logger,
 	signReqDataSvc signRequestDataService,
-	hdwalletClient hdwallet.HdWalletApiClient,
+	hdWalletClient hdwallet.HdWalletApiClient,
+	eventPublisherSvc eventPublisherService,
 	txStmtManager transactionalStatementManager,
 ) *Service {
 	return &Service{
 		logger: logger,
 
-		txStmtManager:     txStmtManager,
-		hdwalletClientSvc: hdwalletClient,
+		hdWalletClientSvc: hdWalletClient,
 		signReqDataSvc:    signReqDataSvc,
+		eventPublisherSvc: eventPublisherSvc,
+
+		txStmtManager: txStmtManager,
 	}
 }
