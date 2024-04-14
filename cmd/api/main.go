@@ -157,11 +157,14 @@ func main() {
 	if err != nil {
 		loggerEntry.Fatal("unable to start event watcher service", zap.Error(err))
 	}
-	loggerEntry.Info("event-wachet started successfully")
+	loggerEntry.Info("event-watcher started successfully")
 
 	// TODO: add healthcheck flow
-	//checker := commonHealthcheck.NewHTTPHealthChecker(loggerEntry)
-	//checker.AddLivenessProbe()
+	//checker := commonHealthcheck.NewHTTPHealthChecker(loggerEntry, appCfg)
+	//checker.AddStartupProbeUnit(vaultSvc)
+	//checker.AddStartupProbeUnit(redisConn)
+	//checker.AddStartupProbeUnit(pgConn)
+	//checker.AddStartupProbeUnit(natsConnSvc)
 
 	go func() {
 		err = GRPCSrv.ListenAndServe(ctx)
