@@ -1,8 +1,6 @@
 module github.com/crypto-bundle/bc-wallet-common-hdwallet-controller
 
-go 1.21
-
-toolchain go1.21.2
+go 1.22
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
