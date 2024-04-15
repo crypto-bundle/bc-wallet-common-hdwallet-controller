@@ -3,7 +3,7 @@
 
 ## Table of Contents
 
-- [manager_api.proto](#manager_api.proto)
+- [controller_api.proto](#controller_api.proto)
     - [AddNewWalletRequest](#manager_api.AddNewWalletRequest)
     - [AddNewWalletResponse](#manager_api.AddNewWalletResponse)
     - [AppInstanceIdentity](#manager_api.AppInstanceIdentity)
@@ -50,16 +50,16 @@
     - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
     - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
   
-    - [HdWalletManagerApi](#manager_api.HdWalletManagerApi)
+    - [HdWalletControllerApi](#manager_api.HdWalletControllerApi)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="manager_api.proto"></a>
+<a name="controller_api.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## manager_api.proto
+## controller_api.proto
 
 
 
@@ -755,9 +755,9 @@
  
 
 
-<a name="manager_api.HdWalletManagerApi"></a>
+<a name="manager_api.HdWalletControllerApi"></a>
 
-### HdWalletManagerApi
+### HdWalletControllerApi
 
 
 | Method Name | Request Type | Response Type | Description |

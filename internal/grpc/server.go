@@ -18,7 +18,7 @@ type Server struct {
 	logger            *zap.Logger
 	grpcServer        *grpc.Server
 	grpcServerOptions []grpc.ServerOption
-	handlers          pbApi.HdWalletManagerApiServer
+	handlers          pbApi.HdWalletControllerApiServer
 	config            configService
 
 	listener net.Listener
@@ -67,7 +67,7 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 		reflection.Register(s.grpcServer)
 	}
 
-	pbApi.RegisterHdWalletManagerApiServer(s.grpcServer, s.handlers)
+	pbApi.RegisterHdWalletControllerApiServer(s.grpcServer, s.handlers)
 
 	s.logger.Info("grpc serve success")
 
@@ -88,7 +88,7 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 func NewServer(ctx context.Context,
 	loggerSrv *zap.Logger,
 	cfg configService,
-	handlers pbApi.HdWalletManagerApiServer,
+	handlers pbApi.HdWalletControllerApiServer,
 ) (*Server, error) {
 	l := loggerSrv.Named("grpc.server")
 

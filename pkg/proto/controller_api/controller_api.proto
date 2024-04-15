@@ -224,7 +224,7 @@ message SignRequestEvent {
   SignRequestIdentity SignRequestIdentifier = 2;
 }
 
-service HdWalletManagerApi {
+service HdWalletControllerApi {
   rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
   rpc ImportWallet                      (ImportWalletRequest)                returns (ImportWalletResponse) {}
   rpc EnableWallet                      (EnableWalletRequest)                returns (EnableWalletResponse) {}
