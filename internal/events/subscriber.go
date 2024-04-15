@@ -2,14 +2,16 @@ package events
 
 import (
 	"context"
+
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 	pbHdwallet "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
+
 	originRedis "github.com/go-redis/redis/v8"
-	"github.com/golang/protobuf/proto"
 	originNats "github.com/nats-io/nats.go"
 	"go.uber.org/zap"
+	"google.golang.org/protobuf/proto"
 )
 
 type watcher struct {

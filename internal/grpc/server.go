@@ -8,8 +8,7 @@ import (
 
 	commonGRPCServer "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/server"
 
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/opentracing/opentracing-go"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -32,7 +31,7 @@ func (s *Server) Init(_ context.Context) error {
 		grpc.MaxSendMsgSize(commonGRPCServer.DefaultServerMaxSendMessageSize),
 	}
 	options = append(options, msgSizeOptions...)
-	options = append(options, grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer())))
+	options = append(options, grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
 	s.grpcServerOptions = options
 
