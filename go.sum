@@ -43,8 +43,8 @@ github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.5 h1:zOr6OhuAhQUQzdhbZA
 github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.5/go.mod h1:APaA82WX85GNXVdl8DQKFUsEqdwfK7akf76fkxE10gs=
 github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.3 h1:/xsAu7s1AzjEpCOmoDoyMzv0rNpseGaNeXiCQEMDeXc=
 github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.3/go.mod h1:Hm5iTotg4hHnzNzzFdokw3UeKaV6DqB81Ycc6MdFK7A=
-github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.11 h1:OWMthSoNQVQ8Nqt0H/RicMr7UwTYxpqTkW0E2NcliBE=
-github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.11/go.mod h1:88FeOAYnvjt0g91s1LnTCENbvCI6Iytzp23ln/S2/BM=
+github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12 h1:RoqPj2wz6hqZRO3U4s7qF4cMHMpUfFoJPUm0Y9qyEj0=
+github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12/go.mod h1:88FeOAYnvjt0g91s1LnTCENbvCI6Iytzp23ln/S2/BM=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

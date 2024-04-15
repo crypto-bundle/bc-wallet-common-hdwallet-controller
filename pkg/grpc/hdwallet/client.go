@@ -2,6 +2,7 @@ package hdwallet
 
 import (
 	"context"
+	"net"
 
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
 
@@ -23,6 +24,9 @@ type Client struct {
 // nolint:revive // fixme (autofix)
 func (s *Client) Init(ctx context.Context) error {
 	options := []originGRPC.DialOption{
+		originGRPC.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
+			return net.Dial("unix", addr)
+		}),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),

@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"strings"
 	"time"
 
@@ -94,7 +93,7 @@ func (c *MangerConfig) Prepare() error {
 	c.GRPCBind = fmt.Sprintf(":%s", strings.TrimLeft(c.GRPCBindRaw, ":"))
 	c.InstanceUUID = uuid.New()
 
-	appName := fmt.Sprintf(app.ApplicationManagerNameTpl, c.ProcessionEnvironmentConfig.GetNetworkName())
+	appName := fmt.Sprintf(ApplicationManagerNameTpl, c.ProcessionEnvironmentConfig.GetNetworkName())
 
 	c.baseAppCfgSrv.SetApplicationName(appName)
 

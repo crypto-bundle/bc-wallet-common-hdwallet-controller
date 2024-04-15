@@ -13,7 +13,7 @@ import (
 
 // grpcServerHandle is wrapper struct for implementation all grpc handlers
 type grpcServerHandle struct {
-	*pbApi.UnimplementedHdWalletManagerApiServer
+	*pbApi.UnimplementedHdWalletControllerApiServer
 
 	logger *zap.Logger
 	cfg    *config.MangerConfig
@@ -145,7 +145,7 @@ func (h *grpcServerHandle) ExecuteSignRequest(ctx context.Context,
 func New(loggerSrv *zap.Logger,
 	walletManagerSvc walletManagerService,
 	signManagerSvc signManagerService,
-) pbApi.HdWalletManagerApiServer {
+) pbApi.HdWalletControllerApiServer {
 
 	l := loggerSrv.Named("grpc.server.handler")
 
@@ -156,8 +156,8 @@ func New(loggerSrv *zap.Logger,
 	marshallerSvc := newGRPCMarshaller(loggerSrv, addrRespPool)
 
 	return &grpcServerHandle{
-		UnimplementedHdWalletManagerApiServer: &pbApi.UnimplementedHdWalletManagerApiServer{},
-		logger:                                l,
+		UnimplementedHdWalletControllerApiServer: &pbApi.UnimplementedHdWalletControllerApiServer{},
+		logger:                                   l,
 
 		marshallerSrv: marshallerSvc,
 		// handlers

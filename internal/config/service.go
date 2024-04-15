@@ -47,7 +47,7 @@ func Prepare(ctx context.Context,
 	buildNumber,
 	buildDateTS uint64,
 ) (*MangerConfig, *commonVault.Service, error) {
-	appName := fmt.Sprintf(ApplicationNameTemplate, os.Getenv(ProcessingNetworkEnvName))
+	appName := fmt.Sprintf(ApplicationManagerNameTpl, os.Getenv(ProcessingNetworkEnvName))
 
 	baseCfgSrv, err := PrepareBaseConfig(ctx, version, releaseTag,
 		commitID, shortCommitID,

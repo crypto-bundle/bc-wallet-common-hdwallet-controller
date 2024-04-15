@@ -6,7 +6,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 
 	redis "github.com/go-redis/redis/v8"
@@ -295,12 +294,12 @@ func NewRedisStore(logger *zap.Logger,
 	redisClient *redis.Client,
 ) *redisStore {
 	prefixName := strings.ToUpper(fmt.Sprintf("%s__%s__%s", cfgSvc.GetStageName(),
-		app.ApplicationManagerName,
+		cfgSvc.GetApplicationName(),
 		RedisMnemonicWalletPrefix),
 	)
 
 	sessionsPrefixName := strings.ToUpper(fmt.Sprintf("%s__%s__%s", cfgSvc.GetStageName(),
-		app.ApplicationManagerName,
+		cfgSvc.GetApplicationName(),
 		RedisMnemonicWalletSessionsPrefix),
 	)
 
