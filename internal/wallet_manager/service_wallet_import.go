@@ -41,11 +41,11 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 		UpdatedAt:          nil,
 	}
 
-	resp, err := s.hdWalletClientSvc.LoadMnemonic(ctx, &hdwallet.LoadMnemonicRequest{
+	resp, err := s.hdWalletClientSvc.ValidateMnemonic(ctx, &hdwallet.ValidateMnemonicRequest{
 		MnemonicIdentity: &common.MnemonicWalletIdentity{
 			WalletUUID: toSaveItem.UUID.String(),
 		},
-		EncryptedMnemonicData: encryptedMnemonicData,
+		MnemonicData: encryptedMnemonicData,
 	})
 	if err != nil {
 		return nil, err
@@ -58,20 +58,8 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 		return nil, ErrMissingHdWalletResp
 	}
 
-	unLoadResp, err := s.hdWalletClientSvc.UnLoadMnemonic(ctx, &hdwallet.UnLoadMnemonicRequest{
-		MnemonicIdentity: &common.MnemonicWalletIdentity{
-			WalletUUID: toSaveItem.UUID.String(),
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	if unLoadResp == nil {
-		s.logger.Error("missing resp in unload mnemonic request", zap.Error(ErrMissingHdWalletResp),
-			zap.String(app.MnemonicWalletUUIDTag, toSaveItem.UUID.String()))
-
-		return nil, ErrMissingHdWalletResp
+	if !resp.IsValid {
+		return nil, ErrMnemonicIsNotValid
 	}
 
 	return s.saveWallet(ctx, toSaveItem, resp.MnemonicIdentity, encryptedMnemonicData)

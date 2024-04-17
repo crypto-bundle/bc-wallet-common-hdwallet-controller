@@ -7,7 +7,7 @@ import (
 )
 
 type ImportWalletForm struct {
-	Phrase []byte `valid:"type([]byte),required"`
+	Phrase []byte `valid:"required"`
 }
 
 func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,

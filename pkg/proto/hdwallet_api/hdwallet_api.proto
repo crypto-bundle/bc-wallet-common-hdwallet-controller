@@ -25,6 +25,16 @@ message EncryptMnemonicResponse {
   bytes EncryptedMnemonicData = 2;
 }
 
+message ValidateMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes MnemonicData = 2;
+}
+
+message ValidateMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bool IsValid = 2;
+}
+
 message LoadMnemonicRequest {
   common.MnemonicWalletIdentity MnemonicIdentity = 1;
   uint64 TimeToLive = 2;
@@ -97,6 +107,7 @@ message SignDataResponse {
 service HdWalletApi {
   rpc GenerateMnemonic                 (GenerateMnemonicRequest)           returns (GenerateMnemonicResponse) {}
   rpc EncryptMnemonic                 (EncryptMnemonicRequest)           returns (EncryptMnemonicResponse) {}
+  rpc ValidateMnemonic                 (ValidateMnemonicRequest)           returns (ValidateMnemonicResponse) {}
   rpc LoadMnemonic                 (LoadMnemonicRequest)           returns (LoadMnemonicResponse) {}
   rpc UnLoadMnemonic                 (UnLoadMnemonicRequest)           returns (UnLoadMnemonicResponse) {}
   rpc UnLoadMultipleMnemonics           (UnLoadMultipleMnemonicsRequest)           returns (UnLoadMultipleMnemonicsResponse) {}

@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 type HdWalletApiClient interface {
 	GenerateMnemonic(ctx context.Context, in *GenerateMnemonicRequest, opts ...grpc.CallOption) (*GenerateMnemonicResponse, error)
 	EncryptMnemonic(ctx context.Context, in *EncryptMnemonicRequest, opts ...grpc.CallOption) (*EncryptMnemonicResponse, error)
+	ValidateMnemonic(ctx context.Context, in *ValidateMnemonicRequest, opts ...grpc.CallOption) (*ValidateMnemonicResponse, error)
 	LoadMnemonic(ctx context.Context, in *LoadMnemonicRequest, opts ...grpc.CallOption) (*LoadMnemonicResponse, error)
 	UnLoadMnemonic(ctx context.Context, in *UnLoadMnemonicRequest, opts ...grpc.CallOption) (*UnLoadMnemonicResponse, error)
 	UnLoadMultipleMnemonics(ctx context.Context, in *UnLoadMultipleMnemonicsRequest, opts ...grpc.CallOption) (*UnLoadMultipleMnemonicsResponse, error)
@@ -49,6 +50,15 @@ func (c *hdWalletApiClient) GenerateMnemonic(ctx context.Context, in *GenerateMn
 func (c *hdWalletApiClient) EncryptMnemonic(ctx context.Context, in *EncryptMnemonicRequest, opts ...grpc.CallOption) (*EncryptMnemonicResponse, error) {
 	out := new(EncryptMnemonicResponse)
 	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/EncryptMnemonic", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletApiClient) ValidateMnemonic(ctx context.Context, in *ValidateMnemonicRequest, opts ...grpc.CallOption) (*ValidateMnemonicResponse, error) {
+	out := new(ValidateMnemonicResponse)
+	err := c.cc.Invoke(ctx, "/hdwallet_api.HdWalletApi/ValidateMnemonic", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -124,6 +134,7 @@ func (c *hdWalletApiClient) SignData(ctx context.Context, in *SignDataRequest, o
 type HdWalletApiServer interface {
 	GenerateMnemonic(context.Context, *GenerateMnemonicRequest) (*GenerateMnemonicResponse, error)
 	EncryptMnemonic(context.Context, *EncryptMnemonicRequest) (*EncryptMnemonicResponse, error)
+	ValidateMnemonic(context.Context, *ValidateMnemonicRequest) (*ValidateMnemonicResponse, error)
 	LoadMnemonic(context.Context, *LoadMnemonicRequest) (*LoadMnemonicResponse, error)
 	UnLoadMnemonic(context.Context, *UnLoadMnemonicRequest) (*UnLoadMnemonicResponse, error)
 	UnLoadMultipleMnemonics(context.Context, *UnLoadMultipleMnemonicsRequest) (*UnLoadMultipleMnemonicsResponse, error)
@@ -143,6 +154,9 @@ func (UnimplementedHdWalletApiServer) GenerateMnemonic(context.Context, *Generat
 }
 func (UnimplementedHdWalletApiServer) EncryptMnemonic(context.Context, *EncryptMnemonicRequest) (*EncryptMnemonicResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method EncryptMnemonic not implemented")
+}
+func (UnimplementedHdWalletApiServer) ValidateMnemonic(context.Context, *ValidateMnemonicRequest) (*ValidateMnemonicResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateMnemonic not implemented")
 }
 func (UnimplementedHdWalletApiServer) LoadMnemonic(context.Context, *LoadMnemonicRequest) (*LoadMnemonicResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoadMnemonic not implemented")
@@ -210,6 +224,24 @@ func _HdWalletApi_EncryptMnemonic_Handler(srv interface{}, ctx context.Context, 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(HdWalletApiServer).EncryptMnemonic(ctx, req.(*EncryptMnemonicRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletApi_ValidateMnemonic_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateMnemonicRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletApiServer).ValidateMnemonic(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hdwallet_api.HdWalletApi/ValidateMnemonic",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletApiServer).ValidateMnemonic(ctx, req.(*ValidateMnemonicRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -354,6 +386,10 @@ var HdWalletApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "EncryptMnemonic",
 			Handler:    _HdWalletApi_EncryptMnemonic_Handler,
+		},
+		{
+			MethodName: "ValidateMnemonic",
+			Handler:    _HdWalletApi_ValidateMnemonic_Handler,
 		},
 		{
 			MethodName: "LoadMnemonic",

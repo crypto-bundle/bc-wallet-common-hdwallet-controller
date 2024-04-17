@@ -22,6 +22,8 @@
     - [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse)
     - [UnLoadMultipleMnemonicsRequest](#hdwallet_api.UnLoadMultipleMnemonicsRequest)
     - [UnLoadMultipleMnemonicsResponse](#hdwallet_api.UnLoadMultipleMnemonicsResponse)
+    - [ValidateMnemonicRequest](#hdwallet_api.ValidateMnemonicRequest)
+    - [ValidateMnemonicResponse](#hdwallet_api.ValidateMnemonicResponse)
   
     - [HdWalletApi](#hdwallet_api.HdWalletApi)
   
@@ -321,6 +323,38 @@
 
 
 
+
+<a name="hdwallet_api.ValidateMnemonicRequest"></a>
+
+### ValidateMnemonicRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| MnemonicData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.ValidateMnemonicResponse"></a>
+
+### ValidateMnemonicResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| IsValid | [bool](#bool) |  |  |
+
+
+
+
+
  
 
  
@@ -337,6 +371,7 @@
 | ----------- | ------------ | ------------- | ------------|
 | GenerateMnemonic | [GenerateMnemonicRequest](#hdwallet_api.GenerateMnemonicRequest) | [GenerateMnemonicResponse](#hdwallet_api.GenerateMnemonicResponse) |  |
 | EncryptMnemonic | [EncryptMnemonicRequest](#hdwallet_api.EncryptMnemonicRequest) | [EncryptMnemonicResponse](#hdwallet_api.EncryptMnemonicResponse) |  |
+| ValidateMnemonic | [ValidateMnemonicRequest](#hdwallet_api.ValidateMnemonicRequest) | [ValidateMnemonicResponse](#hdwallet_api.ValidateMnemonicResponse) |  |
 | LoadMnemonic | [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest) | [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse) |  |
 | UnLoadMnemonic | [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest) | [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse) |  |
 | UnLoadMultipleMnemonics | [UnLoadMultipleMnemonicsRequest](#hdwallet_api.UnLoadMultipleMnemonicsRequest) | [UnLoadMultipleMnemonicsResponse](#hdwallet_api.UnLoadMultipleMnemonicsResponse) |  |

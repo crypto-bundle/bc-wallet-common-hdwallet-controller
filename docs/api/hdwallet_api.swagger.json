@@ -175,6 +175,17 @@
         }
       }
     },
+    "hdwallet_apiValidateMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "IsValid": {
+          "type": "boolean"
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
