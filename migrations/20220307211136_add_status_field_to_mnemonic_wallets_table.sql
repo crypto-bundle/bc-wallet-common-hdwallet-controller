@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 ALTER TABLE mnemonic_wallets
     ADD COLUMN status smallint NOT NULL check (status >= 1);
-CREATE INDEX status__idx ON wallets (
+CREATE INDEX status__idx ON mnemonic_wallets (
     "status"
 );
 -- +goose StatementEnd
