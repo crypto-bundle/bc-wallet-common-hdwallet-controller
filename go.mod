@@ -4,22 +4,21 @@ go 1.22
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.3
-	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.3
-	github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.3
-	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.3
-	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.11
-	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.7
-	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.5
-	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.3
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.12
+	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.5
+	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4
+	github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4
+	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
+	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.12
+	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.8
+	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.7
+	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.4
+	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.13
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
 	github.com/mailru/easyjson v0.7.7
 	github.com/nats-io/nats.go v1.34.1
-	github.com/pkg/errors v0.9.1
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.50.0
 	go.uber.org/zap v1.27.0
 	google.golang.org/grpc v1.63.2
@@ -81,7 +80,7 @@ require (
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/time v0.0.0-20211116232009-f0f3c7e86c11 // indirect
+	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 	gopkg.in/square/go-jose.v2 v2.5.1 // indirect
 )

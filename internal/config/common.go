@@ -23,7 +23,6 @@ type baseConfigService interface {
 	GetApplicationPID() int
 	GetApplicationName() string
 	SetApplicationName(appName string)
-	GetVersion() string
 	GetReleaseTag() string
 	GetCommitID() string
 	GetShortCommitID() string

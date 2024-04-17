@@ -2,15 +2,15 @@ package pg_store
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"errors"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
 

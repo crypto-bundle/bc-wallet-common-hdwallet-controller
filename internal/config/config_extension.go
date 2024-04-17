@@ -50,10 +50,6 @@ func (c *MangerConfig) SetApplicationName(appName string) {
 	c.baseAppCfgSrv.SetApplicationName(appName)
 }
 
-func (c *MangerConfig) GetVersion() string {
-	return c.baseAppCfgSrv.GetVersion()
-}
-
 func (c *MangerConfig) GetReleaseTag() string {
 	return c.baseAppCfgSrv.GetReleaseTag()
 }
