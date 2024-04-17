@@ -33,7 +33,6 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		date := time.Now()
 
-		var walletID uint32
 		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallets" ("uuid", 
 				"mnemonic_hash",
 				"status", "unload_interval",
@@ -47,7 +46,7 @@ func (s *pgRepository) AddNewMnemonicWallet(ctx context.Context,
 			date, date)
 
 		wallet := &entities.MnemonicWallet{}
-		err := row.Scan(&walletID)
+		err := row.StructScan(wallet)
 		if err != nil {
 			s.logger.Error("failed to insert in mnemonic_wallets", zap.Error(err))
 

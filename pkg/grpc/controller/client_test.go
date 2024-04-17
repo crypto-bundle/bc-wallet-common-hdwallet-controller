@@ -28,7 +28,7 @@ func TestImportWallet(t *testing.T) {
 		MnemonicPhrase: []byte("vault:v1:6J6tXJH615/2yugCijTvWsxkk7CkN3S3KGgLgM+h1eYVtnWbzTs1SVC08P9ou0FLvQsW/qMT1yJyE184t68VIK0opB9y8nQQ0+hpgmUgZMXhMP8GpNf9FGZ6cCg2d0py2fo59gYS2yeSEkz5TnCKdUUHDaUIIbUTn70xPgqQlnGZLGtak1ap6Eji4KGUix2EkJTtO/ZicjdkPOhk3an7sM29sFw8VZYtRNY50SfajPcBrsBCkAhmLO0j"),
 	})
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
 	if resp == nil {
