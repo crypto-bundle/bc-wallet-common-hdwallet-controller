@@ -431,6 +431,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 
 
 

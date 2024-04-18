@@ -13,7 +13,7 @@ type MnemonicWalletSession struct {
 	ID   uint32 `db:"id" json:"id"`
 	UUID string `db:"uuid" json:"uuid"`
 
-	AccessTokenUUID    uint32 `db:"access_token_uuid" json:"access_token_uuid"`
+	AccessTokenUUID    string `db:"access_token_uuid" json:"access_token_uuid"`
 	MnemonicWalletUUID string `db:"mnemonic_wallet_uuid" json:"mnemonic_wallet_uuid"`
 
 	Status types.MnemonicWalletSessionStatus `db:"status" json:"status"`

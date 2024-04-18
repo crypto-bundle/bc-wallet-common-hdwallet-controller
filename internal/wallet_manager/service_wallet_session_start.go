@@ -46,7 +46,7 @@ func (s *Service) StartWalletSession(ctx context.Context,
 		s.logger.Error("unable to broadcast session start event", zap.Error(err),
 			zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()),
 			zap.String(app.MnemonicWalletSessionUUIDTag, sessionItem.UUID))
-		
+
 		// no return - it's ok
 	}
 
@@ -63,7 +63,7 @@ func (s *Service) startWalletSession(ctx context.Context,
 
 		sessionToSave := &entities.MnemonicWalletSession{
 			UUID:               uuid.NewString(),
-			AccessTokenUUID:    0,
+			AccessTokenUUID:    uuid.NullUUID{}.UUID.String(),
 			MnemonicWalletUUID: wallet.UUID.String(),
 			Status:             types.MnemonicWalletSessionStatusPrepared,
 			StartedAt:          startedAt,

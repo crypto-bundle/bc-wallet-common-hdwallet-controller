@@ -130,6 +130,7 @@ message StartWalletSessionResponse {
 
 message GetWalletSessionRequest {
   common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  WalletSessionIdentity SessionIdentity = 2;
 }
 
 message GetWalletSessionResponse {

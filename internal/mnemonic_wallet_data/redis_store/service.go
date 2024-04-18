@@ -167,7 +167,7 @@ func (s *redisStore) GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
 ) (wallet *entities.MnemonicWallet, session *entities.MnemonicWalletSession, err error) {
 	resList, err := s.redisClient.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
 		walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, walletUUID)
-		walletSessionsKey := fmt.Sprintf("%s.%s", s.walletSessionsKeyPrefix, sessionUUID)
+		walletSessionsKey := fmt.Sprintf("%s.%s.%s", s.walletSessionsKeyPrefix, walletUUID, sessionUUID)
 
 		pipeliner.Get(ctx, walletKey)
 		pipeliner.Get(ctx, walletSessionsKey)
@@ -188,17 +188,30 @@ func (s *redisStore) GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
 		return nil, nil, err
 	}
 
-	rawJSON := resList[0].(*redis.StringCmd).Val()
-	err = wallet.UnmarshalJSON([]byte(rawJSON))
+	rawJSON, err := resList[0].(*redis.StringCmd).Bytes()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rawJSON = resList[1].(*redis.StringCmd).Val()
-	err = session.UnmarshalJSON([]byte(rawJSON))
+	walletItem := &entities.MnemonicWallet{}
+	err = walletItem.UnmarshalJSON(rawJSON)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	rawJSON, err = resList[1].(*redis.StringCmd).Bytes()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	walletSessionItem := &entities.MnemonicWalletSession{}
+	err = walletSessionItem.UnmarshalJSON(rawJSON)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	wallet = walletItem
+	session = walletSessionItem
 
 	return
 }
@@ -211,7 +224,7 @@ func (s *redisStore) SetMnemonicWalletSessionItem(ctx context.Context,
 		return err
 	}
 
-	key := fmt.Sprintf("%s.%s-%s", s.walletSessionsKeyPrefix,
+	key := fmt.Sprintf("%s.%s.%s", s.walletSessionsKeyPrefix,
 		sessionItem.MnemonicWalletUUID, sessionItem.UUID)
 	cmd := s.redisClient.Set(ctx, key, rawJSON, sessionItem.ExpiredAt.Sub(time.Now()))
 
@@ -227,7 +240,7 @@ func (s *redisStore) UnsetWalletSession(ctx context.Context,
 	walletUUID string,
 	sessionUUID string,
 ) error {
-	key := fmt.Sprintf("%s.%s-%s", s.walletSessionsKeyPrefix,
+	key := fmt.Sprintf("%s.%s.%s", s.walletSessionsKeyPrefix,
 		walletUUID, sessionUUID)
 	cmd := s.redisClient.Del(ctx, key)
 
@@ -244,7 +257,7 @@ func (s *redisStore) FullUnsetMnemonicWallet(ctx context.Context,
 ) error {
 	walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, mnemonicWalletUUID)
 
-	walletSessionsSearchKeyPattern := fmt.Sprintf("prefix:%s.%s-*", s.walletSessionsKeyPrefix,
+	walletSessionsSearchKeyPattern := fmt.Sprintf("prefix:%s.%s.*", s.walletSessionsKeyPrefix,
 		mnemonicWalletUUID)
 	keysCmd := s.redisClient.Keys(ctx, walletSessionsSearchKeyPattern)
 	err := keysCmd.Err()

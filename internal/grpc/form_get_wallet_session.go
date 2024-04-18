@@ -25,6 +25,12 @@ func (f *GetWalletSessionForm) LoadAndValidate(ctx context.Context,
 	}
 	f.WalletUUID = req.MnemonicIdentity.WalletUUID
 
+	if req.SessionIdentity == nil {
+		return false,
+			fmt.Errorf("%w:%s", ErrMissedRequiredData, "Session identity")
+	}
+	f.SessionUUID = req.SessionIdentity.SessionUUID
+
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {
 		return false, err
