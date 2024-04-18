@@ -49,8 +49,15 @@ func (h *EnableWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
+	if wallet == nil {
+		return nil, status.Error(codes.NotFound, "wallet not found")
+	}
+
 	return &pbApi.EnableWalletResponse{
-		WalletIdentity: &pbCommon.MnemonicWalletIdentity{WalletUUID: wallet.UUID.String()},
+		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: wallet.UUID.String(),
+			WalletHash: wallet.MnemonicHash,
+		},
 	}, nil
 }
 

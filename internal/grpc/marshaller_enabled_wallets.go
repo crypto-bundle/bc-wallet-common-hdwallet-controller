@@ -4,7 +4,6 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
-	"sync"
 )
 
 func (m *grpcMarshaller) MarshallGetEnabledWallets(
@@ -15,26 +14,23 @@ func (m *grpcMarshaller) MarshallGetEnabledWallets(
 	response := &pbApi.GetEnabledWalletsResponse{
 		WalletsCount:     walletCount,
 		WalletIdentities: make([]*pbCommon.MnemonicWalletIdentity, walletCount),
+		Bookmarks:        make(map[string]uint32, walletCount),
 	}
 
-	wg := sync.WaitGroup{}
-	wg.Add(int(walletCount))
 	for i := uint32(0); i != walletCount; i++ {
-		go func(index uint32) {
-			defer wg.Done()
+		walletData := walletsData[i]
+		if walletData == nil {
+			continue
+		}
 
-			walletData := walletsData[index]
-			if walletData == nil {
-				return
-			}
+		walletUUID := walletData.UUID.String()
 
-			response.WalletIdentities[index] = &pbCommon.MnemonicWalletIdentity{
-				WalletUUID: walletData.UUID.String(),
-				WalletHash: walletData.MnemonicHash,
-			}
-		}(i)
+		response.WalletIdentities[i] = &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletUUID,
+			WalletHash: walletData.MnemonicHash,
+		}
+		response.Bookmarks[walletUUID] = i
 	}
-	wg.Wait()
 
 	return response, nil
 }

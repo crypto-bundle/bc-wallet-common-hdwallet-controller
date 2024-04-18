@@ -23,12 +23,12 @@ func (f *DisableWalletsForm) LoadAndValidate(ctx context.Context,
 
 	f.WalletUUIDs = make([]string, len(req.WalletIdentities))
 
-	for _, v := range req.WalletIdentities {
+	for i, v := range req.WalletIdentities {
 		if !govalidator.IsUUID(v.WalletUUID) {
 			return false, fmt.Errorf("%s does not validate as %s", v.WalletUUID, "UUID")
 		}
 
-		f.WalletUUIDs = append(f.WalletUUIDs, v.WalletUUID)
+		f.WalletUUIDs[i] = v.WalletUUID
 	}
 	if err != nil {
 		return false, err

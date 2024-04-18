@@ -70,7 +70,7 @@ func (s *pgRepository) UpdateMultipleWalletsStatus(ctx context.Context,
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallets"
 	       SET "status" = ?
-	       WHERE "wallet_uuid" IN (?)
+	       WHERE "uuid" IN (?)
 	       RETURNING "uuid"`, newStatus, walletUUIDs)
 
 		bonded := stmt.Rebind(query)
@@ -85,7 +85,7 @@ func (s *pgRepository) UpdateMultipleWalletsStatus(ctx context.Context,
 		for returnedRows.Next() {
 			var walletUUID string
 
-			scanErr := returnedRows.StructScan(&walletUUID)
+			scanErr := returnedRows.Scan(&walletUUID)
 			if scanErr != nil {
 				return scanErr
 			}
@@ -125,7 +125,7 @@ func (s *pgRepository) UpdateWalletStatus(ctx context.Context,
 		}
 
 		wallet = &entities.MnemonicWallet{}
-		callbackErr = row.StructScan(&wallet)
+		callbackErr = row.StructScan(wallet)
 		if callbackErr != nil {
 			return commonPostgres.EmptyOrError(callbackErr, "unable get mnemonic wallet by hash")
 		}

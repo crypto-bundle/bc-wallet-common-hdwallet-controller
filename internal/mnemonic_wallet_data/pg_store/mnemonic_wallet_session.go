@@ -52,22 +52,13 @@ func (s *pgRepository) UpdateWalletSessionStatusByWalletUUID(ctx context.Context
 ) error {
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		res, callbackErr := stmt.Exec(`UPDATE "mnemonic_wallet_sessions" 
+		_, callbackErr := stmt.Exec(`UPDATE "mnemonic_wallet_sessions" 
 			SET "status" = $1,
 				"updated_at" = now()
 			WHERE "mnemonic_wallet_uuid" = $2`,
 			newStatus, walletUUID)
 		if callbackErr != nil {
 			return callbackErr
-		}
-
-		affectedRows, err := res.RowsAffected()
-		if err != nil {
-			return err
-		}
-
-		if affectedRows == 0 {
-			return ErrHaveNoAffectedRows
 		}
 
 		return nil
@@ -111,14 +102,14 @@ func (s *pgRepository) UpdateWalletSessionStatusBySessionUUID(ctx context.Contex
 }
 
 func (s *pgRepository) UpdateMultipleWalletSessionStatus(ctx context.Context,
-	sessionsUUIDs []string,
+	walletsUUIDs []string,
 	newStatus types.MnemonicWalletSessionStatus,
 ) (count uint, list []string, err error) {
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallet_sessions"
 	       SET "status" = ?
-	       WHERE "uuid" IN (?)
-	       RETURNING "uuid"`, newStatus, sessionsUUIDs)
+	       WHERE "mnemonic_wallet_uuid" IN (?)
+	       RETURNING "uuid"`, newStatus, walletsUUIDs)
 
 		bonded := stmt.Rebind(query)
 		returnedRows, clbErr := stmt.Queryx(bonded, args...)

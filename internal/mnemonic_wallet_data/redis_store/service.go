@@ -242,7 +242,7 @@ func (s *redisStore) UnsetWalletSession(ctx context.Context,
 func (s *redisStore) FullUnsetMnemonicWallet(ctx context.Context,
 	mnemonicWalletUUID string,
 ) error {
-	walletKey := fmt.Sprintf("%s.%s", s.walletSessionsKeyPrefix, mnemonicWalletUUID)
+	walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, mnemonicWalletUUID)
 
 	walletSessionsSearchKeyPattern := fmt.Sprintf("prefix:%s.%s-*", s.walletSessionsKeyPrefix,
 		mnemonicWalletUUID)

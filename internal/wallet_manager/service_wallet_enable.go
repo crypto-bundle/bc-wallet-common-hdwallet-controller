@@ -19,15 +19,21 @@ func (s *Service) EnableWalletByUUID(ctx context.Context,
 		updatedItem, clbErr := s.mnemonicWalletsDataSvc.UpdateWalletStatus(txStmtCtx,
 			walletUUID, types.MnemonicWalletStatusEnabled)
 		if clbErr != nil {
-			s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(clbErr),
+			s.logger.Error("unable to update mnemonic wallet item in persistent store", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
 
 			return clbErr
 		}
 
+		if updatedItem == nil {
+			resultItem = nil
+
+			return nil
+		}
+
 		clbErr = s.cacheStoreDataSvc.SetMnemonicWalletItem(txStmtCtx, updatedItem)
 		if clbErr != nil {
-			s.logger.Error("unable to unset mnemonic wallet data from cache store", zap.Error(clbErr),
+			s.logger.Error("unable to set mnemonic wallet data in cache store", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
 
 			return clbErr

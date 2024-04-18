@@ -60,7 +60,10 @@ func (h *DisableWalletHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.DisableWalletResponse{
-		WalletIdentity: &pbCommon.MnemonicWalletIdentity{WalletUUID: wallet.UUID.String()},
+		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: wallet.UUID.String(),
+			WalletHash: wallet.MnemonicHash,
+		},
 	}, nil
 }
 

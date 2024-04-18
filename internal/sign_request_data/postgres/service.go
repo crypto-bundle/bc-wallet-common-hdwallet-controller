@@ -132,8 +132,8 @@ func (s *pgRepository) UpdateSignRequestItemStatusByWalletsUUIDList(ctx context.
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		query, args, clbErr := sqlx.In(`UPDATE "sign_requests"
 	       	SET "status" = ?,
-	    		"updated_at" = now(),
-	       	WHERE "wallet_uuid" IN (?)
+	    		"updated_at" = now()
+	       	WHERE "mnemonic_wallet_uuid" IN (?)
 	       	RETURNING *`, newStatus, walletUUIDs)
 
 		bonded := stmt.Rebind(query)
@@ -178,7 +178,7 @@ func (s *pgRepository) UpdateSignRequestItemStatusByWalletUUID(ctx context.Conte
 		rows, clbErr := stmt.Queryx(`UPDATE "sign_requests" 
 			SET "status" = $1,
 				"updated_at" = now()
-			WHERE "wallet_uuid" = $2
+			WHERE "mnemonic_wallet_uuid" = $2
 			RETURNING *`,
 			newStatus, walletUUID)
 		if clbErr != nil {

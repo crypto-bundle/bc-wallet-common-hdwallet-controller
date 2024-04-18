@@ -3,6 +3,8 @@ package wallet_manager
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
@@ -56,6 +58,21 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 		if clbErr != nil {
 			s.logger.Error("unable to unload mnemonics", zap.Error(clbErr),
 				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
+
+			respStatus, ok := status.FromError(clbErr)
+			if !ok {
+				s.logger.Warn("unable to extract response status code",
+					zap.Error(clbErr),
+					zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
+			}
+			switch respStatus.Code() {
+			case codes.Internal:
+				s.logger.Warn("unable to unload mnemonic wallet",
+					zap.Error(clbErr),
+					zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
+			default:
+
+			}
 		}
 
 		list = updatedItemUUIDs
