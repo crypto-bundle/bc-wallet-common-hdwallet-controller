@@ -197,7 +197,7 @@ func (s *redisStore) GetMnemonicWalletInfoByUUID(ctx context.Context,
 func (s *redisStore) GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
 	walletUUID string,
 	sessionUUID string,
-) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error) {
+) (walletItem *entities.MnemonicWallet, sessionItem *entities.MnemonicWalletSession, err error) {
 	resList, err := s.redisClient.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
 		walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, walletUUID)
 		walletSessionsKey := fmt.Sprintf("%s.%s.%s", s.walletSessionsKeyPrefix, walletUUID, sessionUUID)
@@ -220,37 +220,37 @@ func (s *redisStore) GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
 
 	list := resList[0].(*redis.SliceCmd).Val()
 
-	if list[0] == nil {
-		return nil, nil, nil
+	if list[0] != nil {
+		rawJSON, ok := list[0].(string)
+		if !ok {
+			return nil, nil, ErrUnableCastRedisValue
+		}
+
+		wallet := &entities.MnemonicWallet{}
+		err = wallet.UnmarshalJSON([]byte(rawJSON))
+		if err != nil {
+			return nil, nil, err
+		}
+
+		walletItem = wallet
 	}
 
-	rawJSON, ok := list[0].(string)
-	if !ok {
-		return nil, nil, ErrUnableCastRedisValue
+	if list[1] != nil {
+		rawJSON, ok := list[1].(string)
+		if !ok {
+			return nil, nil, ErrUnableCastRedisValue
+		}
+
+		session := &entities.MnemonicWalletSession{}
+		err = session.UnmarshalJSON([]byte(rawJSON))
+		if err != nil {
+			return nil, nil, err
+		}
+
+		sessionItem = session
 	}
 
-	walletItem := &entities.MnemonicWallet{}
-	err = walletItem.UnmarshalJSON([]byte(rawJSON))
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if list[1] == nil {
-		return walletItem, nil, nil
-	}
-
-	rawJSON, ok = list[1].(string)
-	if !ok {
-		return nil, nil, ErrUnableCastRedisValue
-	}
-
-	walletSessionItem := &entities.MnemonicWalletSession{}
-	err = walletSessionItem.UnmarshalJSON([]byte(rawJSON))
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return walletItem, walletSessionItem, nil
+	return
 }
 
 func (s *redisStore) SetMnemonicWalletSessionItem(ctx context.Context,
