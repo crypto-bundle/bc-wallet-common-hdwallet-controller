@@ -60,6 +60,10 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "mnemonic wallet session not found or expired")
 	}
 
+	if !sessionItem.IsSessionActive() {
+		return nil, status.Error(codes.ResourceExhausted, "mnemonic wallet session not found or expired")
+	}
+
 	signOwner, signReqItem, err := h.signManagerSvc.PrepareSignRequest(ctx, vf.WalletUUID, vf.SessionUUID,
 		vf.PurposeUUID,
 		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)

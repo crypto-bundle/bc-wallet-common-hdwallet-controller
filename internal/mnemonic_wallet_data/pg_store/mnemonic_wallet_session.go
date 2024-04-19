@@ -175,7 +175,7 @@ func (s *pgRepository) GetWalletSessionByUUID(ctx context.Context,
 		}
 
 		session := &entities.MnemonicWalletSession{}
-		callbackErr = row.StructScan(&session)
+		callbackErr = row.StructScan(session)
 		if callbackErr != nil {
 			return commonPostgres.EmptyOrError(callbackErr, "unable get session by UUID")
 		}

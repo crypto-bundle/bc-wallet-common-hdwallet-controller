@@ -43,7 +43,7 @@ func (h *GetWalletSessionsHandler) Handle(ctx context.Context,
 
 	walletItem, sessionsList, err := h.walletSvc.GetWalletSessionsByWalletUUID(ctx, vf.WalletUUID)
 	if err != nil {
-		h.l.Error("unable to get wallet and all walltes sessions", zap.Error(err),
+		h.l.Error("unable to get wallet and all wallets sessions", zap.Error(err),
 			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))
 
 		return nil, status.Error(codes.Internal, "something went wrong")

@@ -119,6 +119,8 @@ func NewEventsBroadcaster(cfgSvc configService,
 		natsConn:  natsConn.GetConnection(),
 		redisConn: redisConn.GetClient(),
 
+		appInstanceIdentifier: &pbApi.AppInstanceIdentity{UUID: cfgSvc.GetInstanceIdentifier().String()},
+
 		redisPubQueueName: cfgSvc.GetEventChannelName(),
 		natsPubQueueName:  cfgSvc.GetEventChannelName(),
 	}

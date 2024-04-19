@@ -2,6 +2,7 @@ package redis_store
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -15,6 +16,10 @@ import (
 const (
 	RedisMnemonicWalletPrefix         = "mnemonic-wallets"
 	RedisMnemonicWalletSessionsPrefix = "mnemonic-wallets-sessions"
+)
+
+var (
+	ErrUnableCastRedisValue = errors.New("unable to cast returned redis value")
 )
 
 type redisStore struct {
@@ -88,6 +93,10 @@ func (s *redisStore) GetMnemonicWalletByUUID(ctx context.Context,
 	walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, MnemonicWalletUUID)
 	rawJSON, err := s.redisClient.Get(ctx, walletKey).Result()
 	if err != nil {
+		if errors.Is(redis.Nil, err) {
+			return nil, nil
+		}
+
 		return nil, err
 	}
 
@@ -103,17 +112,28 @@ func (s *redisStore) GetMnemonicWalletByUUID(ctx context.Context,
 func (s *redisStore) GetMnemonicWalletInfoByUUID(ctx context.Context,
 	MnemonicWalletUUID string,
 ) (wallet *entities.MnemonicWallet, sessions []*entities.MnemonicWalletSession, err error) {
-	resList, err := s.redisClient.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
-		walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, MnemonicWalletUUID)
-		walletSessionsKey := fmt.Sprintf("prefix:%s.%s-*", s.walletSessionsKeyPrefix,
-			MnemonicWalletUUID)
+	walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, MnemonicWalletUUID)
+	walletSessionsKey := fmt.Sprintf("%s.%s.*", s.walletSessionsKeyPrefix,
+		MnemonicWalletUUID)
 
-		pipeliner.Get(ctx, walletKey)
-		pipeliner.Scan(ctx, 0, walletSessionsKey, 0)
+	iterator := s.redisClient.Scan(ctx, 0, walletSessionsKey, 0).Iterator()
+	keys := []string{
+		walletKey,
+	}
+	for iterator.Next(ctx) {
+		keys = append(keys, iterator.Val())
+	}
+
+	resList, err := s.redisClient.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
+		pipeliner.MGet(ctx, keys...)
 
 		return nil
 	})
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil, nil
+		}
+
 		return nil, nil, err
 	}
 
@@ -122,59 +142,74 @@ func (s *redisStore) GetMnemonicWalletInfoByUUID(ctx context.Context,
 		return nil, nil, err
 	}
 
-	err = resList[1].Err()
-	if err != nil {
-		return nil, nil, err
+	// len(resList)-1 - cuz first N values its redis.ScanCmd
+	resultSliceCmd, ok := resList[len(resList)-1].(*redis.SliceCmd)
+	if !ok {
+		return nil, nil, ErrUnableCastRedisValue
 	}
+	resultList := resultSliceCmd.Val()
+	count := len(resultList)
 
-	rawJSON := resList[0].(*redis.StringCmd).Val()
-	err = wallet.UnmarshalJSON([]byte(rawJSON))
-	if err != nil {
-		return nil, nil, err
-	}
+	switch true {
+	case count > 1: // wallet and sessions data found
+		sessionList := make([]*entities.MnemonicWalletSession, count-1)
+		for i := 1; i != count; i++ {
+			value, casted := resultList[i].(string)
+			if !casted {
+				return nil, nil, ErrUnableCastRedisValue
+			}
 
-	iter := resList[1].(*redis.ScanCmd).Iterator()
-	if err != nil {
-		return nil, nil, err
-	}
+			session := &entities.MnemonicWalletSession{}
+			loopErr := session.UnmarshalJSON([]byte(value))
+			if loopErr != nil {
+				return nil, nil, loopErr
+			}
 
-	sessionList := make([]*entities.MnemonicWalletSession, 0)
-	for iter.Next(ctx) {
-		session := &entities.MnemonicWalletSession{}
-
-		loopErr := session.UnmarshalJSON([]byte(iter.Val()))
-		if loopErr != nil {
-			return nil, nil, loopErr
+			sessionList[i-1] = session
 		}
 
-		sessions = append(sessions, session)
-	}
-	err = iter.Err()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if len(sessionList) > 0 {
 		sessions = sessionList
+
+		fallthrough
+	case count == 1: // only wallet data found
+		if resultList[0] == nil {
+			break
+		}
+
+		walletData, casted := resultList[0].(string) // wallet item
+		if !casted {
+			return nil, nil, ErrUnableCastRedisValue
+		}
+		walletItem := &entities.MnemonicWallet{}
+		caseErr := walletItem.UnmarshalJSON([]byte(walletData))
+		if caseErr != nil {
+			return nil, nil, caseErr
+		}
+
+		wallet = walletItem
+	case count == 1 && resultList[0] == nil: // empty data
+		return nil, nil, nil
 	}
 
-	return wallet, sessions, nil
+	return
 }
 
 func (s *redisStore) GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
 	walletUUID string,
 	sessionUUID string,
-) (wallet *entities.MnemonicWallet, session *entities.MnemonicWalletSession, err error) {
+) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error) {
 	resList, err := s.redisClient.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
 		walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, walletUUID)
 		walletSessionsKey := fmt.Sprintf("%s.%s.%s", s.walletSessionsKeyPrefix, walletUUID, sessionUUID)
 
-		pipeliner.Get(ctx, walletKey)
-		pipeliner.Get(ctx, walletSessionsKey)
+		pipeliner.MGet(ctx, walletKey, walletSessionsKey)
 
 		return nil
 	})
 	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return nil, nil, nil
+		}
 		return nil, nil, err
 	}
 
@@ -183,37 +218,39 @@ func (s *redisStore) GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
 		return nil, nil, err
 	}
 
-	err = resList[1].Err()
-	if err != nil {
-		return nil, nil, err
+	list := resList[0].(*redis.SliceCmd).Val()
+
+	if list[0] == nil {
+		return nil, nil, nil
 	}
 
-	rawJSON, err := resList[0].(*redis.StringCmd).Bytes()
-	if err != nil {
-		return nil, nil, err
+	rawJSON, ok := list[0].(string)
+	if !ok {
+		return nil, nil, ErrUnableCastRedisValue
 	}
 
 	walletItem := &entities.MnemonicWallet{}
-	err = walletItem.UnmarshalJSON(rawJSON)
+	err = walletItem.UnmarshalJSON([]byte(rawJSON))
 	if err != nil {
 		return nil, nil, err
 	}
 
-	rawJSON, err = resList[1].(*redis.StringCmd).Bytes()
-	if err != nil {
-		return nil, nil, err
+	if list[1] == nil {
+		return walletItem, nil, nil
+	}
+
+	rawJSON, ok = list[1].(string)
+	if !ok {
+		return nil, nil, ErrUnableCastRedisValue
 	}
 
 	walletSessionItem := &entities.MnemonicWalletSession{}
-	err = walletSessionItem.UnmarshalJSON(rawJSON)
+	err = walletSessionItem.UnmarshalJSON([]byte(rawJSON))
 	if err != nil {
 		return nil, nil, err
 	}
 
-	wallet = walletItem
-	session = walletSessionItem
-
-	return
+	return walletItem, walletSessionItem, nil
 }
 
 func (s *redisStore) SetMnemonicWalletSessionItem(ctx context.Context,
