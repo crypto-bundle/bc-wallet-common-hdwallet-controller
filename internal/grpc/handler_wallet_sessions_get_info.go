@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -53,8 +54,12 @@ func (h *GetWalletSessionsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
 	}
 
+	if walletItem.Status == types.MnemonicWalletStatusDisabled {
+		return nil, status.Error(codes.ResourceExhausted, "wallet disabled")
+	}
+
 	if sessionsList == nil {
-		return nil, status.Error(codes.ResourceExhausted, "mnemonic wallet sessions not found or expired")
+		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
 	}
 
 	return &pbApi.GetWalletSessionsResponse{

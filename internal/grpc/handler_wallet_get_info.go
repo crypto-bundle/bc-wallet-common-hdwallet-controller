@@ -46,6 +46,7 @@ func (h *GetWalletInfoHandler) Handle(ctx context.Context,
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
+
 	if walletItem == nil {
 		return nil, status.Error(codes.NotFound, "wallet not found")
 	}

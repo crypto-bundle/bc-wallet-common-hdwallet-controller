@@ -71,16 +71,15 @@ func (s *Service) DisableWalletByUUID(ctx context.Context,
 			WalletUUID: walletUUID,
 		}})
 	if err != nil {
-		respStatus, isExtracted := status.FromError(err)
+		respStatus, _ := status.FromError(err)
 		code := respStatus.Code()
 
-		switch true {
-		case !isExtracted:
-			s.logger.Error("unable to read resp status code", zap.Error(err),
-				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
-		case isExtracted && code == codes.NotFound, isExtracted && code == codes.ResourceExhausted:
+		switch code {
+		case codes.NotFound, codes.ResourceExhausted:
 			// it's ok
 			break
+		case codes.Internal:
+			fallthrough
 		default:
 			s.logger.Error("unable to unload mnemonics wallet", zap.Error(err),
 				zap.String(app.MnemonicWalletUUIDTag, walletUUID))

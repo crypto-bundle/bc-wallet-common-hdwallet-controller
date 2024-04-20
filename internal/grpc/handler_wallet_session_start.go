@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"sync"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -43,15 +45,30 @@ func (h *StartWalletSessionHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	walletItem, sessionItem, err := h.walletSvc.StartWalletSession(ctx, vf.WalletUUID)
+	walletItem, err := h.walletSvc.GetWalletByUUID(ctx, vf.WalletUUID)
+	if err != nil {
+		h.l.Error("unable get wallet", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+	if walletItem == nil {
+		return nil, status.Error(codes.NotFound, "wallet not found")
+	}
+
+	if walletItem.Status == types.MnemonicWalletStatusDisabled {
+		return nil, status.Error(codes.ResourceExhausted, "wallet disabled")
+	}
+
+	sessionItem, err := h.walletSvc.StartSessionForWallet(ctx, walletItem)
 	if err != nil {
 		h.l.Error("unable to start wallet session", zap.Error(err))
 
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	if walletItem == nil || sessionItem == nil {
-		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
+	if sessionItem == nil || !sessionItem.IsSessionActive() {
+		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
 	}
 
 	return &pbApi.StartWalletSessionResponse{

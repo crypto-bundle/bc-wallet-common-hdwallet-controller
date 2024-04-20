@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -49,8 +50,16 @@ func (h *CloseWalletSessionHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	if walletItem == nil || sessionItem == nil {
+	if walletItem == nil {
 		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
+	}
+
+	if walletItem.Status == types.MnemonicWalletStatusDisabled {
+		return nil, status.Error(codes.ResourceExhausted, "wallet disabled")
+	}
+
+	if sessionItem == nil {
+		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
 	}
 
 	_, _, err = h.signManagerSvc.CloseSignRequestBySession(ctx, vf.SessionUUID)

@@ -14,6 +14,17 @@ import (
 	"time"
 )
 
+func (s *Service) StartSessionForWallet(ctx context.Context,
+	wallet *entities.MnemonicWallet,
+) (*entities.MnemonicWalletSession, error) {
+	session, err := s.startWalletSession(ctx, wallet)
+	if err != nil {
+		return nil, err
+	}
+
+	return session, nil
+}
+
 func (s *Service) StartWalletSession(ctx context.Context,
 	walletUUID string,
 ) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error) {
@@ -41,22 +52,14 @@ func (s *Service) StartWalletSession(ctx context.Context,
 		return nil, nil, err
 	}
 
-	err = s.eventPublisher.SendSessionStartEvent(ctx, walletItem.UUID.String(), sessionItem.UUID)
-	if err != nil {
-		s.logger.Error("unable to broadcast session start event", zap.Error(err),
-			zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()),
-			zap.String(app.MnemonicWalletSessionUUIDTag, sessionItem.UUID))
-
-		// no return - it's ok
-	}
-
 	return walletItem, sessionItem, nil
 }
 
 func (s *Service) startWalletSession(ctx context.Context,
 	wallet *entities.MnemonicWallet,
-) (session *entities.MnemonicWalletSession, err error) {
-	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
+) (*entities.MnemonicWalletSession, error) {
+	var session *entities.MnemonicWalletSession = nil
+	err := s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		currentTime := time.Now()
 		startedAt := currentTime.Add(s.cfg.GetDefaultWalletSessionDelay())
 		expiredAt := startedAt.Add(wallet.UnloadInterval)
@@ -82,27 +85,6 @@ func (s *Service) startWalletSession(ctx context.Context,
 			return clbErr
 		}
 
-		timeToLive := s.cfg.GetDefaultWalletSessionDelay() + wallet.UnloadInterval
-
-		_, clbErr = s.hdWalletClientSvc.LoadMnemonic(txStmtCtx, &pbHdwallet.LoadMnemonicRequest{
-			MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
-				WalletUUID: wallet.UUID.String(),
-				WalletHash: wallet.MnemonicHash,
-			},
-			TimeToLive:            uint64(timeToLive),
-			EncryptedMnemonicData: wallet.VaultEncrypted,
-		})
-		if clbErr != nil {
-			s.logger.Error("unable to load mnemonic wallet by hd-wallet service", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
-		}
-
-		clbErr = s.cacheStoreDataSvc.SetMnemonicWalletSessionItem(txStmtCtx, sessionToSave)
-		if clbErr != nil {
-			s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(clbErr),
-				zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
-		}
-
 		session = sessionToSave
 
 		return nil
@@ -111,5 +93,35 @@ func (s *Service) startWalletSession(ctx context.Context,
 		return nil, err
 	}
 
-	return
+	timeToLive := s.cfg.GetDefaultWalletSessionDelay() + wallet.UnloadInterval
+
+	_, err = s.hdWalletClientSvc.LoadMnemonic(ctx, &pbHdwallet.LoadMnemonicRequest{
+		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: wallet.UUID.String(),
+			WalletHash: wallet.MnemonicHash,
+		},
+		TimeToLive:            uint64(timeToLive),
+		EncryptedMnemonicData: wallet.VaultEncrypted,
+	})
+	if err != nil {
+		s.logger.Error("unable to load mnemonic wallet by hd-wallet service", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
+	}
+
+	err = s.cacheStoreDataSvc.SetMnemonicWalletSessionItem(ctx, session)
+	if err != nil {
+		s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
+	}
+
+	err = s.eventPublisher.SendSessionStartEvent(ctx, wallet.UUID.String(), session.UUID)
+	if err != nil {
+		s.logger.Error("unable to broadcast session start event", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()),
+			zap.String(app.MnemonicWalletSessionUUIDTag, session.UUID))
+
+		// no return - it's ok
+	}
+
+	return session, nil
 }

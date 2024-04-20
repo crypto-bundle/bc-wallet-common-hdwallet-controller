@@ -83,6 +83,9 @@ type walletManagerService interface {
 	StartWalletSession(ctx context.Context,
 		walletUUID string,
 	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
+	StartSessionForWallet(ctx context.Context,
+		wallet *entities.MnemonicWallet,
+	) (*entities.MnemonicWalletSession, error)
 	CloseWalletSession(ctx context.Context,
 		walletUUID string,
 		sessionUUID string,

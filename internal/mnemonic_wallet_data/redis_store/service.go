@@ -61,23 +61,31 @@ func (s *redisStore) setMnemonicWalletItemByKey(ctx context.Context,
 }
 
 func (s *redisStore) GetAllWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
-	walletSearchKey := fmt.Sprintf("prefix:%s.*", s.walletInfoKeyPrefix)
-	iter := s.redisClient.Scan(ctx, 0, walletSearchKey, 0).Iterator()
+	walletSearchKey := fmt.Sprintf("%s.*", s.walletInfoKeyPrefix)
+	sliceCmd := s.redisClient.Keys(ctx, walletSearchKey)
+	keys := sliceCmd.Val()
 
-	walletList := make([]*entities.MnemonicWallet, 0)
-	for iter.Next(ctx) {
+	dataListRaw := s.redisClient.MGet(ctx, keys...)
+	resList, err := dataListRaw.Result()
+	if err != nil {
+		return nil, err
+	}
+
+	walletList := make([]*entities.MnemonicWallet, len(resList))
+	for i := 0; i != len(resList); i++ {
 		item := &entities.MnemonicWallet{}
 
-		loopErr := item.UnmarshalJSON([]byte(iter.Val()))
+		JSONstr, isCasted := resList[i].(string)
+		if !isCasted {
+			return nil, ErrUnableCastRedisValue
+		}
+
+		loopErr := item.UnmarshalJSON([]byte(JSONstr))
 		if loopErr != nil {
 			return nil, loopErr
 		}
 
-		walletList = append(walletList, item)
-	}
-	err := iter.Err()
-	if err != nil {
-		return nil, err
+		walletList[i] = item
 	}
 
 	if len(walletList) == 0 {
