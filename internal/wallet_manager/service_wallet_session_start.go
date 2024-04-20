@@ -89,7 +89,7 @@ func (s *Service) startWalletSession(ctx context.Context,
 				WalletUUID: wallet.UUID.String(),
 				WalletHash: wallet.MnemonicHash,
 			},
-			TimeToLive:            uint64(timeToLive.Milliseconds()),
+			TimeToLive:            uint64(timeToLive),
 			EncryptedMnemonicData: wallet.VaultEncrypted,
 		})
 		if clbErr != nil {

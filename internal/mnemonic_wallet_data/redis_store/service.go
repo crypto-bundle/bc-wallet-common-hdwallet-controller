@@ -294,7 +294,7 @@ func (s *redisStore) FullUnsetMnemonicWallet(ctx context.Context,
 ) error {
 	walletKey := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, mnemonicWalletUUID)
 
-	walletSessionsSearchKeyPattern := fmt.Sprintf("prefix:%s.%s.*", s.walletSessionsKeyPrefix,
+	walletSessionsSearchKeyPattern := fmt.Sprintf("%s.%s.*", s.walletSessionsKeyPrefix,
 		mnemonicWalletUUID)
 	keysCmd := s.redisClient.Keys(ctx, walletSessionsSearchKeyPattern)
 	err := keysCmd.Err()
