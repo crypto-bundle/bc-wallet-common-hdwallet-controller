@@ -161,6 +161,17 @@
         }
       }
     },
+    "manager_apiEnableWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
+        }
+      }
+    },
     "manager_apiExecuteSignRequestResponse": {
       "type": "object",
       "properties": {

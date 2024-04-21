@@ -28,8 +28,8 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 ) (*pbApi.DisableWalletsResponse, error) {
 	var err error
 
-	validationForm := &DisableWalletsForm{}
-	valid, err := validationForm.LoadAndValidate(ctx, req)
+	validationForm := &WalletsIdentitiesForm{}
+	valid, err := validationForm.LoadAndValidate(req.WalletIdentities)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
 
@@ -40,6 +40,14 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
+	_, _, err = h.signManagerSvc.CloseSignRequestByMultipleWallets(ctx, validationForm.WalletUUIDs)
+	if err != nil {
+		h.l.Error("unable to close sign requests by session", zap.Error(err),
+			zap.Strings(app.MnemonicWalletUUIDTag, validationForm.WalletUUIDs))
+
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	disabledCount, walletsIdentities, err := h.walletSvc.DisableWalletsByUUIDList(ctx, validationForm.WalletUUIDs)
 	if err != nil {
 		h.l.Error("unable to disable wallets", zap.Error(err))
@@ -48,14 +56,6 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 
 	if walletsIdentities == nil {
 		return nil, status.Error(codes.NotFound, "there are no wallets available to disable")
-	}
-
-	_, _, err = h.signManagerSvc.CloseSignRequestByMultipleWallets(ctx, walletsIdentities)
-	if err != nil {
-		h.l.Error("unable to close sign requests by session", zap.Error(err),
-			zap.Strings(app.MnemonicWalletUUIDTag, walletsIdentities))
-
-		// no return err - it's ok
 	}
 
 	pbIdentities := make([]*common.MnemonicWalletIdentity, disabledCount)

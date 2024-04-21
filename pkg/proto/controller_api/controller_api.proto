@@ -84,6 +84,14 @@ message DisableWalletsResponse {
   repeated common.MnemonicWalletIdentity WalletIdentities = 1;
 }
 
+message EnableWalletsRequest {
+  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+}
+
+message EnableWalletsResponse {
+  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+}
+
 message DerivationAddressRequest {
   common.MnemonicWalletIdentity MnemonicIdentity = 1;
   WalletSessionIdentity SessionIdentity = 2;
@@ -233,6 +241,7 @@ service HdWalletControllerApi {
   rpc GetEnabledWallets                 (GetEnabledWalletsRequest)           returns (GetEnabledWalletsResponse) {}
   rpc DisableWallet                      (DisableWalletRequest)                returns (DisableWalletResponse) {}
   rpc DisableWallets                      (DisableWalletsRequest)                returns (DisableWalletsResponse) {}
+  rpc EnableWallets                      (EnableWalletsRequest)                returns (EnableWalletsResponse) {}
 
   rpc StartWalletSession                (StartWalletSessionRequest)    returns (StartWalletSessionResponse) {}
   rpc GetWalletSession                  (GetWalletSessionRequest)   returns (GetWalletSessionResponse) {}

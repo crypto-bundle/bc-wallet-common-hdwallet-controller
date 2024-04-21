@@ -59,7 +59,7 @@ func (h *GetWalletSessionsHandler) Handle(ctx context.Context,
 	}
 
 	if sessionsList == nil {
-		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
+		return nil, status.Error(codes.ResourceExhausted, "active wallet sessions not found or already expired")
 	}
 
 	return &pbApi.GetWalletSessionsResponse{

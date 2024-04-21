@@ -16,6 +16,9 @@ type mnemonicWalletsCacheStoreService interface {
 	SetMnemonicWalletItem(ctx context.Context,
 		walletItem *entities.MnemonicWallet,
 	) error
+	SetMultipleMnemonicWallets(ctx context.Context,
+		walletItems []*entities.MnemonicWallet,
+	) error
 	GetAllWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 	GetMnemonicWalletByUUID(ctx context.Context,
 		MnemonicWalletUUID string,
@@ -63,6 +66,10 @@ type mnemonicWalletsDataService interface {
 	GetMnemonicWalletsByUUIDList(ctx context.Context,
 		UUIDList []string,
 	) ([]*entities.MnemonicWallet, error)
+	GetMnemonicWalletsByUUIDListAndStatus(ctx context.Context,
+		UUIDList []string,
+		status []types.MnemonicWalletStatus,
+	) ([]string, []*entities.MnemonicWallet, error)
 
 	AddNewWalletSession(ctx context.Context,
 		sessionItem *entities.MnemonicWalletSession,

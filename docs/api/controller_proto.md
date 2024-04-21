@@ -19,6 +19,8 @@
     - [DisableWalletsResponse](#manager_api.DisableWalletsResponse)
     - [EnableWalletRequest](#manager_api.EnableWalletRequest)
     - [EnableWalletResponse](#manager_api.EnableWalletResponse)
+    - [EnableWalletsRequest](#manager_api.EnableWalletsRequest)
+    - [EnableWalletsResponse](#manager_api.EnableWalletsResponse)
     - [Event](#manager_api.Event)
     - [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq)
     - [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse)
@@ -288,6 +290,36 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="manager_api.EnableWalletsRequest"></a>
+
+### EnableWalletsRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+
+
+
+
+
+
+<a name="manager_api.EnableWalletsResponse"></a>
+
+### EnableWalletsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -770,6 +802,7 @@
 | GetEnabledWallets | [GetEnabledWalletsRequest](#manager_api.GetEnabledWalletsRequest) | [GetEnabledWalletsResponse](#manager_api.GetEnabledWalletsResponse) |  |
 | DisableWallet | [DisableWalletRequest](#manager_api.DisableWalletRequest) | [DisableWalletResponse](#manager_api.DisableWalletResponse) |  |
 | DisableWallets | [DisableWalletsRequest](#manager_api.DisableWalletsRequest) | [DisableWalletsResponse](#manager_api.DisableWalletsResponse) |  |
+| EnableWallets | [EnableWalletsRequest](#manager_api.EnableWalletsRequest) | [EnableWalletsResponse](#manager_api.EnableWalletsResponse) |  |
 | StartWalletSession | [StartWalletSessionRequest](#manager_api.StartWalletSessionRequest) | [StartWalletSessionResponse](#manager_api.StartWalletSessionResponse) |  |
 | GetWalletSession | [GetWalletSessionRequest](#manager_api.GetWalletSessionRequest) | [GetWalletSessionResponse](#manager_api.GetWalletSessionResponse) |  |
 | GetAllWalletSessions | [GetWalletSessionsRequest](#manager_api.GetWalletSessionsRequest) | [GetWalletSessionsResponse](#manager_api.GetWalletSessionsResponse) |  |

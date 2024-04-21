@@ -67,6 +67,9 @@ type walletManagerService interface {
 	DisableWalletsByUUIDList(ctx context.Context,
 		walletUUIDs []string,
 	) (count uint, list []string, err error)
+	EnableWalletsByUUIDList(ctx context.Context,
+		walletUUIDs []string,
+	) (count uint, list []string, err error)
 	GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 	GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error)
 	GetAddress(ctx context.Context,
@@ -158,6 +161,10 @@ type disableWalletHandlerService interface {
 
 type disableWalletsHandlerService interface {
 	Handle(ctx context.Context, request *pbApi.DisableWalletsRequest) (*pbApi.DisableWalletsResponse, error)
+}
+
+type enableWalletsHandlerService interface {
+	Handle(ctx context.Context, request *pbApi.EnableWalletsRequest) (*pbApi.EnableWalletsResponse, error)
 }
 
 type enableWalletHandlerService interface {

@@ -230,6 +230,46 @@ func (s *pgRepository) GetMnemonicWalletsByStatus(ctx context.Context,
 	return wallets, nil
 }
 
+func (s *pgRepository) GetMnemonicWalletsByUUIDListAndStatus(ctx context.Context,
+	UUIDList []string,
+	statuses []types.MnemonicWalletStatus,
+) ([]string, []*entities.MnemonicWallet, error) {
+	var wallets []*entities.MnemonicWallet = nil
+	var walletsUUIDs []string = nil
+
+	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		query, args, err := sqlx.In(`SELECT *
+	       FROM "mnemonic_wallets"
+	       WHERE "uuid" IN (?) AND "status" IN (?)`, UUIDList, statuses)
+
+		bonded := stmt.Rebind(query)
+		returnedRows, err := stmt.Queryx(bonded, args...)
+		if err != nil {
+			return err
+		}
+		defer returnedRows.Close()
+		wallets = make([]*entities.MnemonicWallet, 0)
+
+		for returnedRows.Next() {
+			walletData := &entities.MnemonicWallet{}
+
+			scanErr := returnedRows.StructScan(walletData)
+			if scanErr != nil {
+				return err
+			}
+
+			wallets = append(wallets, walletData)
+			walletsUUIDs = append(walletsUUIDs, walletData.UUID.String())
+		}
+
+		return nil
+	}); err != nil {
+		return nil, nil, err
+	}
+
+	return walletsUUIDs, wallets, nil
+}
+
 func (s *pgRepository) GetMnemonicWalletsByUUIDList(ctx context.Context,
 	UUIDList []string,
 ) ([]*entities.MnemonicWallet, error) {

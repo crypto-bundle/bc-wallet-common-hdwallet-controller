@@ -2,15 +2,13 @@ package wallet_manager
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
-
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
@@ -44,37 +42,6 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			return clbErr
 		}
 
-		pbIdentities := make([]*common.MnemonicWalletIdentity, updWalletsCount)
-		for i := uint(0); i != updWalletsCount; i++ {
-			pbIdentity := &common.MnemonicWalletIdentity{
-				WalletUUID: updatedItemUUIDs[i],
-			}
-
-			pbIdentities[i] = pbIdentity
-		}
-
-		_, clbErr = s.hdWalletClientSvc.UnLoadMultipleMnemonics(txStmtCtx, &hdwallet.UnLoadMultipleMnemonicsRequest{
-			MnemonicIdentity: pbIdentities})
-		if clbErr != nil {
-			s.logger.Error("unable to unload mnemonics", zap.Error(clbErr),
-				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
-
-			respStatus, ok := status.FromError(clbErr)
-			if !ok {
-				s.logger.Warn("unable to extract response status code",
-					zap.Error(clbErr),
-					zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
-			}
-			switch respStatus.Code() {
-			case codes.Internal:
-				s.logger.Warn("unable to unload mnemonic wallet",
-					zap.Error(clbErr),
-					zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
-			default:
-
-			}
-		}
-
 		list = updatedItemUUIDs
 		count = updWalletsCount
 
@@ -85,6 +52,35 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			zap.Strings(app.MnemonicWalletUUIDTag, walletUUIDs))
 
 		return 0, nil, err
+	}
+
+	pbIdentities := make([]*common.MnemonicWalletIdentity, count)
+	for i := uint(0); i != count; i++ {
+		pbIdentity := &common.MnemonicWalletIdentity{
+			WalletUUID: list[i],
+		}
+
+		pbIdentities[i] = pbIdentity
+	}
+
+	_, unloadErr := s.hdWalletClientSvc.UnLoadMultipleMnemonics(ctx, &hdwallet.UnLoadMultipleMnemonicsRequest{
+		MnemonicIdentity: pbIdentities})
+	if err != nil {
+		s.logger.Error("unable to unload mnemonics", zap.Error(unloadErr),
+			zap.Strings(app.MnemonicWalletUUIDTag, list))
+
+		respStatus, ok := status.FromError(unloadErr)
+		if !ok {
+			s.logger.Warn("unable to extract response status code", zap.Error(unloadErr),
+				zap.Strings(app.MnemonicWalletUUIDTag, list))
+		}
+		switch respStatus.Code() {
+		case codes.Internal:
+			s.logger.Warn("unable to unload mnemonic wallet", zap.Error(unloadErr),
+				zap.Strings(app.MnemonicWalletUUIDTag, list))
+		default:
+			break
+		}
 	}
 
 	return

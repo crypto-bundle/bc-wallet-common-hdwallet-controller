@@ -27,6 +27,7 @@ type grpcServerHandle struct {
 	importWalletHandlerSvc   importWalletHandlerService
 	disableWalletHandlerSvc  disableWalletHandlerService
 	disableWalletsHandlerSvc disableWalletsHandlerService
+	enableWalletsHandlerSvc  enableWalletsHandlerService
 	enableWalletHandlerSvc   enableWalletHandlerService
 	getWalletInfoHandlerSvc  getWalletHandlerService
 	getEnabledWalletsHandler getEnabledWalletsHandlerService
@@ -85,6 +86,12 @@ func (h *grpcServerHandle) DisableWallets(ctx context.Context,
 	req *pbApi.DisableWalletsRequest,
 ) (*pbApi.DisableWalletsResponse, error) {
 	return h.disableWalletsHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) EnableWallets(ctx context.Context,
+	req *pbApi.EnableWalletsRequest,
+) (*pbApi.EnableWalletsResponse, error) {
+	return h.enableWalletsHandlerSvc.Handle(ctx, req)
 }
 
 // Wallet sessions handlers
@@ -168,6 +175,7 @@ func New(loggerSrv *zap.Logger,
 		getEnabledWalletsHandler: MakeGetEnabledWalletsHandler(l, walletManagerSvc, marshallerSvc),
 		disableWalletHandlerSvc:  MakeDisableWalletHandler(l, walletManagerSvc, signManagerSvc),
 		disableWalletsHandlerSvc: MakeDisableWalletsHandler(l, walletManagerSvc, signManagerSvc),
+		enableWalletsHandlerSvc:  MakeEnableWalletsHandler(l, walletManagerSvc),
 
 		startWalletSessionHandlerSvc: MakeStartWalletSessionHandler(l, walletManagerSvc),
 		getWalletSessionHandleSvc:    MakeGetWalletSessionHandler(l, walletManagerSvc),

@@ -47,6 +47,29 @@ func (s *redisStore) SetMnemonicWalletItem(ctx context.Context,
 	return nil
 }
 
+func (s *redisStore) SetMultipleMnemonicWallets(ctx context.Context,
+	walletItems []*entities.MnemonicWallet,
+) error {
+	_, err := s.redisClient.TxPipelined(ctx, func(pipeliner redis.Pipeliner) error {
+		for _, walletItem := range walletItems {
+			rawJSON, loopErr := walletItem.MarshalJSON()
+			if loopErr != nil {
+				return loopErr
+			}
+
+			key := fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, walletItem.UUID.String())
+			pipeliner.Set(ctx, key, rawJSON, 0)
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *redisStore) setMnemonicWalletItemByKey(ctx context.Context,
 	key string,
 	rawData []byte,
