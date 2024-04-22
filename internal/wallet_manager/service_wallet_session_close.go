@@ -70,7 +70,7 @@ func (s *Service) closeWalletSession(ctx context.Context,
 ) (session *entities.MnemonicWalletSession, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		updatedSession, clbErr := s.mnemonicWalletsDataSvc.UpdateWalletSessionStatusBySessionUUID(txStmtCtx,
-			wallet.UUID.String(), types.MnemonicWalletSessionStatusClosed)
+			sessionItem.UUID, types.MnemonicWalletSessionStatusClosed)
 		if clbErr != nil {
 			s.logger.Error("unable to update mnemonic sessions status", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()),

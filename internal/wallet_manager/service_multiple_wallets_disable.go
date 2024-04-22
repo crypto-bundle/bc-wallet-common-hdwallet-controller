@@ -15,6 +15,22 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 	walletUUIDs []string,
 ) (count uint, list []string, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
+		mwIdentities, _, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletsByUUIDListAndStatus(txStmtCtx,
+			walletUUIDs, []types.MnemonicWalletStatus{
+				types.MnemonicWalletStatusEnabled,
+				types.MnemonicWalletStatusCreated,
+			})
+		if clbErr != nil {
+			s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(clbErr),
+				zap.Strings(app.MnemonicWalletUUIDTag, walletUUIDs))
+
+			return clbErr
+		}
+
+		if len(mwIdentities) == 0 {
+			return nil
+		}
+
 		updWalletsCount, updatedItemUUIDs, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletsStatus(txStmtCtx,
 			walletUUIDs, types.MnemonicWalletStatusDisabled)
 		if clbErr != nil {
@@ -24,8 +40,12 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			return clbErr
 		}
 
-		_, updSessUUIDList, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletSessionStatus(txStmtCtx,
-			updatedItemUUIDs, types.MnemonicWalletSessionStatusClosed)
+		adapter := newSessionsByWalletDataMapper()
+		updatedSessionsCount, _, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletSessionStatusClb(txStmtCtx,
+			updatedItemUUIDs, types.MnemonicWalletSessionStatusClosed, []types.MnemonicWalletSessionStatus{
+				types.MnemonicWalletSessionStatusPrepared,
+			},
+			adapter.Marshall)
 		if clbErr != nil {
 			s.logger.Error("unable to update mnemonic sessions status", zap.Error(clbErr),
 				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
@@ -33,13 +53,24 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			return clbErr
 		}
 
-		clbErr = s.cacheStoreDataSvc.UnsetMultipleWallets(txStmtCtx, updatedItemUUIDs, updSessUUIDList)
+		clbErr = s.cacheStoreDataSvc.UnsetMultipleWallets(txStmtCtx, updatedItemUUIDs)
 		if clbErr != nil {
-			s.logger.Error("unable to unset mnemonics wallet data and sessions from cache store", zap.Error(clbErr),
+			s.logger.Error("unable to unset mnemonics wallet data from cache store", zap.Error(clbErr),
 				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs),
-				zap.Strings(app.MnemonicWalletSessionUUIDTag, updSessUUIDList))
+				zap.Strings(app.MnemonicWalletSessionUUIDTag, adapter.GetSessionsUUIDs()))
 
 			return clbErr
+		}
+
+		if updatedSessionsCount > 0 {
+			clbErr = s.cacheStoreDataSvc.UnsetMultipleSessions(txStmtCtx, adapter.GetGroupedSessions())
+			if clbErr != nil {
+				s.logger.Error("unable to unset mnemonics sessions from cache store", zap.Error(clbErr),
+					zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs),
+					zap.Strings(app.MnemonicWalletSessionUUIDTag, adapter.GetSessionsUUIDs()))
+
+				return clbErr
+			}
 		}
 
 		list = updatedItemUUIDs

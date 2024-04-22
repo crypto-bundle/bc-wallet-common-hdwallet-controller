@@ -41,8 +41,10 @@ type mnemonicWalletsCacheStoreService interface {
 		sessionsUUID string,
 	) error
 	UnsetMultipleWallets(ctx context.Context,
-		mnemonicWalletsUUIDs []string,
-		sessionsUUIDs []string,
+		walletIdentities []string,
+	) error
+	UnsetMultipleSessions(ctx context.Context,
+		sessionByWalletIdentities map[string][]string,
 	) error
 }
 
@@ -58,6 +60,10 @@ type mnemonicWalletsDataService interface {
 		walletUUID []string,
 		newStatus types.MnemonicWalletStatus,
 	) (uint, []string, error)
+	UpdateMultipleWalletsStatusRetWallets(ctx context.Context,
+		walletUUIDs []string,
+		newStatus types.MnemonicWalletStatus,
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletByUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error)
 	GetMnemonicWalletsByStatus(ctx context.Context,
@@ -86,6 +92,12 @@ type mnemonicWalletsDataService interface {
 		sessionsUUIDs []string,
 		newStatus types.MnemonicWalletSessionStatus,
 	) (count uint, sessions []string, err error)
+	UpdateMultipleWalletSessionStatusClb(ctx context.Context,
+		walletsUUIDs []string,
+		newStatus types.MnemonicWalletSessionStatus,
+		oldStatus []types.MnemonicWalletSessionStatus,
+		clbFunc func(*entities.MnemonicWalletSession) error,
+	) (count uint, list []*entities.MnemonicWalletSession, err error)
 	GetWalletSessionByUUID(ctx context.Context,
 		sessionUUID string,
 	) (*entities.MnemonicWalletSession, error)

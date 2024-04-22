@@ -13,7 +13,7 @@ func (s *Service) EnableWalletsByUUIDList(ctx context.Context,
 	walletUUIDs []string,
 ) (count uint, list []string, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		mwIdentities, mwList, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletsByUUIDListAndStatus(txStmtCtx,
+		mwIdentities, _, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletsByUUIDListAndStatus(txStmtCtx,
 			walletUUIDs, []types.MnemonicWalletStatus{
 				types.MnemonicWalletStatusDisabled,
 				types.MnemonicWalletStatusCreated,
@@ -25,11 +25,11 @@ func (s *Service) EnableWalletsByUUIDList(ctx context.Context,
 			return clbErr
 		}
 
-		if mwList == nil {
+		if len(mwIdentities) == 0 {
 			return nil
 		}
 
-		updWalletsCount, updatedItemUUIDs, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletsStatus(txStmtCtx,
+		updWalletsCount, updatedItems, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletsStatusRetWallets(txStmtCtx,
 			mwIdentities, types.MnemonicWalletStatusEnabled)
 		if clbErr != nil {
 			s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(clbErr),
@@ -46,16 +46,16 @@ func (s *Service) EnableWalletsByUUIDList(ctx context.Context,
 			return ErrUpdatedCountNotEqualExpected
 		}
 
-		clbErr = s.cacheStoreDataSvc.SetMultipleMnemonicWallets(txStmtCtx, mwList)
+		clbErr = s.cacheStoreDataSvc.SetMultipleMnemonicWallets(txStmtCtx, updatedItems)
 		if clbErr != nil {
 			s.logger.Error("unable to set mnemonics wallets data to cache store", zap.Error(clbErr),
-				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
+				zap.Strings(app.MnemonicWalletUUIDTag, mwIdentities))
 
 			return clbErr
 		}
 
 		count = updWalletsCount
-		list = updatedItemUUIDs
+		list = mwIdentities
 
 		return nil
 	})

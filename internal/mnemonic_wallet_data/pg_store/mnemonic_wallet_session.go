@@ -85,8 +85,7 @@ func (s *pgRepository) UpdateWalletSessionStatusBySessionUUID(ctx context.Contex
 			newStatus, sessionUUID)
 
 		sessionItem := &entities.MnemonicWalletSession{}
-
-		clbErr := row.Scan(sessionItem)
+		clbErr := row.StructScan(sessionItem)
 		if clbErr != nil {
 			s.logger.Error("unable to update wallet session status", zap.Error(clbErr))
 
@@ -139,6 +138,59 @@ func (s *pgRepository) UpdateMultipleWalletSessionStatus(ctx context.Context,
 
 		return nil
 	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
+func (s *pgRepository) UpdateMultipleWalletSessionStatusClb(ctx context.Context,
+	walletsUUIDs []string,
+	newStatus types.MnemonicWalletSessionStatus,
+	oldStatus []types.MnemonicWalletSessionStatus,
+	clbFunc func(*entities.MnemonicWalletSession) error,
+) (count uint, list []*entities.MnemonicWalletSession, err error) {
+	err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallet_sessions"
+         	SET "status" = ?
+				WHERE "mnemonic_wallet_uuid" IN (?) AND
+					now() BETWEEN "started_at" AND "expired_at" 
+				AND
+			    	"status" IN (?)
+				RETURNING *`, newStatus, walletsUUIDs, oldStatus)
+
+		bonded := stmt.Rebind(query)
+		returnedRows, clbErr := stmt.Queryx(bonded, args...)
+		if clbErr != nil {
+			return clbErr
+		}
+		defer returnedRows.Close()
+
+		sessionsList := make([]*entities.MnemonicWalletSession, 0)
+
+		for returnedRows.Next() {
+			session := &entities.MnemonicWalletSession{}
+
+			loopErr := returnedRows.StructScan(session)
+			if loopErr != nil {
+				return loopErr
+			}
+
+			loopErr = clbFunc(session)
+			if loopErr != nil {
+				return loopErr
+			}
+
+			sessionsList = append(sessionsList, session)
+
+			count++
+		}
+
+		list = sessionsList
+
+		return nil
+	})
+	if err != nil {
 		return 0, nil, err
 	}
 

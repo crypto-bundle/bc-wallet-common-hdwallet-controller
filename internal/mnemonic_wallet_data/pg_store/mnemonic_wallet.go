@@ -138,6 +138,48 @@ func (s *pgRepository) UpdateWalletStatus(ctx context.Context,
 	return wallet, nil
 }
 
+func (s *pgRepository) UpdateMultipleWalletsStatusRetWallets(ctx context.Context,
+	walletUUIDs []string,
+	newStatus types.MnemonicWalletStatus,
+) (count uint, list []*entities.MnemonicWallet, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallets"
+	       SET "status" = ?
+	       WHERE "uuid" IN (?)
+	       RETURNING *`, newStatus, walletUUIDs)
+
+		bonded := stmt.Rebind(query)
+		returnedRows, clbErr := stmt.Queryx(bonded, args...)
+		if clbErr != nil {
+			return clbErr
+		}
+		defer returnedRows.Close()
+
+		walletsList := make([]*entities.MnemonicWallet, 0)
+
+		for returnedRows.Next() {
+			wallet := &entities.MnemonicWallet{}
+
+			scanErr := returnedRows.StructScan(wallet)
+			if scanErr != nil {
+				return scanErr
+			}
+
+			walletsList = append(walletsList, wallet)
+
+			count++
+		}
+
+		list = walletsList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
 func (s *pgRepository) GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error) {
 	var wallet *entities.MnemonicWallet = nil
 

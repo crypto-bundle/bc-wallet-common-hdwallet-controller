@@ -346,20 +346,31 @@ func (s *redisStore) FullUnsetMnemonicWallet(ctx context.Context,
 }
 
 func (s *redisStore) UnsetMultipleWallets(ctx context.Context,
-	mnemonicWalletsUUIDs []string,
-	sessionsUUIDs []string,
+	toUnsetList []string,
 ) error {
-	var j int
-
-	deleteKeys := make([]string, len(mnemonicWalletsUUIDs)+len(sessionsUUIDs))
-	for i, _ := range mnemonicWalletsUUIDs {
-		deleteKeys[j] = fmt.Sprintf("%s.%s", s.walletInfoKeyPrefix, mnemonicWalletsUUIDs[i])
-		j++
+	deleteKeys := make([]string, 0)
+	for _, walletUUID := range toUnsetList {
+		deleteKeys = append(deleteKeys, fmt.Sprintf("%s.%s",
+			s.walletInfoKeyPrefix, walletUUID))
 	}
 
-	for i, _ := range sessionsUUIDs {
-		deleteKeys[j] = fmt.Sprintf("%s.%s", s.walletSessionsKeyPrefix, sessionsUUIDs[i])
-		j++
+	_, err := s.redisClient.Del(ctx, deleteKeys...).Result()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *redisStore) UnsetMultipleSessions(ctx context.Context,
+	toUnsetMap map[string][]string,
+) error {
+	deleteKeys := make([]string, 0)
+	for walletUUID, sessionUUIDList := range toUnsetMap {
+		for _, sessionUUID := range sessionUUIDList {
+			deleteKeys = append(deleteKeys, fmt.Sprintf("%s.%s.%s",
+				s.walletSessionsKeyPrefix, walletUUID, sessionUUID))
+		}
 	}
 
 	_, err := s.redisClient.Del(ctx, deleteKeys...).Result()
