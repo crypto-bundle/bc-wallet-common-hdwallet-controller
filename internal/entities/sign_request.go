@@ -14,7 +14,7 @@ type SignRequest struct {
 	ID   uint32 `db:"id" json:"id"`
 	UUID string `db:"uuid" json:"uuid"`
 
-	WalletUUID  string `db:"wallet_uuid" json:"wallet_uuid"`
+	WalletUUID  string `db:"mnemonic_wallet_uuid" json:"wallet_uuid"`
 	SessionUUID string `db:"session_uuid" json:"session_uuid"`
 	PurposeUUID string `db:"purpose_uuid" json:"purpose_uuid"`
 

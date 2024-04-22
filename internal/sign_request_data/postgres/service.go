@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"github.com/jmoiron/sqlx"
 	"time"
@@ -32,23 +33,22 @@ func (s *pgRepository) AddSignRequestItem(ctx context.Context,
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		date := time.Now()
 
-		var walletID uint32
 		row := stmt.QueryRowx(`INSERT INTO "sign_requests" ("uuid", 
-				"mnemonic_wallet_uuid", "session_uuid",
+				"mnemonic_wallet_uuid", "session_uuid", "purpose_uuid", 
 				"status",
 				"created_at", "updated_at")
-            VALUES($1, $2, $3, $4, $5, $6) RETURNING *;`,
+            VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
 			toSaveItem.UUID,
-			toSaveItem.WalletUUID, toSaveItem.SessionUUID,
+			toSaveItem.WalletUUID, toSaveItem.SessionUUID, toSaveItem.PurposeUUID,
 			toSaveItem.Status,
 			date, nil)
 
 		signReqItem := &entities.SignRequest{}
-		err := row.Scan(&walletID)
-		if err != nil {
-			s.logger.Error("failed to insert in sign_requests table", zap.Error(err))
+		clbErr := row.StructScan(signReqItem)
+		if clbErr != nil {
+			s.logger.Error("failed to insert in sign_requests table", zap.Error(clbErr))
 
-			return ErrUnableExecuteQuery
+			return fmt.Errorf("%w: %s", clbErr, ErrUnableExecuteQuery.Error())
 		}
 
 		result = signReqItem
