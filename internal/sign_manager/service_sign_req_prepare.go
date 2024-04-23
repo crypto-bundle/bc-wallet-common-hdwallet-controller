@@ -24,13 +24,14 @@ func (s *Service) PrepareSignRequest(ctx context.Context,
 ) (addr *pbCommon.DerivationAddressIdentity, signReqItem *entities.SignRequest, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		savedItem, clbErr := s.signReqDataSvc.AddSignRequestItem(txStmtCtx, &entities.SignRequest{
-			UUID:        uuid.NewString(),
-			WalletUUID:  mnemonicUUID,
-			SessionUUID: sessionUUID,
-			PurposeUUID: purposeUUID,
-			Status:      types.SignRequestStatusCreated,
-			CreatedAt:   time.Time{},
-			UpdatedAt:   nil,
+			UUID:           uuid.NewString(),
+			WalletUUID:     mnemonicUUID,
+			SessionUUID:    sessionUUID,
+			PurposeUUID:    purposeUUID,
+			DerivationPath: []int32{int32(account), int32(change), int32(index)},
+			Status:         types.SignRequestStatusCreated,
+			CreatedAt:      time.Time{},
+			UpdatedAt:      nil,
 		})
 		if clbErr != nil {
 			return clbErr
@@ -95,7 +96,7 @@ func (s *Service) signPrepare(ctx context.Context,
 			return nil, nil
 
 		default:
-			s.logger.Error("unable get block by hash from bc-adapter",
+			s.logger.Error("unable to load derivation address from hd-wallet",
 				zap.Error(ErrUnableDecodeGrpcErrorStatus))
 
 			return nil, err

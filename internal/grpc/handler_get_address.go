@@ -2,6 +2,8 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"sync"
 
@@ -43,14 +45,36 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	ownerWallet, addressData, err := h.walletSvc.GetAddress(ctx, vf.MnemonicWalletUUID,
-		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex, req.SessionIdentity.SessionUUID)
+	walletItem, sessionItem, err := h.walletSvc.GetWalletSessionInfo(ctx, vf.MnemonicWalletUUID, vf.SessionUUID)
+	if err != nil {
+		h.l.Error("unable get wallet and wallet session info", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.MnemonicWalletUUID),
+			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+
+	if walletItem == nil {
+		return nil, status.Error(codes.NotFound, "mnemonic wallet not found")
+	}
+
+	if walletItem.Status == types.MnemonicWalletStatusDisabled {
+		return nil, status.Error(codes.ResourceExhausted, "wallet disabled")
+	}
+
+	if sessionItem == nil || !sessionItem.IsSessionActive() {
+		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
+	}
+
+	addressData, err := h.walletSvc.GetAddress(ctx, vf.MnemonicWalletUUID,
+		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
 	if err != nil {
 		return nil, err
 	}
 
-	if ownerWallet == nil {
-		return nil, status.Error(codes.NotFound, "wallet not found")
+	if addressData == nil {
+		return nil, status.Error(codes.ResourceExhausted,
+			"wallet not found or all wallet sessions already expired")
 	}
 
 	addressEntity := h.pbAddrPool.Get().(*pbCommon.DerivationAddressIdentity)
@@ -59,7 +83,7 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 	addressEntity.AddressIndex = vf.AddressIndex
 	addressEntity.Address = *addressData
 
-	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(ownerWallet, addressEntity)
+	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(walletItem, addressEntity)
 	if err != nil {
 		h.l.Error("unable to marshall public address data", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

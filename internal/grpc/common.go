@@ -75,13 +75,11 @@ type walletManagerService interface {
 	GetAddress(ctx context.Context,
 		mnemonicUUID string,
 		account, change, index uint32,
-		sessionUUID string,
-	) (ownerWallet *entities.MnemonicWallet, address *string, err error)
+	) (address *string, err error)
 	GetAddressesByRange(ctx context.Context,
 		mnemonicUUID string,
-		sessionUUID string,
 		addrRanges []*pbCommon.RangeRequestUnit,
-	) (ownerWallet *entities.MnemonicWallet, list []*pbCommon.DerivationAddressIdentity, err error)
+	) (list []*pbCommon.DerivationAddressIdentity, err error)
 
 	StartWalletSession(ctx context.Context,
 		walletUUID string,

@@ -12,11 +12,11 @@ type SignRequestExecForm struct {
 	SessionUUID     string `valid:"type(string),uuid,required"`
 	SignRequestUUID string `valid:"type(string),uuid,required"`
 
-	AccountIndex  uint32 `valid:"type(uint)"`
-	InternalIndex uint32 `valid:"type(uint)"`
-	AddressIndex  uint32 `valid:"type(uint)"`
+	AccountIndex  uint32 `valid:"type(uint32)"`
+	InternalIndex uint32 `valid:"type(uint32)"`
+	AddressIndex  uint32 `valid:"type(uint32)"`
 
-	SignData []byte `valid:"type([]byte]),required"`
+	SignData []byte `valid:"required"`
 }
 
 func (f *SignRequestExecForm) LoadAndValidate(ctx context.Context,

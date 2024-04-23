@@ -17,6 +17,10 @@ func (s *Service) ExecuteSignRequest(ctx context.Context,
 	signReqItem *entities.SignRequest,
 	transactionData []byte,
 ) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error) {
+	if signReqItem.DerivationPath == nil {
+		return nil, nil, ErrMissingDerivationPathField
+	}
+
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		clbErr := s.signReqDataSvc.UpdateSignRequestItemStatus(txStmtCtx, signReqItem.UUID,
 			types.SignRequestStatusSigned)

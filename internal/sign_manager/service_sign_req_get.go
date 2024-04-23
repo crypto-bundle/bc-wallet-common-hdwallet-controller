@@ -19,5 +19,5 @@ func (s *Service) GetActiveSignRequest(ctx context.Context,
 		return nil, nil
 	}
 
-	return nil, nil
+	return signReqItem, nil
 }

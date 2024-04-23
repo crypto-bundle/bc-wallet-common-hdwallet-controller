@@ -110,8 +110,9 @@ func (h *SignTransactionHandler) Handle(ctx context.Context,
 		SessionIdentity: &pbApi.WalletSessionIdentity{
 			SessionUUID: sessionItem.UUID,
 		},
-		TxOwnerIdentity: signOwner,
-		SignedTxData:    signedTxData,
+		SignRequestIdentifier: &pbApi.SignRequestIdentity{UUID: signReqItem.UUID},
+		TxOwnerIdentity:       signOwner,
+		SignedTxData:          signedTxData,
 	}, nil
 }
 
@@ -121,7 +122,8 @@ func MakeSignTransactionsHandler(loggerEntry *zap.Logger,
 	marshallerSrv marshallerService,
 ) *SignTransactionHandler {
 	return &SignTransactionHandler{
-		l:              loggerEntry.With(zap.String(MethodNameTag, MethodSignTransaction)),
+		l: loggerEntry.With(zap.String(MethodNameTag, MethodSignTransaction)),
+
 		walletSvc:      walletSvc,
 		signManagerSvc: signManagerSvc,
 		marshallerSrv:  marshallerSrv,

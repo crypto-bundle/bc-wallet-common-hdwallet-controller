@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
@@ -15,28 +14,8 @@ import (
 
 func (s *Service) GetAddressesByRange(ctx context.Context,
 	mnemonicUUID string,
-	sessionUUID string,
 	addrRanges []*pbCommon.RangeRequestUnit,
-) (ownerWallet *entities.MnemonicWallet, list []*pbCommon.DerivationAddressIdentity, err error) {
-	var walletSession *entities.MnemonicWalletSession = nil
-	var wallet *entities.MnemonicWallet = nil
-
-	wallet, walletSession, err = s.getWalletAndSession(ctx, mnemonicUUID, sessionUUID)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if wallet == nil {
-		return nil, nil, nil
-	}
-
-	if walletSession == nil {
-		return wallet, nil, nil
-	}
-
-	if !walletSession.IsSessionActive() {
-		return wallet, nil, nil
-	}
+) (list []*pbCommon.DerivationAddressIdentity, err error) {
 
 	resp, err := s.hdWalletClientSvc.GetDerivationAddressByRange(ctx, &hdwallet.DerivationAddressByRangeRequest{
 		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
@@ -48,21 +27,21 @@ func (s *Service) GetAddressesByRange(ctx context.Context,
 		grpcStatus, statusExists := status.FromError(err)
 		if !statusExists {
 			s.logger.Error("unable get status from error", zap.Error(ErrUnableDecodeGrpcErrorStatus))
-			return nil, nil, ErrUnableDecodeGrpcErrorStatus
+			return nil, ErrUnableDecodeGrpcErrorStatus
 		}
 
 		switch grpcStatus.Code() {
 		case codes.NotFound, codes.ResourceExhausted:
-			return nil, nil, nil
+			return nil, nil
 
 		default:
 			s.logger.Error("unable to get derivation address",
 				zap.Error(ErrUnableDecodeGrpcErrorStatus),
 				zap.String(app.MnemonicWalletUUIDTag, mnemonicUUID))
 
-			return nil, nil, err
+			return nil, err
 		}
 	}
 
-	return wallet, resp.AddressIdentities, nil
+	return resp.AddressIdentities, nil
 }

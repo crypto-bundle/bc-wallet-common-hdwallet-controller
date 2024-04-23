@@ -34,12 +34,14 @@ func (s *pgRepository) AddSignRequestItem(ctx context.Context,
 		date := time.Now()
 
 		row := stmt.QueryRowx(`INSERT INTO "sign_requests" ("uuid", 
-				"mnemonic_wallet_uuid", "session_uuid", "purpose_uuid", 
+				"mnemonic_wallet_uuid", "session_uuid", "purpose_uuid",
+				"derivation_path",
 				"status",
 				"created_at", "updated_at")
-            VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
+            VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,
 			toSaveItem.UUID,
 			toSaveItem.WalletUUID, toSaveItem.SessionUUID, toSaveItem.PurposeUUID,
+			toSaveItem.DerivationPath,
 			toSaveItem.Status,
 			date, nil)
 
@@ -215,31 +217,31 @@ func (s *pgRepository) UpdateSignRequestItemStatusByWalletUUID(ctx context.Conte
 func (s *pgRepository) GetSignRequestItemByUUIDAndStatus(ctx context.Context,
 	signReqUUID string,
 	status types.SignRequestStatus,
-) (*entities.SignRequest, error) {
-	var item *entities.SignRequest = nil
-
-	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+) (item *entities.SignRequest, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		row := stmt.QueryRowx(`SELECT *
 	       FROM "sign_requests"
 	       WHERE "uuid" = $1 AND "status" = $2`, signReqUUID, status)
 
-		queryErr := row.Err()
-		if queryErr != nil {
-			return queryErr
+		clbErr := row.Err()
+		if clbErr != nil {
+			return clbErr
 		}
 
-		item = &entities.SignRequest{}
-		err := row.StructScan(item)
-		if err != nil {
-			return commonPostgres.EmptyOrError(err, "unable get sign request by uuid")
+		dataItem := &entities.SignRequest{}
+		clbErr = row.StructScan(dataItem)
+		if clbErr != nil {
+			return commonPostgres.EmptyOrError(clbErr, "unable get sign request by uuid")
 		}
+
+		item = dataItem
 
 		return nil
 	}); err != nil {
 		return nil, err
 	}
 
-	return item, nil
+	return
 }
 
 func NewPostgresStore(logger *zap.Logger,
