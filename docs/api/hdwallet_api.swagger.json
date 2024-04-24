@@ -1,0 +1,217 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "hdwallet_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "HdWalletApi"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "commonDerivationAddressIdentity": {
+      "type": "object",
+      "properties": {
+        "AccountIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "InternalIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Address": {
+          "type": "string"
+        }
+      }
+    },
+    "commonMnemonicWalletIdentity": {
+      "type": "object",
+      "properties": {
+        "WalletUUID": {
+          "type": "string"
+        },
+        "WalletHash": {
+          "type": "string"
+        }
+      }
+    },
+    "commonRangeRequestUnit": {
+      "type": "object",
+      "properties": {
+        "AccountIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "InternalIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndexFrom": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndexTo": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "hdwallet_apiDerivationAddressByRangeResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicWalletIdentifier": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "AddressIdentitiesCount": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "AddressIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonDerivationAddressIdentity"
+          }
+        }
+      }
+    },
+    "hdwallet_apiDerivationAddressResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicWalletIdentifier": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "AddressIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        }
+      }
+    },
+    "hdwallet_apiEncryptMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "EncryptedMnemonicData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "hdwallet_apiGenerateMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "EncryptedMnemonicData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "hdwallet_apiLoadDerivationAddressResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicWalletIdentifier": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        }
+      }
+    },
+    "hdwallet_apiLoadMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "hdwallet_apiSignDataResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicWalletIdentifier": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        },
+        "SignedData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "hdwallet_apiUnLoadMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "hdwallet_apiUnLoadMultipleMnemonicsResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
+        }
+      }
+    },
+    "hdwallet_apiValidateMnemonicResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "IsValid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,142 @@
+//    MIT License
+//
+//    Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+//
+//    Permission is hereby granted, free of charge, to any person obtaining a copy
+//    of this software and associated documentation files (the "Software"), to deal
+//    in the Software without restriction, including without limitation the rights
+//    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//    copies of the Software, and to permit persons to whom the Software is
+//    furnished to do so, subject to the following conditions:
+//
+//    The above copyright notice and this permission notice shall be included in all
+//    copies or substantial portions of the Software.
+//
+//    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//    SOFTWARE.
+
+syntax = "proto3";
+
+package hdwallet_api;
+
+option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet";
+
+import "common.proto";
+
+message GenerateMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message GenerateMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes EncryptedMnemonicData = 2;
+}
+
+message EncryptMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes MnemonicData = 2;
+}
+
+message EncryptMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes EncryptedMnemonicData = 2;
+}
+
+message ValidateMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bytes MnemonicData = 2;
+}
+
+message ValidateMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  bool IsValid = 2;
+}
+
+message LoadMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  uint64 TimeToLive = 2;
+  bytes EncryptedMnemonicData = 3;
+}
+
+message LoadMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMnemonicRequest {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMnemonicResponse {
+  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMultipleMnemonicsRequest {
+  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message UnLoadMultipleMnemonicsResponse {
+  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+}
+
+message DerivationAddressRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity AddressIdentity = 2;
+}
+
+message DerivationAddressResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity AddressIdentity = 2;
+}
+
+message DerivationAddressByRangeRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  repeated common.RangeRequestUnit Ranges = 2;
+}
+
+message DerivationAddressByRangeResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  uint64 AddressIdentitiesCount = 3;
+  repeated common.DerivationAddressIdentity AddressIdentities = 4;
+}
+
+message LoadDerivationAddressRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
+  common.DerivationAddressIdentity AddressIdentifier = 2;
+}
+
+message LoadDerivationAddressResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity TxOwnerIdentity = 2;
+}
+
+message SignDataRequest {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
+  common.DerivationAddressIdentity AddressIdentifier = 2;
+  bytes DataForSign = 3;
+}
+
+message SignDataResponse {
+  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.DerivationAddressIdentity TxOwnerIdentity = 2;
+  bytes SignedData = 3;
+}
+
+service HdWalletApi {
+  rpc GenerateMnemonic                 (GenerateMnemonicRequest)           returns (GenerateMnemonicResponse) {}
+  rpc EncryptMnemonic                 (EncryptMnemonicRequest)           returns (EncryptMnemonicResponse) {}
+  rpc ValidateMnemonic                 (ValidateMnemonicRequest)           returns (ValidateMnemonicResponse) {}
+  rpc LoadMnemonic                 (LoadMnemonicRequest)           returns (LoadMnemonicResponse) {}
+  rpc UnLoadMnemonic                 (UnLoadMnemonicRequest)           returns (UnLoadMnemonicResponse) {}
+  rpc UnLoadMultipleMnemonics           (UnLoadMultipleMnemonicsRequest)           returns (UnLoadMultipleMnemonicsResponse) {}
+
+  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
+  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+
+  rpc LoadDerivationAddress             (LoadDerivationAddressRequest)    returns (LoadDerivationAddressResponse) {}
+  rpc SignData                   (SignDataRequest)    returns (SignDataResponse) {}
+}

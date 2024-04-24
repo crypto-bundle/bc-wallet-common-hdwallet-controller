@@ -1,42 +1,47 @@
+/*
+ *
+ *
+ * MIT-License
+ *
+ * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 )
 
 func (m *grpcMarshaller) MarshallCreateWalletData(
-	walletData *types.PublicWalletData,
+	walletData *entities.MnemonicWallet,
 ) (*pbApi.AddNewWalletResponse, error) {
-	mnemonicsCount := uint32(len(walletData.MnemonicWallets))
 
-	resp := &pbApi.AddNewWalletResponse{Wallet: &pbApi.WalletData{
-		Identity:            &pbApi.WalletIdentity{WalletUUID: walletData.UUID.String()},
-		Title:               walletData.Title,
-		Purpose:             walletData.Purpose,
-		Strategy:            pbApi.WalletMakerStrategy(walletData.Strategy),
-		MnemonicWalletCount: uint32(len(walletData.MnemonicWallets)),
-		MnemonicWallets:     make([]*pbApi.MnemonicWalletData, mnemonicsCount),
-		Bookmarks: &pbApi.WalletBookmarks{
-			HotWalletIndex: 0,
-		},
+	resp := &pbApi.AddNewWalletResponse{WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletUUID: walletData.UUID.String(),
+		WalletHash: walletData.MnemonicHash,
 	}}
-
-	for i := uint32(0); i != mnemonicsCount; i++ {
-		mnemonicPublicData := walletData.MnemonicWallets[i]
-		resp.Wallet.MnemonicWallets[i] = &pbApi.MnemonicWalletData{
-			Identity: &pbApi.MnemonicWalletIdentity{
-				WalletUUID: mnemonicPublicData.UUID.String(),
-				WalletHash: mnemonicPublicData.Hash,
-			},
-			IsHot: mnemonicPublicData.IsHotWallet,
-		}
-
-		if mnemonicPublicData.IsHotWallet {
-			resp.Wallet.Bookmarks.HotWalletIndex = i
-		}
-	}
 
 	return resp, nil
 }

@@ -1,4 +1,4 @@
-FROM golang:1.19-alpine AS gobuild
+FROM golang:1.22-alpine AS gobuild
 
 ENV GO111MODULE on
 ENV GOSUMDB off
@@ -8,7 +8,7 @@ ENV GOPRIVATE $GOPRIVATE,github.com/crypto-bundle
 # add private github token
 RUN apk add --no-cache git openssh build-base && \
     mkdir -p -m 0700 ~/.ssh && \
-    ssh-keyscan gitlab.heronodes.io >> ~/.ssh/known_hosts && \
+    ssh-keyscan github.com >> ~/.ssh/known_hosts && \
     git config --global url."git@github.com".insteadOf "https://github.com/"
 
 WORKDIR /src
@@ -21,10 +21,23 @@ COPY . .
 # Compile! Should only compile our sources since everything else is precompiled.
 ARG RACE=-race
 ARG CGO=1
+ARG RELEASE_TAG="v0.0.0-00000000-100500"
+ARG COMMIT_ID="0000000000000000000000000000000000000000"
+ARG SHORT_COMMIT_ID="00000000"
+ARG BUILD_NUMBER="100500"
+ARG BUILD_DATE_TS="1713280105"
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
+    --mount=type=ssh \
     mkdir -p /src/bin && \
-    GOOS=linux CGO_ENABLED=${CGO} go build ${RACE} -v -installsuffix cgo -o ./bin/api -ldflags "-linkmode external -extldflags -static -s -w" ./cmd/api
+    GOOS=linux CGO_ENABLED=${CGO} go build ${RACE} -v -installsuffix cgo -o ./bin/api \
+      -ldflags "-linkmode external -extldflags -static -s -w \
+                -X 'main.BuildDateTS=${BUILD_DATE_TS}' \
+      			-X 'main.BuildNumber=${BUILD_NUMBER}' \
+      			-X 'main.ReleaseTag=${RELEASE_TAG}' \
+      			-X 'main.CommitID=${COMMIT_ID}' \
+      			-X 'main.ShortCommitID=${SHORT_COMMIT_ID}'" \
+      ./cmd/api
 
 FROM scratch
 

@@ -1,7 +1,37 @@
+/*
+ *
+ *
+ * MIT-License
+ *
+ * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package config
 
 import (
 	"context"
+	"fmt"
+	"os"
+
 	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 	commonVaultTokenClient "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault/client/token"
@@ -37,17 +67,17 @@ func PrepareVault(ctx context.Context, baseCfgSrv baseConfigService) (*commonVau
 }
 
 func Prepare(ctx context.Context,
-	version,
 	releaseTag,
 	commitID,
-	shortCommitID string,
+	shortCommitID,
 	buildNumber,
-	buildDateTS uint64,
-	applicationName string,
+	buildDateTS string,
 ) (*MangerConfig, *commonVault.Service, error) {
-	baseCfgSrv, err := PrepareBaseConfig(ctx, version, releaseTag,
+	appName := fmt.Sprintf(ApplicationManagerNameTpl, os.Getenv(ProcessingNetworkEnvName))
+
+	baseCfgSrv, err := PrepareBaseConfig(ctx, releaseTag,
 		commitID, shortCommitID,
-		buildNumber, buildDateTS, applicationName)
+		buildNumber, buildDateTS, appName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -75,19 +105,21 @@ func Prepare(ctx context.Context,
 }
 
 func PrepareBaseConfig(ctx context.Context,
-	version,
 	releaseTag,
 	commitID,
-	shortCommitID string,
+	shortCommitID,
 	buildNumber,
-	buildDateTS uint64,
+	buildDateTS,
 	applicationName string,
 ) (*commonConfig.BaseConfig, error) {
-	flagManagerSrv := commonConfig.NewLdFlagsManager(version, releaseTag,
+	flagManagerSrv, err := commonConfig.NewLdFlagsManager(releaseTag,
 		commitID, shortCommitID,
 		buildNumber, buildDateTS)
+	if err != nil {
+		return nil, err
+	}
 
-	err := commonConfig.LoadLocalEnvIfDev()
+	err = commonConfig.LoadLocalEnvIfDev()
 	if err != nil {
 		return nil, err
 	}

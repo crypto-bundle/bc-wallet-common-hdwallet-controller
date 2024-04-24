@@ -1,15 +1,42 @@
+/*
+ *
+ *
+ * MIT-License
+ *
+ * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package mnemonic_wallet_data
 
 import (
 	"context"
-
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/nats_store"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/pg_store"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/redis_store"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/nats_store"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/pg_store"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/redis_store"
 
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	tracer "github.com/crypto-bundle/bc-wallet-common-lib-tracer/pkg/tracer/opentracing"
@@ -21,6 +48,8 @@ import (
 
 type Service struct {
 	logger *zap.Logger
+
+	txStmtSvc transactionalStatementManager
 
 	persistentStore  dbStoreService
 	redisCacheStore  cacheStoreService
@@ -58,6 +87,50 @@ func (s *Service) AddNewMnemonicWallet(ctx context.Context,
 	}(*mnemoWalletItem)
 
 	return mnemoWalletItem, nil
+}
+
+func (s *Service) DisableWallet(ctx context.Context,
+	walletUUID string,
+) (*entities.MnemonicWallet, error) {
+	var err error
+	tCtx, span, finish := tracer.Trace(ctx)
+
+	defer func() { finish(err) }()
+
+	span.SetTag(app.MnemonicWalletUUIDTag, walletUUID)
+
+	err = s.txStmtSvc.BeginTxWithRollbackOnError(tCtx, func(txStmtCtx context.Context) error {
+		updatedItem, clbErr := s.persistentStore.UpdateWalletStatus(txStmtCtx,
+			walletUUID, types.MnemonicWalletStatusDisabled)
+		if clbErr != nil {
+			s.logger.Error("unable to save mnemonic wallet item in persistent store", zap.Error(err),
+				zap.String(app.MnemonicWalletUUIDTag, walletUUID))
+
+			return err
+		}
+
+	}
+
+
+	go func(item entities.MnemonicWallet) {
+		_, err = s.redisCacheStore.SetMnemonicWalletItem(context.Background(), &item)
+		if err != nil {
+			s.logger.Error("unable to save mnemonic wallet item in redis cache store", zap.Error(err),
+				zap.String(app.MnemonicWalletUUIDTag, item.UUID.String()),
+				zap.String(app.WalletUUIDTag, item.WalletUUID.String()))
+		}
+	}(*updatedItem)
+
+	go func(item entities.MnemonicWallet) {
+		_, err = s.natsKVCacheStore.SetMnemonicWalletItem(context.Background(), &item)
+		if err != nil {
+			s.logger.Error("unable to save mnemonic wallet item in nats kv cache store", zap.Error(err),
+				zap.String(app.MnemonicWalletUUIDTag, item.UUID.String()),
+				zap.String(app.WalletUUIDTag, item.WalletUUID.String()))
+		}
+	}(*updatedItem)
+
+	return updatedItem, nil
 }
 
 func (s *Service) GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error) {
@@ -148,6 +221,10 @@ func (s *Service) GetMnemonicWalletsByUUIDList(ctx context.Context,
 	UUIDList []string,
 ) ([]*entities.MnemonicWallet, error) {
 	return s.persistentStore.GetMnemonicWalletsByUUIDList(ctx, UUIDList)
+}
+
+func (s *Service) GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
+	return s.persistentStore.GetAllHotMnemonicWallets(ctx)
 }
 
 func (s *Service) GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {

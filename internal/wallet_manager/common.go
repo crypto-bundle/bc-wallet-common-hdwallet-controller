@@ -1,140 +1,162 @@
+/*
+ *
+ *
+ * MIT-License
+ *
+ * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package wallet_manager
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"time"
-
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/hdwallet"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-
-	"github.com/google/uuid"
 )
 
 type configService interface {
-	GetDefaultHotWalletUnloadInterval() time.Duration
+	GetDefaultWalletSessionDelay() time.Duration
 	GetDefaultWalletUnloadInterval() time.Duration
+}
 
-	GetMnemonicsCountPerWallet() uint8
+type mnemonicWalletsCacheStoreService interface {
+	SetMnemonicWalletItem(ctx context.Context,
+		walletItem *entities.MnemonicWallet,
+	) error
+	SetMultipleMnemonicWallets(ctx context.Context,
+		walletItems []*entities.MnemonicWallet,
+	) error
+	GetAllWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+	GetMnemonicWalletByUUID(ctx context.Context,
+		MnemonicWalletUUID string,
+	) (*entities.MnemonicWallet, error)
+	GetMnemonicWalletInfoByUUID(ctx context.Context,
+		MnemonicWalletUUID string,
+	) (wallet *entities.MnemonicWallet, sessions []*entities.MnemonicWalletSession, err error)
+	GetMnemonicWalletSessionInfoByUUID(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
+	) (wallet *entities.MnemonicWallet, session *entities.MnemonicWalletSession, err error)
+	SetMnemonicWalletSessionItem(ctx context.Context,
+		sessionItem *entities.MnemonicWalletSession,
+	) error
+	FullUnsetMnemonicWallet(ctx context.Context,
+		mnemonicWalletUUID string,
+	) error
+	UnsetWalletSession(ctx context.Context,
+		mnemonicWalletsUUID string,
+		sessionsUUID string,
+	) error
+	UnsetMultipleWallets(ctx context.Context,
+		walletIdentities []string,
+	) error
+	UnsetMultipleSessions(ctx context.Context,
+		sessionByWalletIdentities map[string][]string,
+	) error
 }
 
 type mnemonicWalletsDataService interface {
-	AddNewMnemonicWallet(ctx context.Context, wallet *entities.MnemonicWallet) (*entities.MnemonicWallet, error)
+	AddNewMnemonicWallet(ctx context.Context,
+		wallet *entities.MnemonicWallet,
+	) (*entities.MnemonicWallet, error)
+	UpdateWalletStatus(ctx context.Context,
+		walletUUID string,
+		newStatus types.MnemonicWalletStatus,
+	) (*entities.MnemonicWallet, error)
+	UpdateMultipleWalletsStatus(ctx context.Context,
+		walletUUID []string,
+		newStatus types.MnemonicWalletStatus,
+	) (uint, []string, error)
+	UpdateMultipleWalletsStatusRetWallets(ctx context.Context,
+		walletUUIDs []string,
+		newStatus types.MnemonicWalletStatus,
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
-	GetMnemonicWalletUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.MnemonicWallet, error)
+	GetMnemonicWalletByUUID(ctx context.Context, uuid string) (*entities.MnemonicWallet, error)
+	GetMnemonicWalletsByStatus(ctx context.Context,
+		status types.MnemonicWalletStatus,
+	) ([]*entities.MnemonicWallet, error)
 	GetMnemonicWalletsByUUIDList(ctx context.Context,
 		UUIDList []string,
 	) ([]*entities.MnemonicWallet, error)
-	GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
-	GetAllNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
-}
+	GetMnemonicWalletsByUUIDListAndStatus(ctx context.Context,
+		UUIDList []string,
+		status []types.MnemonicWalletStatus,
+	) ([]string, []*entities.MnemonicWallet, error)
 
-type walletsDataService interface {
-	AddNewWallet(ctx context.Context, wallet *entities.Wallet) (*entities.Wallet, error)
-	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.Wallet, error)
-	GetAllEnabledWallets(ctx context.Context) ([]*entities.Wallet, error)
-	GetAllEnabledWalletUUIDList(ctx context.Context) ([]string, error)
-	SetEnabledToWalletByUUID(ctx context.Context, uuid string) error
-}
-
-type walletPoolUnitMakerService interface {
-	CreateDisabledWallet(ctx context.Context,
-		strategy types.WalletMakerStrategy,
-		title, purpose string,
-	) (WalletPoolUnitService, error)
-}
-
-type WalletPoolUnitService interface {
-	Init(ctx context.Context) error
-	Run(ctx context.Context) error
-	Shutdown(ctx context.Context) error
-
-	AddMnemonicUnit(unit walletPoolMnemonicUnitService) error
-	GetWalletUUID() uuid.UUID
-	GetWalletTitle() string
-	GetWalletPurpose() string
-	GetWalletPublicData() *types.PublicWalletData
-	GetAddressByPath(ctx context.Context,
-		mnemonicUUID uuid.UUID,
-		account, change, index uint32,
-	) (string, error)
-	GetAddressesByPathByRange(ctx context.Context,
-		mnemonicWalletUUID uuid.UUID,
-		rangeIterable types.AddrRangeIterable,
-		marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
+	AddNewWalletSession(ctx context.Context,
+		sessionItem *entities.MnemonicWalletSession,
+	) (*entities.MnemonicWalletSession, error)
+	UpdateWalletSessionStatusByWalletUUID(ctx context.Context,
+		walletUUID string,
+		status types.MnemonicWalletSessionStatus,
 	) error
-	SignTransaction(ctx context.Context,
-		mnemonicUUID uuid.UUID,
-		account, change, index uint32,
-		transactionData []byte,
-	) (*types.PublicSignTxData, error)
+	UpdateWalletSessionStatusBySessionUUID(ctx context.Context,
+		sessionUUID string,
+		newStatus types.MnemonicWalletSessionStatus,
+	) (result *entities.MnemonicWalletSession, err error)
+	UpdateMultipleWalletSessionStatus(ctx context.Context,
+		sessionsUUIDs []string,
+		newStatus types.MnemonicWalletSessionStatus,
+	) (count uint, sessions []string, err error)
+	UpdateMultipleWalletSessionStatusClb(ctx context.Context,
+		walletsUUIDs []string,
+		newStatus types.MnemonicWalletSessionStatus,
+		oldStatus []types.MnemonicWalletSessionStatus,
+		clbFunc func(*entities.MnemonicWalletSession) error,
+	) (count uint, list []*entities.MnemonicWalletSession, err error)
+	GetWalletSessionByUUID(ctx context.Context,
+		sessionUUID string,
+	) (*entities.MnemonicWalletSession, error)
+	GetActiveWalletSessionsByWalletUUID(ctx context.Context, walletUUID string) (
+		count uint, list []*entities.MnemonicWalletSession, err error,
+	)
 }
 
-type walletPoolMnemonicUnitService interface {
-	Init(ctx context.Context) error
-	Run(ctx context.Context) error
-	Shutdown(ctx context.Context) error
-	LoadWallet(ctx context.Context) error
-	UnloadWallet(ctx context.Context) error
-	GetPublicData() *types.PublicMnemonicWalletData
-
-	IsHotWalletUnit() bool
-	GetMnemonicUUID() uuid.UUID
-	GetAddressByPath(ctx context.Context,
-		account, change, index uint32,
-	) (string, error)
-	GetAddressesByPathByRange(ctx context.Context,
-		rangeIterable types.AddrRangeIterable,
-		marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
+type signRequestDataService interface {
+	AddSignRequestItem(ctx context.Context,
+		toSaveItem *entities.SignRequest,
+	) (*entities.SignRequest, error)
+	UpdateSignRequestItemStatus(ctx context.Context,
+		signReqUUID string,
+		newStatus types.SignRequestStatus,
 	) error
-	SignTransaction(ctx context.Context,
-		account, change, index uint32,
-		transactionData []byte,
-	) (*types.PublicSignTxData, error)
 }
 
-type walletPoolInitService interface {
-	LoadAndInitWallets(ctx context.Context) error
-	GetWalletPoolUnits() map[uuid.UUID]WalletPoolUnitService
+type encryptService interface {
+	Encrypt(msg []byte) ([]byte, error)
+	Decrypt(encMsg []byte) ([]byte, error)
 }
 
-type walletPoolService interface {
-	Init(ctx context.Context) error
-	Run(ctx context.Context) error
-	Shutdown(ctx context.Context) error
-
-	SetWalletUnits(ctx context.Context,
-		walletUnits map[uuid.UUID]WalletPoolUnitService,
+type eventPublisherService interface {
+	SendSessionStartEvent(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
 	) error
-	AddAndStartWalletUnit(ctx context.Context,
-		walletUUID uuid.UUID,
-		walletUnit WalletPoolUnitService,
+	SendSessionClosedEvent(ctx context.Context,
+		walletUUID string,
+		sessionUUID string,
 	) error
-	GetAddressByPath(ctx context.Context,
-		walletUUID uuid.UUID,
-		mnemonicWalletUUID uuid.UUID,
-		account, change, index uint32,
-	) (string, error)
-	GetAddressesByPathByRange(ctx context.Context,
-		walletUUID uuid.UUID,
-		mnemonicWalletUUID uuid.UUID,
-		rangeIterable types.AddrRangeIterable,
-		marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
-	) error
-	GetWalletByUUID(ctx context.Context, walletUUID uuid.UUID) (*types.PublicWalletData, error)
-	GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData, error)
-	SignTransaction(ctx context.Context,
-		walletUUID uuid.UUID,
-		mnemonicUUID uuid.UUID,
-		account, change, index uint32,
-		transactionData []byte,
-	) (*types.PublicSignTxData, error)
-}
-
-type mnemonicWalletConfig interface {
-	GetMnemonicWalletPurpose() string
-	GetMnemonicWalletHash() string
-	IsHotWallet() bool
 }
 
 type transactionalStatementManager interface {
@@ -144,29 +166,4 @@ type transactionalStatementManager interface {
 	BeginTxWithRollbackOnError(ctx context.Context,
 		callback func(txStmtCtx context.Context) error,
 	) error
-}
-
-type walleter interface {
-	GetAddress() (string, error)
-	GetPubKey() string
-	GetPrvKey() (string, error)
-	GetPath() string
-}
-
-type hdWalleter interface {
-	PublicHex() string
-	PublicHash() ([]byte, error)
-
-	NewTronWallet(account, change, address uint32) (*hdwallet.Tron, error)
-
-	ClearSecrets()
-}
-
-type mnemonicGenerator interface {
-	Generate(ctx context.Context) (string, error)
-}
-
-type encryptService interface {
-	Encrypt(msg []byte) ([]byte, error)
-	Decrypt(encMsg []byte) ([]byte, error)
 }

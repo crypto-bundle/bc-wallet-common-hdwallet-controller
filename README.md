@@ -1,4 +1,4 @@
-# bc-wallet-tron-hdwallet
+# bc-wallet-common-hdwallet-controller
 
 ## Description
 
@@ -7,7 +7,7 @@ Application purpose - create new mnemonic wallet, sign transaction, get derivati
 
 ## Api
 
-Service has a GRPC-api - api doc [here](./docs/hdwallet_api/hdwallet_proto.md)
+Service has a GRPC-api - api doc [here](docs/api/hdwallet_proto.md)
 
 ## Mnemmonic wallets
 
@@ -140,6 +140,4 @@ vault kv put kv/crypto-bundle/bc-wallet-tron-hdwallet/updater \
 
 ## Licence
 
-**bc-wallet-tron-hdwallet** has a proprietary license.
-
-Switched to proprietary license from MIT - [CHANGELOG.MD - v0.0.24](./CHANGELOG.md)
+**bc-wallet-common-hdwallet-controller** is licensed under the [MIT](./LICENSE) License.

@@ -1,0 +1,378 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "controller_api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "HdWalletControllerApi"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {},
+  "definitions": {
+    "SignRequestDataReqStatus": {
+      "type": "string",
+      "enum": [
+        "REQUEST_PLACEHOLDER",
+        "REQUEST_CREATED",
+        "REQUEST_PREPARED",
+        "REQUEST_SIGNED",
+        "REQUEST_FAILED"
+      ],
+      "default": "REQUEST_PLACEHOLDER"
+    },
+    "commonDerivationAddressIdentity": {
+      "type": "object",
+      "properties": {
+        "AccountIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "InternalIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Address": {
+          "type": "string"
+        }
+      }
+    },
+    "commonMnemonicWalletIdentity": {
+      "type": "object",
+      "properties": {
+        "WalletUUID": {
+          "type": "string"
+        },
+        "WalletHash": {
+          "type": "string"
+        }
+      }
+    },
+    "commonRangeRequestUnit": {
+      "type": "object",
+      "properties": {
+        "AccountIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "InternalIndex": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndexFrom": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "AddressIndexTo": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "manager_apiAddNewWalletResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiCloseWalletSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        }
+      }
+    },
+    "manager_apiDerivationAddressByRangeResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "AddressIdentitiesCount": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "AddressIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonDerivationAddressIdentity"
+          }
+        }
+      }
+    },
+    "manager_apiDerivationAddressResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "AddressIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        }
+      }
+    },
+    "manager_apiDisableWalletResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiDisableWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
+        }
+      }
+    },
+    "manager_apiEnableWalletResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiEnableWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
+        }
+      }
+    },
+    "manager_apiExecuteSignRequestResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        },
+        "SignRequestIdentifier": {
+          "$ref": "#/definitions/manager_apiSignRequestIdentity"
+        },
+        "SignedTxData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "manager_apiGetEnabledWalletsResponse": {
+      "type": "object",
+      "properties": {
+        "WalletsCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "WalletIdentities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+          }
+        },
+        "Bookmarks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    },
+    "manager_apiGetWalletInfoResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiGetWalletSessionResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "Session": {
+          "$ref": "#/definitions/manager_apiSessionInfo"
+        }
+      }
+    },
+    "manager_apiGetWalletSessionsResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "ActiveSessions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/manager_apiSessionInfo"
+          }
+        }
+      }
+    },
+    "manager_apiImportWalletResponse": {
+      "type": "object",
+      "properties": {
+        "WalletIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        }
+      }
+    },
+    "manager_apiPrepareSignRequestResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "TxOwnerIdentity": {
+          "$ref": "#/definitions/commonDerivationAddressIdentity"
+        },
+        "SignatureRequestInfo": {
+          "$ref": "#/definitions/manager_apiSignRequestData"
+        }
+      }
+    },
+    "manager_apiSessionInfo": {
+      "type": "object",
+      "properties": {
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "SessionStartedAt": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "SessionExpiredAt": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "manager_apiSignPurposeIdentity": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string"
+        }
+      }
+    },
+    "manager_apiSignRequestData": {
+      "type": "object",
+      "properties": {
+        "Identifier": {
+          "$ref": "#/definitions/manager_apiSignRequestIdentity"
+        },
+        "Status": {
+          "$ref": "#/definitions/SignRequestDataReqStatus"
+        },
+        "CreateAt": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "manager_apiSignRequestIdentity": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string"
+        }
+      }
+    },
+    "manager_apiStartWalletSessionResponse": {
+      "type": "object",
+      "properties": {
+        "MnemonicIdentity": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "SessionIdentity": {
+          "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "SessionStartedAt": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "SessionExpiredAt": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "manager_apiWalletSessionIdentity": {
+      "type": "object",
+      "properties": {
+        "SessionUUID": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,50 +1,100 @@
+/*
+ *
+ *
+ * MIT-License
+ *
+ * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package grpc
 
 import (
 	"context"
 	"sync"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/config"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
 )
 
 // grpcServerHandle is wrapper struct for implementation all grpc handlers
 type grpcServerHandle struct {
-	*pbApi.UnimplementedHdWalletApiServer
+	*pbApi.UnimplementedHdWalletControllerApiServer
 
 	logger *zap.Logger
 	cfg    *config.MangerConfig
 
-	walletSrv     walletManagerService
+	mnemonicWalletDataSvc mnemonicWalletsDataService
+	walletSessionDataSvc  walletSessionDataService
+
 	marshallerSrv marshallerService
 	// all GRPC handlers
-	addNewWalletHandler                *AddNewWalletHandler
-	getDerivationAddressHandler        *GetDerivationAddressHandler
-	getDerivationAddressByRangeHandler *GetDerivationAddressByRangeHandler
-	getEnabledWalletsHandler           *GetEnabledWalletsHandler
-	getWalletInfoHandler               *GetWalletInfoHandler
-	signTransactionHandle              *SignTransactionHandler
+	addNewWalletHandlerSvc   addWalletHandlerService
+	importWalletHandlerSvc   importWalletHandlerService
+	disableWalletHandlerSvc  disableWalletHandlerService
+	disableWalletsHandlerSvc disableWalletsHandlerService
+	enableWalletsHandlerSvc  enableWalletsHandlerService
+	enableWalletHandlerSvc   enableWalletHandlerService
+	getWalletInfoHandlerSvc  getWalletHandlerService
+	getEnabledWalletsHandler getEnabledWalletsHandlerService
+
+	startWalletSessionHandlerSvc startWalletSessionHandlerService
+	closeWalletSessionHandlerSvc closeWalletSessionHandlerService
+	getWalletSessionHandleSvc    getWalletSessionHandlerService
+	getWalletSessionsHandleSvc   getWalletSessionsHandlerService
+
+	getDerivationAddressHandlerSvc        getAddressHandlerService
+	getDerivationAddressByRangeHandlerSvc getAddressByRangeHandlerService
+
+	prepareSignReqHandlerSvc prepareSignRequestHandlerService
+	executeSignReqHandleSvc  executeSignRequestHandlerService
 }
+
+// Wallet management handler
 
 func (h *grpcServerHandle) AddNewWallet(ctx context.Context,
 	req *pbApi.AddNewWalletRequest,
 ) (*pbApi.AddNewWalletResponse, error) {
-	return h.addNewWalletHandler.Handle(ctx, req)
+	return h.addNewWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetDerivationAddress(ctx context.Context,
-	req *pbApi.DerivationAddressRequest,
-) (*pbApi.DerivationAddressResponse, error) {
-	return h.getDerivationAddressHandler.Handle(ctx, req)
+func (h *grpcServerHandle) EnableWallet(ctx context.Context,
+	req *pbApi.EnableWalletRequest,
+) (*pbApi.EnableWalletResponse, error) {
+	return h.enableWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetDerivationAddressByRange(ctx context.Context,
-	req *pbApi.DerivationAddressByRangeRequest,
-) (*pbApi.DerivationAddressByRangeResponse, error) {
-	return h.getDerivationAddressByRangeHandler.Handle(ctx, req)
+func (h *grpcServerHandle) ImportWallet(ctx context.Context,
+	req *pbApi.ImportWalletRequest,
+) (*pbApi.ImportWalletResponse, error) {
+	return h.importWalletHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) GetWalletInfo(ctx context.Context,
+	req *pbApi.GetWalletInfoRequest,
+) (*pbApi.GetWalletInfoResponse, error) {
+	return h.getWalletInfoHandlerSvc.Handle(ctx, req)
 }
 
 func (h *grpcServerHandle) GetEnabledWallets(ctx context.Context,
@@ -53,47 +103,117 @@ func (h *grpcServerHandle) GetEnabledWallets(ctx context.Context,
 	return h.getEnabledWalletsHandler.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) SignTransaction(ctx context.Context,
-	req *pbApi.SignTransactionRequest,
-) (*pbApi.SignTransactionResponse, error) {
-	return h.signTransactionHandle.Handle(ctx, req)
+func (h *grpcServerHandle) DisableWallet(ctx context.Context,
+	req *pbApi.DisableWalletRequest,
+) (*pbApi.DisableWalletResponse, error) {
+	return h.disableWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetWalletInfo(ctx context.Context,
-	req *pbApi.GetWalletInfoRequest,
-) (*pbApi.GetWalletInfoResponse, error) {
-	return h.getWalletInfoHandler.Handle(ctx, req)
+func (h *grpcServerHandle) DisableWallets(ctx context.Context,
+	req *pbApi.DisableWalletsRequest,
+) (*pbApi.DisableWalletsResponse, error) {
+	return h.disableWalletsHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) EnableWallets(ctx context.Context,
+	req *pbApi.EnableWalletsRequest,
+) (*pbApi.EnableWalletsResponse, error) {
+	return h.enableWalletsHandlerSvc.Handle(ctx, req)
+}
+
+// Wallet sessions handlers
+
+func (h *grpcServerHandle) StartWalletSession(ctx context.Context,
+	req *pbApi.StartWalletSessionRequest,
+) (*pbApi.StartWalletSessionResponse, error) {
+	return h.startWalletSessionHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) GetWalletSession(ctx context.Context,
+	req *pbApi.GetWalletSessionRequest,
+) (*pbApi.GetWalletSessionResponse, error) {
+	return h.getWalletSessionHandleSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) GetAllWalletSessions(ctx context.Context,
+	req *pbApi.GetWalletSessionsRequest,
+) (*pbApi.GetWalletSessionsResponse, error) {
+	return h.getWalletSessionsHandleSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) CloseWalletSession(ctx context.Context,
+	req *pbApi.CloseWalletSessionsRequest,
+) (*pbApi.CloseWalletSessionsResponse, error) {
+	return h.closeWalletSessionHandlerSvc.Handle(ctx, req)
+}
+
+// Wallet derivation address handlers
+
+func (h *grpcServerHandle) GetDerivationAddress(ctx context.Context,
+	req *pbApi.DerivationAddressRequest,
+) (*pbApi.DerivationAddressResponse, error) {
+	return h.getDerivationAddressHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) GetDerivationAddressByRange(ctx context.Context,
+	req *pbApi.DerivationAddressByRangeRequest,
+) (*pbApi.DerivationAddressByRangeResponse, error) {
+	return h.getDerivationAddressByRangeHandlerSvc.Handle(ctx, req)
+}
+
+// Sign flow handlers
+
+func (h *grpcServerHandle) PrepareSignRequest(ctx context.Context,
+	req *pbApi.PrepareSignRequestReq,
+) (*pbApi.PrepareSignRequestResponse, error) {
+	return h.prepareSignReqHandlerSvc.Handle(ctx, req)
+}
+
+func (h *grpcServerHandle) ExecuteSignRequest(ctx context.Context,
+	req *pbApi.ExecuteSignRequestReq,
+) (*pbApi.ExecuteSignRequestResponse, error) {
+	return h.executeSignReqHandleSvc.Handle(ctx, req)
 }
 
 // New instance of service
-func New(ctx context.Context,
-	loggerSrv *zap.Logger,
+func New(loggerSrv *zap.Logger,
+	walletManagerSvc walletManagerService,
+	signManagerSvc signManagerService,
+) pbApi.HdWalletControllerApiServer {
 
-	walletSrv walletManagerService,
-) pbApi.HdWalletApiServer {
-
-	l := loggerSrv.Named("grpc.server.handler").With(
-		zap.String(app.BlockChainNameTag, app.BlockChainName))
+	l := loggerSrv.Named("grpc.server.handler")
 
 	addrRespPool := &sync.Pool{New: func() any {
-		return new(pbApi.DerivationAddressIdentity)
+		return new(pbCommon.DerivationAddressIdentity)
 	}}
 
-	marshallerSrv := newGRPCMarshaller(loggerSrv, addrRespPool)
+	marshallerSvc := newGRPCMarshaller(loggerSrv, addrRespPool)
 
 	return &grpcServerHandle{
-		UnimplementedHdWalletApiServer: &pbApi.UnimplementedHdWalletApiServer{},
-		logger:                         l,
+		UnimplementedHdWalletControllerApiServer: &pbApi.UnimplementedHdWalletControllerApiServer{},
+		logger:                                   l,
 
-		walletSrv:     walletSrv,
-		marshallerSrv: marshallerSrv,
+		marshallerSrv: marshallerSvc,
+		// handlers
+		addNewWalletHandlerSvc:   MakeAddNewWalletHandler(l, walletManagerSvc, marshallerSvc),
+		importWalletHandlerSvc:   MakeImportWalletHandler(l, walletManagerSvc),
+		enableWalletHandlerSvc:   MakeEnableWalletHandler(l, walletManagerSvc),
+		getWalletInfoHandlerSvc:  MakeGetWalletInfoHandler(l, walletManagerSvc),
+		getEnabledWalletsHandler: MakeGetEnabledWalletsHandler(l, walletManagerSvc, marshallerSvc),
+		disableWalletHandlerSvc:  MakeDisableWalletHandler(l, walletManagerSvc, signManagerSvc),
+		disableWalletsHandlerSvc: MakeDisableWalletsHandler(l, walletManagerSvc, signManagerSvc),
+		enableWalletsHandlerSvc:  MakeEnableWalletsHandler(l, walletManagerSvc),
 
-		addNewWalletHandler:         MakeAddNewWalletHandler(l, walletSrv, marshallerSrv),
-		getDerivationAddressHandler: MakeGetDerivationAddressHandler(l, walletSrv, marshallerSrv, addrRespPool),
-		getEnabledWalletsHandler:    MakeGetEnabledWalletsHandler(l, walletSrv, marshallerSrv),
-		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv,
-			marshallerSrv, addrRespPool),
-		signTransactionHandle: MakeSignTransactionsHandler(l, walletSrv, marshallerSrv),
-		getWalletInfoHandler:  MakeGetWalletInfoHandler(l, walletSrv, marshallerSrv),
+		startWalletSessionHandlerSvc: MakeStartWalletSessionHandler(l, walletManagerSvc),
+		getWalletSessionHandleSvc:    MakeGetWalletSessionHandler(l, walletManagerSvc),
+		getWalletSessionsHandleSvc:   MakeGetWalletSessionsHandler(l, walletManagerSvc, marshallerSvc),
+		closeWalletSessionHandlerSvc: MakeCloseWalletSessionHandler(l, walletManagerSvc, signManagerSvc),
+
+		getDerivationAddressHandlerSvc: MakeGetDerivationAddressHandler(l, walletManagerSvc,
+			marshallerSvc, addrRespPool),
+		getDerivationAddressByRangeHandlerSvc: MakeGetDerivationAddressByRangeHandler(l, walletManagerSvc,
+			marshallerSvc),
+		prepareSignReqHandlerSvc: MakeSignPrepareHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
+		executeSignReqHandleSvc:  MakeSignTransactionsHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
 	}
 }

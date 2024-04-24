@@ -1,16 +1,41 @@
+/*
+ *
+ *
+ * MIT-License
+ *
+ * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ *
+ */
+
 package grpc
 
 import (
 	"context"
 	"net"
 
-	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
-	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	commonGRPCServer "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/server"
 
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/opentracing/opentracing-go"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -20,7 +45,7 @@ type Server struct {
 	logger            *zap.Logger
 	grpcServer        *grpc.Server
 	grpcServerOptions []grpc.ServerOption
-	handlers          pbApi.HdWalletApiServer
+	handlers          pbApi.HdWalletControllerApiServer
 	config            configService
 
 	listener net.Listener
@@ -33,7 +58,7 @@ func (s *Server) Init(_ context.Context) error {
 		grpc.MaxSendMsgSize(commonGRPCServer.DefaultServerMaxSendMessageSize),
 	}
 	options = append(options, msgSizeOptions...)
-	options = append(options, grpc.UnaryInterceptor(otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer())))
+	options = append(options, grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
 	s.grpcServerOptions = options
 
@@ -69,7 +94,7 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 		reflection.Register(s.grpcServer)
 	}
 
-	pbApi.RegisterHdWalletApiServer(s.grpcServer, s.handlers)
+	pbApi.RegisterHdWalletControllerApiServer(s.grpcServer, s.handlers)
 
 	s.logger.Info("grpc serve success")
 
@@ -90,11 +115,9 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 func NewServer(ctx context.Context,
 	loggerSrv *zap.Logger,
 	cfg configService,
-	handlers pbApi.HdWalletApiServer,
+	handlers pbApi.HdWalletControllerApiServer,
 ) (*Server, error) {
-	l := loggerSrv.Named("grpc.server").With(
-		zap.String(app.ApplicationNameTag, app.ApplicationManagerName),
-		zap.String(app.BlockChainNameTag, app.BlockChainName))
+	l := loggerSrv.Named("grpc.server")
 
 	srv := &Server{
 		logger:   l,
