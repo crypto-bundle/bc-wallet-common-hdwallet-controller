@@ -1,84 +1,64 @@
 # Change Log
 
-## [v0.0.24] - 28.04.2023 17:50 MSK
+## [initial] - 06.03.2022 - 16.03.2023
+* Created go module as bc-wallet-eth-hdwallet
+* Added proto files for gRPC API
+* Integrated common dependencies
+* Moved to crypto-bundle namespace
+* Added wallet persistent store
+* Added functionality for gRPC handlers
+  * AddNewWallet
+  * GetDerivationAddress
+  * GetEnabledWallets
+  * GetDerivationAddressByRange
+* Added mnemonic encryption via rsa-keys
+* Added MIT licence
+* Refactoring service for supporting TRON blockchain
+* Created Helm chart
 
+## [v0.0.4] 16.03.2023
 ### Changed
+* Refactoring wallet pool service-component:
+  * Added wallet pool unit
+  * Added unit maker 
+  * Added support of multiple and single mnemonic wallet
+  * Added timer for mnemonic unloading flow
 
-#### Switching to a proprietary license.
-License of **bc-wallet-tron-hdwallet** repository changed to proprietary.
-
-Origin repository - https://github.com/crypto-bundle/bc-wallet-tron-hdwallet
-
-The MIT license is replaced by me (_Kotelnikov Aleksei_) as an author and maintainer.
-
-The license has been replaced with a proprietary one, with the condition of maintaining the authorship
-and specifying in the README.md file in the section of authors and contributors.
-
-[@gudron (Kotelnikov Aleksei)](https://github.com/gudron) - author and maintainer of [crypto-bundle project](https://github.com/crypto-bundle)
-
-The commit is signed with the key -
-gudron2s@gmail.com
-E456BB23A18A9347E952DBC6655133DD561BF3EC
-
-## [v0.0.26] - 14.05.2023
-
-### Changed
-* Docker container build
-* Fixed Nats-kv cache bucket bugs
-
-## [v0.0.27] - 09.06.2023
-### Added 
-* Logs in main.go
-
-## [v0.0.28] - 13.06.2023
-### Fixed
-* Create wallet bug. Bug in restoration from cache MnemonicWalletItem entity
-
-## [v0.0.29] - 06.07.2023
-### Fixed
-* Application can't process init stage with empty wallets table
-
-## [v0.0.30] - 11.07.2023
+## [v0.0.5] 05.04.2023
 ### Added
-* sync.Pool usage in GetDerivationAddress gRPC method
-* AddressIdentitiesCount parameter to GetDerivationAddressByRange response
+* Encryption private data via hashicorp vault
+* Added gRPC client config 
 ### Changed
-* GetDerivationAddressByRange gRPC method - added support of multiple ranges per request
-* Added iterator pattern to request form - DerivationAddressByRangeForm
+* Cleaned up repository:
+  * Removed ansible database deployment script
+  * Removed vault polices
+  * Removed private data from helm-chart
+* Updated common-libs:
+  * removed old bc-wallet-common dependency
+  * integrated lib-common dependencies:
+    * lib-postgres
+    * lib-config
+    * lib-grpc
+    * lib-tracer
+    * lib-logger
+    * lib-vault
+### Fixed
+* Fixed bug in wallet init stage
+* Fixed crash in wallet pool init stage
+* Fixed bugs in flow in new wallet creation
 
-## [v0.0.31] - 13.07.2023
+## [v0.0.6 - v0.0.22] 05.04.2023 - 28.04.2023
 ### Added
-* GetDerivationAddressByRange method to gRPC-client wrapper
-
-## [v0.0.32] - 14.07.2023
-### Fixed
-* Calculation of requested addresses count by range with GetDerivationAddressByRange gRPC method
-* Added case of range with one address item - AddressRangeFrom is equals to AddressRangeTo
-
-## [v0.0.33] - 30.08.2023
-### Fixed
-* GetAddressesByRange method - problem with gRPC-request cancel context.
-
-## [v0.0.34 - v0.0.35] - 03.09.2023
-### Fixed
-* AddNewWallet method - problem with infinite context.Done() call. Because of wrong usage gRPC-request context
-* Local deployment Makefile changes. Now supports building a Docker image via Podman
-
-## [v0.0.36 - v0.0.37] - 23.09.2023
-### Added
-* Added examples of env-file for api and migrator applications
-* Deployment k8s cluster context in Makefile helm deployment 
+* Added gRPC client wrapper 
+* Small security improvements:
+  * Filling private keys with zeroes - private key clearing
+* Added data cache flow for storing wallet in redis and nats 
+* Added new gRPC-handler - GetWalletInfo
 ### Changed
-* Loading of local .env file from path in APP_LOCAL_ENV_FILE_PATH environment variable
-
-## [v0.0.38] - 08.10.2023
-### Added
-* AddNewWallet method to gRPC-client wrapper
-* HotWalletIndex to response in add_wallet gRPC method
-
-## [v0.0.39] - 14.11.2023
-### Changed
-* New version of bc-connector-common library - v1.3.21
-* Migrated to usage of internal proto files descriptions
-    * "github.com/fbsobreira/gotron-sdk/pkg/proto/api" replaced by "gitlab.heronodes.io/bc-platform/bc-connector-common/pkg/grpc/bc_adapter_api/proto/vendored/tron/node/api"
-    * "github.com/fbsobreira/gotron-sdk/pkg/proto/core" replaced by "gitlab.heronodes.io/bc-platform/bc-connector-common/pkg/grpc/bc_adapter_api/proto/vendored/tron/node/core"
+* Changed deployment flow
+  * Added helm-chart option for docker container repository  
+  * Fixed helm-chart template for VAULT_DATA_PATH variable
+* Optimization in get addresses by range flow
+### Fixed
+* Fixed bug in sign transaction flow
+* Fixed migrations - wrong rollback SQL-code, missing drop index and drop table
