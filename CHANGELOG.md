@@ -62,3 +62,59 @@
 ### Fixed
 * Fixed bug in sign transaction flow
 * Fixed migrations - wrong rollback SQL-code, missing drop index and drop table
+
+## [v0.0.23] 14.02.2024
+### Info 
+Start of big application refactoring
+### Added
+* Added wallet sessions entities for storing in persistent and cache stores
+### Changed
+* Separated application on two parts
+  * bc-wallet-common-hdwallet-controller
+  * bc-wallet-tron-hdwallet
+* Changed GetDerivationAddressByRange gRPC method - now support get addresses by multiple ranges
+* Added HdWallet API proto description
+  * new gRPC method - GenerateMnemonic
+  * new gRPC method - LoadMnemonic
+  * new gRPC method - UnLoadMnemonic
+* Added Controller API proto description
+  * new gRPC method - StartWalletSession
+  * new gRPC method - GetWalletSession
+* Removed go-tron-sdk dependency
+
+## [v0.0.24] 24.04.2024
+### Added
+* New hdwallet-controller gRPC-method:
+  * ImportWallet
+  * EnableWallet
+  * DisableWallet
+  * DisableWallets
+  * EnableWallets
+  * GetAllWalletSessions
+  * CloseWalletSession
+  * PrepareSignRequest
+  * ExecuteSignRequest
+* New methods in hdwallet-api proto description:
+  * EncryptMnemonic
+  * ValidateMnemonic
+  * UnLoadMultipleMnemonics
+  * LoadDerivationAddress
+  * SignData
+### Changed
+* Proto description separated by 3 files:
+  * common
+  * controller_api
+  * hdwallet_api
+* Removed helm-chart and helm deployment - move to *-hdwallet repository
+* Removed nats cache
+* Bump go version 1.19 -> 1.22
+* Bump common-lib version:
+  * bc-wallet-common-lib-config v0.0.5
+  * bc-wallet-common-lib-grpc v0.0.4
+  * bc-wallet-common-lib-healthcheck v0.0.4
+  * bc-wallet-common-lib-logger v0.0.4
+  * bc-wallet-common-lib-nats-queue v0.1.12
+  * bc-wallet-common-lib-postgres v0.0.8
+  * bc-wallet-common-lib-redis v0.0.7
+  * bc-wallet-common-lib-tracer v0.0.4
+  * bc-wallet-common-lib-vault v0.0.13
