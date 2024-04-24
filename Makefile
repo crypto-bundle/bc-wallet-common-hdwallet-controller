@@ -49,7 +49,7 @@ controller_proto:
 
 default: hdwallet
 
-deploy:
+build:
 	$(if $(and $(env),$(repository)),,$(error 'env' and/or 'repository' is not defined))
 
 	$(eval build_tag=$(env)-$(shell git rev-parse --short HEAD)-$(shell date +%s))
@@ -74,14 +74,5 @@ deploy:
 		--tag $(container_registry):$(build_tag) .
 
 	docker push $(container_registry):$(build_tag)
-
-	helm --kube-context $(context) upgrade \
-		--install bc-wallet-tron-hdwallet-api \
-		--set "global.container_registry=$(container_registry)" \
-		--set "global.build_tag=$(build_tag)" \
-		--set "global.env=$(env)" \
-		--values=./deploy/helm/api/values.yaml \
-		--values=./deploy/helm/api/values_$(env).yaml \
-		./deploy/helm/api
 
 .PHONY: hdwallet_proto deploy
