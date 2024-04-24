@@ -84,6 +84,7 @@ Start of big application refactoring
 
 ## [v0.0.24] 24.04.2024
 ### Added
+* Added license banner to all *.go files
 * New hdwallet-controller gRPC-method:
   * ImportWallet
   * EnableWallet
