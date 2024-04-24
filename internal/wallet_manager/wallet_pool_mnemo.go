@@ -6,8 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/ethereum/go-ethereum/crypto"
 	"sync"
 	"time"
 
@@ -16,10 +14,11 @@ import (
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/hdwallet"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
 
-	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/ethereum/go-ethereum/crypto"
+
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"google.golang.org/protobuf/proto"
 )
 
 type addressData struct {
@@ -127,14 +126,14 @@ func (u *MnemonicWalletUnit) GetPublicData() *types.PublicMnemonicWalletData {
 
 func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 	account, change, index uint32,
-	transaction *tronCore.Transaction,
+	transactionData []byte,
 ) (*types.PublicSignTxData, error) {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
 		defer u.onAirTicker.Reset(u.unloadTimerInterval)
-		return u.signTransaction(ctx, account, change, index, transaction)
+		return u.signTransaction(ctx, account, change, index, transactionData)
 	}
 
 	err := u.loadWallet(ctx)
@@ -142,13 +141,13 @@ func (u *MnemonicWalletUnit) SignTransaction(ctx context.Context,
 		return nil, err
 	}
 
-	return u.signTransaction(ctx, account, change, index, transaction)
+	return u.signTransaction(ctx, account, change, index, transactionData)
 
 }
 
 func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 	account, change, index uint32,
-	transaction *tronCore.Transaction,
+	transactionData []byte,
 ) (*types.PublicSignTxData, error) {
 	key := fmt.Sprintf("%d'/%d/%d", account, change, index)
 	addrData, isExists := u.addressPool[key]
@@ -163,21 +162,14 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 			return nil, walletErr
 		}
 
-		clonedX := *tronWallet.ExtendedKey.PrivateECDSA.X
-		clonedY := *tronWallet.ExtendedKey.PrivateECDSA.Y
-		clonedD := *tronWallet.ExtendedKey.PrivateECDSA.D
-		clonedPrivKey := ecdsa.PrivateKey{
-			PublicKey: ecdsa.PublicKey{
-				Curve: tronWallet.ExtendedKey.PrivateECDSA.Curve,
-				X:     &clonedX,
-				Y:     &clonedY,
-			},
-			D: &clonedD,
+		clonedPrivKey, walletErr := tronWallet.ExtendedKey.CloneECDSAPrivateKey()
+		if walletErr != nil {
+			return nil, walletErr
 		}
 
 		addrData = &addressData{
 			address:    address,
-			privateKey: &clonedPrivKey,
+			privateKey: clonedPrivKey,
 		}
 
 		u.addressPool[key] = addrData
@@ -190,33 +182,22 @@ func (u *MnemonicWalletUnit) signTransaction(ctx context.Context,
 		//}()
 	}
 
-	rawData, err := proto.Marshal(transaction.GetRawData())
-	if err != nil {
-		return nil, err
-	}
-
 	h256h := sha256.New()
-	h256h.Write(rawData)
+	h256h.Write(transactionData)
 	hash := h256h.Sum(nil)
 
-	contractList := transaction.GetRawData().GetContract()
-
-	for range contractList {
-		signature, signErr := crypto.Sign(hash, addrData.privateKey)
-		if signErr != nil {
-			u.logger.Error("unable to sign", zap.Error(signErr),
-				zap.String(app.HDWalletAddressTag, addrData.address))
-			return nil, signErr
-		}
-
-		transaction.Signature = append(transaction.Signature, signature)
+	signedData, signErr := crypto.Sign(hash, addrData.privateKey)
+	if signErr != nil {
+		u.logger.Error("unable to sign", zap.Error(signErr),
+			zap.String(app.HDWalletAddressTag, addrData.address))
+		return nil, signErr
 	}
 
 	return &types.PublicSignTxData{
 		WalletUUID:   u.walletEntity.WalletUUID,
 		MnemonicUUID: u.mnemonicWalletUUID,
 		MnemonicHash: u.walletEntity.MnemonicHash,
-		SignedTx:     transaction,
+		SignedTx:     signedData,
 		AddressData: &types.PublicDerivationAddressData{
 			AccountIndex:  account,
 			InternalIndex: change,
@@ -247,19 +228,15 @@ func (u *MnemonicWalletUnit) GetAddressByPath(ctx context.Context,
 }
 
 func (u *MnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Context,
-	accountIndex uint32,
-	internalIndex uint32,
-	addressIndexFrom uint32,
-	addressIndexTo uint32,
-	marshallerCallback func(addressIdx, position uint32, address string),
+	rangeIterable types.AddrRangeIterable,
+	marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
 ) error {
 	u.mu.Lock()
 	defer u.mu.Unlock()
 
 	if u.isWalletLoaded {
 		defer u.onAirTicker.Reset(u.unloadTimerInterval)
-		return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex,
-			addressIndexFrom, addressIndexTo, marshallerCallback)
+		return u.getAddressesByPathByRange(ctx, rangeIterable, marshallerCallback)
 	}
 
 	err := u.loadWallet(ctx)
@@ -267,44 +244,69 @@ func (u *MnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Context,
 		return err
 	}
 
-	return u.getAddressesByPathByRange(ctx, accountIndex, internalIndex,
-		addressIndexFrom, addressIndexTo, marshallerCallback)
+	return u.getAddressesByPathByRange(ctx, rangeIterable, marshallerCallback)
 }
 
 func (u *MnemonicWalletUnit) getAddressesByPathByRange(ctx context.Context,
-	accountIndex uint32,
-	internalIndex uint32,
-	addressIndexFrom uint32,
-	addressIndexTo uint32,
-	marshallerCallback func(addressIdx, position uint32, address string),
+	rangeIterable types.AddrRangeIterable,
+	marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
 ) error {
 	var err error
-	rangeSize := (addressIndexTo - addressIndexFrom) + 1
 	wg := sync.WaitGroup{}
-	wg.Add(int(rangeSize))
+	wg.Add(int(rangeIterable.GetRangesSize()))
 
-	for i, j := addressIndexFrom, uint32(0); i <= addressIndexTo; i++ {
-		go func(i, j uint32) {
-			defer wg.Done()
+	position := uint32(0)
+	for {
+		rangeUnit := rangeIterable.GetNext()
+		if rangeUnit == nil {
+			break
+		}
 
-			address, getAddrErr := u.getAddressByPath(ctx, accountIndex,
-				internalIndex, i)
+		if rangeUnit.AddressIndexFrom == rangeUnit.AddressIndexTo { // if one item in range
+			address, getAddrErr := u.getAddressByPath(ctx, rangeUnit.AccountIndex,
+				rangeUnit.InternalIndex, rangeUnit.AddressIndexFrom)
 			if getAddrErr != nil {
 				u.logger.Error("unable to get address by path", zap.Error(getAddrErr),
-					zap.Uint32(app.HDWalletAccountIndexTag, accountIndex),
-					zap.Uint32(app.HDWalletInternalIndexTag, internalIndex),
-					zap.Uint32(app.HDWalletAddressIndexTag, i))
+					zap.Uint32(app.HDWalletAccountIndexTag, rangeUnit.AccountIndex),
+					zap.Uint32(app.HDWalletInternalIndexTag, rangeUnit.InternalIndex),
+					zap.Uint32(app.HDWalletAddressIndexTag, rangeUnit.InternalIndex))
 
 				err = getAddrErr
-				return
+
+				continue
 			}
 
-			marshallerCallback(i, j, address)
+			marshallerCallback(rangeUnit.AccountIndex, rangeUnit.InternalIndex, rangeUnit.AddressIndexFrom,
+				position, address)
 
-			return
-		}(i, j)
+			wg.Done()
 
-		j++
+			continue
+		}
+
+		for addressIndex := rangeUnit.AddressIndexFrom; addressIndex <= rangeUnit.AddressIndexTo; addressIndex++ {
+			go func(accountIdx, internalIdx, addressIdx, position uint32) {
+				defer wg.Done()
+
+				address, getAddrErr := u.getAddressByPath(ctx, rangeUnit.AccountIndex,
+					rangeUnit.InternalIndex, addressIdx)
+				if getAddrErr != nil {
+					u.logger.Error("unable to get address by path", zap.Error(getAddrErr),
+						zap.Uint32(app.HDWalletAccountIndexTag, rangeUnit.AccountIndex),
+						zap.Uint32(app.HDWalletInternalIndexTag, rangeUnit.InternalIndex),
+						zap.Uint32(app.HDWalletAddressIndexTag, addressIdx))
+
+					err = getAddrErr
+					return
+				}
+
+				marshallerCallback(accountIdx, internalIdx, addressIdx, position, address)
+
+				return
+			}(rangeUnit.AccountIndex, rangeUnit.InternalIndex, addressIndex, position)
+
+			position++
+		}
 	}
 
 	wg.Wait()
@@ -406,6 +408,8 @@ func (u *MnemonicWalletUnit) unloadWallet(ctx context.Context) error {
 
 		delete(u.addressPool, key)
 	}
+
+	u.addressPool = make(map[string]*addressData, 0)
 
 	u.isWalletLoaded = false
 

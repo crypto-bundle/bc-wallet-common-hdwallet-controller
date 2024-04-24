@@ -2,9 +2,10 @@ package wallet_manager
 
 import (
 	"context"
+
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -12,6 +13,8 @@ import (
 type Pool struct {
 	logger *zap.Logger
 	cfg    configService
+
+	runTimeCtx context.Context
 
 	walletsDataSrv         walletsDataService
 	mnemonicWalletsDataSrv mnemonicWalletsDataService
@@ -33,6 +36,8 @@ func (p *Pool) Init(ctx context.Context) error {
 }
 
 func (p *Pool) Run(ctx context.Context) error {
+	p.runTimeCtx = ctx
+
 	for _, walletUnit := range p.walletUnits {
 		initErr := walletUnit.Run(ctx)
 		if initErr != nil {
@@ -86,7 +91,7 @@ func (p *Pool) AddAWalletUnit(ctx context.Context,
 	return nil
 }
 
-func (p *Pool) AddAndStartWalletUnit(ctx context.Context,
+func (p *Pool) AddAndStartWalletUnit(_ context.Context,
 	walletUUID uuid.UUID,
 	walletUnit WalletPoolUnitService,
 ) error {
@@ -95,12 +100,12 @@ func (p *Pool) AddAndStartWalletUnit(ctx context.Context,
 		return ErrPassedWalletAlreadyExists
 	}
 
-	err := walletUnit.Init(ctx)
+	err := walletUnit.Init(p.runTimeCtx)
 	if err != nil {
 		return err
 	}
 
-	err = walletUnit.Run(ctx)
+	err = walletUnit.Run(p.runTimeCtx)
 	if err != nil {
 		return err
 	}
@@ -151,11 +156,8 @@ func (p *Pool) GetEnabledWallets(ctx context.Context) ([]*types.PublicWalletData
 func (p *Pool) GetAddressesByPathByRange(ctx context.Context,
 	walletUUID uuid.UUID,
 	mnemonicWalletUUID uuid.UUID,
-	accountIndex uint32,
-	internalIndex uint32,
-	addressIndexFrom uint32,
-	addressIndexTo uint32,
-	marshallerCallback func(addressIdx, position uint32, address string),
+	rangeIterable types.AddrRangeIterable,
+	marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
 ) error {
 	poolUnit, isExists := p.walletUnits[walletUUID]
 	if !isExists {
@@ -163,15 +165,14 @@ func (p *Pool) GetAddressesByPathByRange(ctx context.Context,
 	}
 
 	return poolUnit.GetAddressesByPathByRange(ctx, mnemonicWalletUUID,
-		accountIndex, internalIndex,
-		addressIndexFrom, addressIndexTo, marshallerCallback)
+		rangeIterable, marshallerCallback)
 }
 
 func (p *Pool) SignTransaction(ctx context.Context,
 	walletUUID uuid.UUID,
 	mnemonicUUID uuid.UUID,
 	account, change, index uint32,
-	transaction *tronCore.Transaction,
+	transactionData []byte,
 ) (*types.PublicSignTxData, error) {
 	poolUnit, isExists := p.walletUnits[walletUUID]
 	if !isExists {
@@ -179,7 +180,7 @@ func (p *Pool) SignTransaction(ctx context.Context,
 		return nil, ErrPassedWalletNotFound
 	}
 
-	return poolUnit.SignTransaction(ctx, mnemonicUUID, account, change, index, transaction)
+	return poolUnit.SignTransaction(ctx, mnemonicUUID, account, change, index, transactionData)
 }
 
 func newWalletPool(logger *zap.Logger,

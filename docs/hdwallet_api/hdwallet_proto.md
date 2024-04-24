@@ -11,21 +11,34 @@
     - [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity)
     - [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest)
     - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
+    - [GenerateMnemonicRequest](#hdwallet_api.GenerateMnemonicRequest)
+    - [GenerateMnemonicResponse](#hdwallet_api.GenerateMnemonicResponse)
     - [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest)
     - [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse)
     - [GetWalletInfoRequest](#hdwallet_api.GetWalletInfoRequest)
     - [GetWalletInfoResponse](#hdwallet_api.GetWalletInfoResponse)
+    - [GetWalletSessionRequest](#hdwallet_api.GetWalletSessionRequest)
+    - [GetWalletSessionResponse](#hdwallet_api.GetWalletSessionResponse)
+    - [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest)
+    - [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse)
     - [MnemonicWalletData](#hdwallet_api.MnemonicWalletData)
     - [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity)
+    - [RangeRequestUnit](#hdwallet_api.RangeRequestUnit)
     - [SignTransactionRequest](#hdwallet_api.SignTransactionRequest)
     - [SignTransactionResponse](#hdwallet_api.SignTransactionResponse)
+    - [StartWalletSessionRequest](#hdwallet_api.StartWalletSessionRequest)
+    - [StartWalletSessionResponse](#hdwallet_api.StartWalletSessionResponse)
+    - [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest)
+    - [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse)
     - [WalletBookmarks](#hdwallet_api.WalletBookmarks)
     - [WalletData](#hdwallet_api.WalletData)
     - [WalletIdentity](#hdwallet_api.WalletIdentity)
+    - [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity)
   
     - [WalletMakerStrategy](#hdwallet_api.WalletMakerStrategy)
   
     - [HdWalletApi](#hdwallet_api.HdWalletApi)
+    - [HdWalletManagerApi](#hdwallet_api.HdWalletManagerApi)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -80,10 +93,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 | MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
-| AccountIndex | [uint32](#uint32) |  |  |
-| InternalIndex | [uint32](#uint32) |  |  |
-| AddressIndexFrom | [uint32](#uint32) |  |  |
-| AddressIndexTo | [uint32](#uint32) |  |  |
+| Ranges | [RangeRequestUnit](#hdwallet_api.RangeRequestUnit) | repeated |  |
 
 
 
@@ -100,6 +110,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 | MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| AddressIdentitiesCount | [uint64](#uint64) |  |  |
 | AddressIdentities | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) | repeated |  |
 
 
@@ -135,6 +146,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 | MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity) |  |  |
 | AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
 
 
@@ -152,7 +164,39 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 | MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity) |  |  |
 | AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GenerateMnemonicRequest"></a>
+
+### GenerateMnemonicRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GenerateMnemonicResponse"></a>
+
+### GenerateMnemonicResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
 
@@ -216,6 +260,71 @@
 
 
 
+<a name="hdwallet_api.GetWalletSessionRequest"></a>
+
+### GetWalletSessionRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletUUID | [string](#string) |  |  |
+| MnemonicWalletUUID | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GetWalletSessionResponse"></a>
+
+### GetWalletSessionResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity) |  |  |
+| SessionStartedAt | [uint64](#uint64) |  |  |
+| SessionExpiredAt | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.LoadMnemonicRequest"></a>
+
+### LoadMnemonicRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.LoadMnemonicResponse"></a>
+
+### LoadMnemonicResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
 <a name="hdwallet_api.MnemonicWalletData"></a>
 
 ### MnemonicWalletData
@@ -248,6 +357,24 @@
 
 
 
+<a name="hdwallet_api.RangeRequestUnit"></a>
+
+### RangeRequestUnit
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AccountIndex | [uint32](#uint32) |  |  |
+| InternalIndex | [uint32](#uint32) |  |  |
+| AddressIndexFrom | [uint32](#uint32) |  |  |
+| AddressIndexTo | [uint32](#uint32) |  |  |
+
+
+
+
+
+
 <a name="hdwallet_api.SignTransactionRequest"></a>
 
 ### SignTransactionRequest
@@ -259,6 +386,7 @@
 | WalletUUID | [string](#string) |  |  |
 | MnemonicWalletUUID | [string](#string) |  |  |
 | AddressIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity) |  |  |
 | CreatedTxData | [bytes](#bytes) |  |  |
 
 
@@ -276,8 +404,74 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
 | MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity) |  |  |
 | TxOwnerIdentity | [DerivationAddressIdentity](#hdwallet_api.DerivationAddressIdentity) |  |  |
 | SignedTxData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.StartWalletSessionRequest"></a>
+
+### StartWalletSessionRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletUUID | [string](#string) |  |  |
+| MnemonicWalletUUID | [string](#string) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.StartWalletSessionResponse"></a>
+
+### StartWalletSessionResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentity | [WalletIdentity](#hdwallet_api.WalletIdentity) |  |  |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+| SessionIdentity | [WalletSessionIdentity](#hdwallet_api.WalletSessionIdentity) |  |  |
+| SessionStartedAt | [uint64](#uint64) |  |  |
+| SessionExpiredAt | [uint64](#uint64) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.UnLoadMnemonicRequest"></a>
+
+### UnLoadMnemonicRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.UnLoadMnemonicResponse"></a>
+
+### UnLoadMnemonicResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| MnemonicIdentity | [MnemonicWalletIdentity](#hdwallet_api.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -335,6 +529,21 @@
 
 
 
+
+<a name="hdwallet_api.WalletSessionIdentity"></a>
+
+### WalletSessionIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| SessionUUID | [string](#string) |  |  |
+
+
+
+
+
  
 
 
@@ -362,11 +571,28 @@
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
+| GenerateMnemonic | [GenerateMnemonicRequest](#hdwallet_api.GenerateMnemonicRequest) | [GenerateMnemonicResponse](#hdwallet_api.GenerateMnemonicResponse) |  |
+| LoadMnemonic | [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest) | [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse) |  |
+| UnLoadMnemonic | [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest) | [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse) |  |
+| GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
+| GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
+| SignTransaction | [SignTransactionRequest](#hdwallet_api.SignTransactionRequest) | [SignTransactionResponse](#hdwallet_api.SignTransactionResponse) |  |
+
+
+<a name="hdwallet_api.HdWalletManagerApi"></a>
+
+### HdWalletManagerApi
+
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
 | AddNewWallet | [AddNewWalletRequest](#hdwallet_api.AddNewWalletRequest) | [AddNewWalletResponse](#hdwallet_api.AddNewWalletResponse) |  |
 | GetWalletInfo | [GetWalletInfoRequest](#hdwallet_api.GetWalletInfoRequest) | [GetWalletInfoResponse](#hdwallet_api.GetWalletInfoResponse) |  |
 | GetEnabledWallets | [GetEnabledWalletsRequest](#hdwallet_api.GetEnabledWalletsRequest) | [GetEnabledWalletsResponse](#hdwallet_api.GetEnabledWalletsResponse) |  |
 | GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
 | GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
+| StartWalletSession | [StartWalletSessionRequest](#hdwallet_api.StartWalletSessionRequest) | [StartWalletSessionResponse](#hdwallet_api.StartWalletSessionResponse) |  |
+| GetWalletSession | [GetWalletSessionRequest](#hdwallet_api.GetWalletSessionRequest) | [GetWalletSessionResponse](#hdwallet_api.GetWalletSessionResponse) |  |
 | SignTransaction | [SignTransactionRequest](#hdwallet_api.SignTransactionRequest) | [SignTransactionResponse](#hdwallet_api.SignTransactionResponse) |  |
 
  

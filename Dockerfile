@@ -6,12 +6,10 @@ ENV GOSUMDB off
 ENV GOPRIVATE $GOPRIVATE,github.com/crypto-bundle
 
 # add private github token
-ARG GITHUB_TOKEN
-RUN apk add --no-cache bash git openssh build-base
-RUN if [ -z "$GITHUB_TOKEN"  ] ; then \
-    echo 'GITHUB_TOKEN not provided, please use docker build --build-arg GITHUB_TOKEN="xxxx"' \
-    ; else git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/" \
-    ; fi
+RUN apk add --no-cache git openssh build-base && \
+    mkdir -p -m 0700 ~/.ssh && \
+    ssh-keyscan gitlab.heronodes.io >> ~/.ssh/known_hosts && \
+    git config --global url."git@github.com".insteadOf "https://github.com/"
 
 WORKDIR /src
 

@@ -3,6 +3,8 @@ package mnemonic_wallet_data
 import (
 	"context"
 
+	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
+
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/mnemonic_wallet_data/nats_store"
@@ -14,7 +16,6 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 )
 
@@ -39,7 +40,7 @@ func (s *Service) AddNewMnemonicWallet(ctx context.Context,
 	}
 
 	go func(item entities.MnemonicWallet) {
-		_, err = s.redisCacheStore.SetMnemonicWalletItem(ctx, &item)
+		_, err = s.redisCacheStore.SetMnemonicWalletItem(context.Background(), &item)
 		if err != nil {
 			s.logger.Error("unable to save mnemonic wallet item in redis cache store", zap.Error(err),
 				zap.String(app.MnemonicWalletUUIDTag, item.UUID.String()),
@@ -48,7 +49,7 @@ func (s *Service) AddNewMnemonicWallet(ctx context.Context,
 	}(*mnemoWalletItem)
 
 	go func(item entities.MnemonicWallet) {
-		_, err = s.natsKVCacheStore.SetMnemonicWalletItem(ctx, &item)
+		_, err = s.natsKVCacheStore.SetMnemonicWalletItem(context.Background(), &item)
 		if err != nil {
 			s.logger.Error("unable to save mnemonic wallet item in nats kv cache store", zap.Error(err),
 				zap.String(app.MnemonicWalletUUIDTag, item.UUID.String()),
@@ -161,7 +162,7 @@ func NewService(logger *zap.Logger,
 	configSvc configurationService,
 	pgConn *commonPostgres.Connection,
 	redisClient *redis.Client,
-	natsConn *nats.Conn,
+	natsConn *commonNats.Connection,
 ) (*Service, error) {
 	l := logger.Named("mnemonic_wallet_data.service")
 	persistentStoreSrv := pg_store.NewPostgresStore(logger, pgConn)
@@ -171,7 +172,7 @@ func NewService(logger *zap.Logger,
 		return nil, err
 	}
 
-	natsJetSteamContext, err := natsConn.JetStream()
+	natsJetSteamContext, err := natsConn.GetConnection().JetStream()
 	if err != nil {
 		return nil, err
 	}

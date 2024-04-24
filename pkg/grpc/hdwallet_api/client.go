@@ -1,35 +1,10 @@
-/*
- * MIT License
- *
- * Copyright (c) 2021-2023 Aleksei Kotelnikov
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package hdwallet_api
 
 import (
 	"context"
 	"errors"
+
 	pbApi "github.com/crypto-bundle/bc-wallet-tron-hdwallet/pkg/grpc/hdwallet_api/proto"
-	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
-	"google.golang.org/protobuf/proto"
 
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
 
@@ -37,6 +12,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
 
@@ -56,7 +32,13 @@ type Client struct {
 // Init bc-wallet-tron-hdwallet GRPC-client service
 // nolint:revive // fixme (autofix)
 func (s *Client) Init(ctx context.Context) error {
-	options := commonGRPCClient.DefaultDialOptions()
+	options := []originGRPC.DialOption{
+		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
+		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
+		originGRPC.WithBlock(),
+		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
+		originGRPC.WithChainUnaryInterceptor(commonGRPCClient.DefaultInterceptorsOptions()...),
+	}
 	msgSizeOptions := originGRPC.WithDefaultCallOptions(
 		originGRPC.MaxCallRecvMsgSize(commonGRPCClient.DefaultClientMaxReceiveMessageSize),
 		originGRPC.MaxCallSendMsgSize(commonGRPCClient.DefaultClientMaxSendMessageSize),
@@ -92,6 +74,35 @@ func (s *Client) Shutdown(ctx context.Context) error {
 	return nil
 }
 
+// AddNewWallet is function for add new wallet
+func (s *Client) AddNewWallet(ctx context.Context,
+	title, purpose string,
+	strategy uint32,
+) (*pbApi.AddNewWalletResponse, error) {
+	request := &pbApi.AddNewWalletRequest{
+		Title:    title,
+		Purpose:  purpose,
+		Strategy: pbApi.WalletMakerStrategy(strategy),
+	}
+
+	walletResp, err := s.client.AddNewWallet(ctx, request)
+	if err != nil {
+		grpcStatus, ok := status.FromError(err)
+		if !ok {
+			return nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound:
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+
+	return walletResp, nil
+}
+
 // GetEnabledWallets is function for getting address from bc-wallet-tron-hdwallet
 func (s *Client) GetEnabledWallets(ctx context.Context) (*pbApi.GetEnabledWalletsResponse, error) {
 	enabledWallets, err := s.client.GetEnabledWallets(ctx, &pbApi.GetEnabledWalletsRequest{})
@@ -117,13 +128,8 @@ func (s *Client) SignTransaction(ctx context.Context,
 	walletUUID string,
 	mnemonicWalletUUID string,
 	accountIndex, internalIndex, addressIndex uint32,
-	tronCreatedTx *tronCore.Transaction,
+	tronCreatedTxData []byte,
 ) (*pbApi.SignTransactionResponse, error) {
-	rawData, err := proto.Marshal(tronCreatedTx)
-	if err != nil {
-		return nil, err
-	}
-
 	signReq := &pbApi.SignTransactionRequest{
 		WalletUUID:         walletUUID,
 		MnemonicWalletUUID: mnemonicWalletUUID,
@@ -132,7 +138,7 @@ func (s *Client) SignTransaction(ctx context.Context,
 			InternalIndex: internalIndex,
 			AddressIndex:  addressIndex,
 		},
-		CreatedTxData: rawData,
+		CreatedTxData: tronCreatedTxData,
 	}
 
 	signResp, err := s.client.SignTransaction(ctx, signReq)
@@ -166,6 +172,40 @@ func (s *Client) GetDerivationAddress(ctx context.Context,
 	}
 
 	address, err := s.client.GetDerivationAddress(ctx, request)
+	if err != nil {
+		grpcStatus, ok := status.FromError(err)
+		if !ok {
+			return nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound:
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+
+	return address, nil
+}
+
+// GetDerivationAddressByRange is function for getting address from bc-wallet-tron-hdwallet
+func (s *Client) GetDerivationAddressByRange(ctx context.Context,
+	walletUUID string,
+	mnemonicWalletUUID string,
+	ranges []*pbApi.RangeRequestUnit,
+) (*pbApi.DerivationAddressByRangeResponse, error) {
+	request := &pbApi.DerivationAddressByRangeRequest{
+		WalletIdentity: &pbApi.WalletIdentity{
+			WalletUUID: walletUUID,
+		},
+		MnemonicIdentity: &pbApi.MnemonicWalletIdentity{
+			WalletUUID: mnemonicWalletUUID,
+		},
+		Ranges: ranges,
+	}
+
+	address, err := s.client.GetDerivationAddressByRange(ctx, request)
 	if err != nil {
 		grpcStatus, ok := status.FromError(err)
 		if !ok {

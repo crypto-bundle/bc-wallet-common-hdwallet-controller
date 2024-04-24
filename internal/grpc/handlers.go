@@ -1,31 +1,8 @@
-/*
- * MIT License
- *
- * Copyright (c) 2021-2023 Aleksei Kotelnikov
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package grpc
 
 import (
 	"context"
+	"sync"
 
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/config"
@@ -39,7 +16,7 @@ type grpcServerHandle struct {
 	*pbApi.UnimplementedHdWalletApiServer
 
 	logger *zap.Logger
-	cfg    *config.Config
+	cfg    *config.MangerConfig
 
 	walletSrv     walletManagerService
 	marshallerSrv marshallerService
@@ -93,13 +70,16 @@ func New(ctx context.Context,
 	loggerSrv *zap.Logger,
 
 	walletSrv walletManagerService,
-) (pbApi.HdWalletApiServer, error) {
+) pbApi.HdWalletApiServer {
 
 	l := loggerSrv.Named("grpc.server.handler").With(
-		zap.String(app.ApplicationNameTag, app.ApplicationName),
 		zap.String(app.BlockChainNameTag, app.BlockChainName))
 
-	marshallerSrv := newGRPCMarshaller(loggerSrv)
+	addrRespPool := &sync.Pool{New: func() any {
+		return new(pbApi.DerivationAddressIdentity)
+	}}
+
+	marshallerSrv := newGRPCMarshaller(loggerSrv, addrRespPool)
 
 	return &grpcServerHandle{
 		UnimplementedHdWalletApiServer: &pbApi.UnimplementedHdWalletApiServer{},
@@ -108,11 +88,12 @@ func New(ctx context.Context,
 		walletSrv:     walletSrv,
 		marshallerSrv: marshallerSrv,
 
-		addNewWalletHandler:                MakeAddNewWalletHandler(l, walletSrv, marshallerSrv),
-		getDerivationAddressHandler:        MakeGetDerivationAddressHandler(l, walletSrv, marshallerSrv),
-		getEnabledWalletsHandler:           MakeGetEnabledWalletsHandler(l, walletSrv, marshallerSrv),
-		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv, marshallerSrv),
-		signTransactionHandle:              MakeSignTransactionsHandler(l, walletSrv, marshallerSrv),
-		getWalletInfoHandler:               MakeGetWalletInfoHandler(l, walletSrv, marshallerSrv),
-	}, nil
+		addNewWalletHandler:         MakeAddNewWalletHandler(l, walletSrv, marshallerSrv),
+		getDerivationAddressHandler: MakeGetDerivationAddressHandler(l, walletSrv, marshallerSrv, addrRespPool),
+		getEnabledWalletsHandler:    MakeGetEnabledWalletsHandler(l, walletSrv, marshallerSrv),
+		getDerivationAddressByRangeHandler: MakeGetDerivationAddressByRangeHandler(l, walletSrv,
+			marshallerSrv, addrRespPool),
+		signTransactionHandle: MakeSignTransactionsHandler(l, walletSrv, marshallerSrv),
+		getWalletInfoHandler:  MakeGetWalletInfoHandler(l, walletSrv, marshallerSrv),
+	}
 }

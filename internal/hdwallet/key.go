@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2021-2023 Aleksei Kotelnikov
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package hdwallet
 
 import (
@@ -122,15 +98,17 @@ func (k *Key) GetChildKey(purpose, coinType,
 	var err error
 	//k.ExtendedKey.SetNet(network)
 
-	extendedKeyCloned := *k.ExtendedKey
-	extendedKey := &extendedKeyCloned
+	extendedKeyCloned, err := k.ExtendedKey.CloneWithVersion(k.Network.HDPrivateKeyID[:])
+	if err != nil {
+		return nil, nil, err
+	}
 
 	//extendedKey.SetNet(network)
-	accountKey := extendedKey
+	accountKey := extendedKeyCloned
 	for i, v := range k.GetPath(purpose, coinType, account, change, addressIndex) {
-		extendedKey, err = extendedKey.Derive(v)
-		if err != nil {
-			return nil, nil, err
+		extendedKey, loopErr := extendedKeyCloned.Derive(v)
+		if loopErr != nil {
+			return nil, nil, loopErr
 		}
 
 		if i == 2 {
@@ -148,7 +126,7 @@ func (k *Key) GetChildKey(purpose, coinType,
 		return nil, nil, err
 	}
 
-	key, err := newKey(extendedKey, k.Network)
+	key, err := newKey(extendedKeyCloned, k.Network)
 
 	return acc, key, err
 }
@@ -231,4 +209,22 @@ func (k *Key) AddressP2WPKHInP2SH() (string, error) {
 	}
 
 	return addr1.EncodeAddress(), nil
+}
+
+// CloneECDSAPrivateKey generate public key to p2wpkh style address
+func (k *Key) CloneECDSAPrivateKey() (*ecdsa.PrivateKey, error) {
+	clonedX := *k.PrivateECDSA.X
+	clonedY := *k.PrivateECDSA.Y
+	clonedD := *k.PrivateECDSA.D
+
+	clonedPrivKey := ecdsa.PrivateKey{
+		PublicKey: ecdsa.PublicKey{
+			Curve: btcec.S256(),
+			X:     &clonedX,
+			Y:     &clonedY,
+		},
+		D: &clonedD,
+	}
+
+	return &clonedPrivKey, nil
 }

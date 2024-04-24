@@ -2,9 +2,10 @@ package wallet_manager
 
 import (
 	"context"
+
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/app"
 	"github.com/crypto-bundle/bc-wallet-tron-hdwallet/internal/types"
-	tronCore "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
@@ -68,13 +69,13 @@ func (u *singleMnemonicWalletUnit) GetWalletPublicData() *types.PublicWalletData
 func (u *singleMnemonicWalletUnit) SignTransaction(ctx context.Context,
 	mnemonicUUID uuid.UUID,
 	account, change, index uint32,
-	transaction *tronCore.Transaction,
+	transactionData []byte,
 ) (*types.PublicSignTxData, error) {
 	if mnemonicUUID != u.mnemonicUnit.GetMnemonicUUID() {
 		return nil, ErrPassedMnemonicWalletNotFound
 	}
 
-	return u.mnemonicUnit.SignTransaction(ctx, account, change, index, transaction)
+	return u.mnemonicUnit.SignTransaction(ctx, account, change, index, transactionData)
 }
 
 func (u *singleMnemonicWalletUnit) AddMnemonicUnit(unit walletPoolMnemonicUnitService) error {
@@ -100,18 +101,14 @@ func (u *singleMnemonicWalletUnit) GetAddressByPath(ctx context.Context,
 
 func (u *singleMnemonicWalletUnit) GetAddressesByPathByRange(ctx context.Context,
 	mnemonicWalletUUID uuid.UUID,
-	accountIndex uint32,
-	internalIndex uint32,
-	addressIndexFrom uint32,
-	addressIndexTo uint32,
-	marshallerCallback func(addressIdx, position uint32, address string),
+	rangeIterable types.AddrRangeIterable,
+	marshallerCallback func(accountIndex, internalIndex, addressIdx, position uint32, address string),
 ) error {
 	if mnemonicWalletUUID != u.mnemonicUnit.GetMnemonicUUID() {
 		return ErrPassedMnemonicWalletNotFound
 	}
 
-	return u.mnemonicUnit.GetAddressesByPathByRange(ctx, accountIndex, internalIndex,
-		addressIndexFrom, addressIndexTo, marshallerCallback)
+	return u.mnemonicUnit.GetAddressesByPathByRange(ctx, rangeIterable, marshallerCallback)
 }
 
 func newSingleMnemonicWalletPoolUnit(logger *zap.Logger,

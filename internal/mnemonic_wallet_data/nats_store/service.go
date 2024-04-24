@@ -1,27 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2022-2023 Aleksei Kotelnikov
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
-
 package nats_store
 
 import (
@@ -156,7 +132,7 @@ func NewNatsStore(logger *zap.Logger,
 	cfg configurationService,
 	natsConn originNats.JetStreamContext,
 ) (*natsStore, error) {
-	bucketName := strings.ToUpper(fmt.Sprintf("%s__%s__%s", cfg.GetStageName(), app.ApplicationName,
+	bucketName := strings.ToUpper(fmt.Sprintf("%s__%s__%s", cfg.GetStageName(), app.ApplicationManagerName,
 		NatsMnemonicWalletBucketName),
 	)
 
@@ -166,11 +142,27 @@ func NewNatsStore(logger *zap.Logger,
 
 	kvBucket, err := natsConn.KeyValue(bucketName)
 	if err != nil {
-		if errors.Is(err, originNats.ErrBucketNotFound) {
-			logger.Error("nats kv bucket not found. plz create it", zap.Error(err))
+		if !errors.Is(err, originNats.ErrBucketNotFound) {
+			return nil, err
 		}
 
-		return nil, err
+		logger.Error("nats kv bucket not found. lets create it", zap.Error(err),
+			zap.String(app.NatsCacheBucketNameTag, bucketName))
+
+		kvStore, createErr := natsConn.CreateKeyValue(&originNats.KeyValueConfig{
+			Bucket:   bucketName,
+			History:  3,
+			Replicas: 1,
+			Storage:  originNats.MemoryStorage,
+		})
+		if createErr != nil {
+			logger.Error("unable to create kv-bucket", zap.Error(createErr),
+				zap.String(app.NatsCacheBucketNameTag, bucketName))
+
+			return nil, createErr
+		}
+
+		kvBucket = kvStore
 	}
 
 	return &natsStore{
