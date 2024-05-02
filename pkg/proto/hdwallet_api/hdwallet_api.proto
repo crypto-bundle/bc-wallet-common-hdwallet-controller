@@ -30,99 +30,99 @@ import "common.proto";
 import "google/protobuf/any.proto";
 
 message GenerateMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message GenerateMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes EncryptedMnemonicData = 2;
 }
 
 message EncryptMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes MnemonicData = 2;
 }
 
 message EncryptMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes EncryptedMnemonicData = 2;
 }
 
 message ValidateMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes MnemonicData = 2;
 }
 
 message ValidateMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bool IsValid = 2;
 }
 
 message LoadMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   uint64 TimeToLive = 2;
   bytes EncryptedMnemonicData = 3;
 }
 
 message LoadMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMultipleMnemonicsRequest {
-  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMultipleMnemonicsResponse {
-  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message GetAccountRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   common.AccountIdentity AccountIdentifier = 2;
 }
 
 message GetAccountResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   common.AccountIdentity AccountIdentifier = 2;
 }
 
 message GetMultipleAccountRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   google.protobuf.Any Parameters = 2;
 }
 
 message GetMultipleAccountResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   uint64 AddressIdentitiesCount = 3;
-  repeated common.DerivationAddressIdentity AddressIdentities = 4;
+  repeated common.AccountIdentity AccountIdentifier = 4;
 }
 
 message LoadAccountRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   common.AccountIdentity AccountIdentifier = 2;
 }
 
 message LoadAccountsResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.MnemonicWalletIdentity WalletIdentifier= 1;
   common.AccountIdentity AccountIdentifier = 2;
 }
 
 message SignDataRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   common.AccountIdentity AccountIdentifier = 2;
   bytes DataForSign = 3;
 }
 
 message SignDataResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
+  common.MnemonicWalletIdentity WalletIdentifier= 1;
   common.AccountIdentity AccountIdentifier = 2;
   bytes SignedData = 3;
 }

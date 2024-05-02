@@ -46,7 +46,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | MnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -62,7 +62,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -78,7 +78,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -93,7 +93,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -109,7 +109,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 
 
@@ -125,7 +125,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 
 
@@ -141,7 +141,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | Parameters | [google.protobuf.Any](#google.protobuf.Any) |  |  |
 
 
@@ -157,9 +157,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AddressIdentitiesCount | [uint64](#uint64) |  |  |
-| AddressIdentities | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) | repeated |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) | repeated |  |
 
 
 
@@ -174,7 +174,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 
 
@@ -190,7 +190,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 
 
@@ -206,7 +206,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | TimeToLive | [uint64](#uint64) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
@@ -223,7 +223,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -238,7 +238,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 | DataForSign | [bytes](#bytes) |  |  |
 
@@ -255,7 +255,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 | SignedData | [bytes](#bytes) |  |  |
 
@@ -272,7 +272,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -287,7 +287,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -302,7 +302,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -317,7 +317,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -332,7 +332,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | MnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -348,7 +348,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | IsValid | [bool](#bool) |  |  |
 
 
