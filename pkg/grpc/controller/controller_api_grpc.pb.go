@@ -30,8 +30,8 @@ type HdWalletControllerApiClient interface {
 	GetWalletSession(ctx context.Context, in *GetWalletSessionRequest, opts ...grpc.CallOption) (*GetWalletSessionResponse, error)
 	GetAllWalletSessions(ctx context.Context, in *GetWalletSessionsRequest, opts ...grpc.CallOption) (*GetWalletSessionsResponse, error)
 	CloseWalletSession(ctx context.Context, in *CloseWalletSessionsRequest, opts ...grpc.CallOption) (*CloseWalletSessionsResponse, error)
-	GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error)
-	GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error)
+	GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error)
+	GetMultipleAccounts(ctx context.Context, in *GetMultipleAccountRequest, opts ...grpc.CallOption) (*GetMultipleAccountResponse, error)
 	PrepareSignRequest(ctx context.Context, in *PrepareSignRequestReq, opts ...grpc.CallOption) (*PrepareSignRequestResponse, error)
 	ExecuteSignRequest(ctx context.Context, in *ExecuteSignRequestReq, opts ...grpc.CallOption) (*ExecuteSignRequestResponse, error)
 }
@@ -152,18 +152,18 @@ func (c *hdWalletControllerApiClient) CloseWalletSession(ctx context.Context, in
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetDerivationAddress(ctx context.Context, in *DerivationAddressRequest, opts ...grpc.CallOption) (*DerivationAddressResponse, error) {
-	out := new(DerivationAddressResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetDerivationAddress", in, out, opts...)
+func (c *hdWalletControllerApiClient) GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error) {
+	out := new(GetAccountResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetAccount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetDerivationAddressByRange(ctx context.Context, in *DerivationAddressByRangeRequest, opts ...grpc.CallOption) (*DerivationAddressByRangeResponse, error) {
-	out := new(DerivationAddressByRangeResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetDerivationAddressByRange", in, out, opts...)
+func (c *hdWalletControllerApiClient) GetMultipleAccounts(ctx context.Context, in *GetMultipleAccountRequest, opts ...grpc.CallOption) (*GetMultipleAccountResponse, error) {
+	out := new(GetMultipleAccountResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetMultipleAccounts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -204,8 +204,8 @@ type HdWalletControllerApiServer interface {
 	GetWalletSession(context.Context, *GetWalletSessionRequest) (*GetWalletSessionResponse, error)
 	GetAllWalletSessions(context.Context, *GetWalletSessionsRequest) (*GetWalletSessionsResponse, error)
 	CloseWalletSession(context.Context, *CloseWalletSessionsRequest) (*CloseWalletSessionsResponse, error)
-	GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error)
-	GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error)
+	GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error)
+	GetMultipleAccounts(context.Context, *GetMultipleAccountRequest) (*GetMultipleAccountResponse, error)
 	PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error)
 	ExecuteSignRequest(context.Context, *ExecuteSignRequestReq) (*ExecuteSignRequestResponse, error)
 	mustEmbedUnimplementedHdWalletControllerApiServer()
@@ -251,11 +251,11 @@ func (UnimplementedHdWalletControllerApiServer) GetAllWalletSessions(context.Con
 func (UnimplementedHdWalletControllerApiServer) CloseWalletSession(context.Context, *CloseWalletSessionsRequest) (*CloseWalletSessionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloseWalletSession not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetDerivationAddress(context.Context, *DerivationAddressRequest) (*DerivationAddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddress not implemented")
+func (UnimplementedHdWalletControllerApiServer) GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetDerivationAddressByRange(context.Context, *DerivationAddressByRangeRequest) (*DerivationAddressByRangeResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetDerivationAddressByRange not implemented")
+func (UnimplementedHdWalletControllerApiServer) GetMultipleAccounts(context.Context, *GetMultipleAccountRequest) (*GetMultipleAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMultipleAccounts not implemented")
 }
 func (UnimplementedHdWalletControllerApiServer) PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PrepareSignRequest not implemented")
@@ -492,38 +492,38 @@ func _HdWalletControllerApi_CloseWalletSession_Handler(srv interface{}, ctx cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetDerivationAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DerivationAddressRequest)
+func _HdWalletControllerApi_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetDerivationAddress(ctx, in)
+		return srv.(HdWalletControllerApiServer).GetAccount(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetDerivationAddress",
+		FullMethod: "/manager_api.HdWalletControllerApi/GetAccount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetDerivationAddress(ctx, req.(*DerivationAddressRequest))
+		return srv.(HdWalletControllerApiServer).GetAccount(ctx, req.(*GetAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetDerivationAddressByRange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DerivationAddressByRangeRequest)
+func _HdWalletControllerApi_GetMultipleAccounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMultipleAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetDerivationAddressByRange(ctx, in)
+		return srv.(HdWalletControllerApiServer).GetMultipleAccounts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetDerivationAddressByRange",
+		FullMethod: "/manager_api.HdWalletControllerApi/GetMultipleAccounts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetDerivationAddressByRange(ctx, req.(*DerivationAddressByRangeRequest))
+		return srv.(HdWalletControllerApiServer).GetMultipleAccounts(ctx, req.(*GetMultipleAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -620,12 +620,12 @@ var HdWalletControllerApi_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _HdWalletControllerApi_CloseWalletSession_Handler,
 		},
 		{
-			MethodName: "GetDerivationAddress",
-			Handler:    _HdWalletControllerApi_GetDerivationAddress_Handler,
+			MethodName: "GetAccount",
+			Handler:    _HdWalletControllerApi_GetAccount_Handler,
 		},
 		{
-			MethodName: "GetDerivationAddressByRange",
-			Handler:    _HdWalletControllerApi_GetDerivationAddressByRange_Handler,
+			MethodName: "GetMultipleAccounts",
+			Handler:    _HdWalletControllerApi_GetMultipleAccounts_Handler,
 		},
 		{
 			MethodName: "PrepareSignRequest",

@@ -56,7 +56,7 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 	var err error
 
 	validationForm := &WalletsIdentitiesForm{}
-	valid, err := validationForm.LoadAndValidate(req.WalletIdentities)
+	valid, err := validationForm.LoadAndValidate(req.WalletIdentifier)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
 
@@ -93,7 +93,7 @@ func (h *DisableWalletsHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.DisableWalletsResponse{
-		WalletIdentities: pbIdentities,
+		WalletIdentifier: pbIdentities,
 	}, nil
 }
 

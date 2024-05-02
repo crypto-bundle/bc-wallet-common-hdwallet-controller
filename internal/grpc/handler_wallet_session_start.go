@@ -99,11 +99,11 @@ func (h *StartWalletSessionHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.StartWalletSessionResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
-		SessionIdentity: &pbApi.WalletSessionIdentity{
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
 			SessionUUID: sessionItem.UUID,
 		},
 		SessionStartedAt: uint64(sessionItem.CreatedAt.Unix()),

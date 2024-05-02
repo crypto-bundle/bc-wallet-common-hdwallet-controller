@@ -119,3 +119,6 @@ Start of big application refactoring
   * bc-wallet-common-lib-redis v0.0.7
   * bc-wallet-common-lib-tracer v0.0.4
   * bc-wallet-common-lib-vault v0.0.13
+
+## [v0.0.25] 24.04.2024
+### Changed

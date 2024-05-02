@@ -45,11 +45,11 @@ type DisableWalletForm struct {
 func (f *DisableWalletForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.DisableWalletRequest,
 ) (valid bool, err error) {
-	if req.WalletIdentity == nil {
+	if req.WalletIdentifier == nil {
 		return false,
 			fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
 	}
-	f.WalletUUID = req.WalletIdentity.WalletUUID
+	f.WalletUUID = req.WalletIdentifier.WalletUUID
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

@@ -30,6 +30,7 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
@@ -37,37 +38,33 @@ import (
 	"github.com/google/uuid"
 )
 
-type GetDerivationAddressForm struct {
+type GetAccountForm struct {
 	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
 	MnemonicWalletUUIDRaw uuid.UUID
 
 	SessionUUID string `valid:"type(string),uuid,required"`
 
-	AccountIndex  uint32 `valid:"type(uint32),int"`
-	InternalIndex uint32 `valid:"type(uint32),int"`
-	AddressIndex  uint32 `valid:"type(uint32),int"`
+	AccountParameters *anypb.Any `valid:"required"`
 }
 
-func (f *GetDerivationAddressForm) LoadAndValidate(ctx context.Context,
-	req *pbApi.DerivationAddressRequest,
+func (f *GetAccountForm) LoadAndValidate(ctx context.Context,
+	req *pbApi.GetAccountRequest,
 ) (valid bool, err error) {
 
-	if req.MnemonicIdentity == nil {
+	if req.WalletIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "MnemonicWallet identity")
 	}
-	f.MnemonicWalletUUID = req.MnemonicIdentity.WalletUUID
+	f.MnemonicWalletUUID = req.WalletIdentifier.WalletUUID
 
-	if req.SessionIdentity == nil {
+	if req.SessionIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Session identity")
 	}
-	f.SessionUUID = req.SessionIdentity.SessionUUID
+	f.SessionUUID = req.SessionIdentifier.SessionUUID
 
-	if req.AddressIdentity == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Address identity")
+	if req.AccountIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Account identity")
 	}
-	f.AccountIndex = req.AddressIdentity.AccountIndex
-	f.InternalIndex = req.AddressIdentity.InternalIndex
-	f.AddressIndex = req.AddressIdentity.AddressIndex
+	f.AccountParameters = req.AccountIdentifier.Parameters
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

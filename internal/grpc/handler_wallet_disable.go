@@ -61,8 +61,7 @@ func (h *DisableWalletHandler) Handle(ctx context.Context,
 	validationForm := &DisableWalletForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
-		h.l.Error("unable load and validate request values", zap.Error(err),
-			zap.String(app.WalletUUIDTag, req.WalletIdentity.WalletUUID))
+		h.l.Error("unable load and validate request values", zap.Error(err))
 
 		if !valid {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -87,7 +86,7 @@ func (h *DisableWalletHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.DisableWalletResponse{
-		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},

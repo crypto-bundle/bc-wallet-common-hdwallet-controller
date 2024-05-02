@@ -32,6 +32,7 @@ import (
 	"fmt"
 	"github.com/asaskevich/govalidator"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type SignRequestExecForm struct {
@@ -39,9 +40,7 @@ type SignRequestExecForm struct {
 	SessionUUID     string `valid:"type(string),uuid,required"`
 	SignRequestUUID string `valid:"type(string),uuid,required"`
 
-	AccountIndex  uint32 `valid:"type(uint32)"`
-	InternalIndex uint32 `valid:"type(uint32)"`
-	AddressIndex  uint32 `valid:"type(uint32)"`
+	AccountParameters *anypb.Any `valid:"required"`
 
 	SignData []byte `valid:"required"`
 }
@@ -49,27 +48,28 @@ type SignRequestExecForm struct {
 func (f *SignRequestExecForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.ExecuteSignRequestReq,
 ) (valid bool, err error) {
-	if req.MnemonicIdentity == nil {
+	if req.WalletIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
 	}
-	f.WalletUUID = req.MnemonicIdentity.WalletUUID
+	f.WalletUUID = req.WalletIdentifier.WalletUUID
 
-	if req.SessionIdentity == nil {
+	if req.SessionIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet sesssion identity")
 	}
-	f.SessionUUID = req.SessionIdentity.SessionUUID
+	f.SessionUUID = req.SessionIdentifier.SessionUUID
 
 	if req.SignRequestIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Sign request identity")
 	}
 	f.SignRequestUUID = req.SignRequestIdentifier.UUID
 
-	if req.AddressIdentity == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Address identity")
+	if req.AccountIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Account identity")
 	}
-	f.AccountIndex = req.AddressIdentity.AccountIndex
-	f.InternalIndex = req.AddressIdentity.InternalIndex
-	f.AddressIndex = req.AddressIdentity.AddressIndex
+	if req.AccountIdentifier.Parameters == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Account identity parameters")
+	}
+	f.AccountParameters = req.AccountIdentifier.Parameters
 
 	if req.CreatedTxData == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Missing signature data")

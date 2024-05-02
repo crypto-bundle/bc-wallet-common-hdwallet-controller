@@ -31,6 +31,8 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
@@ -43,9 +45,15 @@ import (
 func (s *Service) ExecuteSignRequest(ctx context.Context,
 	signReqItem *entities.SignRequest,
 	transactionData []byte,
-) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error) {
-	if signReqItem.DerivationPath == nil {
-		return nil, nil, ErrMissingDerivationPathField
+) (signerAddr *pbCommon.AccountIdentity, signedData []byte, err error) {
+	if signReqItem.AccountData == nil {
+		return nil, nil, ErrMissingAccountDataField
+	}
+
+	accountDataMsg := &anypb.Any{}
+	err = proto.Unmarshal(signReqItem.AccountData, accountDataMsg)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
@@ -55,12 +63,8 @@ func (s *Service) ExecuteSignRequest(ctx context.Context,
 			return clbErr
 		}
 
-		accountIdx, internalIdx, addrIdx := uint32(signReqItem.DerivationPath[0]),
-			uint32(signReqItem.DerivationPath[1]),
-			uint32(signReqItem.DerivationPath[2])
-
 		signerAddr, signedData, clbErr = s.signTransaction(txStmtCtx, signReqItem.WalletUUID,
-			accountIdx, internalIdx, addrIdx, transactionData)
+			accountDataMsg, transactionData)
 		if clbErr != nil {
 			return clbErr
 		}
@@ -76,17 +80,15 @@ func (s *Service) ExecuteSignRequest(ctx context.Context,
 
 func (s *Service) signTransaction(ctx context.Context,
 	mnemonicUUID string,
-	account, change, index uint32,
+	accountParameters *anypb.Any,
 	transactionData []byte,
-) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error) {
+) (signerAddr *pbCommon.AccountIdentity, signedData []byte, err error) {
 	signResp, err := s.hdWalletClientSvc.SignData(ctx, &hdwallet.SignDataRequest{
 		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
-		AddressIdentifier: &pbCommon.DerivationAddressIdentity{
-			AccountIndex:  account,
-			InternalIndex: change,
-			AddressIndex:  index,
+		AccountIdentifier: &pbCommon.AccountIdentity{
+			Parameters: accountParameters,
 		},
 		DataForSign: transactionData,
 	})
@@ -109,5 +111,5 @@ func (s *Service) signTransaction(ctx context.Context,
 		}
 	}
 
-	return signResp.TxOwnerIdentity, signResp.SignedData, nil
+	return signResp.AccountIdentifier, signResp.SignedData, nil
 }

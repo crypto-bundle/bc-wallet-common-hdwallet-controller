@@ -30,7 +30,6 @@ package grpc
 import (
 	"context"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
@@ -60,8 +59,7 @@ func (h *EnableWalletHandler) Handle(ctx context.Context,
 	validationForm := &EnableWalletForm{}
 	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
-		h.l.Error("unable load and validate request values", zap.Error(err),
-			zap.String(app.WalletUUIDTag, req.WalletIdentity.WalletUUID))
+		h.l.Error("unable load and validate request values", zap.Error(err))
 
 		if !valid {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -81,7 +79,7 @@ func (h *EnableWalletHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.EnableWalletResponse{
-		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},

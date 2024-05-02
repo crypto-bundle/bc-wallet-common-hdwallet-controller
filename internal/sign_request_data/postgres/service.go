@@ -66,7 +66,7 @@ func (s *pgRepository) AddSignRequestItem(ctx context.Context,
             VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,
 			toSaveItem.UUID,
 			toSaveItem.WalletUUID, toSaveItem.SessionUUID, toSaveItem.PurposeUUID,
-			toSaveItem.DerivationPath,
+			toSaveItem.AccountData,
 			toSaveItem.Status,
 			date, nil)
 

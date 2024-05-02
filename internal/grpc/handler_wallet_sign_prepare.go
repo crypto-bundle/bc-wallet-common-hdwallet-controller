@@ -93,7 +93,7 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 
 	signOwner, signReqItem, err := h.signManagerSvc.PrepareSignRequest(ctx, vf.WalletUUID, vf.SessionUUID,
 		vf.PurposeUUID,
-		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
+		vf.AccountParameters)
 	if err != nil {
 		h.l.Error("unable to sign transaction", zap.Error(err),
 			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID),
@@ -107,19 +107,15 @@ func (h *SignPrepareHandler) Handle(ctx context.Context,
 			"signer account not found or signature session expired")
 	}
 
-	if signReqItem.DerivationPath == nil {
-
-	}
-
 	return &pbApi.PrepareSignRequestResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
-		SessionIdentity: &pbApi.WalletSessionIdentity{
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
 			SessionUUID: sessionItem.UUID,
 		},
-		TxOwnerIdentity: signOwner,
+		AccountIdentifier: signOwner,
 		SignatureRequestInfo: &pbApi.SignRequestData{
 			Identifier: &pbApi.SignRequestIdentity{UUID: signReqItem.UUID},
 			Status:     pbApi.SignRequestData_ReqStatus(signReqItem.Status),

@@ -25,23 +25,51 @@
  *
  */
 
-package grpc
+package wallet_manager
 
 import (
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"context"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-func (m *grpcMarshaller) MarshallGetAddressData(
-	mnemonicWallet *entities.MnemonicWallet,
-	pbAddressData *pbCommon.DerivationAddressIdentity,
-) (*pbApi.DerivationAddressResponse, error) {
-	return &pbApi.DerivationAddressResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
-			WalletUUID: mnemonicWallet.UUID.String(),
-			WalletHash: mnemonicWallet.MnemonicHash,
+func (s *Service) GetAddressesByRange(ctx context.Context,
+	mnemonicUUID string,
+	addrParams *anypb.Any,
+) (list []*pbCommon.DerivationAddressIdentity, err error) {
+
+	resp, err := s.hdWalletClientSvc.GetMultipleAccounts(ctx, &hdwallet.GetMultipleAccountRequest{
+		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: mnemonicUUID,
 		},
-		AddressIdentity: pbAddressData,
-	}, nil
+		Parameters: addrParams,
+	})
+	if err != nil {
+		grpcStatus, statusExists := status.FromError(err)
+		if !statusExists {
+			s.logger.Error("unable get status from error", zap.Error(ErrUnableDecodeGrpcErrorStatus))
+			return nil, ErrUnableDecodeGrpcErrorStatus
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound, codes.ResourceExhausted:
+			return nil, nil
+
+		default:
+			s.logger.Error("unable to get derivation address",
+				zap.Error(ErrUnableDecodeGrpcErrorStatus),
+				zap.String(app.MnemonicWalletUUIDTag, mnemonicUUID))
+
+			return nil, err
+		}
+	}
+
+	return resp.AddressIdentities, nil
 }

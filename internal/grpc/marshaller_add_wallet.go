@@ -38,10 +38,11 @@ func (m *grpcMarshaller) MarshallCreateWalletData(
 	walletData *entities.MnemonicWallet,
 ) (*pbApi.AddNewWalletResponse, error) {
 
-	resp := &pbApi.AddNewWalletResponse{WalletIdentity: &pbCommon.MnemonicWalletIdentity{
-		WalletUUID: walletData.UUID.String(),
-		WalletHash: walletData.MnemonicHash,
-	}}
+	resp := &pbApi.AddNewWalletResponse{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletData.UUID.String(),
+			WalletHash: walletData.MnemonicHash,
+		}}
 
 	return resp, nil
 }

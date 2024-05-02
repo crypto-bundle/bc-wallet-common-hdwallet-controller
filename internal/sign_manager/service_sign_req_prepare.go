@@ -29,9 +29,9 @@ package sign_manager
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"time"
 
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -41,30 +41,37 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 func (s *Service) PrepareSignRequest(ctx context.Context,
 	mnemonicUUID string,
 	sessionUUID string,
 	purposeUUID string,
-	account, change, index uint32,
-) (addr *pbCommon.DerivationAddressIdentity, signReqItem *entities.SignRequest, err error) {
+	accountParameters *anypb.Any,
+) (addr *pbCommon.AccountIdentity, signReqItem *entities.SignRequest, err error) {
+	rawData, err := proto.Marshal(accountParameters)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		savedItem, clbErr := s.signReqDataSvc.AddSignRequestItem(txStmtCtx, &entities.SignRequest{
-			UUID:           uuid.NewString(),
-			WalletUUID:     mnemonicUUID,
-			SessionUUID:    sessionUUID,
-			PurposeUUID:    purposeUUID,
-			DerivationPath: []int32{int32(account), int32(change), int32(index)},
-			Status:         types.SignRequestStatusCreated,
-			CreatedAt:      time.Time{},
-			UpdatedAt:      nil,
+			UUID:        uuid.NewString(),
+			WalletUUID:  mnemonicUUID,
+			SessionUUID: sessionUUID,
+			PurposeUUID: purposeUUID,
+			AccountData: rawData,
+			Status:      types.SignRequestStatusCreated,
+			CreatedAt:   time.Time{},
+			UpdatedAt:   nil,
 		})
 		if clbErr != nil {
 			return clbErr
 		}
 
-		signOwner, clbErr := s.signPrepare(ctx, mnemonicUUID, account, change, index)
+		signOwner, clbErr := s.signPrepare(ctx, mnemonicUUID, accountParameters)
 		if clbErr != nil {
 			return clbErr
 		}
@@ -99,16 +106,14 @@ func (s *Service) PrepareSignRequest(ctx context.Context,
 
 func (s *Service) signPrepare(ctx context.Context,
 	mnemonicUUID string,
-	account, change, index uint32,
-) (signerAddr *pbCommon.DerivationAddressIdentity, err error) {
-	resp, err := s.hdWalletClientSvc.LoadDerivationAddress(ctx, &hdwallet.LoadDerivationAddressRequest{
+	accountParameters *anypb.Any,
+) (signerAddr *pbCommon.AccountIdentity, err error) {
+	resp, err := s.hdWalletClientSvc.LoadAccount(ctx, &hdwallet.LoadAccountRequest{
 		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
-		AddressIdentifier: &pbCommon.DerivationAddressIdentity{
-			AccountIndex:  account,
-			InternalIndex: change,
-			AddressIndex:  index,
+		AccountIdentifier: &pbCommon.AccountIdentity{
+			Parameters: accountParameters,
 		},
 	})
 	if err != nil {
@@ -130,5 +135,5 @@ func (s *Service) signPrepare(ctx context.Context,
 		}
 	}
 
-	return resp.TxOwnerIdentity, nil
+	return resp.AccountIdentifier, nil
 }

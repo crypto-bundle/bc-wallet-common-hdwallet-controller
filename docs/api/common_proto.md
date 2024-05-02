@@ -4,6 +4,7 @@
 ## Table of Contents
 
 - [common.proto](#common.proto)
+    - [AccountIdentity](#common.AccountIdentity)
     - [DerivationAddressIdentity](#common.DerivationAddressIdentity)
     - [MnemonicWalletData](#common.MnemonicWalletData)
     - [MnemonicWalletIdentity](#common.MnemonicWalletIdentity)
@@ -20,6 +21,22 @@
 
 
 
+<a name="common.AccountIdentity"></a>
+
+### AccountIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| Parameters | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| Address | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="common.DerivationAddressIdentity"></a>
 
 ### DerivationAddressIdentity
@@ -31,7 +48,6 @@
 | AccountIndex | [uint32](#uint32) |  |  |
 | InternalIndex | [uint32](#uint32) |  |  |
 | AddressIndex | [uint32](#uint32) |  |  |
-| Address | [string](#string) |  |  |
 
 
 
