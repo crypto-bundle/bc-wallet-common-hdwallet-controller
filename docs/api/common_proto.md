@@ -9,6 +9,7 @@
     - [MnemonicWalletData](#common.MnemonicWalletData)
     - [MnemonicWalletIdentity](#common.MnemonicWalletIdentity)
     - [RangeRequestUnit](#common.RangeRequestUnit)
+    - [RangeUnitsList](#common.RangeUnitsList)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -97,6 +98,21 @@
 | InternalIndex | [uint32](#uint32) |  |  |
 | AddressIndexFrom | [uint32](#uint32) |  |  |
 | AddressIndexTo | [uint32](#uint32) |  |  |
+
+
+
+
+
+
+<a name="common.RangeUnitsList"></a>
+
+### RangeUnitsList
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| RangeUnits | [RangeRequestUnit](#common.RangeRequestUnit) | repeated |  |
 
 
 

@@ -35,10 +35,14 @@ message DerivationAddressIdentity {
 }
 
 message RangeRequestUnit {
-  uint32 AccountIndex = 3;
-  uint32 InternalIndex = 4;
-  uint32 AddressIndexFrom = 5;
-  uint32 AddressIndexTo = 6;
+  uint32 AccountIndex = 1;
+  uint32 InternalIndex = 2;
+  uint32 AddressIndexFrom = 3;
+  uint32 AddressIndexTo = 4;
+}
+
+message RangeUnitsList {
+  repeated RangeRequestUnit RangeUnits = 1;
 }
 
 message AccountIdentity {
