@@ -66,6 +66,9 @@
         },
         "SessionIdentifier": {
           "$ref": "#/definitions/manager_apiWalletSessionIdentity"
+        },
+        "SessionStatus": {
+          "$ref": "#/definitions/manager_apiWalletSessionStatus"
         }
       }
     },
@@ -93,6 +96,9 @@
       "properties": {
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/manager_apiWalletStatus"
         }
       }
     },
@@ -190,6 +196,9 @@
       "properties": {
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/manager_apiWalletStatus"
         }
       }
     },
@@ -249,6 +258,9 @@
         "SessionIdentifier": {
           "$ref": "#/definitions/manager_apiWalletSessionIdentity"
         },
+        "SessionStatus": {
+          "$ref": "#/definitions/manager_apiWalletSessionStatus"
+        },
         "SessionStartedAt": {
           "type": "string",
           "format": "uint64"
@@ -299,6 +311,9 @@
         "SessionIdentifier": {
           "$ref": "#/definitions/manager_apiWalletSessionIdentity"
         },
+        "SessionStatus": {
+          "$ref": "#/definitions/manager_apiWalletSessionStatus"
+        },
         "SessionStartedAt": {
           "type": "string",
           "format": "uint64"
@@ -316,6 +331,25 @@
           "type": "string"
         }
       }
+    },
+    "manager_apiWalletSessionStatus": {
+      "type": "string",
+      "enum": [
+        "WALLET_SESSION_STATUS_PLACEHOLDER",
+        "WALLET_SESSION_STATUS_PREPARED",
+        "WALLET_SESSION_STATUS_CLOSED"
+      ],
+      "default": "WALLET_SESSION_STATUS_PLACEHOLDER"
+    },
+    "manager_apiWalletStatus": {
+      "type": "string",
+      "enum": [
+        "WALLET_STATUS_PLACEHOLDER",
+        "WALLET_STATUS_CREATED",
+        "WALLET_STATUS_ENABLED",
+        "WALLET_STATUS_DISABLED"
+      ],
+      "default": "WALLET_STATUS_PLACEHOLDER"
     },
     "protobufAny": {
       "type": "object",

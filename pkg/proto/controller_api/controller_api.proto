@@ -29,6 +29,19 @@ option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controll
 import "common.proto";
 import "google/protobuf/any.proto";
 
+enum WalletStatus{
+  WALLET_STATUS_PLACEHOLDER = 0;
+  WALLET_STATUS_CREATED = 1;
+  WALLET_STATUS_ENABLED = 2;
+  WALLET_STATUS_DISABLED = 3;
+}
+
+enum WalletSessionStatus{
+  WALLET_SESSION_STATUS_PLACEHOLDER = 0;
+  WALLET_SESSION_STATUS_PREPARED = 1;
+  WALLET_SESSION_STATUS_CLOSED = 2;
+}
+
 message AppInstanceIdentity {
   string UUID = 1;
 }
@@ -89,6 +102,7 @@ message EnableWalletRequest {
 
 message EnableWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletStatus WalletStatus = 2;
 }
 
 message DisableWalletRequest {
@@ -146,6 +160,7 @@ message GetWalletInfoRequest {
 
 message GetWalletInfoResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletStatus WalletStatus = 2;
 }
 
 message StartWalletSessionRequest {
@@ -155,8 +170,9 @@ message StartWalletSessionRequest {
 message StartWalletSessionResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
   WalletSessionIdentity SessionIdentifier = 2;
-  uint64 SessionStartedAt = 3;
-  uint64 SessionExpiredAt = 4;
+  WalletSessionStatus SessionStatus = 3;
+  uint64 SessionStartedAt = 4;
+  uint64 SessionExpiredAt = 5;
 }
 
 message GetWalletSessionRequest {
@@ -175,8 +191,9 @@ message GetWalletSessionsRequest {
 
 message SessionInfo {
   WalletSessionIdentity SessionIdentifier = 1;
-  uint64 SessionStartedAt = 2;
-  uint64 SessionExpiredAt = 3;
+  WalletSessionStatus SessionStatus = 2;
+  uint64 SessionStartedAt = 3;
+  uint64 SessionExpiredAt = 4;
 }
 
 message GetWalletSessionsResponse {
@@ -192,6 +209,7 @@ message CloseWalletSessionsRequest {
 message CloseWalletSessionsResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
   WalletSessionIdentity SessionIdentifier = 2;
+  WalletSessionStatus SessionStatus = 3;
 }
 
 message ExecuteSignRequestReq {

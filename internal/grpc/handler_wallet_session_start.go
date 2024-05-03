@@ -106,6 +106,7 @@ func (h *StartWalletSessionHandler) Handle(ctx context.Context,
 		SessionIdentifier: &pbApi.WalletSessionIdentity{
 			SessionUUID: sessionItem.UUID,
 		},
+		SessionStatus:    pbApi.WalletSessionStatus(sessionItem.Status),
 		SessionStartedAt: uint64(sessionItem.CreatedAt.Unix()),
 		SessionExpiredAt: uint64(sessionItem.ExpiredAt.Unix()),
 	}, nil

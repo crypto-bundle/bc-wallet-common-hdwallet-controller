@@ -40,13 +40,13 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Service) GetAddressesByRange(ctx context.Context,
+func (s *Service) GetAccounts(ctx context.Context,
 	mnemonicUUID string,
 	addrParams *anypb.Any,
-) (list []*pbCommon.DerivationAddressIdentity, err error) {
+) (count uint64, list []*pbCommon.AccountIdentity, err error) {
 
 	resp, err := s.hdWalletClientSvc.GetMultipleAccounts(ctx, &hdwallet.GetMultipleAccountRequest{
-		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
 		Parameters: addrParams,
@@ -55,21 +55,21 @@ func (s *Service) GetAddressesByRange(ctx context.Context,
 		grpcStatus, statusExists := status.FromError(err)
 		if !statusExists {
 			s.logger.Error("unable get status from error", zap.Error(ErrUnableDecodeGrpcErrorStatus))
-			return nil, ErrUnableDecodeGrpcErrorStatus
+			return 0, nil, ErrUnableDecodeGrpcErrorStatus
 		}
 
 		switch grpcStatus.Code() {
 		case codes.NotFound, codes.ResourceExhausted:
-			return nil, nil
+			return 0, nil, nil
 
 		default:
 			s.logger.Error("unable to get derivation address",
 				zap.Error(ErrUnableDecodeGrpcErrorStatus),
 				zap.String(app.MnemonicWalletUUIDTag, mnemonicUUID))
 
-			return nil, err
+			return 0, nil, err
 		}
 	}
 
-	return resp.AddressIdentities, nil
+	return resp.AccountIdentitiesCount, resp.AccountIdentifier, nil
 }

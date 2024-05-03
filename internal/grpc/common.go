@@ -107,7 +107,7 @@ type walletManagerService interface {
 	GetAccounts(ctx context.Context,
 		mnemonicUUID string,
 		accountsParameters *anypb.Any,
-	) (list []*pbCommon.AccountIdentity, err error)
+	) (count uint64, list []*pbCommon.AccountIdentity, err error)
 	StartWalletSession(ctx context.Context,
 		walletUUID string,
 	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)

@@ -34,6 +34,8 @@ import (
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 	pbHdwallet "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
+	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type signRequestPreparedHandler struct {
@@ -86,18 +88,18 @@ func (h *signRequestPreparedHandler) process(ctx context.Context,
 		return nil
 	}
 
-	accountIdx, internalIdx, addrIdx := uint32(signReqItem.DerivationPath[0]),
-		uint32(signReqItem.DerivationPath[1]),
-		uint32(signReqItem.DerivationPath[2])
+	anyRawData := &anypb.Any{}
+	err := proto.Unmarshal(signReqItem.AccountData, anyRawData)
+	if err != nil {
+		return err
+	}
 
-	_, err := h.hdWalletSvc.LoadDerivationAddress(ctx, &pbHdwallet.LoadDerivationAddressRequest{
-		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+	_, err = h.hdWalletSvc.LoadAccount(ctx, &pbHdwallet.LoadAccountRequest{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: sessionItem.MnemonicWalletUUID,
 		},
-		AddressIdentifier: &pbCommon.DerivationAddressIdentity{
-			AccountIndex:  accountIdx,
-			InternalIndex: internalIdx,
-			AddressIndex:  addrIdx,
+		AccountIdentifier: &pbCommon.AccountIdentity{
+			Parameters: anyRawData,
 		},
 	})
 	if err != nil {

@@ -89,7 +89,7 @@ func (h *GetMultipleAccountsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
 	}
 
-	accountList, err := h.walletSvc.GetAccounts(ctx, vf.MnemonicWalletUUID,
+	count, accountList, err := h.walletSvc.GetAccounts(ctx, vf.MnemonicWalletUUID,
 		vf.Parameters)
 	if err != nil {
 		h.l.Error("unable get derivative addresses by range", zap.Error(err),
@@ -100,11 +100,14 @@ func (h *GetMultipleAccountsHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.GetMultipleAccountResponse{
-		MnemonicIdentifier: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
-		AccountIdentitiesCount: uint64(len(accountList)),
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
+			SessionUUID: sessionItem.UUID,
+		},
+		AccountIdentitiesCount: count,
 		AccountIdentifier:      accountList,
 	}, nil
 }

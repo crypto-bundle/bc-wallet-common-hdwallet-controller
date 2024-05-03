@@ -101,7 +101,7 @@ message GetMultipleAccountRequest {
 
 message GetMultipleAccountResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
-  uint64 AddressIdentitiesCount = 3;
+  uint64 AccountIdentitiesCount = 3;
   repeated common.AccountIdentity AccountIdentifier = 4;
 }
 

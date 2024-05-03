@@ -109,7 +109,7 @@ func (s *Service) signPrepare(ctx context.Context,
 	accountParameters *anypb.Any,
 ) (signerAddr *pbCommon.AccountIdentity, err error) {
 	resp, err := s.hdWalletClientSvc.LoadAccount(ctx, &hdwallet.LoadAccountRequest{
-		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
 		AccountIdentifier: &pbCommon.AccountIdentity{

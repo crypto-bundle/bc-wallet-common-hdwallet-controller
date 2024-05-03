@@ -42,11 +42,12 @@ func (m *grpcMarshaller) MarshallWalletSessions(
 		sessionItem := sessionsList[j]
 
 		result[j] = &pbApi.SessionInfo{
-			SessionIdentity: &pbApi.WalletSessionIdentity{
+			SessionIdentifier: &pbApi.WalletSessionIdentity{
 				SessionUUID: sessionItem.UUID,
 			},
 			SessionStartedAt: uint64(sessionItem.CreatedAt.Unix()),
 			SessionExpiredAt: uint64(sessionItem.ExpiredAt.Unix()),
+			SessionStatus:    pbApi.WalletSessionStatus(sessionItem.Status),
 		}
 	}
 

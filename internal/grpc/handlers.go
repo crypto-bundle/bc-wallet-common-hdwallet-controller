@@ -155,7 +155,7 @@ func (h *grpcServerHandle) GetAccount(ctx context.Context,
 	return h.getAccountHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetDerivationAddressByRange(ctx context.Context,
+func (h *grpcServerHandle) GetMultipleAccounts(ctx context.Context,
 	req *pbApi.GetMultipleAccountRequest,
 ) (*pbApi.GetMultipleAccountResponse, error) {
 	return h.getMultipleAccountsHandlerSvc.Handle(ctx, req)

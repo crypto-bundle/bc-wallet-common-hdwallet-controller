@@ -40,38 +40,17 @@ func (s *Service) CloseWalletSession(ctx context.Context,
 	walletUUID string,
 	sessionUUID string,
 ) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error) {
-	walletItem, sessionItem, err := s.cacheStoreDataSvc.GetMnemonicWalletSessionInfoByUUID(ctx,
-		walletUUID, sessionUUID)
+	walletItem, sessionItem, err := s.getWalletAndSession(ctx, walletUUID, sessionUUID)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	if walletItem != nil && sessionItem != nil {
-		session, sessErr := s.closeWalletSession(ctx, walletItem, sessionItem)
-		if sessErr != nil {
-			return nil, nil, sessErr
-		}
-
-		return walletItem, session, nil
+	if walletItem == nil {
+		return nil, nil, nil
 	}
 
-	if err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		wallet, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletByUUID(ctx, walletUUID)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		session, clbErr := s.mnemonicWalletsDataSvc.GetWalletSessionByUUID(ctx, sessionUUID)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		walletItem = wallet
-		sessionItem = session
-
-		return nil
-	}); err != nil {
-		return nil, nil, err
+	if sessionItem == nil {
+		return walletItem, nil, nil
 	}
 
 	sessionItem, err = s.closeWalletSession(ctx, walletItem, sessionItem)

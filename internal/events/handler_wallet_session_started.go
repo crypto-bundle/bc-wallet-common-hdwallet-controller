@@ -94,7 +94,7 @@ func (h *sessionStartedHandler) process(ctx context.Context,
 	ttl := session.ExpiredAt.Sub(session.StartedAt)
 
 	_, err := h.hdWalletSvc.LoadMnemonic(ctx, &pbHdwallet.LoadMnemonicRequest{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},

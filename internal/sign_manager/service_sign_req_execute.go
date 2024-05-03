@@ -84,7 +84,7 @@ func (s *Service) signTransaction(ctx context.Context,
 	transactionData []byte,
 ) (signerAddr *pbCommon.AccountIdentity, signedData []byte, err error) {
 	signResp, err := s.hdWalletClientSvc.SignData(ctx, &hdwallet.SignDataRequest{
-		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
 		AccountIdentifier: &pbCommon.AccountIdentity{

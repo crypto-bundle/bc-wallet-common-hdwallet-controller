@@ -122,7 +122,7 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 	}
 
 	_, unloadErr := s.hdWalletClientSvc.UnLoadMultipleMnemonics(ctx, &hdwallet.UnLoadMultipleMnemonicsRequest{
-		MnemonicIdentity: pbIdentities})
+		WalletIdentifier: pbIdentities})
 	if err != nil {
 		s.logger.Error("unable to unload mnemonics", zap.Error(unloadErr),
 			zap.Strings(app.MnemonicWalletUUIDTag, list))

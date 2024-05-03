@@ -83,6 +83,7 @@ func (h *EnableWalletHandler) Handle(ctx context.Context,
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},
+		WalletStatus: pbApi.WalletStatus(wallet.Status),
 	}, nil
 }
 

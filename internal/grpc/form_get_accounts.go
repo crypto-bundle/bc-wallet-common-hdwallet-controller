@@ -65,6 +65,7 @@ func (f *getMultipleAccountForm) LoadAndValidate(_ context.Context,
 	if req.Parameters == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Ranges data")
 	}
+	f.Parameters = req.Parameters
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

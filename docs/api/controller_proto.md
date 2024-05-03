@@ -51,6 +51,8 @@
     - [SignRequestData.ReqStatus](#manager_api.SignRequestData.ReqStatus)
     - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
     - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
+    - [WalletSessionStatus](#manager_api.WalletSessionStatus)
+    - [WalletStatus](#manager_api.WalletStatus)
   
     - [HdWalletControllerApi](#manager_api.HdWalletControllerApi)
   
@@ -131,6 +133,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionStatus | [WalletSessionStatus](#manager_api.WalletSessionStatus) |  |  |
 
 
 
@@ -221,6 +224,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
 
 
 
@@ -448,6 +452,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
 
 
 
@@ -592,6 +597,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionStatus | [WalletSessionStatus](#manager_api.WalletSessionStatus) |  |  |
 | SessionStartedAt | [uint64](#uint64) |  |  |
 | SessionExpiredAt | [uint64](#uint64) |  |  |
 
@@ -688,6 +694,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionStatus | [WalletSessionStatus](#manager_api.WalletSessionStatus) |  |  |
 | SessionStartedAt | [uint64](#uint64) |  |  |
 | SessionExpiredAt | [uint64](#uint64) |  |  |
 
@@ -781,6 +788,33 @@
 | PLACEHOLDER | 0 |  |
 | STARTED | 1 |  |
 | CLOSED | 2 |  |
+
+
+
+<a name="manager_api.WalletSessionStatus"></a>
+
+### WalletSessionStatus
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| WALLET_SESSION_STATUS_PLACEHOLDER | 0 |  |
+| WALLET_SESSION_STATUS_PREPARED | 1 |  |
+| WALLET_SESSION_STATUS_CLOSED | 2 |  |
+
+
+
+<a name="manager_api.WalletStatus"></a>
+
+### WalletStatus
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| WALLET_STATUS_PLACEHOLDER | 0 |  |
+| WALLET_STATUS_CREATED | 1 |  |
+| WALLET_STATUS_ENABLED | 2 |  |
+| WALLET_STATUS_DISABLED | 3 |  |
 
 
  

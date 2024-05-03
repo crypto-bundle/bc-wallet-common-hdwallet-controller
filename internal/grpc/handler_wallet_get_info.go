@@ -83,6 +83,7 @@ func (h *GetWalletInfoHandler) Handle(ctx context.Context,
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
+		WalletStatus: pbApi.WalletStatus(walletItem.Status),
 	}, nil
 }
 

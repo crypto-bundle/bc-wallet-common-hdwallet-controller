@@ -105,9 +105,12 @@ func (h *GetAccountHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.GetAccountResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
+		},
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
+			SessionUUID: sessionItem.UUID,
 		},
 		AccountIdentifier: &pbCommon.AccountIdentity{
 			Parameters: vf.AccountParameters,

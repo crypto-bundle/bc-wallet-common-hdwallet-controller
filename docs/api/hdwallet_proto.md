@@ -158,7 +158,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentitiesCount | [uint64](#uint64) |  |  |
+| AccountIdentitiesCount | [uint64](#uint64) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) | repeated |  |
 
 

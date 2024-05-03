@@ -45,7 +45,7 @@ func (s *Service) GetAccount(ctx context.Context,
 	parameters *anypb.Any,
 ) (address *string, err error) {
 	resp, err := s.hdWalletClientSvc.GetAccount(ctx, &hdwallet.GetAccountRequest{
-		MnemonicWalletIdentifier: &common.MnemonicWalletIdentity{
+		WalletIdentifier: &common.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
 		AccountIdentifier: &common.AccountIdentity{

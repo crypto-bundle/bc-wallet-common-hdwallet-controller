@@ -80,7 +80,7 @@
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
         },
-        "AddressIdentitiesCount": {
+        "AccountIdentitiesCount": {
           "type": "string",
           "format": "uint64"
         },
