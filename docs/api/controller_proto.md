@@ -86,6 +86,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
 
 
 
@@ -164,6 +165,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
 
 
 

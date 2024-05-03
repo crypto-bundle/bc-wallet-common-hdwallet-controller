@@ -42,7 +42,9 @@ func (m *grpcMarshaller) MarshallCreateWalletData(
 		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletData.UUID.String(),
 			WalletHash: walletData.MnemonicHash,
-		}}
+		},
+		WalletStatus: pbApi.WalletStatus(walletData.Status),
+	}
 
 	return resp, nil
 }

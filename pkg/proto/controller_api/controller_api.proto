@@ -86,6 +86,7 @@ message AddNewWalletRequest {
 
 message AddNewWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletStatus WalletStatus = 2;
 }
 
 message ImportWalletRequest {
@@ -111,6 +112,7 @@ message DisableWalletRequest {
 
 message DisableWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletStatus WalletStatus = 2;
 }
 
 message DisableWalletsRequest {

@@ -743,6 +743,7 @@ type AddNewWalletResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	WalletIdentifier *common.MnemonicWalletIdentity `protobuf:"bytes,1,opt,name=WalletIdentifier,proto3" json:"WalletIdentifier,omitempty"`
+	WalletStatus     WalletStatus                   `protobuf:"varint,2,opt,name=WalletStatus,proto3,enum=manager_api.WalletStatus" json:"WalletStatus,omitempty"`
 }
 
 func (x *AddNewWalletResponse) Reset() {
@@ -782,6 +783,13 @@ func (x *AddNewWalletResponse) GetWalletIdentifier() *common.MnemonicWalletIdent
 		return x.WalletIdentifier
 	}
 	return nil
+}
+
+func (x *AddNewWalletResponse) GetWalletStatus() WalletStatus {
+	if x != nil {
+		return x.WalletStatus
+	}
+	return WalletStatus_WALLET_STATUS_PLACEHOLDER
 }
 
 type ImportWalletRequest struct {
@@ -1033,6 +1041,7 @@ type DisableWalletResponse struct {
 	unknownFields protoimpl.UnknownFields
 
 	WalletIdentifier *common.MnemonicWalletIdentity `protobuf:"bytes,1,opt,name=WalletIdentifier,proto3" json:"WalletIdentifier,omitempty"`
+	WalletStatus     WalletStatus                   `protobuf:"varint,2,opt,name=WalletStatus,proto3,enum=manager_api.WalletStatus" json:"WalletStatus,omitempty"`
 }
 
 func (x *DisableWalletResponse) Reset() {
@@ -1072,6 +1081,13 @@ func (x *DisableWalletResponse) GetWalletIdentifier() *common.MnemonicWalletIden
 		return x.WalletIdentifier
 	}
 	return nil
+}
+
+func (x *DisableWalletResponse) GetWalletStatus() WalletStatus {
+	if x != nil {
+		return x.WalletStatus
+	}
+	return WalletStatus_WALLET_STATUS_PLACEHOLDER
 }
 
 type DisableWalletsRequest struct {
@@ -2691,13 +2707,17 @@ var file_controller_api_proto_rawDesc = []byte{
 	0x09, 0x52, 0x03, 0x6b, 0x65, 0x79, 0x12, 0x14, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x18,
 	0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x3a, 0x02, 0x38, 0x01,
 	0x22, 0x15, 0x0a, 0x13, 0x41, 0x64, 0x64, 0x4e, 0x65, 0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x62, 0x0a, 0x14, 0x41, 0x64, 0x64, 0x4e, 0x65,
-	0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x4a, 0x0a, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66,
-	0x69, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d,
-	0x6f, 0x6e, 0x2e, 0x4d, 0x6e, 0x65, 0x6d, 0x6f, 0x6e, 0x69, 0x63, 0x57, 0x61, 0x6c, 0x6c, 0x65,
-	0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65,
-	0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x22, 0x3d, 0x0a, 0x13, 0x49,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0xa1, 0x01, 0x0a, 0x14, 0x41, 0x64, 0x64, 0x4e,
+	0x65, 0x77, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x4a, 0x0a, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69,
+	0x66, 0x69, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x63, 0x6f, 0x6d,
+	0x6d, 0x6f, 0x6e, 0x2e, 0x4d, 0x6e, 0x65, 0x6d, 0x6f, 0x6e, 0x69, 0x63, 0x57, 0x61, 0x6c, 0x6c,
+	0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x10, 0x57, 0x61, 0x6c, 0x6c,
+	0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x12, 0x3d, 0x0a, 0x0c,
+	0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0e, 0x32, 0x19, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72, 0x5f, 0x61, 0x70, 0x69,
+	0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x0c, 0x57,
+	0x61, 0x6c, 0x6c, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x3d, 0x0a, 0x13, 0x49,
 	0x6d, 0x70, 0x6f, 0x72, 0x74, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65,
 	0x73, 0x74, 0x12, 0x26, 0x0a, 0x0e, 0x4d, 0x6e, 0x65, 0x6d, 0x6f, 0x6e, 0x69, 0x63, 0x50, 0x68,
 	0x72, 0x61, 0x73, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x0e, 0x4d, 0x6e, 0x65, 0x6d,
@@ -2730,13 +2750,17 @@ var file_controller_api_proto_rawDesc = []byte{
 	0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e,
 	0x2e, 0x4d, 0x6e, 0x65, 0x6d, 0x6f, 0x6e, 0x69, 0x63, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49,
 	0x64, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49,
-	0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x22, 0x63, 0x0a, 0x15, 0x44, 0x69, 0x73,
-	0x61, 0x62, 0x6c, 0x65, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x4a, 0x0a, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e,
-	0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e, 0x63,
-	0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x4d, 0x6e, 0x65, 0x6d, 0x6f, 0x6e, 0x69, 0x63, 0x57, 0x61,
-	0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x10, 0x57, 0x61,
-	0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x22, 0x63,
+	0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x22, 0xa2, 0x01, 0x0a, 0x15, 0x44, 0x69,
+	0x73, 0x61, 0x62, 0x6c, 0x65, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f,
+	0x6e, 0x73, 0x65, 0x12, 0x4a, 0x0a, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65,
+	0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1e, 0x2e,
+	0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x4d, 0x6e, 0x65, 0x6d, 0x6f, 0x6e, 0x69, 0x63, 0x57,
+	0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x74, 0x79, 0x52, 0x10, 0x57,
+	0x61, 0x6c, 0x6c, 0x65, 0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x12,
+	0x3d, 0x0a, 0x0c, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x19, 0x2e, 0x6d, 0x61, 0x6e, 0x61, 0x67, 0x65, 0x72, 0x5f,
+	0x61, 0x70, 0x69, 0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x52, 0x0c, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x63,
 	0x0a, 0x15, 0x44, 0x69, 0x73, 0x61, 0x62, 0x6c, 0x65, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x73,
 	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x4a, 0x0a, 0x10, 0x57, 0x61, 0x6c, 0x6c, 0x65,
 	0x74, 0x49, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x66, 0x69, 0x65, 0x72, 0x18, 0x01, 0x20, 0x03, 0x28,
@@ -3291,109 +3315,111 @@ var file_controller_api_proto_depIdxs = []int32{
 	48, // 2: manager_api.GetEnabledWalletsResponse.WalletIdentities:type_name -> common.MnemonicWalletIdentity
 	47, // 3: manager_api.GetEnabledWalletsResponse.Bookmarks:type_name -> manager_api.GetEnabledWalletsResponse.BookmarksEntry
 	48, // 4: manager_api.AddNewWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 5: manager_api.ImportWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 6: manager_api.EnableWalletRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 7: manager_api.EnableWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	0,  // 8: manager_api.EnableWalletResponse.WalletStatus:type_name -> manager_api.WalletStatus
-	48, // 9: manager_api.DisableWalletRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 10: manager_api.DisableWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 11: manager_api.DisableWalletsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 12: manager_api.DisableWalletsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 13: manager_api.EnableWalletsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 14: manager_api.EnableWalletsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 15: manager_api.GetAccountRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 16: manager_api.GetAccountRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	49, // 17: manager_api.GetAccountRequest.AccountIdentifier:type_name -> common.AccountIdentity
-	48, // 18: manager_api.GetAccountResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 19: manager_api.GetAccountResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	49, // 20: manager_api.GetAccountResponse.AccountIdentifier:type_name -> common.AccountIdentity
-	48, // 21: manager_api.GetMultipleAccountRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 22: manager_api.GetMultipleAccountRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	50, // 23: manager_api.GetMultipleAccountRequest.Parameters:type_name -> google.protobuf.Any
-	48, // 24: manager_api.GetMultipleAccountResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 25: manager_api.GetMultipleAccountResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	49, // 26: manager_api.GetMultipleAccountResponse.AccountIdentifier:type_name -> common.AccountIdentity
-	48, // 27: manager_api.GetWalletInfoRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 28: manager_api.GetWalletInfoResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	0,  // 29: manager_api.GetWalletInfoResponse.WalletStatus:type_name -> manager_api.WalletStatus
-	48, // 30: manager_api.StartWalletSessionRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	48, // 31: manager_api.StartWalletSessionResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 32: manager_api.StartWalletSessionResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	1,  // 33: manager_api.StartWalletSessionResponse.SessionStatus:type_name -> manager_api.WalletSessionStatus
-	48, // 34: manager_api.GetWalletSessionRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 35: manager_api.GetWalletSessionRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	48, // 36: manager_api.GetWalletSessionResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	36, // 37: manager_api.GetWalletSessionResponse.Session:type_name -> manager_api.SessionInfo
-	48, // 38: manager_api.GetWalletSessionsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 39: manager_api.SessionInfo.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	1,  // 40: manager_api.SessionInfo.SessionStatus:type_name -> manager_api.WalletSessionStatus
-	48, // 41: manager_api.GetWalletSessionsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	36, // 42: manager_api.GetWalletSessionsResponse.ActiveSessions:type_name -> manager_api.SessionInfo
-	48, // 43: manager_api.CloseWalletSessionsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 44: manager_api.CloseWalletSessionsRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	48, // 45: manager_api.CloseWalletSessionsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 46: manager_api.CloseWalletSessionsResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	1,  // 47: manager_api.CloseWalletSessionsResponse.SessionStatus:type_name -> manager_api.WalletSessionStatus
-	48, // 48: manager_api.ExecuteSignRequestReq.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	49, // 49: manager_api.ExecuteSignRequestReq.AccountIdentifier:type_name -> common.AccountIdentity
-	7,  // 50: manager_api.ExecuteSignRequestReq.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	8,  // 51: manager_api.ExecuteSignRequestReq.SignRequestIdentifier:type_name -> manager_api.SignRequestIdentity
-	48, // 52: manager_api.ExecuteSignRequestResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 53: manager_api.ExecuteSignRequestResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	49, // 54: manager_api.ExecuteSignRequestResponse.AccountIdentifier:type_name -> common.AccountIdentity
-	8,  // 55: manager_api.ExecuteSignRequestResponse.SignRequestIdentifier:type_name -> manager_api.SignRequestIdentity
-	48, // 56: manager_api.PrepareSignRequestReq.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	49, // 57: manager_api.PrepareSignRequestReq.AccountIdentifier:type_name -> common.AccountIdentity
-	7,  // 58: manager_api.PrepareSignRequestReq.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	9,  // 59: manager_api.PrepareSignRequestReq.SignPurposeIdentifier:type_name -> manager_api.SignPurposeIdentity
-	48, // 60: manager_api.PrepareSignRequestResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 61: manager_api.PrepareSignRequestResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	49, // 62: manager_api.PrepareSignRequestResponse.AccountIdentifier:type_name -> common.AccountIdentity
-	10, // 63: manager_api.PrepareSignRequestResponse.SignatureRequestInfo:type_name -> manager_api.SignRequestData
-	3,  // 64: manager_api.Event.EventType:type_name -> manager_api.Event.Type
-	6,  // 65: manager_api.Event.AppInstanceIdentifier:type_name -> manager_api.AppInstanceIdentity
-	4,  // 66: manager_api.WalletSessionEvent.EventType:type_name -> manager_api.WalletSessionEvent.Type
-	48, // 67: manager_api.WalletSessionEvent.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
-	7,  // 68: manager_api.WalletSessionEvent.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
-	5,  // 69: manager_api.SignRequestEvent.EventType:type_name -> manager_api.SignRequestEvent.Type
-	8,  // 70: manager_api.SignRequestEvent.SignRequestIdentifier:type_name -> manager_api.SignRequestIdentity
-	13, // 71: manager_api.HdWalletControllerApi.AddNewWallet:input_type -> manager_api.AddNewWalletRequest
-	15, // 72: manager_api.HdWalletControllerApi.ImportWallet:input_type -> manager_api.ImportWalletRequest
-	17, // 73: manager_api.HdWalletControllerApi.EnableWallet:input_type -> manager_api.EnableWalletRequest
-	29, // 74: manager_api.HdWalletControllerApi.GetWalletInfo:input_type -> manager_api.GetWalletInfoRequest
-	11, // 75: manager_api.HdWalletControllerApi.GetEnabledWallets:input_type -> manager_api.GetEnabledWalletsRequest
-	19, // 76: manager_api.HdWalletControllerApi.DisableWallet:input_type -> manager_api.DisableWalletRequest
-	21, // 77: manager_api.HdWalletControllerApi.DisableWallets:input_type -> manager_api.DisableWalletsRequest
-	23, // 78: manager_api.HdWalletControllerApi.EnableWallets:input_type -> manager_api.EnableWalletsRequest
-	31, // 79: manager_api.HdWalletControllerApi.StartWalletSession:input_type -> manager_api.StartWalletSessionRequest
-	33, // 80: manager_api.HdWalletControllerApi.GetWalletSession:input_type -> manager_api.GetWalletSessionRequest
-	35, // 81: manager_api.HdWalletControllerApi.GetAllWalletSessions:input_type -> manager_api.GetWalletSessionsRequest
-	38, // 82: manager_api.HdWalletControllerApi.CloseWalletSession:input_type -> manager_api.CloseWalletSessionsRequest
-	25, // 83: manager_api.HdWalletControllerApi.GetAccount:input_type -> manager_api.GetAccountRequest
-	27, // 84: manager_api.HdWalletControllerApi.GetMultipleAccounts:input_type -> manager_api.GetMultipleAccountRequest
-	42, // 85: manager_api.HdWalletControllerApi.PrepareSignRequest:input_type -> manager_api.PrepareSignRequestReq
-	40, // 86: manager_api.HdWalletControllerApi.ExecuteSignRequest:input_type -> manager_api.ExecuteSignRequestReq
-	14, // 87: manager_api.HdWalletControllerApi.AddNewWallet:output_type -> manager_api.AddNewWalletResponse
-	16, // 88: manager_api.HdWalletControllerApi.ImportWallet:output_type -> manager_api.ImportWalletResponse
-	18, // 89: manager_api.HdWalletControllerApi.EnableWallet:output_type -> manager_api.EnableWalletResponse
-	30, // 90: manager_api.HdWalletControllerApi.GetWalletInfo:output_type -> manager_api.GetWalletInfoResponse
-	12, // 91: manager_api.HdWalletControllerApi.GetEnabledWallets:output_type -> manager_api.GetEnabledWalletsResponse
-	20, // 92: manager_api.HdWalletControllerApi.DisableWallet:output_type -> manager_api.DisableWalletResponse
-	22, // 93: manager_api.HdWalletControllerApi.DisableWallets:output_type -> manager_api.DisableWalletsResponse
-	24, // 94: manager_api.HdWalletControllerApi.EnableWallets:output_type -> manager_api.EnableWalletsResponse
-	32, // 95: manager_api.HdWalletControllerApi.StartWalletSession:output_type -> manager_api.StartWalletSessionResponse
-	34, // 96: manager_api.HdWalletControllerApi.GetWalletSession:output_type -> manager_api.GetWalletSessionResponse
-	37, // 97: manager_api.HdWalletControllerApi.GetAllWalletSessions:output_type -> manager_api.GetWalletSessionsResponse
-	39, // 98: manager_api.HdWalletControllerApi.CloseWalletSession:output_type -> manager_api.CloseWalletSessionsResponse
-	26, // 99: manager_api.HdWalletControllerApi.GetAccount:output_type -> manager_api.GetAccountResponse
-	28, // 100: manager_api.HdWalletControllerApi.GetMultipleAccounts:output_type -> manager_api.GetMultipleAccountResponse
-	43, // 101: manager_api.HdWalletControllerApi.PrepareSignRequest:output_type -> manager_api.PrepareSignRequestResponse
-	41, // 102: manager_api.HdWalletControllerApi.ExecuteSignRequest:output_type -> manager_api.ExecuteSignRequestResponse
-	87, // [87:103] is the sub-list for method output_type
-	71, // [71:87] is the sub-list for method input_type
-	71, // [71:71] is the sub-list for extension type_name
-	71, // [71:71] is the sub-list for extension extendee
-	0,  // [0:71] is the sub-list for field type_name
+	0,  // 5: manager_api.AddNewWalletResponse.WalletStatus:type_name -> manager_api.WalletStatus
+	48, // 6: manager_api.ImportWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 7: manager_api.EnableWalletRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 8: manager_api.EnableWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	0,  // 9: manager_api.EnableWalletResponse.WalletStatus:type_name -> manager_api.WalletStatus
+	48, // 10: manager_api.DisableWalletRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 11: manager_api.DisableWalletResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	0,  // 12: manager_api.DisableWalletResponse.WalletStatus:type_name -> manager_api.WalletStatus
+	48, // 13: manager_api.DisableWalletsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 14: manager_api.DisableWalletsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 15: manager_api.EnableWalletsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 16: manager_api.EnableWalletsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 17: manager_api.GetAccountRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 18: manager_api.GetAccountRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	49, // 19: manager_api.GetAccountRequest.AccountIdentifier:type_name -> common.AccountIdentity
+	48, // 20: manager_api.GetAccountResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 21: manager_api.GetAccountResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	49, // 22: manager_api.GetAccountResponse.AccountIdentifier:type_name -> common.AccountIdentity
+	48, // 23: manager_api.GetMultipleAccountRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 24: manager_api.GetMultipleAccountRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	50, // 25: manager_api.GetMultipleAccountRequest.Parameters:type_name -> google.protobuf.Any
+	48, // 26: manager_api.GetMultipleAccountResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 27: manager_api.GetMultipleAccountResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	49, // 28: manager_api.GetMultipleAccountResponse.AccountIdentifier:type_name -> common.AccountIdentity
+	48, // 29: manager_api.GetWalletInfoRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 30: manager_api.GetWalletInfoResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	0,  // 31: manager_api.GetWalletInfoResponse.WalletStatus:type_name -> manager_api.WalletStatus
+	48, // 32: manager_api.StartWalletSessionRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	48, // 33: manager_api.StartWalletSessionResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 34: manager_api.StartWalletSessionResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	1,  // 35: manager_api.StartWalletSessionResponse.SessionStatus:type_name -> manager_api.WalletSessionStatus
+	48, // 36: manager_api.GetWalletSessionRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 37: manager_api.GetWalletSessionRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	48, // 38: manager_api.GetWalletSessionResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	36, // 39: manager_api.GetWalletSessionResponse.Session:type_name -> manager_api.SessionInfo
+	48, // 40: manager_api.GetWalletSessionsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 41: manager_api.SessionInfo.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	1,  // 42: manager_api.SessionInfo.SessionStatus:type_name -> manager_api.WalletSessionStatus
+	48, // 43: manager_api.GetWalletSessionsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	36, // 44: manager_api.GetWalletSessionsResponse.ActiveSessions:type_name -> manager_api.SessionInfo
+	48, // 45: manager_api.CloseWalletSessionsRequest.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 46: manager_api.CloseWalletSessionsRequest.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	48, // 47: manager_api.CloseWalletSessionsResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 48: manager_api.CloseWalletSessionsResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	1,  // 49: manager_api.CloseWalletSessionsResponse.SessionStatus:type_name -> manager_api.WalletSessionStatus
+	48, // 50: manager_api.ExecuteSignRequestReq.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	49, // 51: manager_api.ExecuteSignRequestReq.AccountIdentifier:type_name -> common.AccountIdentity
+	7,  // 52: manager_api.ExecuteSignRequestReq.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	8,  // 53: manager_api.ExecuteSignRequestReq.SignRequestIdentifier:type_name -> manager_api.SignRequestIdentity
+	48, // 54: manager_api.ExecuteSignRequestResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 55: manager_api.ExecuteSignRequestResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	49, // 56: manager_api.ExecuteSignRequestResponse.AccountIdentifier:type_name -> common.AccountIdentity
+	8,  // 57: manager_api.ExecuteSignRequestResponse.SignRequestIdentifier:type_name -> manager_api.SignRequestIdentity
+	48, // 58: manager_api.PrepareSignRequestReq.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	49, // 59: manager_api.PrepareSignRequestReq.AccountIdentifier:type_name -> common.AccountIdentity
+	7,  // 60: manager_api.PrepareSignRequestReq.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	9,  // 61: manager_api.PrepareSignRequestReq.SignPurposeIdentifier:type_name -> manager_api.SignPurposeIdentity
+	48, // 62: manager_api.PrepareSignRequestResponse.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 63: manager_api.PrepareSignRequestResponse.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	49, // 64: manager_api.PrepareSignRequestResponse.AccountIdentifier:type_name -> common.AccountIdentity
+	10, // 65: manager_api.PrepareSignRequestResponse.SignatureRequestInfo:type_name -> manager_api.SignRequestData
+	3,  // 66: manager_api.Event.EventType:type_name -> manager_api.Event.Type
+	6,  // 67: manager_api.Event.AppInstanceIdentifier:type_name -> manager_api.AppInstanceIdentity
+	4,  // 68: manager_api.WalletSessionEvent.EventType:type_name -> manager_api.WalletSessionEvent.Type
+	48, // 69: manager_api.WalletSessionEvent.WalletIdentifier:type_name -> common.MnemonicWalletIdentity
+	7,  // 70: manager_api.WalletSessionEvent.SessionIdentifier:type_name -> manager_api.WalletSessionIdentity
+	5,  // 71: manager_api.SignRequestEvent.EventType:type_name -> manager_api.SignRequestEvent.Type
+	8,  // 72: manager_api.SignRequestEvent.SignRequestIdentifier:type_name -> manager_api.SignRequestIdentity
+	13, // 73: manager_api.HdWalletControllerApi.AddNewWallet:input_type -> manager_api.AddNewWalletRequest
+	15, // 74: manager_api.HdWalletControllerApi.ImportWallet:input_type -> manager_api.ImportWalletRequest
+	17, // 75: manager_api.HdWalletControllerApi.EnableWallet:input_type -> manager_api.EnableWalletRequest
+	29, // 76: manager_api.HdWalletControllerApi.GetWalletInfo:input_type -> manager_api.GetWalletInfoRequest
+	11, // 77: manager_api.HdWalletControllerApi.GetEnabledWallets:input_type -> manager_api.GetEnabledWalletsRequest
+	19, // 78: manager_api.HdWalletControllerApi.DisableWallet:input_type -> manager_api.DisableWalletRequest
+	21, // 79: manager_api.HdWalletControllerApi.DisableWallets:input_type -> manager_api.DisableWalletsRequest
+	23, // 80: manager_api.HdWalletControllerApi.EnableWallets:input_type -> manager_api.EnableWalletsRequest
+	31, // 81: manager_api.HdWalletControllerApi.StartWalletSession:input_type -> manager_api.StartWalletSessionRequest
+	33, // 82: manager_api.HdWalletControllerApi.GetWalletSession:input_type -> manager_api.GetWalletSessionRequest
+	35, // 83: manager_api.HdWalletControllerApi.GetAllWalletSessions:input_type -> manager_api.GetWalletSessionsRequest
+	38, // 84: manager_api.HdWalletControllerApi.CloseWalletSession:input_type -> manager_api.CloseWalletSessionsRequest
+	25, // 85: manager_api.HdWalletControllerApi.GetAccount:input_type -> manager_api.GetAccountRequest
+	27, // 86: manager_api.HdWalletControllerApi.GetMultipleAccounts:input_type -> manager_api.GetMultipleAccountRequest
+	42, // 87: manager_api.HdWalletControllerApi.PrepareSignRequest:input_type -> manager_api.PrepareSignRequestReq
+	40, // 88: manager_api.HdWalletControllerApi.ExecuteSignRequest:input_type -> manager_api.ExecuteSignRequestReq
+	14, // 89: manager_api.HdWalletControllerApi.AddNewWallet:output_type -> manager_api.AddNewWalletResponse
+	16, // 90: manager_api.HdWalletControllerApi.ImportWallet:output_type -> manager_api.ImportWalletResponse
+	18, // 91: manager_api.HdWalletControllerApi.EnableWallet:output_type -> manager_api.EnableWalletResponse
+	30, // 92: manager_api.HdWalletControllerApi.GetWalletInfo:output_type -> manager_api.GetWalletInfoResponse
+	12, // 93: manager_api.HdWalletControllerApi.GetEnabledWallets:output_type -> manager_api.GetEnabledWalletsResponse
+	20, // 94: manager_api.HdWalletControllerApi.DisableWallet:output_type -> manager_api.DisableWalletResponse
+	22, // 95: manager_api.HdWalletControllerApi.DisableWallets:output_type -> manager_api.DisableWalletsResponse
+	24, // 96: manager_api.HdWalletControllerApi.EnableWallets:output_type -> manager_api.EnableWalletsResponse
+	32, // 97: manager_api.HdWalletControllerApi.StartWalletSession:output_type -> manager_api.StartWalletSessionResponse
+	34, // 98: manager_api.HdWalletControllerApi.GetWalletSession:output_type -> manager_api.GetWalletSessionResponse
+	37, // 99: manager_api.HdWalletControllerApi.GetAllWalletSessions:output_type -> manager_api.GetWalletSessionsResponse
+	39, // 100: manager_api.HdWalletControllerApi.CloseWalletSession:output_type -> manager_api.CloseWalletSessionsResponse
+	26, // 101: manager_api.HdWalletControllerApi.GetAccount:output_type -> manager_api.GetAccountResponse
+	28, // 102: manager_api.HdWalletControllerApi.GetMultipleAccounts:output_type -> manager_api.GetMultipleAccountResponse
+	43, // 103: manager_api.HdWalletControllerApi.PrepareSignRequest:output_type -> manager_api.PrepareSignRequestResponse
+	41, // 104: manager_api.HdWalletControllerApi.ExecuteSignRequest:output_type -> manager_api.ExecuteSignRequestResponse
+	89, // [89:105] is the sub-list for method output_type
+	73, // [73:89] is the sub-list for method input_type
+	73, // [73:73] is the sub-list for extension type_name
+	73, // [73:73] is the sub-list for extension extendee
+	0,  // [0:73] is the sub-list for field type_name
 }
 
 func init() { file_controller_api_proto_init() }

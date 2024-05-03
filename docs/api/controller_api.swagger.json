@@ -55,6 +55,9 @@
       "properties": {
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/manager_apiWalletStatus"
         }
       }
     },
@@ -77,6 +80,9 @@
       "properties": {
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/manager_apiWalletStatus"
         }
       }
     },
