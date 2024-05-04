@@ -39,6 +39,17 @@
         }
       }
     },
+    "commonMnemonicWalletData": {
+      "type": "object",
+      "properties": {
+        "WalletIdentifier": {
+          "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/commonWalletStatus"
+        }
+      }
+    },
     "commonMnemonicWalletIdentity": {
       "type": "object",
       "properties": {
@@ -50,6 +61,16 @@
         }
       }
     },
+    "commonWalletStatus": {
+      "type": "string",
+      "enum": [
+        "WALLET_STATUS_PLACEHOLDER",
+        "WALLET_STATUS_CREATED",
+        "WALLET_STATUS_ENABLED",
+        "WALLET_STATUS_DISABLED"
+      ],
+      "default": "WALLET_STATUS_PLACEHOLDER"
+    },
     "manager_apiAddNewWalletResponse": {
       "type": "object",
       "properties": {
@@ -57,7 +78,7 @@
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
         },
         "WalletStatus": {
-          "$ref": "#/definitions/manager_apiWalletStatus"
+          "$ref": "#/definitions/commonWalletStatus"
         }
       }
     },
@@ -82,17 +103,28 @@
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
         },
         "WalletStatus": {
-          "$ref": "#/definitions/manager_apiWalletStatus"
+          "$ref": "#/definitions/commonWalletStatus"
         }
       }
     },
     "manager_apiDisableWalletsResponse": {
       "type": "object",
       "properties": {
-        "WalletIdentifier": {
+        "WalletsCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "WalletsData": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+            "$ref": "#/definitions/commonMnemonicWalletData"
+          }
+        },
+        "Bookmarks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       }
@@ -104,17 +136,28 @@
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
         },
         "WalletStatus": {
-          "$ref": "#/definitions/manager_apiWalletStatus"
+          "$ref": "#/definitions/commonWalletStatus"
         }
       }
     },
     "manager_apiEnableWalletsResponse": {
       "type": "object",
       "properties": {
-        "WalletIdentifier": {
+        "WalletsCount": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "WalletsData": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+            "$ref": "#/definitions/commonMnemonicWalletData"
+          }
+        },
+        "Bookmarks": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       }
@@ -161,10 +204,10 @@
           "type": "integer",
           "format": "int64"
         },
-        "WalletIdentities": {
+        "WalletsData": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/commonMnemonicWalletIdentity"
+            "$ref": "#/definitions/commonMnemonicWalletData"
           }
         },
         "Bookmarks": {
@@ -204,7 +247,7 @@
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
         },
         "WalletStatus": {
-          "$ref": "#/definitions/manager_apiWalletStatus"
+          "$ref": "#/definitions/commonWalletStatus"
         }
       }
     },
@@ -346,16 +389,6 @@
         "WALLET_SESSION_STATUS_CLOSED"
       ],
       "default": "WALLET_SESSION_STATUS_PLACEHOLDER"
-    },
-    "manager_apiWalletStatus": {
-      "type": "string",
-      "enum": [
-        "WALLET_STATUS_PLACEHOLDER",
-        "WALLET_STATUS_CREATED",
-        "WALLET_STATUS_ENABLED",
-        "WALLET_STATUS_DISABLED"
-      ],
-      "default": "WALLET_STATUS_PLACEHOLDER"
     },
     "protobufAny": {
       "type": "object",

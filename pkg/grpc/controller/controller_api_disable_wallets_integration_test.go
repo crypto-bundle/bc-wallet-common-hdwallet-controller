@@ -34,12 +34,11 @@ import (
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
 
-	"github.com/google/uuid"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func TestHdWalletControllerApiClient_DisableWallet(t *testing.T) {
+func TestHdWalletControllerApiClient_DisableWallets(t *testing.T) {
 	options := []originGRPC.DialOption{
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
@@ -55,65 +54,69 @@ func TestHdWalletControllerApiClient_DisableWallet(t *testing.T) {
 	client := NewHdWalletControllerApiClient(grpcConn)
 	ctx := context.Background()
 
-	createWalletResp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{})
-	if err != nil {
-		t.Fatal(err)
+	createdWallets := make([]*pbCommon.MnemonicWalletIdentity, 3)
+	createdWalletsMap := make(map[string]*pbCommon.MnemonicWalletIdentity, len(createdWallets))
+
+	for i := 0; i != 3; i++ {
+		createWalletResp, loopErr := client.AddNewWallet(ctx, &AddNewWalletRequest{})
+		if loopErr != nil {
+			t.Fatal(loopErr)
+		}
+
+		if createWalletResp == nil {
+			t.Fatal("add new wallet empty response")
+		}
+
+		walletInfoResp, loopErr := client.GetWalletInfo(ctx, &GetWalletInfoRequest{
+			WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+				WalletUUID: createWalletResp.WalletIdentifier.WalletUUID,
+			},
+		})
+		if loopErr != nil {
+			t.Fatal(loopErr)
+		}
+
+		if walletInfoResp == nil || walletInfoResp.WalletIdentifier == nil {
+			t.Fatal("missing wallet info identifier")
+		}
+
+		if walletInfoResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_CREATED {
+			t.Fatalf("%s: curent:%s, expected: %s", "wrong wallet status",
+				walletInfoResp.WalletStatus, pbCommon.WalletStatus_WALLET_STATUS_CREATED)
+		}
+
+		createdWallets[i] = walletInfoResp.WalletIdentifier
+		createdWalletsMap[walletInfoResp.WalletIdentifier.WalletUUID] = walletInfoResp.WalletIdentifier
 	}
 
-	if createWalletResp == nil {
-		t.Fatal("add new wallet empty response")
-	}
-
-	walletDisableResp, err := client.DisableWallet(ctx, &DisableWalletRequest{
-		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
-			WalletUUID: createWalletResp.WalletIdentifier.WalletUUID,
-		},
+	walletEnableResp, err := client.DisableWallets(ctx, &DisableWalletsRequest{
+		WalletIdentifiers: createdWallets,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if walletDisableResp == nil {
+	if walletEnableResp == nil {
 		t.Fatal("missing enable wallet response")
 	}
 
-	_, err = uuid.Parse(walletDisableResp.WalletIdentifier.WalletUUID)
-	if err != nil {
-		t.Fatal("wrong wallet identity format, not uuid")
-	}
+	for _, walletIdentifier := range createdWallets {
+		walletInfoResp, loopErr := client.GetWalletInfo(ctx, &GetWalletInfoRequest{
+			WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+				WalletUUID: walletIdentifier.WalletUUID,
+			},
+		})
+		if loopErr != nil {
+			t.Fatal(loopErr)
+		}
 
-	if len(walletDisableResp.WalletIdentifier.WalletHash) != 64 {
-		t.Fatal("wrong length of wallet hash string")
-	}
+		if walletInfoResp == nil || walletInfoResp.WalletIdentifier == nil {
+			t.Fatal("missing wallet info identifier")
+		}
 
-	if walletDisableResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_DISABLED {
-		t.Fatal("wallet status not equal with expected", pbCommon.WalletStatus_WALLET_STATUS_DISABLED)
-	}
-
-	if walletDisableResp.WalletIdentifier.WalletUUID != createWalletResp.WalletIdentifier.WalletUUID {
-		t.Fatal("wallet uuid not equal.",
-			"wallet identifier of 'create wallet' and 'get wallet info' requests not equal")
-	}
-
-	if walletDisableResp.WalletIdentifier.WalletHash != createWalletResp.WalletIdentifier.WalletHash {
-		t.Fatal("wallet hash not equal.",
-			"wallet identifier of 'create wallet' and 'get wallet info' requests not equal")
-	}
-
-	walletInfoResp, err := client.GetWalletInfo(ctx, &GetWalletInfoRequest{
-		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
-			WalletUUID: createWalletResp.WalletIdentifier.WalletUUID,
-		},
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if walletInfoResp == nil {
-		t.Fatal("missing wallet info resp")
-	}
-
-	if walletInfoResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_DISABLED {
-		t.Fatal("wallet status not equal with expected:", pbCommon.WalletStatus_WALLET_STATUS_DISABLED)
+		if walletInfoResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_DISABLED {
+			t.Fatalf("%s: curent:%s, expected: %s", "wrong wallet status",
+				walletInfoResp.WalletStatus, pbCommon.WalletStatus_WALLET_STATUS_DISABLED)
+		}
 	}
 }

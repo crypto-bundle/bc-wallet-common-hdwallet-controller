@@ -29,13 +29,6 @@ option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controll
 import "common.proto";
 import "google/protobuf/any.proto";
 
-enum WalletStatus{
-  WALLET_STATUS_PLACEHOLDER = 0;
-  WALLET_STATUS_CREATED = 1;
-  WALLET_STATUS_ENABLED = 2;
-  WALLET_STATUS_DISABLED = 3;
-}
-
 enum WalletSessionStatus{
   WALLET_SESSION_STATUS_PLACEHOLDER = 0;
   WALLET_SESSION_STATUS_PREPARED = 1;
@@ -77,7 +70,7 @@ message GetEnabledWalletsRequest {
 
 message GetEnabledWalletsResponse {
   uint32 WalletsCount = 1;
-  repeated common.MnemonicWalletIdentity WalletIdentities = 2;
+  repeated common.MnemonicWalletData WalletsData = 2;
   map<string, uint32> Bookmarks = 3;
 }
 
@@ -86,7 +79,7 @@ message AddNewWalletRequest {
 
 message AddNewWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
-  WalletStatus WalletStatus = 2;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message ImportWalletRequest {
@@ -103,7 +96,7 @@ message EnableWalletRequest {
 
 message EnableWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
-  WalletStatus WalletStatus = 2;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message DisableWalletRequest {
@@ -112,23 +105,27 @@ message DisableWalletRequest {
 
 message DisableWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
-  WalletStatus WalletStatus = 2;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message DisableWalletsRequest {
-  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifiers = 1;
 }
 
 message DisableWalletsResponse {
-  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
+  uint32 WalletsCount = 1;
+  repeated common.MnemonicWalletData WalletsData = 2;
+  map<string, uint32> Bookmarks = 3;
 }
 
 message EnableWalletsRequest {
-  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifiers = 1;
 }
 
 message EnableWalletsResponse {
-  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
+  uint32 WalletsCount = 1;
+  repeated common.MnemonicWalletData WalletsData = 2;
+  map<string, uint32> Bookmarks = 3;
 }
 
 message GetAccountRequest {
@@ -162,7 +159,7 @@ message GetWalletInfoRequest {
 
 message GetWalletInfoResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
-  WalletStatus WalletStatus = 2;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message StartWalletSessionRequest {

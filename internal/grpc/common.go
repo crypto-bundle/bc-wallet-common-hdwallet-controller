@@ -94,10 +94,10 @@ type walletManagerService interface {
 	) (*entities.MnemonicWallet, error)
 	DisableWalletsByUUIDList(ctx context.Context,
 		walletUUIDs []string,
-	) (count uint, list []string, err error)
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	EnableWalletsByUUIDList(ctx context.Context,
 		walletUUIDs []string,
-	) (count uint, list []string, err error)
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 	GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error)
 	GetAccount(ctx context.Context,
@@ -156,8 +156,8 @@ type signManagerService interface {
 }
 
 type marshallerService interface {
-	MarshallCreateWalletData(wallet *entities.MnemonicWallet) (*pbApi.AddNewWalletResponse, error)
-	MarshallGetEnabledWallets([]*entities.MnemonicWallet) (*pbApi.GetEnabledWalletsResponse, error)
+	MarshallCreateWalletData(wallet *entities.MnemonicWallet) *pbApi.AddNewWalletResponse
+	MarshallGetEnabledWallets([]*entities.MnemonicWallet) *pbApi.GetEnabledWalletsResponse
 	MarshallWalletSessions(
 		sessionsList []*entities.MnemonicWalletSession,
 	) []*pbApi.SessionInfo

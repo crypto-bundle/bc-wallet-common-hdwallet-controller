@@ -34,30 +34,33 @@ import (
 )
 
 func (m *grpcMarshaller) MarshallGetEnabledWallets(
-	walletsData []*entities.MnemonicWallet,
-) (*pbApi.GetEnabledWalletsResponse, error) {
-	walletCount := uint32(len(walletsData))
+	walletsItems []*entities.MnemonicWallet,
+) *pbApi.GetEnabledWalletsResponse {
+	walletCount := uint32(len(walletsItems))
 
 	response := &pbApi.GetEnabledWalletsResponse{
-		WalletsCount:     walletCount,
-		WalletIdentities: make([]*pbCommon.MnemonicWalletIdentity, walletCount),
-		Bookmarks:        make(map[string]uint32, walletCount),
+		WalletsCount: walletCount,
+		WalletsData:  make([]*pbCommon.MnemonicWalletData, walletCount),
+		Bookmarks:    make(map[string]uint32, walletCount),
 	}
 
 	for i := uint32(0); i != walletCount; i++ {
-		walletData := walletsData[i]
-		if walletData == nil {
+		item := walletsItems[i]
+		if item == nil {
 			continue
 		}
 
-		walletUUID := walletData.UUID.String()
+		walletUUID := item.UUID.String()
 
-		response.WalletIdentities[i] = &pbCommon.MnemonicWalletIdentity{
-			WalletUUID: walletUUID,
-			WalletHash: walletData.MnemonicHash,
+		response.WalletsData[i] = &pbCommon.MnemonicWalletData{
+			WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+				WalletUUID: walletUUID,
+				WalletHash: item.MnemonicHash,
+			},
+			WalletStatus: pbCommon.WalletStatus(item.Status),
 		}
 		response.Bookmarks[walletUUID] = i
 	}
 
-	return response, nil
+	return response
 }

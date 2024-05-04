@@ -54,7 +54,7 @@ func (h *EnableWalletsHandler) Handle(ctx context.Context,
 	var err error
 
 	validationForm := &WalletsIdentitiesForm{}
-	valid, err := validationForm.LoadAndValidate(req.WalletIdentifier)
+	valid, err := validationForm.LoadAndValidate(req.WalletIdentifiers)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
 
@@ -65,7 +65,7 @@ func (h *EnableWalletsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	disabledCount, walletsIdentities, err := h.walletSvc.EnableWalletsByUUIDList(ctx, validationForm.WalletUUIDs)
+	enabledWalletsCount, walletsIdentities, err := h.walletSvc.EnableWalletsByUUIDList(ctx, validationForm.WalletUUIDs)
 	if err != nil {
 		h.l.Error("unable to disable wallets", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
@@ -75,15 +75,27 @@ func (h *EnableWalletsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.NotFound, "there are no wallets available to enable")
 	}
 
-	pbIdentities := make([]*common.MnemonicWalletIdentity, disabledCount)
-	for i := uint(0); i != disabledCount; i++ {
-		pbIdentities[i] = &common.MnemonicWalletIdentity{
-			WalletUUID: walletsIdentities[i],
+	bookmarks := make(map[string]uint32, enabledWalletsCount)
+	pbWalletsData := make([]*common.MnemonicWalletData, enabledWalletsCount)
+	for i := uint(0); i != enabledWalletsCount; i++ {
+		item := walletsIdentities[i]
+		itemUUID := item.UUID.String()
+
+		pbWalletsData[i] = &common.MnemonicWalletData{
+			WalletIdentifier: &common.MnemonicWalletIdentity{
+				WalletUUID: itemUUID,
+				WalletHash: item.MnemonicHash,
+			},
+			WalletStatus: common.WalletStatus(item.Status),
 		}
+
+		bookmarks[itemUUID] = uint32(i)
 	}
 
 	return &pbApi.EnableWalletsResponse{
-		WalletIdentifier: pbIdentities,
+		WalletsCount: uint32(enabledWalletsCount),
+		WalletsData:  pbWalletsData,
+		Bookmarks:    bookmarks,
 	}, nil
 }
 

@@ -38,7 +38,7 @@ type sessionsByWalletDataAdapter struct {
 	sessionUUIDs    []string
 }
 
-func (m *sessionsByWalletDataAdapter) Marshall(item *entities.MnemonicWalletSession) error {
+func (m *sessionsByWalletDataAdapter) MarshallItem(item *entities.MnemonicWalletSession) error {
 	bucket, isExisted := m.sessionByWallet[item.MnemonicWalletUUID]
 	if !isExisted {
 		m.sessionByWallet[item.MnemonicWalletUUID] = make([]string, 1)

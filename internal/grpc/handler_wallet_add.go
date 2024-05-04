@@ -58,13 +58,7 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	marshalledData, err := h.marshallerSrv.MarshallCreateWalletData(wallet)
-	if err != nil {
-		h.l.Error("unable to marshall wallet data", zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	return marshalledData, nil
+	return h.marshallerSrv.MarshallCreateWalletData(wallet), nil
 }
 
 func MakeAddNewWalletHandler(loggerEntry *zap.Logger,

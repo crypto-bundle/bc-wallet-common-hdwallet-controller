@@ -13,10 +13,12 @@
     - [DisableWalletResponse](#manager_api.DisableWalletResponse)
     - [DisableWalletsRequest](#manager_api.DisableWalletsRequest)
     - [DisableWalletsResponse](#manager_api.DisableWalletsResponse)
+    - [DisableWalletsResponse.BookmarksEntry](#manager_api.DisableWalletsResponse.BookmarksEntry)
     - [EnableWalletRequest](#manager_api.EnableWalletRequest)
     - [EnableWalletResponse](#manager_api.EnableWalletResponse)
     - [EnableWalletsRequest](#manager_api.EnableWalletsRequest)
     - [EnableWalletsResponse](#manager_api.EnableWalletsResponse)
+    - [EnableWalletsResponse.BookmarksEntry](#manager_api.EnableWalletsResponse.BookmarksEntry)
     - [Event](#manager_api.Event)
     - [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq)
     - [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse)
@@ -52,7 +54,6 @@
     - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
     - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
     - [WalletSessionStatus](#manager_api.WalletSessionStatus)
-    - [WalletStatus](#manager_api.WalletStatus)
   
     - [HdWalletControllerApi](#manager_api.HdWalletControllerApi)
   
@@ -86,7 +87,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -165,7 +166,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -180,7 +181,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifiers | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -195,7 +196,25 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletsCount | [uint32](#uint32) |  |  |
+| WalletsData | [common.MnemonicWalletData](#common.MnemonicWalletData) | repeated |  |
+| Bookmarks | [DisableWalletsResponse.BookmarksEntry](#manager_api.DisableWalletsResponse.BookmarksEntry) | repeated |  |
+
+
+
+
+
+
+<a name="manager_api.DisableWalletsResponse.BookmarksEntry"></a>
+
+### DisableWalletsResponse.BookmarksEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [uint32](#uint32) |  |  |
 
 
 
@@ -226,7 +245,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -241,7 +260,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifiers | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -256,7 +275,25 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletsCount | [uint32](#uint32) |  |  |
+| WalletsData | [common.MnemonicWalletData](#common.MnemonicWalletData) | repeated |  |
+| Bookmarks | [EnableWalletsResponse.BookmarksEntry](#manager_api.EnableWalletsResponse.BookmarksEntry) | repeated |  |
+
+
+
+
+
+
+<a name="manager_api.EnableWalletsResponse.BookmarksEntry"></a>
+
+### EnableWalletsResponse.BookmarksEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [uint32](#uint32) |  |  |
 
 
 
@@ -371,7 +408,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletsCount | [uint32](#uint32) |  |  |
-| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletsData | [common.MnemonicWalletData](#common.MnemonicWalletData) | repeated |  |
 | Bookmarks | [GetEnabledWalletsResponse.BookmarksEntry](#manager_api.GetEnabledWalletsResponse.BookmarksEntry) | repeated |  |
 
 
@@ -454,7 +491,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| WalletStatus | [WalletStatus](#manager_api.WalletStatus) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -803,20 +840,6 @@
 | WALLET_SESSION_STATUS_PLACEHOLDER | 0 |  |
 | WALLET_SESSION_STATUS_PREPARED | 1 |  |
 | WALLET_SESSION_STATUS_CLOSED | 2 |  |
-
-
-
-<a name="manager_api.WalletStatus"></a>
-
-### WalletStatus
-
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-| WALLET_STATUS_PLACEHOLDER | 0 |  |
-| WALLET_STATUS_CREATED | 1 |  |
-| WALLET_STATUS_ENABLED | 2 |  |
-| WALLET_STATUS_DISABLED | 3 |  |
 
 
  

@@ -29,6 +29,7 @@ package controller
 
 import (
 	"context"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"testing"
 
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
@@ -76,7 +77,7 @@ func TestHdWalletControllerApiClient_AddNewWallet(t *testing.T) {
 		t.Fatal("wrong length of wallet hash string")
 	}
 
-	if resp.WalletStatus != WalletStatus_WALLET_STATUS_CREATED {
-		t.Fatal("wallet status not equal with expected:", WalletStatus_WALLET_STATUS_CREATED)
+	if resp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_CREATED {
+		t.Fatal("wallet status not equal with expected:", pbCommon.WalletStatus_WALLET_STATUS_CREATED)
 	}
 }

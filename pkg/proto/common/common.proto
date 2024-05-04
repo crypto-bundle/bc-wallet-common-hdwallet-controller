@@ -55,6 +55,14 @@ message MnemonicWalletIdentity {
   string WalletHash = 2;
 }
 
+enum WalletStatus{
+  WALLET_STATUS_PLACEHOLDER = 0;
+  WALLET_STATUS_CREATED = 1;
+  WALLET_STATUS_ENABLED = 2;
+  WALLET_STATUS_DISABLED = 3;
+}
+
 message MnemonicWalletData {
-  MnemonicWalletIdentity Identity = 1;
+  MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletStatus WalletStatus = 2;
 }

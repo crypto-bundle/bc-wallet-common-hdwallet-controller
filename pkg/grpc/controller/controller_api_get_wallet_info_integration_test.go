@@ -86,8 +86,8 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 		t.Fatal("wrong length of wallet hash string")
 	}
 
-	if walletInfoResp.WalletStatus != WalletStatus_WALLET_STATUS_CREATED {
-		t.Fatal("wallet status not equal with expected:", WalletStatus_WALLET_STATUS_CREATED)
+	if walletInfoResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_CREATED {
+		t.Fatal("wallet status not equal with expected:", pbCommon.WalletStatus_WALLET_STATUS_CREATED)
 	}
 
 	if walletInfoResp.WalletIdentifier.WalletUUID != createWalletResp.WalletIdentifier.WalletUUID {

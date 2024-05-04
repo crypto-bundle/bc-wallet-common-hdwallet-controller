@@ -181,11 +181,11 @@ func (s *pgRepository) UpdateMultipleWalletSessionStatusClb(ctx context.Context,
 	err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallet_sessions"
          	SET "status" = ?
-				WHERE "mnemonic_wallet_uuid" IN (?) AND
-					? BETWEEN "started_at" AND "expired_at" 
-				AND
-			    	"status" IN (?)
-				RETURNING *`, newStatus, time.Now(), walletsUUIDs, oldStatus)
+			WHERE "mnemonic_wallet_uuid" IN (?) AND
+				? BETWEEN "started_at" AND "expired_at" 
+			AND
+				"status" IN (?)
+			RETURNING *`, newStatus, walletsUUIDs, time.Now(), oldStatus)
 
 		bonded := stmt.Rebind(query)
 		returnedRows, clbErr := stmt.Queryx(bonded, args...)

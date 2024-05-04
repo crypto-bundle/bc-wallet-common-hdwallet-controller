@@ -11,6 +11,8 @@
     - [RangeRequestUnit](#common.RangeRequestUnit)
     - [RangeUnitsList](#common.RangeUnitsList)
   
+    - [WalletStatus](#common.WalletStatus)
+  
 - [Scalar Value Types](#scalar-value-types)
 
 
@@ -63,7 +65,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Identity | [MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -119,6 +122,20 @@
 
 
  
+
+
+<a name="common.WalletStatus"></a>
+
+### WalletStatus
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| WALLET_STATUS_PLACEHOLDER | 0 |  |
+| WALLET_STATUS_CREATED | 1 |  |
+| WALLET_STATUS_ENABLED | 2 |  |
+| WALLET_STATUS_DISABLED | 3 |  |
+
 
  
 

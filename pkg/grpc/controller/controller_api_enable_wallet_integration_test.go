@@ -86,8 +86,8 @@ func TestHdWalletControllerApiClient_EnableWallet(t *testing.T) {
 		t.Fatal("wrong length of wallet hash string")
 	}
 
-	if walletEnableResp.WalletStatus != WalletStatus_WALLET_STATUS_ENABLED {
-		t.Fatal("wallet status not equal with expected", WalletStatus_WALLET_STATUS_ENABLED)
+	if walletEnableResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_ENABLED {
+		t.Fatal("wallet status not equal with expected", pbCommon.WalletStatus_WALLET_STATUS_ENABLED)
 	}
 
 	if walletEnableResp.WalletIdentifier.WalletUUID != createWalletResp.WalletIdentifier.WalletUUID {
@@ -113,7 +113,7 @@ func TestHdWalletControllerApiClient_EnableWallet(t *testing.T) {
 		t.Fatal("missing wallet info resp")
 	}
 
-	if walletInfoResp.WalletStatus != WalletStatus_WALLET_STATUS_ENABLED {
-		t.Fatal("wallet status not equal with expected:", WalletStatus_WALLET_STATUS_ENABLED)
+	if walletInfoResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_ENABLED {
+		t.Fatal("wallet status not equal with expected:", pbCommon.WalletStatus_WALLET_STATUS_ENABLED)
 	}
 }

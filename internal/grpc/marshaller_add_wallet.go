@@ -36,15 +36,15 @@ import (
 
 func (m *grpcMarshaller) MarshallCreateWalletData(
 	walletData *entities.MnemonicWallet,
-) (*pbApi.AddNewWalletResponse, error) {
+) *pbApi.AddNewWalletResponse {
 
 	resp := &pbApi.AddNewWalletResponse{
 		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletData.UUID.String(),
 			WalletHash: walletData.MnemonicHash,
 		},
-		WalletStatus: pbApi.WalletStatus(walletData.Status),
+		WalletStatus: pbCommon.WalletStatus(walletData.Status),
 	}
 
-	return resp, nil
+	return resp
 }

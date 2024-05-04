@@ -38,7 +38,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func TestHdWalletControllerApiClient_GetEnabledWallets(t *testing.T) {
+func TestHdWalletControllerApiClient_EnableWallets(t *testing.T) {
 	options := []originGRPC.DialOption{
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
@@ -54,7 +54,8 @@ func TestHdWalletControllerApiClient_GetEnabledWallets(t *testing.T) {
 	client := NewHdWalletControllerApiClient(grpcConn)
 	ctx := context.Background()
 
-	createdWallets := make(map[string]*pbCommon.MnemonicWalletIdentity, 3)
+	createdWallets := make([]*pbCommon.MnemonicWalletIdentity, 3)
+	createdWalletsMap := make(map[string]*pbCommon.MnemonicWalletIdentity, len(createdWallets))
 
 	for i := 0; i != 3; i++ {
 		createWalletResp, loopErr := client.AddNewWallet(ctx, &AddNewWalletRequest{})
@@ -66,20 +67,37 @@ func TestHdWalletControllerApiClient_GetEnabledWallets(t *testing.T) {
 			t.Fatal("add new wallet empty response")
 		}
 
-		walletEnableResp, loopErr := client.EnableWallet(ctx, &EnableWalletRequest{
+		walletInfoResp, loopErr := client.GetWalletInfo(ctx, &GetWalletInfoRequest{
 			WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 				WalletUUID: createWalletResp.WalletIdentifier.WalletUUID,
 			},
 		})
-		if err != nil {
-			t.Fatal(err)
+		if loopErr != nil {
+			t.Fatal(loopErr)
 		}
 
-		if walletEnableResp == nil {
-			t.Fatal("missing enable wallet response")
+		if walletInfoResp == nil || walletInfoResp.WalletIdentifier == nil {
+			t.Fatal("missing wallet info identifier")
 		}
 
-		createdWallets[createWalletResp.WalletIdentifier.WalletUUID] = createWalletResp.WalletIdentifier
+		if walletInfoResp.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_CREATED {
+			t.Fatalf("%s: curent:%s, expected: %s", "wrong wallet status",
+				walletInfoResp.WalletStatus, pbCommon.WalletStatus_WALLET_STATUS_CREATED)
+		}
+
+		createdWallets[i] = walletInfoResp.WalletIdentifier
+		createdWalletsMap[walletInfoResp.WalletIdentifier.WalletUUID] = walletInfoResp.WalletIdentifier
+	}
+
+	walletEnableResp, err := client.EnableWallets(ctx, &EnableWalletsRequest{
+		WalletIdentifiers: createdWallets,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if walletEnableResp == nil {
+		t.Fatal("missing enable wallet response")
 	}
 
 	walletsListResp, err := client.GetEnabledWallets(ctx, &GetEnabledWalletsRequest{})
@@ -137,6 +155,11 @@ func TestHdWalletControllerApiClient_GetEnabledWallets(t *testing.T) {
 		if wData.WalletIdentifier.WalletHash != walletIdentifier.WalletHash {
 			t.Log("created wallet hash not equal with item from enabled wallet list")
 			t.Fail()
+		}
+
+		if wData.WalletStatus != pbCommon.WalletStatus_WALLET_STATUS_ENABLED {
+			t.Fatalf("%s: curent:%s, expected: %s", "wrong wallet status",
+				wData.WalletStatus, pbCommon.WalletStatus_WALLET_STATUS_ENABLED)
 		}
 	}
 
