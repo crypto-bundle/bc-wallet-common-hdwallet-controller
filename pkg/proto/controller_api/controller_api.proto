@@ -150,7 +150,7 @@ message GetMultipleAccountResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
   WalletSessionIdentity SessionIdentifier = 2;
   uint64 AccountIdentitiesCount = 3;
-  repeated common.AccountIdentity AccountIdentifier = 4;
+  repeated common.AccountIdentity AccountIdentifiers = 4;
 }
 
 message GetWalletInfoRequest {
@@ -223,7 +223,7 @@ message ExecuteSignRequestResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
   WalletSessionIdentity SessionIdentifier = 2;
   common.AccountIdentity AccountIdentifier = 3;
-  SignRequestIdentity SignRequestIdentifier = 4;
+  SignRequestData SignatureRequestInfo = 4;
   bytes SignedTxData = 5;
 }
 

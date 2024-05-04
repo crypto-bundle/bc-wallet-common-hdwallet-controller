@@ -174,8 +174,8 @@
         "AccountIdentifier": {
           "$ref": "#/definitions/commonAccountIdentity"
         },
-        "SignRequestIdentifier": {
-          "$ref": "#/definitions/manager_apiSignRequestIdentity"
+        "SignatureRequestInfo": {
+          "$ref": "#/definitions/manager_apiSignRequestData"
         },
         "SignedTxData": {
           "type": "string",
@@ -232,7 +232,7 @@
           "type": "string",
           "format": "uint64"
         },
-        "AccountIdentifier": {
+        "AccountIdentifiers": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/commonAccountIdentity"

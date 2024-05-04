@@ -347,7 +347,7 @@
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 | AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
-| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
+| SignatureRequestInfo | [SignRequestData](#manager_api.SignRequestData) |  |  |
 | SignedTxData | [bytes](#bytes) |  |  |
 
 
@@ -460,7 +460,7 @@
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 | AccountIdentitiesCount | [uint64](#uint64) |  |  |
-| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) | repeated |  |
+| AccountIdentifiers | [common.AccountIdentity](#common.AccountIdentity) | repeated |  |
 
 
 

@@ -60,7 +60,7 @@ func (s *pgRepository) AddSignRequestItem(ctx context.Context,
 
 		row := stmt.QueryRowx(`INSERT INTO "sign_requests" ("uuid", 
 				"mnemonic_wallet_uuid", "session_uuid", "purpose_uuid",
-				"derivation_path",
+				"account_data",
 				"status",
 				"created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,

@@ -137,9 +137,13 @@ func (h *SignTransactionHandler) Handle(ctx context.Context,
 		SessionIdentifier: &pbApi.WalletSessionIdentity{
 			SessionUUID: sessionItem.UUID,
 		},
-		SignRequestIdentifier: &pbApi.SignRequestIdentity{UUID: signReqItem.UUID},
-		AccountIdentifier:     signOwner,
-		SignedTxData:          signedTxData,
+		AccountIdentifier: signOwner,
+		SignatureRequestInfo: &pbApi.SignRequestData{
+			Identifier: req.SignRequestIdentifier,
+			Status:     pbApi.SignRequestData_REQUEST_SIGNED,
+			CreateAt:   uint64(signReqItem.CreatedAt.Unix()),
+		},
+		SignedTxData: signedTxData,
 	}, nil
 }
 

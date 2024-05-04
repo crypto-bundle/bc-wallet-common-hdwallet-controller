@@ -83,6 +83,7 @@ func (s *Service) PrepareSignRequest(ctx context.Context,
 		}
 
 		addr = signOwner
+		savedItem.Status = types.SignRequestStatusPrepared
 		signReqItem = savedItem
 
 		return nil

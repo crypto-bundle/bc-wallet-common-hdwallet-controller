@@ -108,7 +108,7 @@ func (h *GetMultipleAccountsHandler) Handle(ctx context.Context,
 			SessionUUID: sessionItem.UUID,
 		},
 		AccountIdentitiesCount: count,
-		AccountIdentifier:      accountList,
+		AccountIdentifiers:     accountList,
 	}, nil
 }
 
