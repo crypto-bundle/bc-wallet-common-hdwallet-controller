@@ -92,7 +92,7 @@ func (h *sessionClosedHandler) process(ctx context.Context,
 	}
 
 	_, err := h.hdWalletSvc.UnLoadMnemonic(ctx, &pbHdwallet.UnLoadMnemonicRequest{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},

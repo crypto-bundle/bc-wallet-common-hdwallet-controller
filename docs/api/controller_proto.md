@@ -9,24 +9,26 @@
     - [AppInstanceIdentity](#manager_api.AppInstanceIdentity)
     - [CloseWalletSessionsRequest](#manager_api.CloseWalletSessionsRequest)
     - [CloseWalletSessionsResponse](#manager_api.CloseWalletSessionsResponse)
-    - [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest)
-    - [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse)
-    - [DerivationAddressRequest](#manager_api.DerivationAddressRequest)
-    - [DerivationAddressResponse](#manager_api.DerivationAddressResponse)
     - [DisableWalletRequest](#manager_api.DisableWalletRequest)
     - [DisableWalletResponse](#manager_api.DisableWalletResponse)
     - [DisableWalletsRequest](#manager_api.DisableWalletsRequest)
     - [DisableWalletsResponse](#manager_api.DisableWalletsResponse)
+    - [DisableWalletsResponse.BookmarksEntry](#manager_api.DisableWalletsResponse.BookmarksEntry)
     - [EnableWalletRequest](#manager_api.EnableWalletRequest)
     - [EnableWalletResponse](#manager_api.EnableWalletResponse)
     - [EnableWalletsRequest](#manager_api.EnableWalletsRequest)
     - [EnableWalletsResponse](#manager_api.EnableWalletsResponse)
+    - [EnableWalletsResponse.BookmarksEntry](#manager_api.EnableWalletsResponse.BookmarksEntry)
     - [Event](#manager_api.Event)
     - [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq)
     - [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse)
+    - [GetAccountRequest](#manager_api.GetAccountRequest)
+    - [GetAccountResponse](#manager_api.GetAccountResponse)
     - [GetEnabledWalletsRequest](#manager_api.GetEnabledWalletsRequest)
     - [GetEnabledWalletsResponse](#manager_api.GetEnabledWalletsResponse)
     - [GetEnabledWalletsResponse.BookmarksEntry](#manager_api.GetEnabledWalletsResponse.BookmarksEntry)
+    - [GetMultipleAccountRequest](#manager_api.GetMultipleAccountRequest)
+    - [GetMultipleAccountResponse](#manager_api.GetMultipleAccountResponse)
     - [GetWalletInfoRequest](#manager_api.GetWalletInfoRequest)
     - [GetWalletInfoResponse](#manager_api.GetWalletInfoResponse)
     - [GetWalletSessionRequest](#manager_api.GetWalletSessionRequest)
@@ -51,6 +53,7 @@
     - [SignRequestData.ReqStatus](#manager_api.SignRequestData.ReqStatus)
     - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
     - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
+    - [WalletSessionStatus](#manager_api.WalletSessionStatus)
   
     - [HdWalletControllerApi](#manager_api.HdWalletControllerApi)
   
@@ -83,7 +86,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -113,8 +117,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 
 
 
@@ -129,77 +133,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-
-
-
-
-
-
-<a name="manager_api.DerivationAddressByRangeRequest"></a>
-
-### DerivationAddressByRangeRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| Ranges | [common.RangeRequestUnit](#common.RangeRequestUnit) | repeated |  |
-
-
-
-
-
-
-<a name="manager_api.DerivationAddressByRangeResponse"></a>
-
-### DerivationAddressByRangeResponse
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| AddressIdentitiesCount | [uint64](#uint64) |  |  |
-| AddressIdentities | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) | repeated |  |
-
-
-
-
-
-
-<a name="manager_api.DerivationAddressRequest"></a>
-
-### DerivationAddressRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-
-
-
-
-
-
-<a name="manager_api.DerivationAddressResponse"></a>
-
-### DerivationAddressResponse
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionStatus | [WalletSessionStatus](#manager_api.WalletSessionStatus) |  |  |
 
 
 
@@ -214,7 +150,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -229,7 +165,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -244,7 +181,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifiers | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -259,7 +196,25 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletsCount | [uint32](#uint32) |  |  |
+| WalletsData | [common.MnemonicWalletData](#common.MnemonicWalletData) | repeated |  |
+| Bookmarks | [DisableWalletsResponse.BookmarksEntry](#manager_api.DisableWalletsResponse.BookmarksEntry) | repeated |  |
+
+
+
+
+
+
+<a name="manager_api.DisableWalletsResponse.BookmarksEntry"></a>
+
+### DisableWalletsResponse.BookmarksEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [uint32](#uint32) |  |  |
 
 
 
@@ -274,7 +229,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -289,7 +244,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -304,7 +260,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifiers | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -319,7 +275,25 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletsCount | [uint32](#uint32) |  |  |
+| WalletsData | [common.MnemonicWalletData](#common.MnemonicWalletData) | repeated |  |
+| Bookmarks | [EnableWalletsResponse.BookmarksEntry](#manager_api.EnableWalletsResponse.BookmarksEntry) | repeated |  |
+
+
+
+
+
+
+<a name="manager_api.EnableWalletsResponse.BookmarksEntry"></a>
+
+### EnableWalletsResponse.BookmarksEntry
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [uint32](#uint32) |  |  |
 
 
 
@@ -351,9 +325,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 | SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
 | CreatedTxData | [bytes](#bytes) |  |  |
 
@@ -370,11 +344,45 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| SignRequestIdentifier | [SignRequestIdentity](#manager_api.SignRequestIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+| SignatureRequestInfo | [SignRequestData](#manager_api.SignRequestData) |  |  |
 | SignedTxData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="manager_api.GetAccountRequest"></a>
+
+### GetAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+
+
+
+
+
+
+<a name="manager_api.GetAccountResponse"></a>
+
+### GetAccountResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 
 
 
@@ -400,7 +408,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletsCount | [uint32](#uint32) |  |  |
-| WalletIdentities | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletsData | [common.MnemonicWalletData](#common.MnemonicWalletData) | repeated |  |
 | Bookmarks | [GetEnabledWalletsResponse.BookmarksEntry](#manager_api.GetEnabledWalletsResponse.BookmarksEntry) | repeated |  |
 
 
@@ -424,6 +432,41 @@
 
 
 
+<a name="manager_api.GetMultipleAccountRequest"></a>
+
+### GetMultipleAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| Parameters | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
+
+<a name="manager_api.GetMultipleAccountResponse"></a>
+
+### GetMultipleAccountResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| AccountIdentitiesCount | [uint64](#uint64) |  |  |
+| AccountIdentifiers | [common.AccountIdentity](#common.AccountIdentity) | repeated |  |
+
+
+
+
+
+
 <a name="manager_api.GetWalletInfoRequest"></a>
 
 ### GetWalletInfoRequest
@@ -432,7 +475,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -447,7 +490,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -462,8 +506,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 
 
 
@@ -478,7 +522,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | Session | [SessionInfo](#manager_api.SessionInfo) |  |  |
 
 
@@ -494,7 +538,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -509,7 +553,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | ActiveSessions | [SessionInfo](#manager_api.SessionInfo) | repeated |  |
 
 
@@ -540,7 +584,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| WalletIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -555,9 +599,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
 | SignPurposeIdentifier | [SignPurposeIdentity](#manager_api.SignPurposeIdentity) |  |  |
 
 
@@ -573,9 +617,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
-| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 | SignatureRequestInfo | [SignRequestData](#manager_api.SignRequestData) |  |  |
 
 
@@ -591,7 +635,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionStatus | [WalletSessionStatus](#manager_api.WalletSessionStatus) |  |  |
 | SessionStartedAt | [uint64](#uint64) |  |  |
 | SessionExpiredAt | [uint64](#uint64) |  |  |
 
@@ -671,7 +716,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -686,8 +731,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| SessionIdentity | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| SessionIdentifier | [WalletSessionIdentity](#manager_api.WalletSessionIdentity) |  |  |
+| SessionStatus | [WalletSessionStatus](#manager_api.WalletSessionStatus) |  |  |
 | SessionStartedAt | [uint64](#uint64) |  |  |
 | SessionExpiredAt | [uint64](#uint64) |  |  |
 
@@ -783,6 +829,19 @@
 | CLOSED | 2 |  |
 
 
+
+<a name="manager_api.WalletSessionStatus"></a>
+
+### WalletSessionStatus
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| WALLET_SESSION_STATUS_PLACEHOLDER | 0 |  |
+| WALLET_SESSION_STATUS_PREPARED | 1 |  |
+| WALLET_SESSION_STATUS_CLOSED | 2 |  |
+
+
  
 
  
@@ -807,8 +866,8 @@
 | GetWalletSession | [GetWalletSessionRequest](#manager_api.GetWalletSessionRequest) | [GetWalletSessionResponse](#manager_api.GetWalletSessionResponse) |  |
 | GetAllWalletSessions | [GetWalletSessionsRequest](#manager_api.GetWalletSessionsRequest) | [GetWalletSessionsResponse](#manager_api.GetWalletSessionsResponse) |  |
 | CloseWalletSession | [CloseWalletSessionsRequest](#manager_api.CloseWalletSessionsRequest) | [CloseWalletSessionsResponse](#manager_api.CloseWalletSessionsResponse) |  |
-| GetDerivationAddress | [DerivationAddressRequest](#manager_api.DerivationAddressRequest) | [DerivationAddressResponse](#manager_api.DerivationAddressResponse) |  |
-| GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#manager_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#manager_api.DerivationAddressByRangeResponse) |  |
+| GetAccount | [GetAccountRequest](#manager_api.GetAccountRequest) | [GetAccountResponse](#manager_api.GetAccountResponse) |  |
+| GetMultipleAccounts | [GetMultipleAccountRequest](#manager_api.GetMultipleAccountRequest) | [GetMultipleAccountResponse](#manager_api.GetMultipleAccountResponse) |  |
 | PrepareSignRequest | [PrepareSignRequestReq](#manager_api.PrepareSignRequestReq) | [PrepareSignRequestResponse](#manager_api.PrepareSignRequestResponse) |  |
 | ExecuteSignRequest | [ExecuteSignRequestReq](#manager_api.ExecuteSignRequestReq) | [ExecuteSignRequestResponse](#manager_api.ExecuteSignRequestResponse) |  |
 

@@ -5,7 +5,6 @@ package entities
 import (
 	json "encoding/json"
 	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
-	pq "github.com/lib/pq"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -51,28 +50,12 @@ func easyjsonE949d281DecodeGithubComCryptoBundleBcWalletCommonHdwalletController
 			out.PurposeUUID = string(in.String())
 		case "status":
 			out.Status = types.SignRequestStatus(in.Uint8())
-		case "derivation_path":
+		case "account_data":
 			if in.IsNull() {
 				in.Skip()
-				out.DerivationPath = nil
+				out.AccountData = nil
 			} else {
-				in.Delim('[')
-				if out.DerivationPath == nil {
-					if !in.IsDelim(']') {
-						out.DerivationPath = make(pq.Int32Array, 0, 16)
-					} else {
-						out.DerivationPath = pq.Int32Array{}
-					}
-				} else {
-					out.DerivationPath = (out.DerivationPath)[:0]
-				}
-				for !in.IsDelim(']') {
-					var v1 int32
-					v1 = int32(in.Int32())
-					out.DerivationPath = append(out.DerivationPath, v1)
-					in.WantComma()
-				}
-				in.Delim(']')
+				out.AccountData = in.Bytes()
 			}
 		case "created_at":
 			if data := in.Raw(); in.Ok() {
@@ -134,19 +117,10 @@ func easyjsonE949d281EncodeGithubComCryptoBundleBcWalletCommonHdwalletController
 		out.RawString(prefix)
 		out.Uint8(uint8(in.Status))
 	}
-	if len(in.DerivationPath) != 0 {
-		const prefix string = ",\"derivation_path\":"
+	if len(in.AccountData) != 0 {
+		const prefix string = ",\"account_data\":"
 		out.RawString(prefix)
-		{
-			out.RawByte('[')
-			for v2, v3 := range in.DerivationPath {
-				if v2 > 0 {
-					out.RawByte(',')
-				}
-				out.Int32(int32(v3))
-			}
-			out.RawByte(']')
-		}
+		out.Base64Bytes(in.AccountData)
 	}
 	{
 		const prefix string = ",\"created_at\":"

@@ -74,7 +74,7 @@ func (h *ImportWalletHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.ImportWalletResponse{
-		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},

@@ -64,8 +64,8 @@ type grpcServerHandle struct {
 	getWalletSessionHandleSvc    getWalletSessionHandlerService
 	getWalletSessionsHandleSvc   getWalletSessionsHandlerService
 
-	getDerivationAddressHandlerSvc        getAddressHandlerService
-	getDerivationAddressByRangeHandlerSvc getAddressByRangeHandlerService
+	getAccountHandlerSvc          getAccountHandlerService
+	getMultipleAccountsHandlerSvc getAccountsHandlerService
 
 	prepareSignReqHandlerSvc prepareSignRequestHandlerService
 	executeSignReqHandleSvc  executeSignRequestHandlerService
@@ -149,16 +149,16 @@ func (h *grpcServerHandle) CloseWalletSession(ctx context.Context,
 
 // Wallet derivation address handlers
 
-func (h *grpcServerHandle) GetDerivationAddress(ctx context.Context,
-	req *pbApi.DerivationAddressRequest,
-) (*pbApi.DerivationAddressResponse, error) {
-	return h.getDerivationAddressHandlerSvc.Handle(ctx, req)
+func (h *grpcServerHandle) GetAccount(ctx context.Context,
+	req *pbApi.GetAccountRequest,
+) (*pbApi.GetAccountResponse, error) {
+	return h.getAccountHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetDerivationAddressByRange(ctx context.Context,
-	req *pbApi.DerivationAddressByRangeRequest,
-) (*pbApi.DerivationAddressByRangeResponse, error) {
-	return h.getDerivationAddressByRangeHandlerSvc.Handle(ctx, req)
+func (h *grpcServerHandle) GetMultipleAccounts(ctx context.Context,
+	req *pbApi.GetMultipleAccountRequest,
+) (*pbApi.GetMultipleAccountResponse, error) {
+	return h.getMultipleAccountsHandlerSvc.Handle(ctx, req)
 }
 
 // Sign flow handlers
@@ -209,9 +209,9 @@ func New(loggerSrv *zap.Logger,
 		getWalletSessionsHandleSvc:   MakeGetWalletSessionsHandler(l, walletManagerSvc, marshallerSvc),
 		closeWalletSessionHandlerSvc: MakeCloseWalletSessionHandler(l, walletManagerSvc, signManagerSvc),
 
-		getDerivationAddressHandlerSvc: MakeGetDerivationAddressHandler(l, walletManagerSvc,
+		getAccountHandlerSvc: MakeGetAccountHandler(l, walletManagerSvc,
 			marshallerSvc, addrRespPool),
-		getDerivationAddressByRangeHandlerSvc: MakeGetDerivationAddressByRangeHandler(l, walletManagerSvc,
+		getMultipleAccountsHandlerSvc: MakeGetMultipleAccountsHandler(l, walletManagerSvc,
 			marshallerSvc),
 		prepareSignReqHandlerSvc: MakeSignPrepareHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
 		executeSignReqHandleSvc:  MakeSignTransactionsHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),

@@ -27,102 +27,103 @@ package hdwallet_api;
 option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet";
 
 import "common.proto";
+import "google/protobuf/any.proto";
 
 message GenerateMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message GenerateMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes EncryptedMnemonicData = 2;
 }
 
 message EncryptMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes MnemonicData = 2;
 }
 
 message EncryptMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes EncryptedMnemonicData = 2;
 }
 
 message ValidateMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bytes MnemonicData = 2;
 }
 
 message ValidateMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   bool IsValid = 2;
 }
 
 message LoadMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   uint64 TimeToLive = 2;
   bytes EncryptedMnemonicData = 3;
 }
 
 message LoadMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMnemonicRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMnemonicResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMultipleMnemonicsRequest {
-  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message UnLoadMultipleMnemonicsResponse {
-  repeated common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
-message DerivationAddressRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
-  common.DerivationAddressIdentity AddressIdentity = 2;
+message GetAccountRequest {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.AccountIdentity AccountIdentifier = 2;
 }
 
-message DerivationAddressResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
-  common.DerivationAddressIdentity AddressIdentity = 2;
+message GetAccountResponse {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.AccountIdentity AccountIdentifier = 2;
 }
 
-message DerivationAddressByRangeRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
-  repeated common.RangeRequestUnit Ranges = 2;
+message GetMultipleAccountRequest {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  google.protobuf.Any Parameters = 2;
 }
 
-message DerivationAddressByRangeResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
-  uint64 AddressIdentitiesCount = 3;
-  repeated common.DerivationAddressIdentity AddressIdentities = 4;
+message GetMultipleAccountResponse {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  uint64 AccountIdentitiesCount = 3;
+  repeated common.AccountIdentity AccountIdentifier = 4;
 }
 
-message LoadDerivationAddressRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
-  common.DerivationAddressIdentity AddressIdentifier = 2;
+message LoadAccountRequest {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.AccountIdentity AccountIdentifier = 2;
 }
 
-message LoadDerivationAddressResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
-  common.DerivationAddressIdentity TxOwnerIdentity = 2;
+message LoadAccountsResponse {
+  common.MnemonicWalletIdentity WalletIdentifier= 1;
+  common.AccountIdentity AccountIdentifier = 2;
 }
 
 message SignDataRequest {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier = 1;
-  common.DerivationAddressIdentity AddressIdentifier = 2;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.AccountIdentity AccountIdentifier = 2;
   bytes DataForSign = 3;
 }
 
 message SignDataResponse {
-  common.MnemonicWalletIdentity MnemonicWalletIdentifier= 1;
-  common.DerivationAddressIdentity TxOwnerIdentity = 2;
+  common.MnemonicWalletIdentity WalletIdentifier= 1;
+  common.AccountIdentity AccountIdentifier = 2;
   bytes SignedData = 3;
 }
 
@@ -134,9 +135,9 @@ service HdWalletApi {
   rpc UnLoadMnemonic                 (UnLoadMnemonicRequest)           returns (UnLoadMnemonicResponse) {}
   rpc UnLoadMultipleMnemonics           (UnLoadMultipleMnemonicsRequest)           returns (UnLoadMultipleMnemonicsResponse) {}
 
-  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
-  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+  rpc GetAccount                (GetAccountRequest)           returns (GetAccountResponse) {}
+  rpc GetMultipleAccounts       (GetMultipleAccountRequest)    returns (GetMultipleAccountResponse) {}
 
-  rpc LoadDerivationAddress             (LoadDerivationAddressRequest)    returns (LoadDerivationAddressResponse) {}
+  rpc LoadAccount             (LoadAccountRequest)    returns (LoadAccountsResponse) {}
   rpc SignData                   (SignDataRequest)    returns (SignDataResponse) {}
 }

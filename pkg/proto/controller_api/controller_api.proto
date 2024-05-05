@@ -27,6 +27,13 @@ package manager_api;
 option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller";
 
 import "common.proto";
+import "google/protobuf/any.proto";
+
+enum WalletSessionStatus{
+  WALLET_SESSION_STATUS_PLACEHOLDER = 0;
+  WALLET_SESSION_STATUS_PREPARED = 1;
+  WALLET_SESSION_STATUS_CLOSED = 2;
+}
 
 message AppInstanceIdentity {
   string UUID = 1;
@@ -63,7 +70,7 @@ message GetEnabledWalletsRequest {
 
 message GetEnabledWalletsResponse {
   uint32 WalletsCount = 1;
-  repeated common.MnemonicWalletIdentity WalletIdentities = 2;
+  repeated common.MnemonicWalletData WalletsData = 2;
   map<string, uint32> Bookmarks = 3;
 }
 
@@ -71,7 +78,8 @@ message AddNewWalletRequest {
 }
 
 message AddNewWalletResponse {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message ImportWalletRequest {
@@ -79,147 +87,157 @@ message ImportWalletRequest {
 }
 
 message ImportWalletResponse {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message EnableWalletRequest {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message EnableWalletResponse {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message DisableWalletRequest {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message DisableWalletResponse {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message DisableWalletsRequest {
-  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifiers = 1;
 }
 
 message DisableWalletsResponse {
-  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+  uint32 WalletsCount = 1;
+  repeated common.MnemonicWalletData WalletsData = 2;
+  map<string, uint32> Bookmarks = 3;
 }
 
 message EnableWalletsRequest {
-  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+  repeated common.MnemonicWalletIdentity WalletIdentifiers = 1;
 }
 
 message EnableWalletsResponse {
-  repeated common.MnemonicWalletIdentity WalletIdentities = 1;
+  uint32 WalletsCount = 1;
+  repeated common.MnemonicWalletData WalletsData = 2;
+  map<string, uint32> Bookmarks = 3;
 }
 
-message DerivationAddressRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  common.DerivationAddressIdentity AddressIdentity = 3;
+message GetAccountRequest {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  common.AccountIdentity AccountIdentifier = 3;
 }
 
-message DerivationAddressResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity= 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  common.DerivationAddressIdentity AddressIdentity = 3;
+message GetAccountResponse {
+  common.MnemonicWalletIdentity WalletIdentifier= 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  common.AccountIdentity AccountIdentifier = 3;
 }
 
-message DerivationAddressByRangeRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  repeated common.RangeRequestUnit Ranges = 3;
+message GetMultipleAccountRequest {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  google.protobuf.Any Parameters = 3;
 }
 
-message DerivationAddressByRangeResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity= 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  uint64 AddressIdentitiesCount = 3;
-  repeated common.DerivationAddressIdentity AddressIdentities = 4;
+message GetMultipleAccountResponse {
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  uint64 AccountIdentitiesCount = 3;
+  repeated common.AccountIdentity AccountIdentifiers = 4;
 }
 
 message GetWalletInfoRequest {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message GetWalletInfoResponse {
-  common.MnemonicWalletIdentity WalletIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.WalletStatus WalletStatus = 2;
 }
 
 message StartWalletSessionRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message StartWalletSessionResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  uint64 SessionStartedAt = 3;
-  uint64 SessionExpiredAt = 4;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  WalletSessionStatus SessionStatus = 3;
+  uint64 SessionStartedAt = 4;
+  uint64 SessionExpiredAt = 5;
 }
 
 message GetWalletSessionRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  WalletSessionIdentity SessionIdentity = 2;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
 }
 
 message GetWalletSessionResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   SessionInfo Session = 2;
 }
 
 message GetWalletSessionsRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
 }
 
 message SessionInfo {
-  WalletSessionIdentity SessionIdentity = 1;
-  uint64 SessionStartedAt = 2;
-  uint64 SessionExpiredAt = 3;
+  WalletSessionIdentity SessionIdentifier = 1;
+  WalletSessionStatus SessionStatus = 2;
+  uint64 SessionStartedAt = 3;
+  uint64 SessionExpiredAt = 4;
 }
 
 message GetWalletSessionsResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
   repeated SessionInfo ActiveSessions = 2;
 }
 
 message CloseWalletSessionsRequest {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  WalletSessionIdentity SessionIdentity = 2;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
 }
 
 message CloseWalletSessionsResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity = 1;
-  WalletSessionIdentity SessionIdentity = 2;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  WalletSessionStatus SessionStatus = 3;
 }
 
 message ExecuteSignRequestReq {
-  common.MnemonicWalletIdentity MnemonicIdentity= 1;
-  common.DerivationAddressIdentity AddressIdentity = 2;
-  WalletSessionIdentity SessionIdentity = 3;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.AccountIdentity AccountIdentifier = 2;
+  WalletSessionIdentity SessionIdentifier = 3;
   SignRequestIdentity SignRequestIdentifier = 4;
   bytes CreatedTxData = 5;
 }
 
 message ExecuteSignRequestResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity= 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  common.DerivationAddressIdentity TxOwnerIdentity = 3;
-  SignRequestIdentity SignRequestIdentifier = 4;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  common.AccountIdentity AccountIdentifier = 3;
+  SignRequestData SignatureRequestInfo = 4;
   bytes SignedTxData = 5;
 }
 
 message PrepareSignRequestReq {
-  common.MnemonicWalletIdentity MnemonicIdentity= 1;
-  common.DerivationAddressIdentity AddressIdentity = 2;
-  WalletSessionIdentity SessionIdentity = 3;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.AccountIdentity AccountIdentifier = 2;
+  WalletSessionIdentity SessionIdentifier = 3;
   SignPurposeIdentity SignPurposeIdentifier = 4;
 }
 
 message PrepareSignRequestResponse {
-  common.MnemonicWalletIdentity MnemonicIdentity= 1;
-  WalletSessionIdentity SessionIdentity = 2;
-  common.DerivationAddressIdentity TxOwnerIdentity = 3;
+  common.MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletSessionIdentity SessionIdentifier = 2;
+  common.AccountIdentity AccountIdentifier = 3;
   SignRequestData SignatureRequestInfo = 4;
 }
 
@@ -241,7 +259,7 @@ message WalletSessionEvent {
     CLOSED = 2;
   }
   Type EventType = 1;
-  common.MnemonicWalletIdentity WalletIdentifier= 2;
+  common.MnemonicWalletIdentity WalletIdentifier = 2;
   WalletSessionIdentity SessionIdentifier = 3;
 }
 
@@ -270,8 +288,8 @@ service HdWalletControllerApi {
   rpc GetAllWalletSessions                  (GetWalletSessionsRequest)   returns (GetWalletSessionsResponse) {}
   rpc CloseWalletSession                  (CloseWalletSessionsRequest)   returns (CloseWalletSessionsResponse) {}
 
-  rpc GetDerivationAddress              (DerivationAddressRequest)           returns (DerivationAddressResponse) {}
-  rpc GetDerivationAddressByRange       (DerivationAddressByRangeRequest)    returns (DerivationAddressByRangeResponse) {}
+  rpc GetAccount                (GetAccountRequest)           returns (GetAccountResponse) {}
+  rpc GetMultipleAccounts       (GetMultipleAccountRequest)    returns (GetMultipleAccountResponse) {}
 
   rpc PrepareSignRequest                   (PrepareSignRequestReq)    returns (PrepareSignRequestResponse) {}
   rpc ExecuteSignRequest                   (ExecuteSignRequestReq)    returns (ExecuteSignRequestResponse) {}

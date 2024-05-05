@@ -90,14 +90,15 @@ func (h *GetWalletSessionHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.GetWalletSessionResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
 		Session: &pbApi.SessionInfo{
-			SessionIdentity: &pbApi.WalletSessionIdentity{
+			SessionIdentifier: &pbApi.WalletSessionIdentity{
 				SessionUUID: sessionItem.UUID,
 			},
+			SessionStatus:    pbApi.WalletSessionStatus(sessionItem.Status),
 			SessionStartedAt: uint64(sessionItem.CreatedAt.Unix()),
 			SessionExpiredAt: uint64(sessionItem.ExpiredAt.Unix()),
 		},

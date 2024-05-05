@@ -29,26 +29,27 @@ package wallet_manager
 
 import (
 	"context"
+
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
+
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
-func (s *Service) GetAddress(ctx context.Context,
+func (s *Service) GetAccount(ctx context.Context,
 	mnemonicUUID string,
-	account, change, index uint32,
+	parameters *anypb.Any,
 ) (address *string, err error) {
-	resp, err := s.hdWalletClientSvc.GetDerivationAddress(ctx, &hdwallet.DerivationAddressRequest{
-		MnemonicWalletIdentifier: &common.MnemonicWalletIdentity{
+	resp, err := s.hdWalletClientSvc.GetAccount(ctx, &hdwallet.GetAccountRequest{
+		WalletIdentifier: &common.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
-		AddressIdentity: &common.DerivationAddressIdentity{
-			AccountIndex:  account,
-			InternalIndex: change,
-			AddressIndex:  index,
+		AccountIdentifier: &common.AccountIdentity{
+			Parameters: parameters,
 		},
 	})
 	if err != nil {
@@ -71,5 +72,5 @@ func (s *Service) GetAddress(ctx context.Context,
 		}
 	}
 
-	return &resp.AddressIdentity.Address, nil
+	return &resp.AccountIdentifier.Address, nil
 }

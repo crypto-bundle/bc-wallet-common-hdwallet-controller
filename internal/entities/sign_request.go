@@ -29,7 +29,6 @@ package entities
 
 import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
-	"github.com/lib/pq"
 	"time"
 )
 
@@ -47,7 +46,7 @@ type SignRequest struct {
 
 	Status types.SignRequestStatus `db:"status" json:"status"`
 
-	DerivationPath pq.Int32Array `db:"derivation_path" json:"derivation_path,omitempty"`
+	AccountData []byte `db:"account_data" json:"account_data,omitempty"`
 
 	CreatedAt time.Time  `db:"created_at" json:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,omitempty"`

@@ -35,6 +35,7 @@ import (
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
+	"time"
 )
 
 var nopSessionCallback = func(item *entities.MnemonicWalletSession) error {
@@ -83,9 +84,9 @@ func (s *pgRepository) UpdateWalletSessionStatusByWalletUUID(ctx context.Context
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		_, callbackErr := stmt.Exec(`UPDATE "mnemonic_wallet_sessions" 
 			SET "status" = $1,
-				"updated_at" = now()
-			WHERE "mnemonic_wallet_uuid" = $2`,
-			newStatus, walletUUID)
+				"updated_at" = $2
+			WHERE "mnemonic_wallet_uuid" = $3`,
+			newStatus, time.Now(), walletUUID)
 		if callbackErr != nil {
 			return callbackErr
 		}
@@ -106,10 +107,10 @@ func (s *pgRepository) UpdateWalletSessionStatusBySessionUUID(ctx context.Contex
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		row := stmt.QueryRowx(`UPDATE "mnemonic_wallet_sessions" 
 			SET "status" = $1,
-				"updated_at" = now()
-			WHERE "uuid" = $2
+				"updated_at" = $2
+			WHERE "uuid" = $3
 			RETURNING *`,
-			newStatus, sessionUUID)
+			newStatus, time.Now(), sessionUUID)
 
 		sessionItem := &entities.MnemonicWalletSession{}
 		clbErr := row.StructScan(sessionItem)
@@ -180,11 +181,11 @@ func (s *pgRepository) UpdateMultipleWalletSessionStatusClb(ctx context.Context,
 	err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		query, args, clbErr := sqlx.In(`UPDATE "mnemonic_wallet_sessions"
          	SET "status" = ?
-				WHERE "mnemonic_wallet_uuid" IN (?) AND
-					now() BETWEEN "started_at" AND "expired_at" 
-				AND
-			    	"status" IN (?)
-				RETURNING *`, newStatus, walletsUUIDs, oldStatus)
+			WHERE "mnemonic_wallet_uuid" IN (?) AND
+				? BETWEEN "started_at" AND "expired_at" 
+			AND
+				"status" IN (?)
+			RETURNING *`, newStatus, walletsUUIDs, time.Now(), oldStatus)
 
 		bonded := stmt.Rebind(query)
 		returnedRows, clbErr := stmt.Queryx(bonded, args...)
@@ -233,10 +234,10 @@ func (s *pgRepository) GetWalletSessionByUUID(ctx context.Context,
 		query, args, clbErr := sqlx.In(`SELECT *
 			FROM "mnemonic_wallet_sessions"
 			WHERE "uuid" = ? AND
-					now() BETWEEN "started_at" AND "expired_at" 
+					? BETWEEN "started_at" AND "expired_at" 
 				AND
 			    	"status" IN (?)
-			ORDER BY "expired_at";`, sessionUUID, []types.MnemonicWalletSessionStatus{
+			ORDER BY "expired_at";`, sessionUUID, time.Now(), []types.MnemonicWalletSessionStatus{
 			types.MnemonicWalletSessionStatusPrepared,
 		})
 		if clbErr != nil {
@@ -288,10 +289,10 @@ func (s *pgRepository) GetWalletSessionsByWalletUUIDAndStatusClb(ctx context.Con
 		query, args, clbErr := sqlx.In(`SELECT *
 			FROM "mnemonic_wallet_sessions"
 			WHERE "mnemonic_wallet_uuid" = ? AND
-					now() BETWEEN "started_at" AND "expired_at" 
+					? BETWEEN "started_at" AND "expired_at" 
 				AND
 			      	"status" IN (?)
-			ORDER BY "expired_at";`, walletUUID, sessionStatuses)
+			ORDER BY "expired_at";`, walletUUID, time.Now(), sessionStatuses)
 		if clbErr != nil {
 			return clbErr
 		}
@@ -350,9 +351,9 @@ func (s *pgRepository) GetActiveWalletSessionsClb(ctx context.Context,
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		rows, queryErr := stmt.Queryx(`SELECT *
 			FROM "mnemonic_wallet_sessions"
-			WHERE now() BETWEEN "started_at" AND "expired_at" 
-				AND "status" = $1
-			ORDER BY "expired_at";`, types.MnemonicWalletSessionStatusPrepared)
+			WHERE $1 BETWEEN "started_at" AND "expired_at" 
+				AND "status" = $2
+			ORDER BY "expired_at";`, time.Now(), types.MnemonicWalletSessionStatusPrepared)
 		if queryErr != nil {
 			return queryErr
 		}

@@ -56,7 +56,7 @@ func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, e
 	}
 
 	resp, err := s.hdWalletClientSvc.GenerateMnemonic(ctx, &hdwallet.GenerateMnemonicRequest{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: toSaveItem.UUID.String(),
 		},
 	})
@@ -71,7 +71,7 @@ func (s *Service) AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, e
 		return nil, ErrMissingHdWalletResp
 	}
 
-	return s.saveWallet(ctx, toSaveItem, resp.MnemonicIdentity, resp.EncryptedMnemonicData)
+	return s.saveWallet(ctx, toSaveItem, resp.WalletIdentifier, resp.EncryptedMnemonicData)
 }
 
 func (s *Service) saveWallet(ctx context.Context,

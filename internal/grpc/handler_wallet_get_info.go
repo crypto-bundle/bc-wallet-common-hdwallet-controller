@@ -79,10 +79,11 @@ func (h *GetWalletInfoHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.GetWalletInfoResponse{
-		WalletIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
+		WalletStatus: pbCommon.WalletStatus(walletItem.Status),
 	}, nil
 }
 

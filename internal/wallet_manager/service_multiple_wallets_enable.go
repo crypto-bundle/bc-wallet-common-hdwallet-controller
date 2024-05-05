@@ -29,6 +29,7 @@ package wallet_manager
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
@@ -38,7 +39,7 @@ import (
 
 func (s *Service) EnableWalletsByUUIDList(ctx context.Context,
 	walletUUIDs []string,
-) (count uint, list []string, err error) {
+) (count uint, list []*entities.MnemonicWallet, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		mwIdentities, _, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletsByUUIDListAndStatus(txStmtCtx,
 			walletUUIDs, []types.MnemonicWalletStatus{
@@ -82,7 +83,7 @@ func (s *Service) EnableWalletsByUUIDList(ctx context.Context,
 		}
 
 		count = updWalletsCount
-		list = mwIdentities
+		list = updatedItems
 
 		return nil
 	})

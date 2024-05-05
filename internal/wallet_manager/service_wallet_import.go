@@ -69,7 +69,7 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 	}
 
 	resp, err := s.hdWalletClientSvc.ValidateMnemonic(ctx, &hdwallet.ValidateMnemonicRequest{
-		MnemonicIdentity: &common.MnemonicWalletIdentity{
+		WalletIdentifier: &common.MnemonicWalletIdentity{
 			WalletUUID: toSaveItem.UUID.String(),
 		},
 		MnemonicData: encryptedMnemonicData,
@@ -89,5 +89,5 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 		return nil, ErrMnemonicIsNotValid
 	}
 
-	return s.saveWallet(ctx, toSaveItem, resp.MnemonicIdentity, encryptedMnemonicData)
+	return s.saveWallet(ctx, toSaveItem, resp.WalletIdentifier, encryptedMnemonicData)
 }

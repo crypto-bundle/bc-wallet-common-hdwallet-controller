@@ -119,3 +119,15 @@ Start of big application refactoring
   * bc-wallet-common-lib-redis v0.0.7
   * bc-wallet-common-lib-tracer v0.0.4
   * bc-wallet-common-lib-vault v0.0.13
+
+## [v0.0.25] 05.05.2024
+### Added 
+* Added indexes to sign_request and mnemonic_wallet_sessions tables
+* Added integration tests for hdwallet-controller gRPC api
+### Changed
+* Changed GetDerivationAddress and GetDerivationAddressByRange gRPC methods: 
+  * Replaced by GetAccount and GetMultipleAccounts
+  * Removed derivation_path field from sign_requests table
+  * Added account_data field to sign_requests table
+### Fixed
+* Fixed bug in PrepareSignRequest flow - usage of old sign_request table fields

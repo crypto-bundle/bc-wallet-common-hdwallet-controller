@@ -29,6 +29,7 @@ package wallet_manager
 
 import (
 	"context"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -39,36 +40,36 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Service) GetAddressesByRange(ctx context.Context,
+func (s *Service) GetAccounts(ctx context.Context,
 	mnemonicUUID string,
-	addrRanges []*pbCommon.RangeRequestUnit,
-) (list []*pbCommon.DerivationAddressIdentity, err error) {
+	addrParams *anypb.Any,
+) (count uint64, list []*pbCommon.AccountIdentity, err error) {
 
-	resp, err := s.hdWalletClientSvc.GetDerivationAddressByRange(ctx, &hdwallet.DerivationAddressByRangeRequest{
-		MnemonicWalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+	resp, err := s.hdWalletClientSvc.GetMultipleAccounts(ctx, &hdwallet.GetMultipleAccountRequest{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: mnemonicUUID,
 		},
-		Ranges: addrRanges,
+		Parameters: addrParams,
 	})
 	if err != nil {
 		grpcStatus, statusExists := status.FromError(err)
 		if !statusExists {
 			s.logger.Error("unable get status from error", zap.Error(ErrUnableDecodeGrpcErrorStatus))
-			return nil, ErrUnableDecodeGrpcErrorStatus
+			return 0, nil, ErrUnableDecodeGrpcErrorStatus
 		}
 
 		switch grpcStatus.Code() {
 		case codes.NotFound, codes.ResourceExhausted:
-			return nil, nil
+			return 0, nil, nil
 
 		default:
 			s.logger.Error("unable to get derivation address",
 				zap.Error(ErrUnableDecodeGrpcErrorStatus),
 				zap.String(app.MnemonicWalletUUIDTag, mnemonicUUID))
 
-			return nil, err
+			return 0, nil, err
 		}
 	}
 
-	return resp.AddressIdentities, nil
+	return resp.AccountIdentitiesCount, resp.AccountIdentifier, nil
 }

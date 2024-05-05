@@ -29,11 +29,10 @@ package grpc
 
 import (
 	"context"
+
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	"sync"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
@@ -42,25 +41,22 @@ import (
 )
 
 const (
-	MethodGetDerivationAddress = "GetDerivationAddress"
+	MethodGetMultipleAccounts = "GetMultipleAccounts"
 )
 
-type GetDerivationAddressHandler struct {
-	l *zap.Logger
-
+type GetMultipleAccountsHandler struct {
+	l             *zap.Logger
 	walletSvc     walletManagerService
-	marshallerSvc marshallerService
-
-	pbAddrPool *sync.Pool
+	marshallerSrv marshallerService
 }
 
 // nolint:funlen // fixme
-func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
-	req *pbApi.DerivationAddressRequest,
-) (*pbApi.DerivationAddressResponse, error) {
+func (h *GetMultipleAccountsHandler) Handle(ctx context.Context,
+	req *pbApi.GetMultipleAccountRequest,
+) (*pbApi.GetMultipleAccountResponse, error) {
 	var err error
 
-	vf := &GetDerivationAddressForm{}
+	vf := &getMultipleAccountForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
@@ -93,45 +89,37 @@ func (h *GetDerivationAddressHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
 	}
 
-	addressData, err := h.walletSvc.GetAddress(ctx, vf.MnemonicWalletUUID,
-		vf.AccountIndex, vf.InternalIndex, vf.AddressIndex)
+	count, accountList, err := h.walletSvc.GetAccounts(ctx, vf.MnemonicWalletUUID,
+		vf.Parameters)
 	if err != nil {
-		return nil, err
+		h.l.Error("unable get derivative addresses by range", zap.Error(err),
+			zap.String(app.MnemonicWalletUUIDTag, vf.MnemonicWalletUUID),
+			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	if addressData == nil {
-		return nil, status.Error(codes.ResourceExhausted,
-			"wallet not found or all wallet sessions already expired")
-	}
-
-	addressEntity := h.pbAddrPool.Get().(*pbCommon.DerivationAddressIdentity)
-	addressEntity.AccountIndex = vf.AccountIndex
-	addressEntity.InternalIndex = vf.InternalIndex
-	addressEntity.AddressIndex = vf.AddressIndex
-	addressEntity.Address = *addressData
-
-	marshalledData, err := h.marshallerSvc.MarshallGetAddressData(walletItem, addressEntity)
-	if err != nil {
-		h.l.Error("unable to marshall public address data", zap.Error(err))
-		return nil, status.Error(codes.Internal, err.Error())
-	}
-
-	defer func() {
-		h.pbAddrPool.Put(addressEntity)
-	}()
-
-	return marshalledData, nil
+	return &pbApi.GetMultipleAccountResponse{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletItem.UUID.String(),
+			WalletHash: walletItem.MnemonicHash,
+		},
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
+			SessionUUID: sessionItem.UUID,
+		},
+		AccountIdentitiesCount: count,
+		AccountIdentifiers:     accountList,
+	}, nil
 }
 
-func MakeGetDerivationAddressHandler(loggerEntry *zap.Logger,
+func MakeGetMultipleAccountsHandler(loggerEntry *zap.Logger,
 	walletSvc walletManagerService,
-	marshallerSrv marshallerService,
-	pbAddrPool *sync.Pool,
-) *GetDerivationAddressHandler {
-	return &GetDerivationAddressHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddress)),
+	marshallerSvc marshallerService,
+) *GetMultipleAccountsHandler {
+	return &GetMultipleAccountsHandler{
+		l: loggerEntry.With(zap.String(MethodNameTag, MethodGetMultipleAccounts)),
+
 		walletSvc:     walletSvc,
-		marshallerSvc: marshallerSrv,
-		pbAddrPool:    pbAddrPool,
+		marshallerSrv: marshallerSvc,
 	}
 }

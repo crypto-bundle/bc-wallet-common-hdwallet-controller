@@ -4,10 +4,14 @@
 ## Table of Contents
 
 - [common.proto](#common.proto)
+    - [AccountIdentity](#common.AccountIdentity)
     - [DerivationAddressIdentity](#common.DerivationAddressIdentity)
     - [MnemonicWalletData](#common.MnemonicWalletData)
     - [MnemonicWalletIdentity](#common.MnemonicWalletIdentity)
     - [RangeRequestUnit](#common.RangeRequestUnit)
+    - [RangeUnitsList](#common.RangeUnitsList)
+  
+    - [WalletStatus](#common.WalletStatus)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -17,6 +21,22 @@
 <p align="right"><a href="#top">Top</a></p>
 
 ## common.proto
+
+
+
+<a name="common.AccountIdentity"></a>
+
+### AccountIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| Parameters | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+| Address | [string](#string) |  |  |
+
+
+
 
 
 
@@ -31,7 +51,6 @@
 | AccountIndex | [uint32](#uint32) |  |  |
 | InternalIndex | [uint32](#uint32) |  |  |
 | AddressIndex | [uint32](#uint32) |  |  |
-| Address | [string](#string) |  |  |
 
 
 
@@ -46,7 +65,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| Identity | [MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [WalletStatus](#common.WalletStatus) |  |  |
 
 
 
@@ -86,7 +106,36 @@
 
 
 
+
+<a name="common.RangeUnitsList"></a>
+
+### RangeUnitsList
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| RangeUnits | [RangeRequestUnit](#common.RangeRequestUnit) | repeated |  |
+
+
+
+
+
  
+
+
+<a name="common.WalletStatus"></a>
+
+### WalletStatus
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| WALLET_STATUS_PLACEHOLDER | 0 |  |
+| WALLET_STATUS_CREATED | 1 |  |
+| WALLET_STATUS_ENABLED | 2 |  |
+| WALLET_STATUS_DISABLED | 3 |  |
+
 
  
 

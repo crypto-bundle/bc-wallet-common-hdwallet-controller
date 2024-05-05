@@ -130,16 +130,20 @@ func (h *SignTransactionHandler) Handle(ctx context.Context,
 	}
 
 	return &pbApi.ExecuteSignRequestResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),
 			WalletHash: walletItem.MnemonicHash,
 		},
-		SessionIdentity: &pbApi.WalletSessionIdentity{
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
 			SessionUUID: sessionItem.UUID,
 		},
-		SignRequestIdentifier: &pbApi.SignRequestIdentity{UUID: signReqItem.UUID},
-		TxOwnerIdentity:       signOwner,
-		SignedTxData:          signedTxData,
+		AccountIdentifier: signOwner,
+		SignatureRequestInfo: &pbApi.SignRequestData{
+			Identifier: req.SignRequestIdentifier,
+			Status:     pbApi.SignRequestData_REQUEST_SIGNED,
+			CreateAt:   uint64(signReqItem.CreatedAt.Unix()),
+		},
+		SignedTxData: signedTxData,
 	}, nil
 }
 

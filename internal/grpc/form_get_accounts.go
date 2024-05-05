@@ -28,20 +28,55 @@
 package grpc
 
 import (
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"context"
+	"fmt"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	"github.com/asaskevich/govalidator"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 )
 
-func (m *grpcMarshaller) MarshallGetAddressData(
-	mnemonicWallet *entities.MnemonicWallet,
-	pbAddressData *pbCommon.DerivationAddressIdentity,
-) (*pbApi.DerivationAddressResponse, error) {
-	return &pbApi.DerivationAddressResponse{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
-			WalletUUID: mnemonicWallet.UUID.String(),
-			WalletHash: mnemonicWallet.MnemonicHash,
-		},
-		AddressIdentity: pbAddressData,
-	}, nil
+type getMultipleAccountForm struct {
+	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
+	MnemonicWalletUUIDRaw uuid.UUID
+
+	SessionUUID string `valid:"type(string),uuid,required"`
+
+	Parameters *anypb.Any `valid:"required"`
+
+	index uint32
+}
+
+func (f *getMultipleAccountForm) LoadAndValidate(_ context.Context,
+	req *pbApi.GetMultipleAccountRequest,
+) (valid bool, err error) {
+	if req.WalletIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "MnemonicWallet identity")
+	}
+	f.MnemonicWalletUUID = req.WalletIdentifier.WalletUUID
+
+	if req.SessionIdentifier == nil {
+		return false, fmt.Errorf("%w:%s",
+			ErrMissedRequiredData, "Session identity")
+	}
+	f.SessionUUID = req.SessionIdentifier.SessionUUID
+
+	if req.Parameters == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Ranges data")
+	}
+	f.Parameters = req.Parameters
+
+	_, err = govalidator.ValidateStruct(f)
+	if err != nil {
+		return false, err
+	}
+
+	mnemonicWalletUUIDRaw, err := uuid.Parse(f.MnemonicWalletUUID)
+	if err != nil {
+		return false, err
+	}
+	f.MnemonicWalletUUIDRaw = mnemonicWalletUUIDRaw
+
+	return true, nil
 }

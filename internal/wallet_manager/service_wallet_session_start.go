@@ -123,7 +123,7 @@ func (s *Service) startWalletSession(ctx context.Context,
 	timeToLive := s.cfg.GetDefaultWalletSessionDelay() + wallet.UnloadInterval
 
 	_, err = s.hdWalletClientSvc.LoadMnemonic(ctx, &pbHdwallet.LoadMnemonicRequest{
-		MnemonicIdentity: &pbCommon.MnemonicWalletIdentity{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: wallet.UUID.String(),
 			WalletHash: wallet.MnemonicHash,
 		},

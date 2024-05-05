@@ -43,10 +43,10 @@ type GetWalletSessionsForm struct {
 func (f *GetWalletSessionsForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.GetWalletSessionsRequest,
 ) (valid bool, err error) {
-	if req.MnemonicIdentity == nil {
+	if req.WalletIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
 	}
-	f.WalletUUID = req.MnemonicIdentity.WalletUUID
+	f.WalletUUID = req.WalletIdentifier.WalletUUID
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

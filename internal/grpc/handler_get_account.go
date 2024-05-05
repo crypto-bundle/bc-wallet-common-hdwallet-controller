@@ -31,6 +31,9 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"sync"
+
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
@@ -39,22 +42,25 @@ import (
 )
 
 const (
-	MethodGetDerivationAddressByRange = "GetDerivationAddressByRange"
+	MethodGetAccount = "GetAccount"
 )
 
-type GetDerivationAddressByRangeHandler struct {
-	l             *zap.Logger
+type GetAccountHandler struct {
+	l *zap.Logger
+
 	walletSvc     walletManagerService
-	marshallerSrv marshallerService
+	marshallerSvc marshallerService
+
+	pbAddrPool *sync.Pool
 }
 
 // nolint:funlen // fixme
-func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
-	req *pbApi.DerivationAddressByRangeRequest,
-) (*pbApi.DerivationAddressByRangeResponse, error) {
+func (h *GetAccountHandler) Handle(ctx context.Context,
+	req *pbApi.GetAccountRequest,
+) (*pbApi.GetAccountResponse, error) {
 	var err error
 
-	vf := &derivationAddressByRangeForm{}
+	vf := &GetAccountForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
@@ -87,36 +93,41 @@ func (h *GetDerivationAddressByRangeHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "wallet session not found or already expired")
 	}
 
-	addressesList, err := h.walletSvc.GetAddressesByRange(ctx, vf.MnemonicWalletUUID,
-		vf.Ranges)
+	addressData, err := h.walletSvc.GetAccount(ctx, vf.MnemonicWalletUUID,
+		vf.AccountParameters)
 	if err != nil {
-		h.l.Error("unable get derivative addresses by range", zap.Error(err),
-			zap.String(app.MnemonicWalletUUIDTag, vf.MnemonicWalletUUID),
-			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID))
-
-		return nil, status.Error(codes.Internal, "something went wrong")
+		return nil, err
 	}
 
-	response, err := h.marshallerSrv.MarshallGetAddressByRange(walletItem, addressesList,
-		uint64(vf.RangeSize))
-	if err != nil {
-		h.l.Error("unable to marshall get addresses data", zap.Error(err),
-			zap.String(app.MnemonicWalletUUIDTag, vf.MnemonicWalletUUID),
-			zap.String(app.MnemonicWalletSessionUUIDTag, vf.SessionUUID))
-
-		return nil, status.Error(codes.Internal, err.Error())
+	if addressData == nil {
+		return nil, status.Error(codes.ResourceExhausted,
+			"wallet not found or all wallet sessions already expired")
 	}
 
-	return response, nil
+	return &pbApi.GetAccountResponse{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletItem.UUID.String(),
+			WalletHash: walletItem.MnemonicHash,
+		},
+		SessionIdentifier: &pbApi.WalletSessionIdentity{
+			SessionUUID: sessionItem.UUID,
+		},
+		AccountIdentifier: &pbCommon.AccountIdentity{
+			Parameters: vf.AccountParameters,
+			Address:    *addressData,
+		},
+	}, nil
 }
 
-func MakeGetDerivationAddressByRangeHandler(loggerEntry *zap.Logger,
+func MakeGetAccountHandler(loggerEntry *zap.Logger,
 	walletSvc walletManagerService,
-	marshallerSvc marshallerService,
-) *GetDerivationAddressByRangeHandler {
-	return &GetDerivationAddressByRangeHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetDerivationAddressByRange)),
+	marshallerSrv marshallerService,
+	pbAddrPool *sync.Pool,
+) *GetAccountHandler {
+	return &GetAccountHandler{
+		l:             loggerEntry.With(zap.String(MethodNameTag, MethodGetAccount)),
 		walletSvc:     walletSvc,
-		marshallerSrv: marshallerSvc,
+		marshallerSvc: marshallerSrv,
+		pbAddrPool:    pbAddrPool,
 	}
 }

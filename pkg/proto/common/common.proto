@@ -24,14 +24,30 @@ syntax = "proto3";
 
 package common;
 
+import "google/protobuf/any.proto";
+
 option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common";
 
 message DerivationAddressIdentity {
   uint32 AccountIndex = 1;
   uint32 InternalIndex = 2;
   uint32 AddressIndex = 3;
+}
 
-  string Address = 4;
+message RangeRequestUnit {
+  uint32 AccountIndex = 1;
+  uint32 InternalIndex = 2;
+  uint32 AddressIndexFrom = 3;
+  uint32 AddressIndexTo = 4;
+}
+
+message RangeUnitsList {
+  repeated RangeRequestUnit RangeUnits = 1;
+}
+
+message AccountIdentity {
+  google.protobuf.Any Parameters = 1;
+  string Address = 2;
 }
 
 message MnemonicWalletIdentity {
@@ -39,13 +55,14 @@ message MnemonicWalletIdentity {
   string WalletHash = 2;
 }
 
-message MnemonicWalletData {
-  MnemonicWalletIdentity Identity = 1;
+enum WalletStatus{
+  WALLET_STATUS_PLACEHOLDER = 0;
+  WALLET_STATUS_CREATED = 1;
+  WALLET_STATUS_ENABLED = 2;
+  WALLET_STATUS_DISABLED = 3;
 }
 
-message RangeRequestUnit {
-  uint32 AccountIndex = 3;
-  uint32 InternalIndex = 4;
-  uint32 AddressIndexFrom = 5;
-  uint32 AddressIndexTo = 6;
+message MnemonicWalletData {
+  MnemonicWalletIdentity WalletIdentifier = 1;
+  WalletStatus WalletStatus = 2;
 }

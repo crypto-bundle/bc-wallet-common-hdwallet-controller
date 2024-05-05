@@ -30,6 +30,7 @@ package wallet_manager
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
@@ -40,7 +41,9 @@ import (
 
 func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 	walletUUIDs []string,
-) (count uint, list []string, err error) {
+) (count uint, list []*entities.MnemonicWallet, err error) {
+	var updatedItemUUIDs []string
+
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		mwIdentities, _, clbErr := s.mnemonicWalletsDataSvc.GetMnemonicWalletsByUUIDListAndStatus(txStmtCtx,
 			walletUUIDs, []types.MnemonicWalletStatus{
@@ -58,8 +61,13 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			return nil
 		}
 
-		updWalletsCount, updatedItemUUIDs, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletsStatus(txStmtCtx,
-			walletUUIDs, types.MnemonicWalletStatusDisabled)
+		updatedItemUUIDs = make([]string, len(mwIdentities), len(mwIdentities))
+
+		updWalletsCount, updatedWalletItems, clbErr := s.mnemonicWalletsDataSvc.UpdateMultipleWalletsStatusClb(txStmtCtx,
+			walletUUIDs, types.MnemonicWalletStatusDisabled, func(idx uint, wallet *entities.MnemonicWallet) error {
+				updatedItemUUIDs[idx] = wallet.UUID.String()
+				return nil
+			})
 		if clbErr != nil {
 			s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(clbErr),
 				zap.Strings(app.MnemonicWalletUUIDTag, walletUUIDs))
@@ -72,7 +80,7 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			updatedItemUUIDs, types.MnemonicWalletSessionStatusClosed, []types.MnemonicWalletSessionStatus{
 				types.MnemonicWalletSessionStatusPrepared,
 			},
-			adapter.Marshall)
+			adapter.MarshallItem)
 		if clbErr != nil {
 			s.logger.Error("unable to update mnemonic sessions status", zap.Error(clbErr),
 				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
@@ -100,7 +108,7 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 			}
 		}
 
-		list = updatedItemUUIDs
+		list = updatedWalletItems
 		count = updWalletsCount
 
 		return nil
@@ -115,27 +123,27 @@ func (s *Service) DisableWalletsByUUIDList(ctx context.Context,
 	pbIdentities := make([]*common.MnemonicWalletIdentity, count)
 	for i := uint(0); i != count; i++ {
 		pbIdentity := &common.MnemonicWalletIdentity{
-			WalletUUID: list[i],
+			WalletUUID: updatedItemUUIDs[i],
 		}
 
 		pbIdentities[i] = pbIdentity
 	}
 
 	_, unloadErr := s.hdWalletClientSvc.UnLoadMultipleMnemonics(ctx, &hdwallet.UnLoadMultipleMnemonicsRequest{
-		MnemonicIdentity: pbIdentities})
+		WalletIdentifier: pbIdentities})
 	if err != nil {
 		s.logger.Error("unable to unload mnemonics", zap.Error(unloadErr),
-			zap.Strings(app.MnemonicWalletUUIDTag, list))
+			zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
 
 		respStatus, ok := status.FromError(unloadErr)
 		if !ok {
 			s.logger.Warn("unable to extract response status code", zap.Error(unloadErr),
-				zap.Strings(app.MnemonicWalletUUIDTag, list))
+				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
 		}
 		switch respStatus.Code() {
 		case codes.Internal:
 			s.logger.Warn("unable to unload mnemonic wallet", zap.Error(unloadErr),
-				zap.Strings(app.MnemonicWalletUUIDTag, list))
+				zap.Strings(app.MnemonicWalletUUIDTag, updatedItemUUIDs))
 		default:
 			break
 		}

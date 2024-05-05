@@ -86,7 +86,12 @@ type mnemonicWalletsDataService interface {
 	UpdateMultipleWalletsStatus(ctx context.Context,
 		walletUUID []string,
 		newStatus types.MnemonicWalletStatus,
-	) (uint, []string, error)
+	) (count uint, list []*entities.MnemonicWallet, err error)
+	UpdateMultipleWalletsStatusClb(ctx context.Context,
+		walletUUIDs []string,
+		newStatus types.MnemonicWalletStatus,
+		clbFunc func(idx uint, wallet *entities.MnemonicWallet) error,
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	UpdateMultipleWalletsStatusRetWallets(ctx context.Context,
 		walletUUIDs []string,
 		newStatus types.MnemonicWalletStatus,

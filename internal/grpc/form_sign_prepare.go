@@ -30,8 +30,11 @@ package grpc
 import (
 	"context"
 	"fmt"
-	"github.com/asaskevich/govalidator"
+
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+
+	"github.com/asaskevich/govalidator"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type SignRequestPrepareForm struct {
@@ -39,35 +42,34 @@ type SignRequestPrepareForm struct {
 	SessionUUID string `valid:"type(string),uuid,required"`
 	PurposeUUID string `valid:"type(string),uuid,required"`
 
-	AccountIndex  uint32 `valid:"type(uint32)"`
-	InternalIndex uint32 `valid:"type(uint32)"`
-	AddressIndex  uint32 `valid:"type(uint32)"`
+	AccountParameters *anypb.Any `valid:"required"`
 }
 
 func (f *SignRequestPrepareForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.PrepareSignRequestReq,
 ) (valid bool, err error) {
-	if req.MnemonicIdentity == nil {
+	if req.WalletIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet identity")
 	}
-	f.WalletUUID = req.MnemonicIdentity.WalletUUID
+	f.WalletUUID = req.WalletIdentifier.WalletUUID
 
-	if req.SessionIdentity == nil {
+	if req.SessionIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Wallet sesssion identity")
 	}
-	f.SessionUUID = req.SessionIdentity.SessionUUID
+	f.SessionUUID = req.SessionIdentifier.SessionUUID
 
 	if req.SignPurposeIdentifier == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Signature puprose identity")
 	}
 	f.PurposeUUID = req.SignPurposeIdentifier.UUID
 
-	if req.AddressIdentity == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Address identity")
+	if req.AccountIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Account identity")
 	}
-	f.AccountIndex = req.AddressIdentity.AccountIndex
-	f.InternalIndex = req.AddressIdentity.InternalIndex
-	f.AddressIndex = req.AddressIdentity.AddressIndex
+	if req.AccountIdentifier.Parameters == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Account identity parameters")
+	}
+	f.AccountParameters = req.AccountIdentifier.Parameters
 
 	_, err = govalidator.ValidateStruct(f)
 	if err != nil {

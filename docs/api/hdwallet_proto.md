@@ -4,16 +4,16 @@
 ## Table of Contents
 
 - [hdwallet_api.proto](#hdwallet_api.proto)
-    - [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest)
-    - [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse)
-    - [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest)
-    - [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse)
     - [EncryptMnemonicRequest](#hdwallet_api.EncryptMnemonicRequest)
     - [EncryptMnemonicResponse](#hdwallet_api.EncryptMnemonicResponse)
     - [GenerateMnemonicRequest](#hdwallet_api.GenerateMnemonicRequest)
     - [GenerateMnemonicResponse](#hdwallet_api.GenerateMnemonicResponse)
-    - [LoadDerivationAddressRequest](#hdwallet_api.LoadDerivationAddressRequest)
-    - [LoadDerivationAddressResponse](#hdwallet_api.LoadDerivationAddressResponse)
+    - [GetAccountRequest](#hdwallet_api.GetAccountRequest)
+    - [GetAccountResponse](#hdwallet_api.GetAccountResponse)
+    - [GetMultipleAccountRequest](#hdwallet_api.GetMultipleAccountRequest)
+    - [GetMultipleAccountResponse](#hdwallet_api.GetMultipleAccountResponse)
+    - [LoadAccountRequest](#hdwallet_api.LoadAccountRequest)
+    - [LoadAccountsResponse](#hdwallet_api.LoadAccountsResponse)
     - [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest)
     - [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse)
     - [SignDataRequest](#hdwallet_api.SignDataRequest)
@@ -38,71 +38,6 @@
 
 
 
-<a name="hdwallet_api.DerivationAddressByRangeRequest"></a>
-
-### DerivationAddressByRangeRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| Ranges | [common.RangeRequestUnit](#common.RangeRequestUnit) | repeated |  |
-
-
-
-
-
-
-<a name="hdwallet_api.DerivationAddressByRangeResponse"></a>
-
-### DerivationAddressByRangeResponse
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentitiesCount | [uint64](#uint64) |  |  |
-| AddressIdentities | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) | repeated |  |
-
-
-
-
-
-
-<a name="hdwallet_api.DerivationAddressRequest"></a>
-
-### DerivationAddressRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-
-
-
-
-
-
-<a name="hdwallet_api.DerivationAddressResponse"></a>
-
-### DerivationAddressResponse
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-
-
-
-
-
-
 <a name="hdwallet_api.EncryptMnemonicRequest"></a>
 
 ### EncryptMnemonicRequest
@@ -111,7 +46,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | MnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -127,7 +62,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -143,7 +78,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -158,7 +93,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -166,32 +101,97 @@
 
 
 
-<a name="hdwallet_api.LoadDerivationAddressRequest"></a>
+<a name="hdwallet_api.GetAccountRequest"></a>
 
-### LoadDerivationAddressRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentifier | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
-
-
-
-
-
-
-<a name="hdwallet_api.LoadDerivationAddressResponse"></a>
-
-### LoadDerivationAddressResponse
+### GetAccountRequest
 
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GetAccountResponse"></a>
+
+### GetAccountResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GetMultipleAccountRequest"></a>
+
+### GetMultipleAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| Parameters | [google.protobuf.Any](#google.protobuf.Any) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.GetMultipleAccountResponse"></a>
+
+### GetMultipleAccountResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentitiesCount | [uint64](#uint64) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) | repeated |  |
+
+
+
+
+
+
+<a name="hdwallet_api.LoadAccountRequest"></a>
+
+### LoadAccountRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
+
+
+
+
+
+
+<a name="hdwallet_api.LoadAccountsResponse"></a>
+
+### LoadAccountsResponse
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 
 
 
@@ -206,7 +206,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | TimeToLive | [uint64](#uint64) |  |  |
 | EncryptedMnemonicData | [bytes](#bytes) |  |  |
 
@@ -223,7 +223,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -238,8 +238,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| AddressIdentifier | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 | DataForSign | [bytes](#bytes) |  |  |
 
 
@@ -255,8 +255,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicWalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
-| TxOwnerIdentity | [common.DerivationAddressIdentity](#common.DerivationAddressIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| AccountIdentifier | [common.AccountIdentity](#common.AccountIdentity) |  |  |
 | SignedData | [bytes](#bytes) |  |  |
 
 
@@ -272,7 +272,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -287,7 +287,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 
 
 
@@ -302,7 +302,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -317,7 +317,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) | repeated |  |
 
 
 
@@ -332,7 +332,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | MnemonicData | [bytes](#bytes) |  |  |
 
 
@@ -348,7 +348,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| MnemonicIdentity | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | IsValid | [bool](#bool) |  |  |
 
 
@@ -375,9 +375,9 @@
 | LoadMnemonic | [LoadMnemonicRequest](#hdwallet_api.LoadMnemonicRequest) | [LoadMnemonicResponse](#hdwallet_api.LoadMnemonicResponse) |  |
 | UnLoadMnemonic | [UnLoadMnemonicRequest](#hdwallet_api.UnLoadMnemonicRequest) | [UnLoadMnemonicResponse](#hdwallet_api.UnLoadMnemonicResponse) |  |
 | UnLoadMultipleMnemonics | [UnLoadMultipleMnemonicsRequest](#hdwallet_api.UnLoadMultipleMnemonicsRequest) | [UnLoadMultipleMnemonicsResponse](#hdwallet_api.UnLoadMultipleMnemonicsResponse) |  |
-| GetDerivationAddress | [DerivationAddressRequest](#hdwallet_api.DerivationAddressRequest) | [DerivationAddressResponse](#hdwallet_api.DerivationAddressResponse) |  |
-| GetDerivationAddressByRange | [DerivationAddressByRangeRequest](#hdwallet_api.DerivationAddressByRangeRequest) | [DerivationAddressByRangeResponse](#hdwallet_api.DerivationAddressByRangeResponse) |  |
-| LoadDerivationAddress | [LoadDerivationAddressRequest](#hdwallet_api.LoadDerivationAddressRequest) | [LoadDerivationAddressResponse](#hdwallet_api.LoadDerivationAddressResponse) |  |
+| GetAccount | [GetAccountRequest](#hdwallet_api.GetAccountRequest) | [GetAccountResponse](#hdwallet_api.GetAccountResponse) |  |
+| GetMultipleAccounts | [GetMultipleAccountRequest](#hdwallet_api.GetMultipleAccountRequest) | [GetMultipleAccountResponse](#hdwallet_api.GetMultipleAccountResponse) |  |
+| LoadAccount | [LoadAccountRequest](#hdwallet_api.LoadAccountRequest) | [LoadAccountsResponse](#hdwallet_api.LoadAccountsResponse) |  |
 | SignData | [SignDataRequest](#hdwallet_api.SignDataRequest) | [SignDataResponse](#hdwallet_api.SignDataResponse) |  |
 
  

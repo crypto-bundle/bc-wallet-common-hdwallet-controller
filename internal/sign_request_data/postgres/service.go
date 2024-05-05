@@ -60,13 +60,13 @@ func (s *pgRepository) AddSignRequestItem(ctx context.Context,
 
 		row := stmt.QueryRowx(`INSERT INTO "sign_requests" ("uuid", 
 				"mnemonic_wallet_uuid", "session_uuid", "purpose_uuid",
-				"derivation_path",
+				"account_data",
 				"status",
 				"created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;`,
 			toSaveItem.UUID,
 			toSaveItem.WalletUUID, toSaveItem.SessionUUID, toSaveItem.PurposeUUID,
-			toSaveItem.DerivationPath,
+			toSaveItem.AccountData,
 			toSaveItem.Status,
 			date, nil)
 
@@ -95,8 +95,8 @@ func (s *pgRepository) UpdateSignRequestItemStatus(ctx context.Context,
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		_, clbErr := stmt.Exec(`UPDATE "sign_requests" 
 			SET "status" = $1,
-			    "updated_at" = now()
-			WHERE "uuid" = $2`, newStatus,
+			    "updated_at" = $2
+			WHERE "uuid" = $3`, newStatus, time.Now(),
 			signReqUUID)
 		if clbErr != nil {
 			return commonPostgres.EmptyOrError(clbErr, "unable to update sign_requests item status")
@@ -117,10 +117,10 @@ func (s *pgRepository) UpdateSignRequestItemStatusBySessionUUID(ctx context.Cont
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		rows, clbErr := stmt.Queryx(`UPDATE "sign_requests" 
 			SET "status" = $1,
-				"updated_at" = now()
-			WHERE "session_uuid" = $2
+				"updated_at" = $2
+			WHERE "session_uuid" = $3
 			RETURNING *`,
-			newStatus, sessionUUID)
+			newStatus, time.Now(), sessionUUID)
 		if clbErr != nil {
 			return commonPostgres.EmptyOrError(clbErr,
 				"unable to update request items by session uuid")
@@ -159,9 +159,9 @@ func (s *pgRepository) UpdateSignRequestItemStatusByWalletsUUIDList(ctx context.
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		query, args, clbErr := sqlx.In(`UPDATE "sign_requests"
 	       	SET "status" = ?,
-	    		"updated_at" = now()
+	    		"updated_at" = ?
 	       	WHERE "mnemonic_wallet_uuid" IN (?)
-	       	RETURNING *`, newStatus, walletUUIDs)
+	       	RETURNING *`, newStatus, time.Now(), walletUUIDs)
 
 		bonded := stmt.Rebind(query)
 		returnedRows, clbErr := stmt.Queryx(bonded, args...)
@@ -204,10 +204,10 @@ func (s *pgRepository) UpdateSignRequestItemStatusByWalletUUID(ctx context.Conte
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		rows, clbErr := stmt.Queryx(`UPDATE "sign_requests" 
 			SET "status" = $1,
-				"updated_at" = now()
-			WHERE "mnemonic_wallet_uuid" = $2
+				"updated_at" = $2
+			WHERE "mnemonic_wallet_uuid" = $3
 			RETURNING *`,
-			newStatus, walletUUID)
+			newStatus, time.Now(), walletUUID)
 		if clbErr != nil {
 			return commonPostgres.EmptyOrError(clbErr,
 				"unable to update request items by wallet uuid")

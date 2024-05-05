@@ -31,6 +31,7 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"google.golang.org/protobuf/types/known/anypb"
 
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 	"github.com/google/uuid"
@@ -93,21 +94,20 @@ type walletManagerService interface {
 	) (*entities.MnemonicWallet, error)
 	DisableWalletsByUUIDList(ctx context.Context,
 		walletUUIDs []string,
-	) (count uint, list []string, err error)
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	EnableWalletsByUUIDList(ctx context.Context,
 		walletUUIDs []string,
-	) (count uint, list []string, err error)
+	) (count uint, list []*entities.MnemonicWallet, err error)
 	GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
 	GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error)
-	GetAddress(ctx context.Context,
+	GetAccount(ctx context.Context,
 		mnemonicUUID string,
-		account, change, index uint32,
+		accountParameters *anypb.Any,
 	) (address *string, err error)
-	GetAddressesByRange(ctx context.Context,
+	GetAccounts(ctx context.Context,
 		mnemonicUUID string,
-		addrRanges []*pbCommon.RangeRequestUnit,
-	) (list []*pbCommon.DerivationAddressIdentity, err error)
-
+		accountsParameters *anypb.Any,
+	) (count uint64, list []*pbCommon.AccountIdentity, err error)
 	StartWalletSession(ctx context.Context,
 		walletUUID string,
 	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
@@ -135,12 +135,12 @@ type signManagerService interface {
 		mnemonicUUID string,
 		sessionUUID string,
 		purposeUUID string,
-		account, change, index uint32,
-	) (addr *pbCommon.DerivationAddressIdentity, signReqItem *entities.SignRequest, err error)
+		accountParameters *anypb.Any,
+	) (addr *pbCommon.AccountIdentity, signReqItem *entities.SignRequest, err error)
 	ExecuteSignRequest(ctx context.Context,
 		signReqItem *entities.SignRequest,
 		transactionData []byte,
-	) (signerAddr *pbCommon.DerivationAddressIdentity, signedData []byte, err error)
+	) (signerAddr *pbCommon.AccountIdentity, signedData []byte, err error)
 	CloseSignRequest(ctx context.Context,
 		signReqUUID string,
 	) error
@@ -156,17 +156,8 @@ type signManagerService interface {
 }
 
 type marshallerService interface {
-	MarshallCreateWalletData(wallet *entities.MnemonicWallet) (*pbApi.AddNewWalletResponse, error)
-	MarshallGetAddressData(
-		walletPublicData *entities.MnemonicWallet,
-		addressPublicData *pbCommon.DerivationAddressIdentity,
-	) (*pbApi.DerivationAddressResponse, error)
-	MarshallGetAddressByRange(
-		walletPublicData *entities.MnemonicWallet,
-		addressesData []*pbCommon.DerivationAddressIdentity,
-		size uint64,
-	) (*pbApi.DerivationAddressByRangeResponse, error)
-	MarshallGetEnabledWallets([]*entities.MnemonicWallet) (*pbApi.GetEnabledWalletsResponse, error)
+	MarshallCreateWalletData(wallet *entities.MnemonicWallet) *pbApi.AddNewWalletResponse
+	MarshallGetEnabledWallets([]*entities.MnemonicWallet) *pbApi.GetEnabledWalletsResponse
 	MarshallWalletSessions(
 		sessionsList []*entities.MnemonicWalletSession,
 	) []*pbApi.SessionInfo
@@ -200,14 +191,14 @@ type getWalletHandlerService interface {
 	Handle(ctx context.Context, request *pbApi.GetWalletInfoRequest) (*pbApi.GetWalletInfoResponse, error)
 }
 
-type getAddressHandlerService interface {
-	Handle(ctx context.Context, request *pbApi.DerivationAddressRequest) (*pbApi.DerivationAddressResponse, error)
+type getAccountHandlerService interface {
+	Handle(ctx context.Context, request *pbApi.GetAccountRequest) (*pbApi.GetAccountResponse, error)
 }
 
-type getAddressByRangeHandlerService interface {
+type getAccountsHandlerService interface {
 	Handle(ctx context.Context,
-		request *pbApi.DerivationAddressByRangeRequest,
-	) (*pbApi.DerivationAddressByRangeResponse, error)
+		request *pbApi.GetMultipleAccountRequest,
+	) (*pbApi.GetMultipleAccountResponse, error)
 }
 
 type prepareSignRequestHandlerService interface {
