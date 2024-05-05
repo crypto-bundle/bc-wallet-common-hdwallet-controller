@@ -30,14 +30,16 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     --mount=type=ssh \
     mkdir -p /src/bin && \
-    GOOS=linux CGO_ENABLED=${CGO} go build ${RACE} -v -installsuffix cgo -o ./bin/api \
-      -ldflags "-linkmode external -extldflags -static -s -w \
+    GOOS=linux CGO_ENABLED=${CGO} go build ${RACE} -trimpath -race -installsuffix cgo \
+        -gcflags all=-N \
+        -o ./bin/api \
+        -ldflags "-linkmode external -extldflags -static -s -w \
                 -X 'main.BuildDateTS=${BUILD_DATE_TS}' \
-      			-X 'main.BuildNumber=${BUILD_NUMBER}' \
-      			-X 'main.ReleaseTag=${RELEASE_TAG}' \
-      			-X 'main.CommitID=${COMMIT_ID}' \
-      			-X 'main.ShortCommitID=${SHORT_COMMIT_ID}'" \
-      ./cmd/api
+                -X 'main.BuildNumber=${BUILD_NUMBER}' \
+                -X 'main.ReleaseTag=${RELEASE_TAG}' \
+                -X 'main.CommitID=${COMMIT_ID}' \
+                -X 'main.ShortCommitID=${SHORT_COMMIT_ID}'" \
+        ./cmd/api
 
 FROM scratch
 

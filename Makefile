@@ -49,11 +49,11 @@ controller_proto:
 
 default: hdwallet
 
-build:
+build_container:
 	$(if $(and $(env),$(repository)),,$(error 'env' and/or 'repository' is not defined))
 
 	$(eval build_tag=$(env)-$(shell git rev-parse --short HEAD)-$(shell date +%s))
-	$(eval container_registry=$(repository)/crypto-bundle/bc-wallet-tron-hdwallet)
+	$(eval container_registry=$(repository)/crypto-bundle/bc-wallet-common-hdwallet-controller)
 	$(eval context=$(or $(context),k0s-dev-cluster))
 	$(eval platform=$(or $(platform),linux/amd64))
 
@@ -71,8 +71,9 @@ build:
 		--build-arg SHORT_COMMIT_ID=$(short_commit_id) \
 		--build-arg BUILD_NUMBER=$(build_number) \
 		--build-arg BUILD_DATE_TS=$(build_date) \
-		--tag $(container_registry):$(build_tag) .
+		--tag $(container_registry):$(build_tag) \
+		--tag $(container_registry):latest .
 
 	docker push $(container_registry):$(build_tag)
 
-.PHONY: hdwallet_proto deploy
+.PHONY: hdwallet_proto build_container
