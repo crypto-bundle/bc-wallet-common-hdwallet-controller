@@ -71,9 +71,10 @@ build_container:
 		--build-arg SHORT_COMMIT_ID=$(short_commit_id) \
 		--build-arg BUILD_NUMBER=$(build_number) \
 		--build-arg BUILD_DATE_TS=$(build_date) \
-		--tag $(container_registry):$(build_tag) \
+		--tag $(container_registry):$(release_tag) \
 		--tag $(container_registry):latest .
 
-	docker push $(container_registry):$(build_tag)
+	docker push $(container_registry):$(release_tag)
+	docker push $(container_registry):latest
 
 .PHONY: hdwallet_proto build_container
