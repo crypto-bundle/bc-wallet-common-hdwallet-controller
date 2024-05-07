@@ -49,7 +49,7 @@ controller_proto:
 
 default: hdwallet
 
-build_container:
+build_controller_container:
 	$(if $(and $(env),$(repository)),,$(error 'env' and/or 'repository' is not defined))
 
 	$(eval build_tag=$(env)-$(shell git rev-parse --short HEAD)-$(shell date +%s))
@@ -63,7 +63,7 @@ build_container:
 	$(eval build_date=$(shell date +%s))
 	$(eval release_tag=$(shell git describe --tags $(commit_id))-$(short_commit_id)-$(build_number))
 
-	docker build \
+	docker build . \
 		--ssh default=$(SSH_AUTH_SOCK) \
 		--platform $(platform) \
 		--build-arg RELEASE_TAG=$(release_tag) \
@@ -72,9 +72,34 @@ build_container:
 		--build-arg BUILD_NUMBER=$(build_number) \
 		--build-arg BUILD_DATE_TS=$(build_date) \
 		--tag $(container_registry):$(release_tag) \
-		--tag $(container_registry):latest .
+		--tag $(container_registry):latest \
+		-f ./container_controller.dockerfile
 
 	docker push $(container_registry):$(release_tag)
 	docker push $(container_registry):latest
 
-.PHONY: hdwallet_proto build_container
+build_migration_container:
+	$(if $(and $(env),$(repository)),,$(error 'env' and/or 'repository' is not defined))
+
+	$(eval platform=$(or $(platform),linux/amd64))
+
+	$(eval container_registry=$(repository)/crypto-bundle/bc-wallet-common-hdwallet-migrator)
+	$(eval migration_container=$(repository)/crypto-bundle/bc-wallet-common-migrator:latest)
+	$(eval short_commit_id=$(shell git rev-parse --short HEAD))
+	$(eval commit_id=$(shell git rev-parse HEAD))
+	$(eval build_number=0)
+	$(eval build_date=$(shell date +%s))
+	$(eval release_tag=$(shell git describe --tags $(commit_id))-$(short_commit_id)-$(build_number))
+
+	docker build . \
+		--ssh default=$(SSH_AUTH_SOCK) \
+		--platform $(platform) \
+		--tag $(container_registry):$(release_tag) \
+		--tag $(container_registry):latest \
+		--build-arg PARENT_MIGRATION_CONTAINER_IMAGE_NAME=$(migration_container) \
+		-f container_migrator.dockerfile
+
+	docker push $(container_registry):$(release_tag)
+	docker push $(container_registry):latest
+
+.PHONY: hdwallet_proto build_controller_container build_migration_container
