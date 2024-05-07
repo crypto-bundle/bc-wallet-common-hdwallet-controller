@@ -131,3 +131,8 @@ Start of big application refactoring
   * Added account_data field to sign_requests table
 ### Fixed
 * Fixed bug in PrepareSignRequest flow - usage of old sign_request table fields
+
+## [v0.0.26] 07.05.2024
+* Bump version of bc-wallet-common-lib-vault v0.0.14
+* Some changes in build container flow
+* Added info to README.md file
