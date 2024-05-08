@@ -71,11 +71,22 @@ Redis used for store values of next entities:
 
 ### Hashicorp Vault
 
-Application required common and personal bucket with some secrets. 
+Application required common and personal bucket with some secrets. Also, required personal auth token.
+
+### Tron example
 Example for tron blockchain:
 
+Auth token: bc-wallet-tron-hdwallet-controller
+```bash
+vault token create -display-name bc-wallet-tron-hdwallet-controller 
+```
+
+Buckets:
+* crypto-bundle/bc-wallet-common/transit
+  * VAULT_COMMON_TRANSIT_KEY
 * crypto-bundle/bc-wallet-tron-hdwallet/common
   * POSTGRESQL_DATABASE_NAME
+  * VAULT_APP_ENCRYPTION_KEY
 * crypto-bundle/bc-wallet-tron-hdwallet/controller
   * NATS_PASSWORD
   * NATS_USER
@@ -95,8 +106,13 @@ Example for tron blockchain:
   * REDIS_USER
 
 Also, application required two encryption keys:
-* Common for whole crypto-bundle project transit key - crypto-bundle-bc-wallet-common-transit-key
-* Target encryption key for hdwallet-controller and hdwallet-api - crypto-bundle-bc-wallet-tron-hdwallet
+* Common for whole crypto-bundle project transit key - **crypto-bundle-bc-wallet-common-transit-key**. 
+Value with transit key name will be loaded from `VAULT_COMMON_TRANSIT_KEY` Vault variable, which stored in 
+common bucket - **crypto-bundle/bc-wallet-common/transit**.
+
+* Target encryption key for hdwallet-controller and hdwallet-api - **crypto-bundle-bc-wallet-tron-hdwallet**
+Value with transit key name will be loaded from `VAULT_APP_ENCRYPTION_KEY` Vault variable, which stored in
+common bucket - **crypto-bundle/bc-wallet-tron-hdwallet/common**.
 
 ### Bc-wallet-common-hdwallet-api
 
