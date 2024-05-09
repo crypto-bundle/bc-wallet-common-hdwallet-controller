@@ -3,6 +3,8 @@ package hdwallet
 import (
 	"context"
 	"net"
+	"os"
+	"path/filepath"
 
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
 
@@ -25,7 +27,17 @@ type Client struct {
 func (s *Client) Init(ctx context.Context) error {
 	options := []originGRPC.DialOption{
 		originGRPC.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
-			return net.Dial("unix", addr)
+			info, err := os.Lstat(addr)
+			if err != nil {
+				return nil, err
+			}
+
+			unixAddr, err := net.ResolveUnixAddr("unix", info.Name())
+			if err != nil {
+				return nil, err
+			}
+
+			return net.Dial("unix", unixAddr.String())
 		}),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
@@ -46,7 +58,32 @@ func (s *Client) Init(ctx context.Context) error {
 }
 
 func (s *Client) Dial(ctx context.Context) error {
-	grpcConn, err := originGRPC.Dial(s.cfg.GetConnectionPath(), s.grpcClientOptions...)
+	files, err := os.ReadDir(s.cfg.GetConnectionPath())
+	if err != nil {
+		return err
+	}
+
+	var sockFile os.DirEntry
+
+	for _, file := range files {
+		match, loopErr := filepath.Match(s.cfg.GetUnixFileNameTemplate(), file.Name())
+		if loopErr != nil {
+			return loopErr
+		}
+
+		if match {
+			sockFile = file
+
+			break
+		}
+	}
+
+	fileInfo, err := sockFile.Info()
+	if err != nil {
+		return err
+	}
+
+	grpcConn, err := originGRPC.Dial(fileInfo.Name(), s.grpcClientOptions...)
 	if err != nil {
 		return err
 	}
