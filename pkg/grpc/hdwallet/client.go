@@ -2,16 +2,11 @@ package hdwallet
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-)
-
-var (
-	ErrUnableToFindActiveFileSocket = errors.New("unable to file active file socket")
 )
 
 type Client struct {

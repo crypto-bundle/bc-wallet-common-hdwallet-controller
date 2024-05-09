@@ -29,9 +29,16 @@ package hdwallet
 
 import (
 	"context"
+	"errors"
 	"net"
 	"os"
 	"path/filepath"
+	"time"
+)
+
+var (
+	ErrUnableToFindActiveFileSocket = errors.New("unable to find active file socket")
+	ErrMissingDirEntry              = errors.New("missing dir entry, probably socket files not found")
 )
 
 type socketDialler struct {
@@ -44,13 +51,14 @@ type socketDialler struct {
 }
 
 func (d *socketDialler) next() (os.DirEntry, bool) {
+	position := d.currentEntryPosition
 	d.currentEntryPosition++
 
-	if d.currentEntryPosition > d.count {
-		return d.dirEntries[d.currentEntryPosition], false
+	if d.currentEntryPosition == d.count {
+		return d.dirEntries[position], false
 	}
 
-	return d.dirEntries[d.currentEntryPosition], true
+	return d.dirEntries[position], true
 }
 
 func (d *socketDialler) Prepare() error {
@@ -58,19 +66,27 @@ func (d *socketDialler) Prepare() error {
 }
 
 func (d *socketDialler) prepare() error {
+	for count, err := d.reset(); count == 0 || err != nil; {
+		time.Sleep(time.Second)
+	}
+
+	return nil
+}
+
+func (d *socketDialler) reset() (uint, error) {
 	d.dirEntries = make([]os.DirEntry, 0)
 	d.count = 0
 	d.currentEntryPosition = 0
 
 	files, err := os.ReadDir(d.dirName)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	for _, file := range files {
 		match, loopErr := filepath.Match(d.filePattern, file.Name())
 		if loopErr != nil {
-			return loopErr
+			return 0, loopErr
 		}
 
 		if match {
@@ -79,11 +95,15 @@ func (d *socketDialler) prepare() error {
 		}
 	}
 
-	return nil
+	return d.count, nil
 }
 
 func (d *socketDialler) DialCallback(ctx context.Context, _ string) (net.Conn, error) {
 	file, hasNext := d.next()
+	if file == nil || !hasNext {
+		return nil, ErrMissingDirEntry
+	}
+
 	filePath := filepath.Join(d.dirName, file.Name())
 
 	resolved, err := net.ResolveUnixAddr("unix", filePath)
@@ -93,11 +113,14 @@ func (d *socketDialler) DialCallback(ctx context.Context, _ string) (net.Conn, e
 
 	conn, err := net.Dial("unix", resolved.String())
 	if err != nil {
-		if !hasNext {
-			return nil, d.prepare()
+		if hasNext {
+			return nil, err
 		}
 
-		return nil, err
+		prepErr := d.prepare()
+		if prepErr != nil {
+			return nil, prepErr
+		}
 	}
 
 	return conn, nil
