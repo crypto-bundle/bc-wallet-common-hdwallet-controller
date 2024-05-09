@@ -54,7 +54,12 @@ func (d *socketDialler) next() (os.DirEntry, bool) {
 	position := d.currentEntryPosition
 	d.currentEntryPosition++
 
-	if d.currentEntryPosition == d.count {
+	if d.currentEntryPosition <= d.count {
+		err := d.prepare()
+		if err != nil {
+			return nil, false
+		}
+
 		return d.dirEntries[position], false
 	}
 
@@ -66,11 +71,14 @@ func (d *socketDialler) Prepare() error {
 }
 
 func (d *socketDialler) prepare() error {
-	for count, err := d.reset(); count == 0 || err != nil; {
+	for {
+		count, err := d.reset()
+		if err == nil && count > 0 {
+			return nil
+		}
+
 		time.Sleep(time.Second)
 	}
-
-	return nil
 }
 
 func (d *socketDialler) reset() (uint, error) {
@@ -100,7 +108,7 @@ func (d *socketDialler) reset() (uint, error) {
 
 func (d *socketDialler) DialCallback(ctx context.Context, _ string) (net.Conn, error) {
 	file, hasNext := d.next()
-	if file == nil || !hasNext {
+	if file == nil && !hasNext {
 		return nil, ErrMissingDirEntry
 	}
 
@@ -113,14 +121,7 @@ func (d *socketDialler) DialCallback(ctx context.Context, _ string) (net.Conn, e
 
 	conn, err := net.Dial("unix", resolved.String())
 	if err != nil {
-		if hasNext {
-			return nil, err
-		}
-
-		prepErr := d.prepare()
-		if prepErr != nil {
-			return nil, prepErr
-		}
+		return nil, err
 	}
 
 	return conn, nil
