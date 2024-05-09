@@ -2,15 +2,16 @@ package hdwallet
 
 import (
 	"context"
-	"net"
-	"os"
-	"path/filepath"
-
+	"errors"
+	"fmt"
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
-
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+)
+
+var (
+	ErrUnableToFindActiveFileSocket = errors.New("unable to file active file socket")
 )
 
 type Client struct {
@@ -25,23 +26,19 @@ type Client struct {
 // Init bc-wallet-tron-hdwallet GRPC-client service
 // nolint:revive // fixme (autofix)
 func (s *Client) Init(ctx context.Context) error {
+	diallerSvc := newSocketDialer(s.cfg.GetConnectionPath(), s.cfg.GetUnixFileNameTemplate())
+
+	err := diallerSvc.Prepare()
+	if err != nil {
+		return err
+	}
+
 	options := []originGRPC.DialOption{
-		originGRPC.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
-			info, err := os.Lstat(addr)
-			if err != nil {
-				return nil, err
-			}
-
-			unixAddr, err := net.ResolveUnixAddr("unix", info.Name())
-			if err != nil {
-				return nil, err
-			}
-
-			return net.Dial("unix", unixAddr.String())
-		}),
+		originGRPC.WithContextDialer(diallerSvc.DialCallback),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),
+		originGRPC.WithDisableRetry(),
 		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
 	}
 	msgSizeOptions := originGRPC.WithDefaultCallOptions(
@@ -58,38 +55,17 @@ func (s *Client) Init(ctx context.Context) error {
 }
 
 func (s *Client) Dial(ctx context.Context) error {
-	files, err := os.ReadDir(s.cfg.GetConnectionPath())
-	if err != nil {
-		return err
+	grpcConn, dialErr := originGRPC.Dial(s.cfg.GetConnectionPath(), s.grpcClientOptions...)
+	if dialErr != nil {
+		return dialErr
 	}
 
-	var sockFile os.DirEntry
-
-	for _, file := range files {
-		match, loopErr := filepath.Match(s.cfg.GetUnixFileNameTemplate(), file.Name())
-		if loopErr != nil {
-			return loopErr
-		}
-
-		if match {
-			sockFile = file
-
-			break
-		}
+	if grpcConn == nil {
+		return fmt.Errorf("%w: %s", ErrUnableToFindActiveFileSocket, s.cfg.GetConnectionPath())
 	}
 
-	fileInfo, err := sockFile.Info()
-	if err != nil {
-		return err
-	}
-
-	grpcConn, err := originGRPC.Dial(fileInfo.Name(), s.grpcClientOptions...)
-	if err != nil {
-		return err
-	}
 	s.grpcConn = grpcConn
-
-	s.HdWalletApiClient = NewHdWalletApiClient(grpcConn)
+	s.HdWalletApiClient = NewHdWalletApiClient(s.grpcConn)
 
 	go func() {
 		<-ctx.Done()
