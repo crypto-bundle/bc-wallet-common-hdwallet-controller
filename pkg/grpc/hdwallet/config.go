@@ -1,7 +1,7 @@
 package hdwallet
 
 type HdWalletClientConfig struct {
-	ConnectionPath             string `envconfig:"HDWALLET_UNIX_SOCKET_PATH" default:"unix:/tmp"`
+	ConnectionPath             string `envconfig:"HDWALLET_UNIX_SOCKET_DIR_PATH" default:"unix:/tmp"`
 	UnitSocketFileNameTemplate string `envconfig:"HDWALLET_UNIX_SOCKET_FILE_TEMPLATE" default:"hdwallet_"`
 }
 
