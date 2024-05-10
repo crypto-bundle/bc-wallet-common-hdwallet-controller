@@ -29,6 +29,7 @@ package grpc
 
 import (
 	"context"
+	"errors"
 	"net"
 
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
@@ -94,26 +95,40 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 		reflection.Register(s.grpcServer)
 	}
 
+	go s.serve(ctx)
+
+	return nil
+}
+
+func (s *Server) serve(ctx context.Context) {
+	newCtx, causeFunc := context.WithCancelCause(ctx)
 	pbApi.RegisterHdWalletControllerApiServer(s.grpcServer, s.handlers)
 
-	s.logger.Info("grpc serve success")
-
 	go func() {
-		err = s.grpcServer.Serve(s.listener)
+		err := s.grpcServer.Serve(s.listener)
 		if err != nil {
 			s.logger.Error("unable to start serving", zap.Error(err),
 				zap.String("port", s.config.GetBindPort()))
+			causeFunc(err)
 		}
 	}()
 
-	<-ctx.Done()
+	<-newCtx.Done()
+	intErr := newCtx.Err()
+	if !errors.Is(intErr, context.Canceled) {
+		s.logger.Error("ctx cause errors", zap.Error(intErr))
+	}
 
-	return s.shutdown()
+	intErr = s.shutdown()
+	if intErr != nil {
+		s.logger.Error("unable to graceful shutdown http server", zap.Error(intErr))
+	}
+
+	return
 }
 
 // nolint:revive // fixme
-func NewServer(ctx context.Context,
-	loggerSrv *zap.Logger,
+func NewServer(loggerSrv *zap.Logger,
 	cfg configService,
 	handlers pbApi.HdWalletControllerApiServer,
 ) (*Server, error) {

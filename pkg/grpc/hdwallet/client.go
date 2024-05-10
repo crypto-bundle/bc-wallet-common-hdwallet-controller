@@ -31,7 +31,6 @@ func (s *Client) Init(ctx context.Context) error {
 	options := []originGRPC.DialOption{
 		originGRPC.WithContextDialer(diallerSvc.DialCallback),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
-		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),
 		originGRPC.WithDisableRetry(),
 		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),

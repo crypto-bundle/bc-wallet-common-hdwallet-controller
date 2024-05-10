@@ -39,6 +39,7 @@ import (
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonProfiler "github.com/crypto-bundle/bc-wallet-common-lib-profiler/pkg/profiler"
 	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 
 	"github.com/google/uuid"
@@ -56,6 +57,7 @@ type MangerConfig struct {
 	*commonPostgres.PostgresConfig
 	*commonNats.NatsConfig
 	*commonRedis.RedisConfig
+	*commonProfiler.ProfilerConfig
 	*hdwallet.HdWalletClientConfig
 	*ProcessionEnvironmentConfig
 	// -------------------
