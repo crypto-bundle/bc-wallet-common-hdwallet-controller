@@ -99,6 +99,11 @@ func (h *GetMultipleAccountsHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
+	if count == 0 {
+		return nil, status.Error(codes.ResourceExhausted,
+			"wallet not found or all wallet sessions already expired")
+	}
+
 	return &pbApi.GetMultipleAccountResponse{
 		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: walletItem.UUID.String(),

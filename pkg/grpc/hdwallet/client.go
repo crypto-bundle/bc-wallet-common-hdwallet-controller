@@ -28,9 +28,9 @@ func (s *Client) Init(ctx context.Context) error {
 
 	options := []originGRPC.DialOption{
 		originGRPC.WithContextDialer(diallerSvc.DialCallback),
+		originGRPC.WithReturnConnectionError(),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		originGRPC.WithBlock(),
-		//originGRPC.WithDisableRetry(),
 	}
 	msgSizeOptions := originGRPC.WithDefaultCallOptions(
 		originGRPC.MaxCallRecvMsgSize(1024*1024*3),
