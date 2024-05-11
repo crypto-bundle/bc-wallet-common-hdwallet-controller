@@ -119,7 +119,7 @@ func (d *socketDialler) DialCallback(ctx context.Context, _ string) (net.Conn, e
 		return nil, err
 	}
 
-	conn, err := net.DialTimeout("unix", resolved.String(), time.Millisecond*500)
+	conn, err := net.DialUnix("unix", nil, resolved)
 	if err != nil {
 		return nil, err
 	}

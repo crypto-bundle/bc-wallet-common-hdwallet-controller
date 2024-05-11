@@ -3,8 +3,6 @@ package hdwallet
 import (
 	"context"
 	"fmt"
-	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -32,16 +30,13 @@ func (s *Client) Init(ctx context.Context) error {
 		originGRPC.WithContextDialer(diallerSvc.DialCallback),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		originGRPC.WithBlock(),
-		originGRPC.WithDisableRetry(),
-		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
+		//originGRPC.WithDisableRetry(),
 	}
 	msgSizeOptions := originGRPC.WithDefaultCallOptions(
-		originGRPC.MaxCallRecvMsgSize(commonGRPCClient.DefaultClientMaxReceiveMessageSize),
-		originGRPC.MaxCallSendMsgSize(commonGRPCClient.DefaultClientMaxSendMessageSize),
+		originGRPC.MaxCallRecvMsgSize(1024*1024*3),
+		originGRPC.MaxCallSendMsgSize(1024*1024*3),
 	)
-	options = append(options, msgSizeOptions,
-		originGRPC.WithStatsHandler(otelgrpc.NewClientHandler()),
-	)
+	options = append(options, msgSizeOptions)
 
 	s.grpcClientOptions = options
 

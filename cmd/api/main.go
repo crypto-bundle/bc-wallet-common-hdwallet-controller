@@ -199,13 +199,11 @@ func main() {
 	//checker.AddStartupProbeUnit(pgConn)
 	//checker.AddStartupProbeUnit(natsConnSvc)
 
-	go func() {
-		err = GRPCSrv.ListenAndServe(ctx)
-		if err != nil {
-			loggerEntry.Error("unable to start grpc", zap.Error(err),
-				zap.String("port", appCfg.GetBindPort()))
-		}
-	}()
+	err = GRPCSrv.ListenAndServe(ctx)
+	if err != nil {
+		loggerEntry.Error("unable to start grpc", zap.Error(err),
+			zap.String("port", appCfg.GetBindPort()))
+	}
 
 	err = profiler.ListenAndServe(ctx)
 	if err != nil {
