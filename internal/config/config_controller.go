@@ -39,6 +39,7 @@ import (
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonProfiler "github.com/crypto-bundle/bc-wallet-common-lib-profiler/pkg/profiler"
 	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 
 	"github.com/google/uuid"
@@ -56,6 +57,7 @@ type MangerConfig struct {
 	*commonPostgres.PostgresConfig
 	*commonNats.NatsConfig
 	*commonRedis.RedisConfig
+	*commonProfiler.ProfilerConfig
 	*hdwallet.HdWalletClientConfig
 	*ProcessionEnvironmentConfig
 	// -------------------
@@ -65,10 +67,13 @@ type MangerConfig struct {
 	EventChannelBufferSize    int           `envconfig:"EVENT_CHANNEL_BUFFER_SIZE" default:"12"`
 	DefaultWalletSessionDelay time.Duration `envconfig:"DEFAULT_WALLET_SESSION_DELAY" default:"2s"`
 	DefaultUnloadInterval     time.Duration `envconfig:"DEFAULT_WALLET_UNLOAD_INTERVAL" default:"24s"`
-	// VaultCommonTransitKey - common vault transit key for whole processing cluster
-	VaultCommonTransitKey string `envconfig:"VAULT_COMMON_TRANSIT_KEY" default:"-"`
-	// VaultApplicationEncryptionKey - vault encryption key for hd-wallet-controller and hd-wallet-api application
-	VaultApplicationEncryptionKey string `envconfig:"VAULT_APP_ENCRYPTION_KEY" default:"-"`
+	// VaultCommonTransitKey - common vault transit key for whole processing cluster,
+	// must be saved in common vault kv bucket, for example: crypto-bundle/bc-wallet-common/transit
+	VaultCommonTransitKey string `envconfig:"VAULT_COMMON_TRANSIT_KEY" secret:"true"`
+	// VaultApplicationEncryptionKey - vault encryption key for hd-wallet-controller and hd-wallet-api application,
+	// must be saved in bc-wallet-<blockchain_name>-hdwallet vault kv bucket,
+	// for example: crypto-bundle/bc-wallet-tron-hdwallet/common
+	VaultApplicationEncryptionKey string `envconfig:"VAULT_APP_ENCRYPTION_KEY" secret:"true"`
 	// GRPCBindRaw port string, default "8080"
 	GRPCBindRaw string `envconfig:"API_GRPC_PORT" default:"8080"`
 	// ----------------------------

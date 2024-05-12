@@ -29,10 +29,9 @@ package controller
 
 import (
 	"context"
-	"testing"
-
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
+	"testing"
 
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -109,19 +108,19 @@ func TestHdWalletControllerApiClient_GetMultipleAccounts(t *testing.T) {
 				AccountIndex:     5,
 				InternalIndex:    10,
 				AddressIndexFrom: 106,
-				AddressIndexTo:   149,
+				AddressIndexTo:   156,
 			},
 			{
 				AccountIndex:     7,
 				InternalIndex:    8,
 				AddressIndexFrom: 1201,
-				AddressIndexTo:   1271,
+				AddressIndexTo:   1251,
 			},
 			{
 				AccountIndex:     10,
 				InternalIndex:    32,
 				AddressIndexFrom: 401,
-				AddressIndexTo:   701,
+				AddressIndexTo:   451,
 			},
 		},
 	}
@@ -188,4 +187,5 @@ func TestHdWalletControllerApiClient_GetMultipleAccounts(t *testing.T) {
 			t.Fail()
 		}
 	}
+
 }

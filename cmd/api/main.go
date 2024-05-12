@@ -48,6 +48,7 @@ import (
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+	commonProfiler "github.com/crypto-bundle/bc-wallet-common-lib-profiler/pkg/profiler"
 	commonRedis "github.com/crypto-bundle/bc-wallet-common-lib-redis/pkg/redis"
 	commonVault "github.com/crypto-bundle/bc-wallet-common-lib-vault/pkg/vault"
 
@@ -105,6 +106,8 @@ func main() {
 	loggerEntry := loggerSrv.NewLoggerEntry("main").
 		With(zap.String(app.BlockChainNameTag, appCfg.GetNetworkName()))
 
+	profiler := commonProfiler.NewHTTPServer(loggerEntry, appCfg.ProfilerConfig)
+
 	pgConn := commonPostgres.NewConnection(ctx, appCfg, loggerEntry)
 	_, err = pgConn.Connect()
 	if err != nil {
@@ -147,7 +150,7 @@ func main() {
 
 	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
 
-	GRPCSrv, err := grpcHandlers.NewServer(ctx, loggerEntry, appCfg, apiHandlers)
+	GRPCSrv, err := grpcHandlers.NewServer(loggerEntry, appCfg, apiHandlers)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
@@ -156,17 +159,25 @@ func main() {
 	eventWatcher := events.NewEventWatcher(loggerEntry, appCfg, redisConn, natsConnSvc,
 		mnemonicWalletCacheDataSvc, mnemonicWalletDataSvc, signReqDataSvc, hdWalletClient, pgConn)
 
+	err = profiler.Init(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to init profiler", zap.Error(err))
+	}
+	loggerEntry.Info("profiler successfully initiated")
+
 	err = hdWalletClient.Init(ctx)
 	if err != nil {
 		loggerEntry.Fatal("unable to init hd-wallet grpc client", zap.Error(err),
 			zap.String("unix path", appCfg.HdWalletClientConfig.GetConnectionPath()))
 	}
+	loggerEntry.Info("hd-wallet client initiated")
 
 	err = GRPCSrv.Init(ctx)
 	if err != nil {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))
 	}
+	loggerEntry.Info("gRPC server initiated")
 
 	err = hdWalletClient.Dial(ctx)
 	if err != nil {
@@ -188,13 +199,16 @@ func main() {
 	//checker.AddStartupProbeUnit(pgConn)
 	//checker.AddStartupProbeUnit(natsConnSvc)
 
-	go func() {
-		err = GRPCSrv.ListenAndServe(ctx)
-		if err != nil {
-			loggerEntry.Error("unable to start grpc", zap.Error(err),
-				zap.String("port", appCfg.GetBindPort()))
-		}
-	}()
+	err = GRPCSrv.ListenAndServe(ctx)
+	if err != nil {
+		loggerEntry.Error("unable to start grpc", zap.Error(err),
+			zap.String("port", appCfg.GetBindPort()))
+	}
+
+	err = profiler.ListenAndServe(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to init profiler", zap.Error(err))
+	}
 
 	loggerEntry.Info("application started successfully", zap.String(app.GRPCBindPortTag, appCfg.GetBindPort()))
 

@@ -1,4 +1,4 @@
-FROM golang:1.22-alpine AS gobuild
+FROM golang:1.22.2-alpine AS gobuild
 
 ENV GO111MODULE on
 ENV GOSUMDB off

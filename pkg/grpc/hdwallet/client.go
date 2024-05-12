@@ -2,11 +2,7 @@ package hdwallet
 
 import (
 	"context"
-	"net"
-
-	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
-
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"fmt"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -23,22 +19,24 @@ type Client struct {
 // Init bc-wallet-tron-hdwallet GRPC-client service
 // nolint:revive // fixme (autofix)
 func (s *Client) Init(ctx context.Context) error {
+	diallerSvc := newSocketDialer(s.cfg.GetConnectionPath(), s.cfg.GetUnixFileNameTemplate())
+
+	dialFunc, err := diallerSvc.Prepare()
+	if err != nil {
+		return err
+	}
+
 	options := []originGRPC.DialOption{
-		originGRPC.WithContextDialer(func(ctx context.Context, addr string) (net.Conn, error) {
-			return net.Dial("unix", addr)
-		}),
+		originGRPC.WithContextDialer(dialFunc),
+		originGRPC.WithReturnConnectionError(),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
-		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),
-		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
 	}
 	msgSizeOptions := originGRPC.WithDefaultCallOptions(
-		originGRPC.MaxCallRecvMsgSize(commonGRPCClient.DefaultClientMaxReceiveMessageSize),
-		originGRPC.MaxCallSendMsgSize(commonGRPCClient.DefaultClientMaxSendMessageSize),
+		originGRPC.MaxCallRecvMsgSize(1024*1024*3),
+		originGRPC.MaxCallSendMsgSize(1024*1024*3),
 	)
-	options = append(options, msgSizeOptions,
-		originGRPC.WithStatsHandler(otelgrpc.NewClientHandler()),
-	)
+	options = append(options, msgSizeOptions)
 
 	s.grpcClientOptions = options
 
@@ -46,13 +44,17 @@ func (s *Client) Init(ctx context.Context) error {
 }
 
 func (s *Client) Dial(ctx context.Context) error {
-	grpcConn, err := originGRPC.Dial(s.cfg.GetConnectionPath(), s.grpcClientOptions...)
-	if err != nil {
-		return err
+	grpcConn, dialErr := originGRPC.Dial(s.cfg.GetConnectionPath(), s.grpcClientOptions...)
+	if dialErr != nil {
+		return dialErr
 	}
-	s.grpcConn = grpcConn
 
-	s.HdWalletApiClient = NewHdWalletApiClient(grpcConn)
+	if grpcConn == nil {
+		return fmt.Errorf("%w: %s", ErrUnableToFindActiveFileSocket, s.cfg.GetConnectionPath())
+	}
+
+	s.grpcConn = grpcConn
+	s.HdWalletApiClient = NewHdWalletApiClient(s.grpcConn)
 
 	go func() {
 		<-ctx.Done()
