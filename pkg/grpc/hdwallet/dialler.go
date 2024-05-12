@@ -66,8 +66,13 @@ func (d *socketDialler) next() (os.DirEntry, bool) {
 	return d.dirEntries[position], true
 }
 
-func (d *socketDialler) Prepare() error {
-	return d.prepare()
+func (d *socketDialler) Prepare() (func(context.Context, string) (net.Conn, error), error) {
+	err := d.prepare()
+	if err != nil {
+		return nil, err
+	}
+
+	return d.DialCallback, nil
 }
 
 func (d *socketDialler) prepare() error {

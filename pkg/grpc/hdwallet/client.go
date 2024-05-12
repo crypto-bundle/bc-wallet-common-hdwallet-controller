@@ -21,13 +21,13 @@ type Client struct {
 func (s *Client) Init(ctx context.Context) error {
 	diallerSvc := newSocketDialer(s.cfg.GetConnectionPath(), s.cfg.GetUnixFileNameTemplate())
 
-	err := diallerSvc.Prepare()
+	dialFunc, err := diallerSvc.Prepare()
 	if err != nil {
 		return err
 	}
 
 	options := []originGRPC.DialOption{
-		originGRPC.WithContextDialer(diallerSvc.DialCallback),
+		originGRPC.WithContextDialer(dialFunc),
 		originGRPC.WithReturnConnectionError(),
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		originGRPC.WithBlock(),

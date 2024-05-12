@@ -133,6 +133,19 @@ Start of big application refactoring
 * Fixed bug in PrepareSignRequest flow - usage of old sign_request table fields
 
 ## [v0.0.26] 07.05.2024
+### Changed
 * Bump version of bc-wallet-common-lib-vault v0.0.14
 * Some changes in build container flow
 * Added info to README.md file
+
+
+## [v0.0.27] 12.05.2024
+### Added
+* Added usage of lib-profiler
+* Added migration container dockerfile
+### Fixed
+* Fixed bugs in hdwallet-client dial flow - search in socket file
+* Fixed bug in shutdown flow of controller-api gRPC server
+### Changed
+* Changed vault transit key config - now names of transit keys loaded from vault
+* Added task in Makefile for building migration container 
