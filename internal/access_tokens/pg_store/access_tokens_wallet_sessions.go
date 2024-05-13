@@ -29,49 +29,35 @@ package pg_store
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	"github.com/jmoiron/sqlx"
-
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
-
+	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
+	"time"
 )
 
-var (
-	ErrUnablePrepareQuery    = errors.New("unable to prepare query")
-	ErrUnableExecuteQuery    = errors.New("unable to execute query")
-	ErrUnableGetLastInsertID = errors.New("unable get last insert id")
-)
+func (s *pgRepository) AddNewAccessTokenWalletSession(ctx context.Context,
+	toSaveItem *entities.AccessTokenWalletSession,
+) (result *entities.AccessTokenWalletSession, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		date := time.Now()
 
-type pgRepository struct {
-	pgConn *commonPostgres.Connection
-	logger *zap.Logger
-}
+		row := stmt.QueryRowx(`INSERT INTO "access_tokens_wallet_sessions" ("token_uuid", "wallet_session_uuid",
+				 "created_at")
+            VALUES($1, $2, $3) RETURNING *;`,
+			toSaveItem.AccessTokeUUID, toSaveItem.SessionUUID,
+			date)
 
-func (s *pgRepository) GetAccessTokenInfoByUUID(ctx context.Context,
-	tokenUUID string,
-) (*entities.AccessToken, error) {
-	var result *entities.AccessToken = nil
+		item := &entities.AccessTokenWalletSession{}
+		clbErr := row.StructScan(item)
+		if clbErr != nil {
+			s.logger.Error("failed to insert new access_token_wallet_session item", zap.Error(clbErr))
 
-	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT  "id", "uuid", "wallet_uuid",
-        		"expired_at", "created_at", "updated_at"
-	       FROM "access_tokens"
-	       WHERE "uuid" = $1`, tokenUUID)
-
-		callbackErr := row.Err()
-		if callbackErr != nil {
-			return callbackErr
+			return fmt.Errorf("%s: %w", ErrUnableExecuteQuery, clbErr)
 		}
 
-		accessToken := &entities.AccessToken{}
-		callbackErr = row.StructScan(&accessToken)
-		if callbackErr != nil {
-			return commonPostgres.EmptyOrError(callbackErr, "unable get access token by uuid")
-		}
-
-		result = accessToken
+		result = item
 
 		return nil
 	}); err != nil {
@@ -81,29 +67,28 @@ func (s *pgRepository) GetAccessTokenInfoByUUID(ctx context.Context,
 	return result, nil
 }
 
-func (s *pgRepository) UpdateAccessTokenStatusByUUID(ctx context.Context,
+func (s *pgRepository) GetWalletSessionByTokenUUID(ctx context.Context,
 	tokenUUID string,
-) (*entities.AccessToken, error) {
-	var result *entities.AccessToken = nil
+) (*entities.AccessTokenWalletSession, error) {
+	var result *entities.AccessTokenWalletSession = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT  "id", "uuid", "wallet_uuid",
-        		"expired_at", "created_at", "updated_at"
-	       FROM "access_tokens"
-	       WHERE "uuid" = $1`, tokenUUID)
+		row := stmt.QueryRowx(`SELECT *
+	       FROM "access_tokens_wallet_sessions"
+	       WHERE "token_uuid" = $1`, tokenUUID)
 
 		callbackErr := row.Err()
 		if callbackErr != nil {
 			return callbackErr
 		}
 
-		accessToken := &entities.AccessToken{}
-		callbackErr = row.StructScan(&accessToken)
+		item := &entities.AccessTokenWalletSession{}
+		callbackErr = row.StructScan(&item)
 		if callbackErr != nil {
-			return commonPostgres.EmptyOrError(callbackErr, "unable get access token by uuid")
+			return commonPostgres.EmptyOrError(callbackErr, "unable get record by token_uuid")
 		}
 
-		result = accessToken
+		result = item
 
 		return nil
 	}); err != nil {
@@ -111,13 +96,4 @@ func (s *pgRepository) UpdateAccessTokenStatusByUUID(ctx context.Context,
 	}
 
 	return result, nil
-}
-
-func NewPostgresStore(logger *zap.Logger,
-	pgConn *commonPostgres.Connection,
-) *pgRepository {
-	return &pgRepository{
-		pgConn: pgConn,
-		logger: logger,
-	}
 }

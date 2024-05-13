@@ -39,6 +39,10 @@ message AppInstanceIdentity {
   string UUID = 1;
 }
 
+message AccessTokenIdentity {
+  string UUID = 1;
+}
+
 message WalletSessionIdentity {
   string SessionUUID = 1;
 }
@@ -49,6 +53,11 @@ message SignRequestIdentity {
 
 message SignPurposeIdentity {
   string UUID = 1;
+}
+
+message AccessTokenData {
+    AccessTokenIdentity AccessTokenIdentifier = 1;
+    bytes AccessTokenData =2 ;
 }
 
 message SignRequestData {
@@ -75,6 +84,7 @@ message GetEnabledWalletsResponse {
 }
 
 message AddNewWalletRequest {
+  repeated AccessTokenData AccessTokens = 1;
 }
 
 message AddNewWalletResponse {
@@ -84,6 +94,7 @@ message AddNewWalletResponse {
 
 message ImportWalletRequest {
   bytes MnemonicPhrase = 1;
+  repeated AccessTokenData AccessTokens = 2;
 }
 
 message ImportWalletResponse {

@@ -4,6 +4,8 @@
 ## Table of Contents
 
 - [controller_api.proto](#controller_api.proto)
+    - [AccessTokenData](#manager_api.AccessTokenData)
+    - [AccessTokenIdentity](#manager_api.AccessTokenIdentity)
     - [AddNewWalletRequest](#manager_api.AddNewWalletRequest)
     - [AddNewWalletResponse](#manager_api.AddNewWalletResponse)
     - [AppInstanceIdentity](#manager_api.AppInstanceIdentity)
@@ -68,10 +70,46 @@
 
 
 
+<a name="manager_api.AccessTokenData"></a>
+
+### AccessTokenData
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AccessTokenIdentifier | [AccessTokenIdentity](#manager_api.AccessTokenIdentity) |  |  |
+| AccessTokenData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="manager_api.AccessTokenIdentity"></a>
+
+### AccessTokenIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| UUID | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="manager_api.AddNewWalletRequest"></a>
 
 ### AddNewWalletRequest
 
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 
@@ -570,6 +608,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | MnemonicPhrase | [bytes](#bytes) |  |  |
+| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 

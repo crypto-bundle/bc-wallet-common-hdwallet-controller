@@ -47,6 +47,7 @@ type grpcServerHandle struct {
 
 	mnemonicWalletDataSvc mnemonicWalletsDataService
 	walletSessionDataSvc  walletSessionDataService
+	powValidatorSvc       powValidatorService
 
 	marshallerSrv marshallerService
 	// all GRPC handlers
@@ -177,6 +178,7 @@ func (h *grpcServerHandle) ExecuteSignRequest(ctx context.Context,
 
 // New instance of service
 func New(loggerSrv *zap.Logger,
+	powValidatorSvc powValidatorService,
 	walletManagerSvc walletManagerService,
 	signManagerSvc signManagerService,
 ) pbApi.HdWalletControllerApiServer {
@@ -192,6 +194,8 @@ func New(loggerSrv *zap.Logger,
 	return &grpcServerHandle{
 		UnimplementedHdWalletControllerApiServer: &pbApi.UnimplementedHdWalletControllerApiServer{},
 		logger:                                   l,
+
+		powValidatorSvc: powValidatorSvc,
 
 		marshallerSrv: marshallerSvc,
 		// handlers

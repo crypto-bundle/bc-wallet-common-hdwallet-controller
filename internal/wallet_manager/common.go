@@ -31,8 +31,28 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"github.com/google/uuid"
 	"time"
 )
+
+type accessTokenManagerService interface {
+	ValidateSaveAccessToken(ctx context.Context,
+		walletUUID uuid.UUID,
+		tokenUUID uuid.UUID,
+		tokenData []byte,
+	) (result *entities.AccessToken, err error)
+	SaveAccessToken(ctx context.Context,
+		token *entities.AccessToken,
+	) (result *entities.AccessToken, err error)
+	ExtractAccessTokenFromData(ctx context.Context,
+		tokenUUID uuid.UUID,
+		tokenData []byte,
+	) (result *entities.AccessToken, err error)
+}
+
+type jwtService interface {
+	GetTokenData(accessToken string) (map[string]uuid.UUID, error)
+}
 
 type configService interface {
 	GetDefaultWalletSessionDelay() time.Duration

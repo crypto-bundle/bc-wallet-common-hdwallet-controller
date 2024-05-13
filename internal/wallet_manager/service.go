@@ -29,6 +29,7 @@ package wallet_manager
 
 import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
+
 	"go.uber.org/zap"
 )
 
@@ -39,6 +40,7 @@ type Service struct {
 	transitEncryptorSvc encryptService
 	appEncryptorSvc     encryptService
 
+	accessTokenSvc         accessTokenManagerService
 	mnemonicWalletsDataSvc mnemonicWalletsDataService
 	cacheStoreDataSvc      mnemonicWalletsCacheStoreService
 	signReqDataSvc         signRequestDataService
@@ -54,6 +56,7 @@ func NewService(logger *zap.Logger,
 	cfg configService,
 	transitEncryptorSvc encryptService,
 	appEncryptorSvc encryptService,
+	accessTokenSvc accessTokenManagerService,
 	mnemonicWalletDataSrv mnemonicWalletsDataService,
 	cacheDataSvc mnemonicWalletsCacheStoreService,
 	signReqDataSvc signRequestDataService,
@@ -73,6 +76,7 @@ func NewService(logger *zap.Logger,
 		cacheStoreDataSvc:      cacheDataSvc,
 		mnemonicWalletsDataSvc: mnemonicWalletDataSrv,
 		signReqDataSvc:         signReqDataSvc,
+		accessTokenSvc:         accessTokenSvc,
 
 		eventPublisher: eventPublisher,
 	}

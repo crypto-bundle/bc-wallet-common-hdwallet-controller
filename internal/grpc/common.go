@@ -30,11 +30,14 @@ package grpc
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	"google.golang.org/protobuf/types/known/anypb"
+	"time"
 
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type configService interface {
@@ -46,6 +49,28 @@ type configService interface {
 
 	GetProviderName() string
 	GetNetworkName() string
+}
+
+type powValidatorService interface {
+	PreValidate(ctx context.Context, hashData []byte) (bool, error)
+	Validate(ctx context.Context,
+		hashData []byte,
+		message proto.Message,
+		accessTokenUUID uuid.UUID,
+	) (bool, error)
+}
+
+type jwtService interface {
+	GetTokenData(accessToken string) (map[string]uuid.UUID, error)
+}
+
+type accessTokenManagerService interface {
+	ValidateAccessToken(ctx context.Context,
+		tokenData string,
+	) (*uuid.UUID, *time.Time, error)
+	GetAccessTokenByUUID(ctx context.Context,
+		tokenUUID string,
+	) (result *entities.AccessToken, err error)
 }
 
 type mnemonicWalletsDataService interface {
@@ -84,8 +109,15 @@ type walletSessionDataService interface {
 }
 
 type walletManagerService interface {
-	AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, error)
-	ImportWallet(ctx context.Context, mnemonicData []byte) (*entities.MnemonicWallet, error)
+	AddNewWallet(ctx context.Context,
+		tokenUUID uuid.UUID,
+		tokenData []byte,
+	) (*entities.MnemonicWallet, error)
+	ImportWallet(ctx context.Context,
+		tokenUUID uuid.UUID,
+		tokenData []byte,
+		importedData []byte,
+	) (*entities.MnemonicWallet, error)
 	EnableWalletByUUID(ctx context.Context,
 		walletUUID string,
 	) (*entities.MnemonicWallet, error)

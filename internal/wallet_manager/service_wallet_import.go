@@ -31,9 +31,9 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"time"
 
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -43,7 +43,16 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entities.MnemonicWallet, error) {
+func (s *Service) ImportWallet(ctx context.Context,
+	tokenUUID uuid.UUID,
+	tokenData []byte,
+	importedData []byte,
+) (*entities.MnemonicWallet, error) {
+	accessTokenItem, err := s.accessTokenSvc.ExtractAccessTokenFromData(ctx, tokenUUID, tokenData)
+	if err != nil {
+		return nil, err
+	}
+
 	decryptedData, err := s.transitEncryptorSvc.Decrypt(importedData)
 	if err != nil {
 		return nil, err
@@ -56,21 +65,11 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 
 	mnemonicHash := fmt.Sprintf("%x", sha256.Sum256(decryptedData))
 	vaultEncryptedHash := fmt.Sprintf("%x", sha256.Sum256(encryptedMnemonicData))
-
-	toSaveItem := &entities.MnemonicWallet{
-		UUID:               uuid.New(),
-		MnemonicHash:       mnemonicHash,
-		Status:             types.MnemonicWalletStatusCreated,
-		UnloadInterval:     s.cfg.GetDefaultWalletUnloadInterval(),
-		VaultEncrypted:     encryptedMnemonicData,
-		VaultEncryptedHash: vaultEncryptedHash,
-		CreatedAt:          time.Now(),
-		UpdatedAt:          nil,
-	}
+	walletUUID := uuid.New()
 
 	resp, err := s.hdWalletClientSvc.ValidateMnemonic(ctx, &hdwallet.ValidateMnemonicRequest{
 		WalletIdentifier: &common.MnemonicWalletIdentity{
-			WalletUUID: toSaveItem.UUID.String(),
+			WalletUUID: walletUUID.String(),
 		},
 		MnemonicData: encryptedMnemonicData,
 	})
@@ -80,7 +79,7 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 
 	if resp == nil {
 		s.logger.Error("missing resp in load mnemonic request", zap.Error(ErrMissingHdWalletResp),
-			zap.String(app.MnemonicWalletUUIDTag, toSaveItem.UUID.String()))
+			zap.String(app.MnemonicWalletUUIDTag, walletUUID.String()))
 
 		return nil, ErrMissingHdWalletResp
 	}
@@ -89,5 +88,18 @@ func (s *Service) ImportWallet(ctx context.Context, importedData []byte) (*entit
 		return nil, ErrMnemonicIsNotValid
 	}
 
-	return s.saveWallet(ctx, toSaveItem, resp.WalletIdentifier, encryptedMnemonicData)
+	toSaveItem := &entities.MnemonicWallet{
+		UUID:               walletUUID,
+		MnemonicHash:       mnemonicHash,
+		Status:             types.MnemonicWalletStatusCreated,
+		UnloadInterval:     s.cfg.GetDefaultWalletUnloadInterval(),
+		VaultEncrypted:     encryptedMnemonicData,
+		VaultEncryptedHash: vaultEncryptedHash,
+		CreatedAt:          time.Now(),
+		UpdatedAt:          nil,
+	}
+	accessTokenItem.WalletUUID = toSaveItem.UUID
+
+	return s.saveWalletAndToken(ctx, toSaveItem, accessTokenItem,
+		resp.WalletIdentifier, encryptedMnemonicData)
 }

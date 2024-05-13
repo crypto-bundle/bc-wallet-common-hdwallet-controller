@@ -25,4 +25,4 @@
  *
  */
 
-package access_tokens
+package pow_validator

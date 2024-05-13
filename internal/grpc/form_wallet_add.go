@@ -30,21 +30,17 @@ package grpc
 import (
 	"context"
 	"fmt"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
-
 	"github.com/google/uuid"
 )
 
-type ImportWalletForm struct {
+type AddWalletForm struct {
 	TokenUUID uuid.UUID
 	TokenData []byte
-
-	Phrase []byte `valid:"required"`
 }
 
-func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,
-	req *pbApi.ImportWalletRequest,
+func (f *AddWalletForm) LoadAndValidate(ctx context.Context,
+	req *pbApi.AddNewWalletRequest,
 ) (valid bool, err error) {
 	if req.TokenData == nil {
 		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
@@ -59,13 +55,8 @@ func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,
 		return false, err
 	}
 
-	if req.MnemonicPhrase == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Mnemonic phrase")
-	}
-
 	f.TokenUUID = tokenUUIDRaw
 	f.TokenData = req.TokenData
-	f.Phrase = req.MnemonicPhrase
 
 	return true, nil
 }

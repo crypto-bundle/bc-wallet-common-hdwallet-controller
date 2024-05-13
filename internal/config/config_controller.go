@@ -36,6 +36,7 @@ import (
 
 	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
 	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
+	commonJWT "github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
@@ -58,6 +59,7 @@ type MangerConfig struct {
 	*commonNats.NatsConfig
 	*commonRedis.RedisConfig
 	*commonProfiler.ProfilerConfig
+	*commonJWT.JWTConfig
 	*hdwallet.HdWalletClientConfig
 	*ProcessionEnvironmentConfig
 	// -------------------

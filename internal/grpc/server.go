@@ -47,7 +47,11 @@ type Server struct {
 	grpcServer        *grpc.Server
 	grpcServerOptions []grpc.ServerOption
 	handlers          pbApi.HdWalletControllerApiServer
-	config            configService
+
+	config          configService
+	tokenManagerSvc accessTokenManagerService
+	JWTSvc          jwtService
+	POWValidatorSvc powValidatorService
 
 	listener net.Listener
 }
@@ -57,6 +61,11 @@ func (s *Server) Init(_ context.Context) error {
 	msgSizeOptions := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(commonGRPCServer.DefaultServerMaxReceiveMessageSize),
 		grpc.MaxSendMsgSize(commonGRPCServer.DefaultServerMaxSendMessageSize),
+		grpc.ChainUnaryInterceptor(
+			newAccessTokenInterceptor(s.tokenManagerSvc),
+			newPowShieldPreValidationInterceptor(s.POWValidatorSvc),
+			newPowShieldFullValidationInterceptor(s.POWValidatorSvc),
+		),
 	}
 	options = append(options, msgSizeOptions...)
 	options = append(options, grpc.StatsHandler(otelgrpc.NewServerHandler()))
@@ -130,13 +139,20 @@ func (s *Server) serve(ctx context.Context) {
 // nolint:revive // fixme
 func NewServer(loggerSrv *zap.Logger,
 	cfg configService,
+	tokenManagerSvc accessTokenManagerService,
+	POWValidatorSvc powValidatorService,
 	handlers pbApi.HdWalletControllerApiServer,
 ) (*Server, error) {
 	l := loggerSrv.Named("grpc.server")
 
 	srv := &Server{
-		logger:   l,
-		config:   cfg,
+		logger: l,
+
+		config:          cfg,
+		tokenManagerSvc: tokenManagerSvc,
+		JWTSvc:          nil,
+		POWValidatorSvc: POWValidatorSvc,
+
 		handlers: handlers,
 	}
 

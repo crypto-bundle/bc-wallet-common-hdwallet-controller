@@ -71,6 +71,26 @@
       ],
       "default": "WALLET_STATUS_PLACEHOLDER"
     },
+    "manager_apiAccessTokenData": {
+      "type": "object",
+      "properties": {
+        "AccessTokenIdentifier": {
+          "$ref": "#/definitions/manager_apiAccessTokenIdentity"
+        },
+        "AccessTokenData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "manager_apiAccessTokenIdentity": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string"
+        }
+      }
+    },
     "manager_apiAddNewWalletResponse": {
       "type": "object",
       "properties": {

@@ -1,9 +1,14 @@
 package controller
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/anypb"
+	"math"
+	"math/big"
 	"testing"
 )
 
@@ -34,6 +39,49 @@ import (
 //		t.Fail()
 //	}
 //}
+
+func TestFindSha256(t *testing.T) {
+	req := &GetWalletInfoRequest{
+		WalletIdentifier: &common.MnemonicWalletIdentity{
+			WalletUUID: uuid.NewString(),
+		},
+	}
+
+	reqRaw, err := proto.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	target := big.NewInt(1)
+	target.Lsh(target, uint(256-8))
+
+	target2 := big.NewInt(1)
+	target2.Lsh(target2, uint(256-24))
+
+	nonce := int64(0)
+
+	//t.Logf("target: %d", target)
+	//t.Logf("target2: %d", target2)
+
+	var reqInt *big.Int = big.NewInt(0)
+
+	for nonce != math.MaxInt64 {
+		concatRaw := append(reqRaw[:], byte(nonce))
+
+		hash := sha256.Sum256(concatRaw)
+		reqInt.SetBytes(hash[:])
+
+		t.Logf("\r%x: calc: %d, target: %d", hash, reqInt, target)
+
+		if reqInt.Cmp(target) == -1 {
+			break
+		} else {
+			nonce++
+		}
+	}
+
+	t.Logf("addr raw str: %x", reqInt.Bytes())
+}
 
 func TestDisableWalletRequest(t *testing.T) {
 	addr := &common.DerivationAddressIdentity{

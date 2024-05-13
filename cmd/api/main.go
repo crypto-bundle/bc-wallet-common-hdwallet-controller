@@ -34,17 +34,21 @@ import (
 	"os/signal"
 	"syscall"
 
+	accessToken "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/access_tokens"
+	accessTtokenData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/access_tokens/pg_store"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/config"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/events"
 	grpcHandlers "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/grpc"
 	walletData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/pg_store"
 	walletRedisData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/redis_store"
+	powProofData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/pow_proofs_data/pg_store"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/sign_manager"
 	signReqData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/sign_request_data/postgres"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
+	commonJWT "github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
@@ -134,17 +138,23 @@ func main() {
 	redisClient := redisConn.GetClient()
 	loggerEntry.Info("redis connected")
 
+	jwtSvc := commonJWT.NewJWTService(appCfg.JWTConfig.Key)
+
 	mnemonicWalletDataSvc := walletData.NewPostgresStore(loggerEntry, pgConn)
 	mnemonicWalletCacheDataSvc := walletRedisData.NewRedisStore(loggerEntry, appCfg, redisClient)
 
+	accessTokenDataSvc := accessTtokenData.NewPostgresStore(loggerEntry, pgConn)
+	accessTokenManager := accessToken.NewTokenManager(loggerEntry, jwtSvc, accessTokenDataSvc)
+
 	signReqDataSvc := signReqData.NewPostgresStore(loggerEntry, pgConn)
+	powProofDataSvc := powProofData.NewPostgresStore(loggerEntry, pgConn)
 
 	hdWalletClient := hdwallet.NewClient(appCfg)
 
 	eventPublisher := events.NewEventsBroadcaster(appCfg, natsConnSvc, redisConn)
 
 	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, transitSvc, encryptorSvc,
-		mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
+		accessTokenDataSvc, mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
 		hdWalletClient, eventPublisher, pgConn)
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 

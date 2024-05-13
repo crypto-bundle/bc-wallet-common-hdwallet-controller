@@ -30,57 +30,66 @@ package grpc
 import (
 	"context"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
-
-	"go.uber.org/zap"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
 const (
-	MethodNameAddNewWallet = "AddNewWallet"
+	PowShieldTokenHeader = "X-Hashcash"
 )
 
-type AddNewWalletHandler struct {
-	l             *zap.Logger
-	walletSvc     walletManagerService
-	marshallerSrv marshallerService
+type powShieldPreValidationInterceptor struct {
+	powValidationSvc powValidatorService
 }
 
-// nolint:funlen // fixme
-func (h *AddNewWalletHandler) Handle(ctx context.Context,
-	req *pbApi.AddNewWalletRequest,
-) (*pbApi.AddNewWalletResponse, error) {
-	var err error
+func (i *powShieldPreValidationInterceptor) Handle(ctx context.Context,
+	req any,
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp any, err error) {
+	switch req.(type) {
+	case *pbApi.AddNewWalletRequest, *pbApi.ImportWalletRequest:
+		return handler(ctx, req)
+	default:
+		return i.handle(ctx, req, info, handler)
+	}
+}
 
-	validationForm := &AddWalletForm{}
-	valid, err := validationForm.LoadAndValidate(ctx, req)
-	if err != nil {
-		h.l.Error("unable load and validate request values", zap.Error(err))
-
-		if !valid {
-			return nil, status.Error(codes.InvalidArgument, err.Error())
-		}
-
-		return nil, status.Error(codes.Internal, "something went wrong")
+func (i *powShieldPreValidationInterceptor) handle(ctx context.Context,
+	req any,
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp any, err error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Error(codes.Internal, "unable to retrieve metadata context")
 	}
 
-	wallet, err := h.walletSvc.AddNewWallet(ctx,
-		validationForm.TokenUUID, validationForm.TokenData)
+	data := md.Get(PowShieldTokenHeader)
+	if data == nil {
+		return nil, status.Error(codes.InvalidArgument, "missing hashcash data in metadata")
+	}
+
+	if len(data) > 1 {
+		return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash data")
+	}
+
+	isValid, err := i.powValidationSvc.PreValidate(ctx, []byte(data[0]))
 	if err != nil {
-		h.l.Error("unable to create mnemonic wallet", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return h.marshallerSrv.MarshallCreateWalletData(wallet), nil
+	if !isValid {
+		return nil, status.Error(codes.InvalidArgument, "pow shield validation failed")
+	}
+
+	return handler(ctx, req)
 }
 
-func MakeAddNewWalletHandler(loggerEntry *zap.Logger,
-	walletSvc walletManagerService,
-	marshallerSrv marshallerService,
-) *AddNewWalletHandler {
-	return &AddNewWalletHandler{
-		l:             loggerEntry.With(zap.String(MethodNameTag, MethodNameAddNewWallet)),
-		walletSvc:     walletSvc,
-		marshallerSrv: marshallerSrv,
-	}
+func newPowShieldPreValidationInterceptor(powValidationSvc powValidatorService) grpc.UnaryServerInterceptor {
+	return powShieldPreValidationInterceptor{
+		powValidationSvc: powValidationSvc,
+	}.Handle
 }

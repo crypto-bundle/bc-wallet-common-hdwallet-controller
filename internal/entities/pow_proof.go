@@ -25,47 +25,27 @@
  *
  */
 
-package grpc
+package entities
 
 import (
-	"context"
-	"fmt"
-
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
-
-	"github.com/google/uuid"
+	"time"
 )
 
-type ImportWalletForm struct {
-	TokenUUID uuid.UUID
-	TokenData []byte
+//go:generate easyjson pow_proof.go
 
-	Phrase []byte `valid:"required"`
-}
+// PowProof struct for storing in pg database
+// easyjson:json
+type PowProof struct {
+	ID   uint32 `db:"id" json:"id"`
+	UUID string `db:"uuid" json:"uuid"`
 
-func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,
-	req *pbApi.ImportWalletRequest,
-) (valid bool, err error) {
-	if req.TokenData == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
-	}
+	SerialNumber    uint32 `db:"serial_number" json:"serial_number"`
+	AccessTokenUUID string `db:"access_token_uuid" json:"access_token_uuid"`
 
-	if req.AccessTokenIdentifier == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token identity")
-	}
+	MessageCheckNonce int64  `db:"message_check_nonce" json:"message_check_nonce"`
+	MessageHash       []byte `db:"message_hash" json:"message_hash"`
+	MessageData       []byte `db:"message_data" json:"message_data"`
 
-	tokenUUIDRaw, err := uuid.Parse(req.AccessTokenIdentifier.UUID)
-	if err != nil {
-		return false, err
-	}
-
-	if req.MnemonicPhrase == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Mnemonic phrase")
-	}
-
-	f.TokenUUID = tokenUUIDRaw
-	f.TokenData = req.TokenData
-	f.Phrase = req.MnemonicPhrase
-
-	return true, nil
+	CreatedAt time.Time  `db:"created_at" json:"created_at"`
+	UpdatedAt *time.Time `db:"updated_at" json:"updated_at,omitempty"`
 }

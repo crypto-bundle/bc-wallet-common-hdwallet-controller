@@ -41,8 +41,9 @@ type AccessToken struct {
 	UUID uuid.UUID `db:"uuid" json:"uuid"`
 
 	WalletUUID uuid.UUID `db:"wallet_uuid" json:"wallet_uuid"`
+	RawData    []byte    `db:"raw_data" json:"raw_data,omitempty"`
 
 	CreatedAt time.Time  `db:"created_at" json:"created_at"`
-	ExpiredAt *time.Time `db:"expired_at" json:"expired_at"`
+	ExpiredAt time.Time  `db:"expired_at" json:"expired_at"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
 }
