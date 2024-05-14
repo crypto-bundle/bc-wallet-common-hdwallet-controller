@@ -5,7 +5,6 @@ CREATE TABLE pow_proofs
     id   serial PRIMARY KEY,
     uuid uuid      NOT NULL,
 
-    serial_number bigint NOT NULL,
     access_token_uuid uuid NOT NULL,
 
     message_check_nonce bigint NOT NULL check (message_check_nonce >= 1),
@@ -20,9 +19,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__uuid_idx ON pow_proofs (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__access_token_uuid__idx ON pow_proofs (
     "access_token_uuid"
-);
-CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__access_token_uuid__serial_number__idx ON pow_proofs (
-    "access_token_uuid", "serial_number"
 );
 CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__message_hash__idx ON pow_proofs (
     "message_hash"

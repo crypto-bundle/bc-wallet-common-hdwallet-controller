@@ -25,22 +25,29 @@
  *
  */
 
-package app
+package grpc
 
-const (
-	BlockChainNameTag = "blockchain_name"
+import "google.golang.org/grpc"
 
-	AccessTokenUUIDTag = "access_token_uuid"
+type interceptors struct {
+	powProofDataSvc      powProofDataService
+	walletSessionDataSvc walletDataService
+	tokenManagerSvc      accessTokenManagerService
+	txStmtSvc            transactionalStatementManager
+	JWTSvc               jwtService
+	POWValidatorSvc      powValidatorService
+}
 
-	WalletUUIDTag                = "wallet_uuid"
-	MnemonicWalletUUIDTag        = "mnemonic_wallet_uuid"
-	MnemonicWalletSessionUUIDTag = "mnemonic_wallet_session_uuid"
-	MnemonicWalletHashTag        = "mnemonic_wallet_hash"
-
-	PowHashTag = "proof_of_work_hash"
-
-	SignRequestUUIDTag = "sign_request_uuid"
-	GRPCBindPortTag    = "grpc_bind_port"
-
-	NatsCacheBucketNameTag = "nats_kv_bucket_name"
-)
+func NewInterceptorsList(powProofDataSvc powProofDataService,
+	walletSessionDataSvc walletDataService,
+	tokenManagerSvc accessTokenManagerService,
+	POWValidatorSvc powValidatorService,
+	txStmtSvc transactionalStatementManager,
+) []grpc.UnaryServerInterceptor {
+	return []grpc.UnaryServerInterceptor{
+		newAccessTokenInterceptor(tokenManagerSvc),
+		newPowShieldPreValidationInterceptor(POWValidatorSvc),
+		newPowShieldFullValidationInterceptor(walletSessionDataSvc,
+			powProofDataSvc, POWValidatorSvc, txStmtSvc),
+	}
+}

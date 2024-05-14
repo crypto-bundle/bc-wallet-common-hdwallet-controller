@@ -38,6 +38,8 @@ import (
 // AccessTokenWalletSession struct for storing in pg database
 // easyjson:json
 type AccessTokenWalletSession struct {
+	SerialNumber uint32 `db:"serial_number" json:"serial_number"`
+
 	AccessTokeUUID uuid.UUID `db:"token_uuid" json:"token_uuid"`
 	SessionUUID    uuid.UUID `db:"wallet_session_uuid" json:"wallet_session_uuid"`
 

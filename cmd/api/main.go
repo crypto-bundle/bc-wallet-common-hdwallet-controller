@@ -159,8 +159,10 @@ func main() {
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 
 	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
+	apiInterceptors := grpcHandlers.NewInterceptorsList(powProofDataSvc, mnemonicWalletDataSvc,
+		accessTokenManager, nil, pgConn)
 
-	GRPCSrv, err := grpcHandlers.NewServer(loggerEntry, appCfg, apiHandlers)
+	GRPCSrv, err := grpcHandlers.NewServer(loggerEntry, appCfg, apiHandlers, apiInterceptors)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
 			zap.String("port", appCfg.GetBindPort()))

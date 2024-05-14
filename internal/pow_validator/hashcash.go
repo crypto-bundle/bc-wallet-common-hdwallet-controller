@@ -30,14 +30,10 @@ package pow_validator
 import (
 	"context"
 	"crypto/sha256"
-	"math/big"
-
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
-
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/proto"
+	"math/big"
 )
 
 type validatorHashCash struct {
@@ -45,9 +41,9 @@ type validatorHashCash struct {
 
 	target *big.Int
 
-	powProofDataSvc  powProofDataService
-	walletManagerSvc walletManagerService
-	signReqDataSvc   signRequestDataService
+	powProofDataSvc powProofDataService
+	walletDataSvc   walletDataService
+	signReqDataSvc  signRequestDataService
 
 	txStmtManager transactionalStatementManager
 }
@@ -68,11 +64,10 @@ func (v *validatorHashCash) PreValidate(ctx context.Context,
 	return true
 }
 
-func (v *validatorHashCash) Validate(ctx context.Context,
+func (v *validatorHashCash) ValidateByObscurityData(ctx context.Context,
 	hashData []byte,
 	message proto.Message,
-	accessTokenUUID uuid.UUID,
-	clbFunc func(ctx context.Context, req any) (any, error),
+	obscurityItemUUID uuid.UUID,
 ) (bool, error) {
 	margin := len(hashData) - 8
 
@@ -93,92 +88,13 @@ func (v *validatorHashCash) Validate(ctx context.Context,
 	messageInt := big.NewInt(0).SetBytes(messageRaw)
 	nonceNumber := big.NewInt(0).SetBytes(nonce).Int64()
 
-	return v.validateForSessionFlow(ctx, hashInt,
-		messageInt, nonceNumber, accessTokenUUID, clbFunc)
-}
-
-func (v *validatorHashCash) validateForSessionFlow(ctx context.Context,
-	originHashInt *big.Int,
-	messageInt *big.Int,
-	nonceNumber int64,
-	entityUUID uuid.UUID,
-	clbFunc func(ctx context.Context, req any) (any, error),
-) (isValid bool, err error) {
-	var lastProof *entities.PowProof
-	err = v.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		lastNonceNumber, clbErr := v.powProofDataSvc.GetMaxNoncePowProofByEntityUUIDAndType(txStmtCtx,
-			entityUUID.String(), types.PowProofEntityTypeSession)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		if lastNonceNumber != nonceNumber+1 {
-			isValid = false
-
-			return nil
-		}
-
-		lastProofItem, clbErr := v.powProofDataSvc.GetPowProofByEntityNonceAndType(txStmtCtx,
-			lastNonceNumber, types.PowProofEntityTypeSession)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		lastProof = lastProofItem
-
-		var lastProofUUID uuid.UUID
-		if lastProof != nil {
-			parsedUUID, parseErr := uuid.Parse(lastProof.UUID)
-			if parseErr != nil {
-				return parseErr
-			}
-
-			lastProofUUID = parsedUUID
-		}
-
-		isProofDataValid, clbErr := validateProfData(originHashInt, messageInt, lastProofUUID)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		if !isProofDataValid {
-			isValid = false
-
-			return nil
-		}
-
-		_, clbErr = v.powProofDataSvc.AddNewPowProof(txStmtCtx, &entities.PowProof{
-			UUID:        uuid.NewString(),
-			EntityUUID:  entityUUID.String(),
-			EntityType:  types.PowProofEntityTypeSession,
-			EntityNonce: nonceNumber + 1,
-			HashData:    originHashInt.Bytes(),
-		})
-		if clbErr != nil {
-			return clbErr
-		}
-
-		return nil
-	})
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
-func validateProfData(originHashInt *big.Int,
-	messageInt *big.Int,
-	lastProfUUID uuid.UUID,
-) (bool, error) {
-
-	rawUUID, _ := lastProfUUID.MarshalBinary()
+	rawUUID, _ := obscurityItemUUID.MarshalBinary()
 	lastProfUUIDInt := big.NewInt(0).SetBytes(rawUUID)
 
 	sum := messageInt.Add(messageInt, lastProfUUIDInt)
 
 	hashSum := sha256.New()
-	_, err := hashSum.Write(sum.Bytes())
+	_, err = hashSum.Write(sum.Bytes())
 	if err != nil {
 		return false, err
 	}
@@ -194,9 +110,14 @@ func validateProfData(originHashInt *big.Int,
 	return true, nil
 }
 
+func validateProfData(originHashInt *big.Int,
+	messageInt *big.Int,
+	lastSessionUUID uuid.UUID,
+) (bool, error) {
+}
+
 func NewValidatorHashCash(logger *zap.Logger,
-	walletManagerSvc walletManagerService,
-	signReqDataSvc signRequestDataService,
+	walletManagerSvc walletDataService,
 	powProofDataSvc powProofDataService,
 	txStmtManager transactionalStatementManager,
 ) *validatorHashCash {
@@ -208,9 +129,8 @@ func NewValidatorHashCash(logger *zap.Logger,
 
 		target: target,
 
-		powProofDataSvc:  powProofDataSvc,
-		walletManagerSvc: walletManagerSvc,
-		signReqDataSvc:   signReqDataSvc,
+		powProofDataSvc: powProofDataSvc,
+		walletDataSvc:   walletManagerSvc,
 
 		txStmtManager: txStmtManager,
 	}

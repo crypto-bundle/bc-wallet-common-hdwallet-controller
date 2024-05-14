@@ -41,8 +41,6 @@ func easyjsonF60e8083DecodeGithubComCryptoBundleBcWalletCommonHdwalletController
 			out.ID = uint32(in.Uint32())
 		case "uuid":
 			out.UUID = string(in.String())
-		case "serial_number":
-			out.SerialNumber = uint32(in.Uint32())
 		case "access_token_uuid":
 			out.AccessTokenUUID = string(in.String())
 		case "message_check_nonce":
@@ -100,11 +98,6 @@ func easyjsonF60e8083EncodeGithubComCryptoBundleBcWalletCommonHdwalletController
 		const prefix string = ",\"uuid\":"
 		out.RawString(prefix)
 		out.String(string(in.UUID))
-	}
-	{
-		const prefix string = ",\"serial_number\":"
-		out.RawString(prefix)
-		out.Uint32(uint32(in.SerialNumber))
 	}
 	{
 		const prefix string = ",\"access_token_uuid\":"

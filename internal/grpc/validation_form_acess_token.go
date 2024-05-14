@@ -25,22 +25,53 @@
  *
  */
 
-package app
+package grpc
+
+import (
+	"errors"
+	"github.com/google/uuid"
+	"time"
+)
+
+var (
+	ErrMissingTokenUUIDIdentity = errors.New("missing uuid in token data")
+	ErrMismatchedUUIDIdentity   = errors.New("token identity mismatched")
+)
 
 const (
-	BlockChainNameTag = "blockchain_name"
-
-	AccessTokenUUIDTag = "access_token_uuid"
-
-	WalletUUIDTag                = "wallet_uuid"
-	MnemonicWalletUUIDTag        = "mnemonic_wallet_uuid"
-	MnemonicWalletSessionUUIDTag = "mnemonic_wallet_session_uuid"
-	MnemonicWalletHashTag        = "mnemonic_wallet_hash"
-
-	PowHashTag = "proof_of_work_hash"
-
-	SignRequestUUIDTag = "sign_request_uuid"
-	GRPCBindPortTag    = "grpc_bind_port"
-
-	NatsCacheBucketNameTag = "nats_kv_bucket_name"
+	TokenUUIDLabel    = "token_uuid"
+	TokenExpiredLabel = "token_expired_at"
 )
+
+type accessTokenValidationForm struct {
+	JWTSvc jwtService
+}
+
+func (f *accessTokenValidationForm) Validate(tokenData []byte) (*uuid.UUID, *time.Time, error) {
+	data, err := f.JWTSvc.GetTokenData(string(tokenData))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tokenUUIDStr, isExist := data[TokenUUIDLabel]
+	if !isExist {
+		return nil, nil, ErrMissingTokenUUIDIdentity
+	}
+
+	tokenUUIDRaw, err := uuid.Parse(tokenUUIDStr)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	tokenExpiredAtStr, isExist := data[TokenExpiredLabel]
+	if !isExist {
+		return nil, nil, ErrMissingTokenUUIDIdentity
+	}
+
+	expiredAt, err := time.Parse(time.Layout, tokenExpiredAtStr)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &tokenUUIDRaw, &expiredAt, nil
+}

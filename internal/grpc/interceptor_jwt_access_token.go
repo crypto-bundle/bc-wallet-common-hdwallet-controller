@@ -30,6 +30,7 @@ package grpc
 import (
 	"context"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+	"github.com/google/uuid"
 	"time"
 
 	"google.golang.org/grpc/codes"
@@ -46,7 +47,8 @@ const (
 )
 
 type accessTokenValidationInterceptor struct {
-	tokenManager accessTokenManagerService
+	jwtSvc       jwtService
+	tokenDataSvc accessTokenDataService
 }
 
 func (i *accessTokenValidationInterceptor) Handle(ctx context.Context,
@@ -81,14 +83,43 @@ func (i *accessTokenValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument, "wrong format of access token")
 	}
 
-	tokenUUID, _, err := i.tokenManager.ValidateAccessToken(ctx, accessTokenData[0])
+	data, err := i.jwtSvc.GetTokenData(accessTokenData[0])
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+		return nil, status.Errorf(codes.InvalidArgument,
+			"unable to extract data from JWT-token: %s", err)
 	}
 
-	accessTokenItem, err := i.tokenManager.GetAccessTokenByUUID(ctx, tokenUUID.String())
+	tokenUUIDStr, isExist := data[TokenUUIDLabel]
+	if !isExist {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"missing token_uuid field: %s", ErrMissingTokenUUIDIdentity)
+	}
+
+	tokenUUIDRaw, err := uuid.Parse(tokenUUIDStr)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"wrong format of token_uuid value: %s", err)
+	}
+
+	tokenExpiredAtStr, isExist := data[TokenExpiredLabel]
+	if !isExist {
+		return nil, status.Error(codes.InvalidArgument, "missing expired_at field")
+	}
+
+	expiredAt, err := time.Parse(time.Layout, tokenExpiredAtStr)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"wrong format of expired_at field, required: %s", time.Layout)
+	}
+
+	accessTokenItem, err := i.tokenDataSvc.GetAccessTokenInfoByUUID(ctx, tokenUUIDRaw.String())
 	if err != nil {
 		return nil, status.Error(codes.Internal, "unable to get access token from store")
+	}
+
+	timeDiff := accessTokenItem.ExpiredAt.Sub(expiredAt)
+	if timeDiff != 0 {
+		return nil, status.Error(codes.InvalidArgument, "expired at wrong value")
 	}
 
 	if accessTokenItem.ExpiredAt.Before(time.Now()) {
@@ -99,8 +130,11 @@ func (i *accessTokenValidationInterceptor) handle(ctx context.Context,
 		req)
 }
 
-func newAccessTokenInterceptor(tokenManager accessTokenManagerService) grpc.UnaryServerInterceptor {
+func newAccessTokenInterceptor(jwtSvc jwtService,
+	tokenDataSvc accessTokenDataService,
+) grpc.UnaryServerInterceptor {
 	return accessTokenValidationInterceptor{
-		tokenManager: tokenManager,
+		jwtSvc:       jwtSvc,
+		tokenDataSvc: tokenDataSvc,
 	}.Handle
 }

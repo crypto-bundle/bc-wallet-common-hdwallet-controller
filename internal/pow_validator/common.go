@@ -33,12 +33,10 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 )
 
-type walletManagerService interface {
-	GetWalletByUUID(ctx context.Context, walletUUID string) (*entities.MnemonicWallet, error)
-	GetWalletSessionInfo(ctx context.Context,
-		walletUUID string,
-		sessionUUID string,
-	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
+type walletDataService interface {
+	GetLastWalletSessionIdentityByAccessTokenUUID(ctx context.Context,
+		accessTokenUUID string,
+	) (resultItem *entities.AccessTokenWalletSession, err error)
 }
 
 type signRequestDataService interface {

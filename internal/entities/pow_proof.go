@@ -39,7 +39,6 @@ type PowProof struct {
 	ID   uint32 `db:"id" json:"id"`
 	UUID string `db:"uuid" json:"uuid"`
 
-	SerialNumber    uint32 `db:"serial_number" json:"serial_number"`
 	AccessTokenUUID string `db:"access_token_uuid" json:"access_token_uuid"`
 
 	MessageCheckNonce int64  `db:"message_check_nonce" json:"message_check_nonce"`

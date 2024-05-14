@@ -34,7 +34,6 @@ import (
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 
 	"github.com/jmoiron/sqlx"
@@ -63,13 +62,12 @@ func (s *pgRepository) AddNewPowProof(ctx context.Context,
 		date := time.Now()
 
 		row := stmt.QueryRowx(`INSERT INTO "pow_proofs" ("uuid", 
-				"entity_uuid", "entity_type", "entity_nonce",
-				"hash_data", 
+				"access_token_uuid",
+			  	"message_check_nonce", "message_hash", "message_data",
 				"created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
-			toSaveItem.UUID,
-			toSaveItem.EntityUUID, toSaveItem.EntityType, toSaveItem.EntityNonce,
-			toSaveItem.HashData,
+			toSaveItem.UUID, toSaveItem.AccessTokenUUID,
+			toSaveItem.MessageCheckNonce, toSaveItem.MessageHash, toSaveItem.MessageData,
 			date, date)
 
 		item := &entities.PowProof{}
@@ -119,14 +117,13 @@ func (s *pgRepository) GetPowProofByUUID(ctx context.Context,
 	return
 }
 
-func (s *pgRepository) GetPowProofByEntityUUIDAndType(ctx context.Context,
-	entityUUID string,
-	entityType types.PowProofEntityType,
+func (s *pgRepository) GetPowProofByMessageHash(ctx context.Context,
+	messageHash []byte,
 ) (powProof *entities.PowProof, err error) {
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		row := stmt.QueryRowx(`SELECT *
 	       FROM "pow_proofs"
-	       WHERE "entity_uuid" = $1 AND "entity_type" = $2`, entityUUID, entityType)
+	       WHERE "message_hash" = $1`, messageHash)
 
 		clbErr := row.Err()
 		if clbErr != nil {
@@ -145,71 +142,6 @@ func (s *pgRepository) GetPowProofByEntityUUIDAndType(ctx context.Context,
 		return nil
 	}); err != nil {
 		return nil, err
-	}
-
-	return
-}
-
-func (s *pgRepository) GetPowProofByEntityNonceAndType(ctx context.Context,
-	entityNonce int64,
-	entityType types.PowProofEntityType,
-) (powProof *entities.PowProof, err error) {
-	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT *
-	       FROM "pow_proofs"
-	       WHERE "entity_nonce" = $1 AND "entity_type" = $2`, entityNonce, entityType)
-
-		clbErr := row.Err()
-		if clbErr != nil {
-			return clbErr
-		}
-
-		powProofItem := &entities.PowProof{}
-		clbErr = row.StructScan(powProofItem)
-		if clbErr != nil {
-			return commonPostgres.EmptyOrError(clbErr,
-				"unable get pow-proof item by entity_uuid and entity_type")
-		}
-
-		powProof = powProofItem
-
-		return nil
-	}); err != nil {
-		return nil, err
-	}
-
-	return
-}
-
-func (s *pgRepository) GetMaxNoncePowProofByEntityUUIDAndType(ctx context.Context,
-	entityUUID string,
-	entityType types.PowProofEntityType,
-) (lastNonce int64, err error) {
-	if err = s.pgConn.MustWithTransaction(ctx, func(stmt *sqlx.Tx) error {
-		row := stmt.QueryRowx(`SELECT coalesce(max("entity_nonce"), -1) as "entity_nonce"
-		FROM "pow_proofs" 
-		WHERE 
-		    "entity_uuid" = $1 AND
-		    "entity_type" = $2
-		FOR UPDATE`, entityUUID, entityType)
-
-		clbErr := row.Err()
-		if clbErr != nil {
-			return clbErr
-		}
-
-		var nonce int64
-		clbErr = row.Scan(nonce)
-		if clbErr != nil {
-			return commonPostgres.EmptyOrError(clbErr,
-				"unable get last pow-proof nonce")
-		}
-
-		lastNonce = nonce
-
-		return nil
-	}); err != nil {
-		return 0, err
 	}
 
 	return
