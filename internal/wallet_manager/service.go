@@ -40,10 +40,12 @@ type Service struct {
 	transitEncryptorSvc encryptService
 	appEncryptorSvc     encryptService
 
-	accessTokenSvc         accessTokenManagerService
+	accessTokenSvc         accessTokenDataService
 	mnemonicWalletsDataSvc mnemonicWalletsDataService
 	cacheStoreDataSvc      mnemonicWalletsCacheStoreService
 	signReqDataSvc         signRequestDataService
+	jwtSvc                 jwtService
+	tokenDataAdapterSvc    tokenDataAdapter
 
 	hdWalletClientSvc hdwallet.HdWalletApiClient
 
@@ -56,10 +58,11 @@ func NewService(logger *zap.Logger,
 	cfg configService,
 	transitEncryptorSvc encryptService,
 	appEncryptorSvc encryptService,
-	accessTokenSvc accessTokenManagerService,
+	accessTokenSvc accessTokenDataService,
 	mnemonicWalletDataSrv mnemonicWalletsDataService,
 	cacheDataSvc mnemonicWalletsCacheStoreService,
 	signReqDataSvc signRequestDataService,
+	jwtSvc jwtService,
 	hdWalletClient hdwallet.HdWalletApiClient,
 	eventPublisher eventPublisherService,
 	txStmtManager transactionalStatementManager,
@@ -70,6 +73,9 @@ func NewService(logger *zap.Logger,
 
 		transitEncryptorSvc: transitEncryptorSvc,
 		appEncryptorSvc:     appEncryptorSvc,
+
+		jwtSvc:              jwtSvc,
+		tokenDataAdapterSvc: NewTokenDataAdapter(jwtSvc),
 
 		txStmtManager:          txStmtManager,
 		hdWalletClientSvc:      hdWalletClient,

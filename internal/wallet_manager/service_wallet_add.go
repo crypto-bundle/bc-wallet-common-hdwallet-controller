@@ -44,14 +44,8 @@ import (
 )
 
 func (s *Service) AddNewWallet(ctx context.Context,
-	tokenUUID uuid.UUID,
-	tokenData []byte,
+	tokensIterator types.AccessTokenListIterator,
 ) (*entities.MnemonicWallet, error) {
-	accessTokenItem, err := s.accessTokenSvc.ExtractAccessTokenFromData(ctx, tokenUUID, tokenData)
-	if err != nil {
-		return nil, err
-	}
-
 	walletUUID := uuid.New()
 
 	resp, err := s.hdWalletClientSvc.GenerateMnemonic(ctx, &hdwallet.GenerateMnemonicRequest{
@@ -84,14 +78,19 @@ func (s *Service) AddNewWallet(ctx context.Context,
 		CreatedAt:          saveTime,
 		UpdatedAt:          &saveTime,
 	}
-	accessTokenItem.WalletUUID = walletUUID
 
-	return s.saveWalletAndToken(ctx, toSaveWalletItem, accessTokenItem, resp.WalletIdentifier, resp.EncryptedMnemonicData)
+	accessTokenList, err := s.tokenDataAdapterSvc.Adopt(walletUUID, tokensIterator)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.saveWalletAndToken(ctx, toSaveWalletItem, accessTokenList,
+		resp.WalletIdentifier, resp.EncryptedMnemonicData)
 }
 
 func (s *Service) saveWalletAndToken(ctx context.Context,
 	walletItem *entities.MnemonicWallet,
-	tokenItem *entities.AccessToken,
+	tokenItems []*entities.AccessToken,
 	hdWalletInfo *pbCommon.MnemonicWalletIdentity,
 	encryptedData []byte,
 ) (wallet *entities.MnemonicWallet, err error) {
@@ -109,10 +108,9 @@ func (s *Service) saveWalletAndToken(ctx context.Context,
 			return clbErr
 		}
 
-		_, clbErr = s.accessTokenSvc.SaveAccessToken(txStmtCtx, tokenItem)
+		_, _, clbErr = s.accessTokenSvc.AddMultipleAccessTokens(txStmtCtx, tokenItems)
 		if clbErr != nil {
-			s.logger.Error("unable to save wallet access token item in persistent store", zap.Error(clbErr),
-				zap.String(app.AccessTokenUUIDTag, tokenItem.UUID.String()),
+			s.logger.Error("unable to save wallet access token items in persistent store", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()))
 
 			return clbErr

@@ -37,7 +37,7 @@ func easyjson410336b1DecodeGithubComCryptoBundleBcWalletCommonHdwalletController
 		}
 		switch key {
 		case "serial_number":
-			out.SerialNumber = uint32(in.Uint32())
+			out.SerialNumber = uint64(in.Uint64())
 		case "token_uuid":
 			if data := in.UnsafeBytes(); in.Ok() {
 				in.AddError((out.AccessTokeUUID).UnmarshalText(data))
@@ -67,7 +67,7 @@ func easyjson410336b1EncodeGithubComCryptoBundleBcWalletCommonHdwalletController
 	{
 		const prefix string = ",\"serial_number\":"
 		out.RawString(prefix[1:])
-		out.Uint32(uint32(in.SerialNumber))
+		out.Uint64(uint64(in.SerialNumber))
 	}
 	{
 		const prefix string = ",\"token_uuid\":"

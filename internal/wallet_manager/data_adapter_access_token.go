@@ -25,23 +25,64 @@
  *
  */
 
-package entities
+package wallet_manager
 
 import (
-	"time"
-
+	"bytes"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/google/uuid"
+	"time"
 )
 
-//go:generate easyjson access_tokens_wallet_sessions.go
+type accessTokenListAdapter struct {
+	jwtSvc jwtService
+}
 
-// AccessTokenWalletSession struct for storing in pg database
-// easyjson:json
-type AccessTokenWalletSession struct {
-	SerialNumber uint64 `db:"serial_number" json:"serial_number"`
+func (a *accessTokenListAdapter) Adopt(walletUUID uuid.UUID,
+	iterator accessTokenListIterator,
+) ([]*entities.AccessToken, error) {
+	toSaveAccessTokens := make([]*entities.AccessToken, iterator.GetCount())
+	position := 0
 
-	AccessTokeUUID uuid.UUID `db:"token_uuid" json:"token_uuid"`
-	SessionUUID    uuid.UUID `db:"wallet_session_uuid" json:"wallet_session_uuid"`
+	saveTime := time.Now()
 
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	for {
+		tokenUUID, rawData, loopErr := iterator.Next()
+		if loopErr != nil {
+			return nil, loopErr
+		}
+
+		if rawData == nil {
+			break
+		}
+
+		uuidFromJwt, expiredAt, err := a.jwtSvc.ExtractFields(rawData)
+		if err != nil {
+			return nil, err
+		}
+
+		if bytes.Compare(tokenUUID[:], uuidFromJwt[:]) != 0 {
+			return nil, ErrAccessTokenUUIDMismatched
+		}
+
+		tokenItem := &entities.AccessToken{
+			UUID:       *tokenUUID,
+			WalletUUID: walletUUID,
+			RawData:    rawData,
+			CreatedAt:  saveTime,
+			ExpiredAt:  *expiredAt,
+			UpdatedAt:  &saveTime,
+		}
+
+		toSaveAccessTokens[position] = tokenItem
+		position++
+	}
+
+	return toSaveAccessTokens, nil
+}
+
+func NewTokenDataAdapter(jwtSvc jwtService) *accessTokenListAdapter {
+	return &accessTokenListAdapter{
+		jwtSvc: jwtSvc,
+	}
 }

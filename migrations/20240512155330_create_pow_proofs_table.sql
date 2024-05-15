@@ -8,7 +8,7 @@ CREATE TABLE pow_proofs
     access_token_uuid uuid NOT NULL,
 
     message_check_nonce bigint NOT NULL check (message_check_nonce >= 1),
-    message_hash bytea(64) NOT NULL,
+    message_hash char(64) NOT NULL,
     message_data bytea NOT NULL,
 
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

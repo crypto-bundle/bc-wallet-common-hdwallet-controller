@@ -30,6 +30,7 @@ package grpc
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"time"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -51,12 +52,15 @@ type configService interface {
 }
 
 type powValidatorService interface {
-	PreValidate(ctx context.Context, hashData []byte) (bool, error)
-	FullValidate(ctx context.Context,
+	PreValidate(ctx context.Context,
+		hashInt []byte,
+	) bool
+	ValidateByObscurityData(ctx context.Context,
 		hashData []byte,
-		protoMsgRawData []byte,
-		accessTokenUUID uuid.UUID,
-	) (isValid bool, validNonce int64, err error)
+		nonce int64,
+		message []byte,
+		obscurityItemUUID uuid.UUID,
+	) (valid bool, err error)
 }
 
 type jwtService interface {
@@ -95,19 +99,17 @@ type powProofDataService interface {
 		toSaveItem *entities.PowProof,
 	) (result *entities.PowProof, err error)
 	GetPowProofByMessageHash(ctx context.Context,
-		messageHash []byte,
+		messageHash []byte, // hash as big.Int value
 	) (powProof *entities.PowProof, err error)
 }
 
 type walletManagerService interface {
 	AddNewWallet(ctx context.Context,
-		tokenUUID uuid.UUID,
-		tokenData []byte,
+		tokensIterator types.AccessTokenListIterator,
 	) (*entities.MnemonicWallet, error)
 	ImportWallet(ctx context.Context,
-		tokenUUID uuid.UUID,
-		tokenData []byte,
 		importedData []byte,
+		tokensIterator types.AccessTokenListIterator,
 	) (*entities.MnemonicWallet, error)
 	EnableWalletByUUID(ctx context.Context,
 		walletUUID string,
@@ -133,9 +135,11 @@ type walletManagerService interface {
 	) (count uint64, list []*pbCommon.AccountIdentity, err error)
 	StartWalletSession(ctx context.Context,
 		walletUUID string,
+		accessTokenUUID uuid.UUID,
 	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
 	StartSessionForWallet(ctx context.Context,
 		wallet *entities.MnemonicWallet,
+		accessTokenUUID uuid.UUID,
 	) (*entities.MnemonicWalletSession, error)
 	CloseWalletSession(ctx context.Context,
 		walletUUID string,

@@ -25,14 +25,11 @@
  *
  */
 
-package wallet_manager
+package types
 
-import "errors"
+import "github.com/google/uuid"
 
-var (
-	ErrMissingHdWalletResp          = errors.New("missing hd-wallet api response")
-	ErrMnemonicIsNotValid           = errors.New("mnemonic wallet is not valid")
-	ErrUnableDecodeGrpcErrorStatus  = errors.New("unable to decode grpc error status")
-	ErrUpdatedCountNotEqualExpected = errors.New("updated count not equal expected count")
-	ErrAccessTokenUUIDMismatched    = errors.New("access token uuid mismatched")
-)
+type AccessTokenListIterator interface {
+	Next() (tokenIdentifier *uuid.UUID, tokenRawData []byte, err error)
+	GetCount() uint
+}

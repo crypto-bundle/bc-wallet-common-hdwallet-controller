@@ -31,6 +31,7 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"github.com/google/uuid"
 	"sync"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
@@ -87,7 +88,15 @@ func (h *StartWalletSessionHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "wallet disabled")
 	}
 
-	sessionItem, err := h.walletSvc.StartSessionForWallet(ctx, walletItem)
+	accessTokenUUID, isCasted := ctx.Value(ContextTokenUUIDTag).(uuid.UUID)
+	if !isCasted {
+		h.l.Error("unable get access_token_uuid from request context", zap.Error(ErrMissingTokenUUIDIdentity),
+			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+
+	sessionItem, err := h.walletSvc.StartSessionForWallet(ctx, walletItem, accessTokenUUID)
 	if err != nil {
 		h.l.Error("unable to start wallet session", zap.Error(err))
 

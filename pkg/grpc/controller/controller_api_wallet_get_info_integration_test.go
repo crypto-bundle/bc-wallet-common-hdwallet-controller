@@ -29,11 +29,17 @@ package controller
 
 import (
 	"context"
+	"crypto/sha256"
+	"github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
+	"math"
+	"math/big"
+	"strconv"
 	"testing"
+	"time"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
-
 	"github.com/google/uuid"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -44,8 +50,6 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),
-		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
-		originGRPC.WithChainUnaryInterceptor(commonGRPCClient.DefaultInterceptorsOptions()...),
 	}
 	grpcConn, err := originGRPC.Dial("localhost:8114", options...)
 	if err != nil {
@@ -55,7 +59,22 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 	client := NewHdWalletControllerApiClient(grpcConn)
 	ctx := context.Background()
 
-	createWalletResp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{})
+	jwtSvc := jwt.NewJWTService("123456")
+	expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
+	claim := jwt.NewTokenClaimBuilder(expiredTime)
+	tokenUUID := uuid.NewString()
+	_ = claim.AddData("token_uuid", tokenUUID)
+	_ = claim.AddData("token_expired_at", expiredTime.Format(time.DateTime))
+	tokenStr, _ := jwtSvc.GenerateJWT(claim)
+
+	createWalletResp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{
+		AccessTokens: []*AccessTokenData{
+			{
+				AccessTokenIdentifier: &AccessTokenIdentity{UUID: tokenUUID},
+				AccessTokenData:       []byte(tokenStr),
+			},
+		},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -64,11 +83,57 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 		t.Fatal("add new wallet empty response")
 	}
 
-	walletInfoResp, err := client.GetWalletInfo(ctx, &GetWalletInfoRequest{
+	req := &GetWalletInfoRequest{
 		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
 			WalletUUID: createWalletResp.WalletIdentifier.WalletUUID,
 		},
-	})
+	}
+
+	reqRaw, err := proto.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	target := big.NewInt(1)
+	target.Lsh(target, uint(256-8))
+
+	target2 := big.NewInt(1)
+	target2.Lsh(target2, uint(256-24))
+
+	nonce := int64(0)
+
+	//t.Logf("target: %d", target)
+	//t.Logf("target2: %d", target2)
+
+	var reqInt *big.Int = big.NewInt(0)
+
+	for nonce != math.MaxInt64 {
+		concatRaw := append(reqRaw[:], byte(nonce))
+
+		hash := sha256.Sum256(concatRaw)
+		reqInt.SetBytes(hash[:])
+
+		t.Logf("\r%x: calc: %d, target: %d", hash, reqInt, target)
+
+		if reqInt.Cmp(target) == -1 {
+			break
+		} else {
+			nonce++
+		}
+	}
+
+	t.Logf("target str: %x", target.String())
+	t.Logf("pow    str: %x", reqInt.String())
+
+	md := metadata.Pairs(
+		"X-Access-Token", tokenStr,
+		"X-POW-Hashcash-Proof", reqInt.String(),
+		"X-POW-Hashcash-Nonce", strconv.FormatInt(nonce, 10),
+	)
+
+	newCtx := metadata.NewOutgoingContext(ctx, md)
+
+	walletInfoResp, err := client.GetWalletInfo(newCtx, req)
 	if err != nil {
 		t.Fatal(err)
 	}

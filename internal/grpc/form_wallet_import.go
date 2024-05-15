@@ -30,15 +30,11 @@ package grpc
 import (
 	"context"
 	"fmt"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
-
-	"github.com/google/uuid"
 )
 
 type ImportWalletForm struct {
-	TokenUUID uuid.UUID
-	TokenData []byte
+	TokenList *AccessTokenListForm
 
 	Phrase []byte `valid:"required"`
 }
@@ -46,25 +42,20 @@ type ImportWalletForm struct {
 func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.ImportWalletRequest,
 ) (valid bool, err error) {
-	if req.TokenData == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
+	if len(req.AccessTokens) == 0 {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access tokens list")
 	}
 
-	if req.AccessTokenIdentifier == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token identity")
-	}
-
-	tokenUUIDRaw, err := uuid.Parse(req.AccessTokenIdentifier.UUID)
+	vf := &AccessTokenListForm{}
+	isValid, err := vf.LoadAndValidate(ctx, req.AccessTokens)
 	if err != nil {
 		return false, err
 	}
 
-	if req.MnemonicPhrase == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Mnemonic phrase")
+	if !isValid {
+		return false, nil
 	}
 
-	f.TokenUUID = tokenUUIDRaw
-	f.TokenData = req.TokenData
 	f.Phrase = req.MnemonicPhrase
 
 	return true, nil

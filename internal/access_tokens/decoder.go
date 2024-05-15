@@ -25,79 +25,70 @@
  *
  */
 
-package pow_validator
+package access_tokens
 
 import (
-	"context"
-	"crypto/sha256"
+	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"math/big"
 )
 
-type validatorHashCash struct {
+var (
+	ErrMissingTokenUUIDIdentity = errors.New("missing uuid in token data")
+	ErrMismatchedUUIDIdentity   = errors.New("token identity mismatched")
+)
+
+const (
+	TokenUUIDLabel    = "token_uuid"
+	TokenExpiredLabel = "token_expired_at"
+)
+
+type JWTDecoder struct {
 	logger *zap.Logger
-
-	target *big.Int
+	JWTSvc jwtService
 }
 
-func (v *validatorHashCash) PreValidate(ctx context.Context,
-	hashData []byte,
-) bool {
-	hashInt := big.NewInt(0).SetBytes(hashData)
-	cmp := v.target.Cmp(hashInt)
-	if cmp != 1 {
-		return false
-	}
-
-	return true
+func (m *JWTDecoder) ExtractFields(tokenData []byte) (*uuid.UUID, *time.Time, error) {
+	return m.validateAccessToken(tokenData)
 }
 
-func (v *validatorHashCash) ValidateByObscurityData(ctx context.Context,
-	hashData []byte,
-	nonce int64,
-	message []byte,
-	obscurityItemUUID uuid.UUID,
-) (valid bool, err error) {
-	originHashInt := big.NewInt(0).SetBytes(hashData)
-	cmp := v.target.Cmp(originHashInt)
-	if cmp < 1 {
-		return false, nil
-	}
-
-	message = append(message, obscurityItemUUID[:]...)
-	message = append(message, byte(nonce))
-
-	hashSum := sha256.New()
-	_, err = hashSum.Write(message)
+func (m *JWTDecoder) validateAccessToken(tokenData []byte) (*uuid.UUID, *time.Time, error) {
+	data, err := m.JWTSvc.GetTokenData(string(tokenData))
 	if err != nil {
-		return false, err
+		return nil, nil, err
 	}
 
-	resultHash := hashSum.Sum(nil)
-	resultHashInt := big.NewInt(0).SetBytes(resultHash)
-
-	cmp = originHashInt.Cmp(resultHashInt)
-	if cmp != 0 {
-		return false, nil
+	tokenUUIDStr, isExist := data[TokenUUIDLabel]
+	if !isExist {
+		return nil, nil, ErrMissingTokenUUIDIdentity
 	}
 
-	cmp = v.target.Cmp(resultHashInt)
-	if cmp != 1 {
-		return false, nil
+	tokenUUIDRaw, err := uuid.Parse(tokenUUIDStr)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return true, nil
+	tokenExpiredAtStr, isExist := data[TokenExpiredLabel]
+	if !isExist {
+		return nil, nil, ErrMissingTokenUUIDIdentity
+	}
+
+	expiredAt, err := time.Parse(time.DateTime, tokenExpiredAtStr)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &tokenUUIDRaw, &expiredAt, nil
 }
 
-func NewValidatorHashCash(logger *zap.Logger) *validatorHashCash {
-	target := big.NewInt(1)
-	target.Lsh(target, uint(256-8))
-
-	return &validatorHashCash{
+func NewJWTDecoder(
+	logger *zap.Logger,
+	JWTSvc jwtService,
+) *JWTDecoder {
+	return &JWTDecoder{
 		logger: logger,
-
-		target: target,
+		JWTSvc: JWTSvc,
 	}
 }

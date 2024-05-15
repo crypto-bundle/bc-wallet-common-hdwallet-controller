@@ -51,7 +51,7 @@ type accessTokenValidationInterceptor struct {
 	tokenDataSvc accessTokenDataService
 }
 
-func (i *accessTokenValidationInterceptor) Handle(ctx context.Context,
+func (i accessTokenValidationInterceptor) Handle(ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
@@ -64,9 +64,9 @@ func (i *accessTokenValidationInterceptor) Handle(ctx context.Context,
 	}
 }
 
-func (i *accessTokenValidationInterceptor) handle(ctx context.Context,
+func (i accessTokenValidationInterceptor) handle(ctx context.Context,
 	req any,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp any, err error) {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -106,10 +106,10 @@ func (i *accessTokenValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument, "missing expired_at field")
 	}
 
-	expiredAt, err := time.Parse(time.Layout, tokenExpiredAtStr)
+	expiredAt, err := time.Parse(time.DateTime, tokenExpiredAtStr)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument,
-			"wrong format of expired_at field, required: %s", time.Layout)
+			"wrong format of expired_at field, required: %s", time.DateTime)
 	}
 
 	accessTokenItem, err := i.tokenDataSvc.GetAccessTokenInfoByUUID(ctx, tokenUUIDRaw.String())
@@ -117,9 +117,14 @@ func (i *accessTokenValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "unable to get access token from store")
 	}
 
+	if accessTokenItem == nil {
+		return nil, status.Errorf(codes.InvalidArgument,
+			"access token not found")
+	}
+
 	timeDiff := accessTokenItem.ExpiredAt.Sub(expiredAt)
 	if timeDiff != 0 {
-		return nil, status.Error(codes.InvalidArgument, "expired at wrong value")
+		return nil, status.Error(codes.InvalidArgument, "expired_at wrong value - not equal with expected")
 	}
 
 	if accessTokenItem.ExpiredAt.Before(time.Now()) {
@@ -133,8 +138,10 @@ func (i *accessTokenValidationInterceptor) handle(ctx context.Context,
 func newAccessTokenInterceptor(jwtSvc jwtService,
 	tokenDataSvc accessTokenDataService,
 ) grpc.UnaryServerInterceptor {
-	return accessTokenValidationInterceptor{
+	str := accessTokenValidationInterceptor{
 		jwtSvc:       jwtSvc,
 		tokenDataSvc: tokenDataSvc,
-	}.Handle
+	}
+
+	return str.Handle
 }

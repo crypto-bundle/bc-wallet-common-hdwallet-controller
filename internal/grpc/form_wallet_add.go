@@ -34,29 +34,60 @@ import (
 	"github.com/google/uuid"
 )
 
-type AddWalletForm struct {
-	TokenUUID uuid.UUID
-	TokenData []byte
+type AccessTokenListForm struct {
+	list            []*pbApi.AccessTokenData
+	tokensCount     uint
+	currentPosition uint
 }
 
-func (f *AddWalletForm) LoadAndValidate(ctx context.Context,
-	req *pbApi.AddNewWalletRequest,
+func (f *AccessTokenListForm) LoadAndValidate(ctx context.Context,
+	list []*pbApi.AccessTokenData,
 ) (valid bool, err error) {
-	if req.TokenData == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
+	if len(list) == 0 {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access tokens list")
 	}
 
-	if req.AccessTokenIdentifier == nil {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token identity")
-	}
-
-	tokenUUIDRaw, err := uuid.Parse(req.AccessTokenIdentifier.UUID)
-	if err != nil {
-		return false, err
-	}
-
-	f.TokenUUID = tokenUUIDRaw
-	f.TokenData = req.TokenData
+	f.list = list
+	f.tokensCount = uint(len(list))
+	f.currentPosition = 0
 
 	return true, nil
+}
+
+func (f *AccessTokenListForm) validateTokenData(
+	pbTokenData *pbApi.AccessTokenData,
+) (tokenUUID *uuid.UUID, tokenRawData []byte, err error) {
+	if pbTokenData == nil {
+		return nil, nil, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
+	}
+
+	if pbTokenData.AccessTokenIdentifier == nil {
+		return nil, nil, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token identity")
+	}
+
+	if pbTokenData.AccessTokenData == nil {
+		return nil, nil, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token raw data")
+	}
+
+	tokenUUIDRaw, err := uuid.Parse(pbTokenData.AccessTokenIdentifier.UUID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &tokenUUIDRaw, pbTokenData.AccessTokenData, nil
+}
+
+func (f *AccessTokenListForm) GetCount() uint {
+	return f.tokensCount
+}
+
+func (f *AccessTokenListForm) Next() (tokenUUID *uuid.UUID, tokenRawData []byte, err error) {
+	position := f.currentPosition
+	f.currentPosition++
+
+	if position < f.tokensCount {
+		return f.validateTokenData(f.list[position])
+	}
+
+	return nil, nil, nil
 }

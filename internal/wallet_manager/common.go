@@ -35,23 +35,28 @@ import (
 	"time"
 )
 
-type accessTokenManagerService interface {
-	ValidateSaveAccessToken(ctx context.Context,
-		walletUUID uuid.UUID,
-		tokenUUID uuid.UUID,
-		tokenData []byte,
+type accessTokenDataService interface {
+	GetAccessTokenInfoByUUID(ctx context.Context,
+		tokenUUID string,
+	) (*entities.AccessToken, error)
+	AddNewAccessToken(ctx context.Context,
+		toSaveItem *entities.AccessToken,
 	) (result *entities.AccessToken, err error)
-	SaveAccessToken(ctx context.Context,
-		token *entities.AccessToken,
-	) (result *entities.AccessToken, err error)
-	ExtractAccessTokenFromData(ctx context.Context,
-		tokenUUID uuid.UUID,
-		tokenData []byte,
-	) (result *entities.AccessToken, err error)
+	AddMultipleAccessTokens(ctx context.Context,
+		bcTxItems []*entities.AccessToken,
+	) (count uint, list []*entities.AccessToken, err error)
 }
 
+type accessTokenListIterator types.AccessTokenListIterator
+
 type jwtService interface {
-	GetTokenData(accessToken string) (map[string]uuid.UUID, error)
+	ExtractFields(tokenData []byte) (*uuid.UUID, *time.Time, error)
+}
+
+type tokenDataAdapter interface {
+	Adopt(walletUUID uuid.UUID,
+		iterator accessTokenListIterator,
+	) ([]*entities.AccessToken, error)
 }
 
 type configService interface {
@@ -156,6 +161,19 @@ type mnemonicWalletsDataService interface {
 	GetActiveWalletSessionsByWalletUUID(ctx context.Context, walletUUID string) (
 		count uint, list []*entities.MnemonicWalletSession, err error,
 	)
+
+	AddNewWalletSessionAccessTokenItem(ctx context.Context,
+		toSaveItem *entities.AccessTokenWalletSession,
+	) (result *entities.AccessTokenWalletSession, err error)
+	GetWalletSessionAccessTokenItemsByTokenUUID(ctx context.Context,
+		tokenUUID string,
+	) (count uint, list []*entities.AccessTokenWalletSession, err error)
+	GetLastWalletSessionNumberByAccessTokenUUID(ctx context.Context,
+		accessTokenUUID string,
+	) (serialNumber uint64, err error)
+	GetNextWalletSessionNumberByAccessTokenUUID(ctx context.Context,
+		accessTokenUUID string,
+	) (nextSerialNumber uint64, err error)
 }
 
 type signRequestDataService interface {

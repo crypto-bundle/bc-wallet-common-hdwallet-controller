@@ -111,13 +111,16 @@ func (s *pgRepository) GetWalletSessionAccessTokenItemsByTokenUUID(ctx context.C
 
 func (s *pgRepository) GetLastWalletSessionNumberByAccessTokenUUID(ctx context.Context,
 	accessTokenUUID string,
-) (serialNumber int64, err error) {
+) (serialNumber uint64, err error) {
 	if err = s.pgConn.MustWithTransaction(ctx, func(stmt *sqlx.Tx) error {
-		row := stmt.QueryRowx(`SELECT coalesce(max("serial_number"), -1) as "serial_number"
-		FROM "wallet_sessions_access_tokens" 
-		WHERE 
-		    "token_uuid" = $1
-		FOR UPDATE`, accessTokenUUID)
+		row := stmt.QueryRowx(`SELECT coalesce(max("serial_number"), -1) 
+			FROM (
+				SELECT "serial_number"
+				FROM "wallet_sessions_access_tokens"
+				WHERE 
+				    "token_uuid" = $1
+				FOR UPDATE
+			) AS "serial_number"`, accessTokenUUID)
 
 		clbErr := row.Err()
 		if clbErr != nil {
@@ -131,7 +134,50 @@ func (s *pgRepository) GetLastWalletSessionNumberByAccessTokenUUID(ctx context.C
 				"unable get last wallet session number")
 		}
 
-		serialNumber = number
+		if number >= 0 {
+			serialNumber = uint64(number)
+		}
+
+		serialNumber = 0
+
+		return nil
+	}); err != nil {
+		return 0, err
+	}
+
+	return
+}
+
+func (s *pgRepository) GetNextWalletSessionNumberByAccessTokenUUID(ctx context.Context,
+	accessTokenUUID string,
+) (nextSerialNumber uint64, err error) {
+	if err = s.pgConn.MustWithTransaction(ctx, func(stmt *sqlx.Tx) error {
+		row := stmt.QueryRowx(`SELECT coalesce(max("serial_number")+1, -1) 
+			FROM (
+				SELECT "serial_number"
+				FROM "wallet_sessions_access_tokens"
+				WHERE 
+				    "token_uuid" = $1
+				FOR UPDATE
+			) AS "serial_number"`, accessTokenUUID)
+
+		clbErr := row.Err()
+		if clbErr != nil {
+			return clbErr
+		}
+
+		var number int64
+		clbErr = row.Scan(number)
+		if clbErr != nil {
+			return commonPostgres.EmptyOrError(clbErr,
+				"unable get last wallet session number")
+		}
+
+		if number >= 0 {
+			nextSerialNumber = uint64(number)
+		}
+
+		nextSerialNumber = 0
 
 		return nil
 	}); err != nil {
@@ -145,13 +191,16 @@ func (s *pgRepository) GetLastWalletSessionIdentityByAccessTokenUUID(ctx context
 	accessTokenUUID string,
 ) (resultItem *entities.AccessTokenWalletSession, err error) {
 	if err = s.pgConn.MustWithTransaction(ctx, func(stmt *sqlx.Tx) error {
-		row := stmt.QueryRowx(`SELECT * 
-			FROM "wallet_sessions_access_tokens" WHERE
-				"serial_number" = (SELECT coalesce(max("serial_number"), -1) as "serial_number"
-					FROM "wallet_sessions_access_tokens" 
-					WHERE 
-						"token_uuid" = $1
-					FOR UPDATE)`, accessTokenUUID)
+		row := stmt.QueryRowx(`SELECT * FROM "wallet_sessions_access_tokens" WHERE
+			"serial_number" = (SELECT coalesce(max("serial_number"), -1)
+			FROM (
+				SELECT "serial_number"
+				FROM "wallet_sessions_access_tokens"
+				WHERE
+					"token_uuid" = $1
+				FOR UPDATE
+			) AS "serial_number") AND
+    		"token_uuid" = $1`, accessTokenUUID)
 
 		clbErr := row.Err()
 		if clbErr != nil {

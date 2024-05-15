@@ -31,6 +31,7 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"go.uber.org/zap"
+	"strconv"
 	"time"
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
@@ -70,7 +71,7 @@ func (i *powShieldFullValidationInterceptor) Handle(ctx context.Context,
 
 func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 	req any,
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp any, err error) {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -78,7 +79,7 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "unable to retrieve metadata context")
 	}
 
-	data := md.Get(PowShieldTokenHeader)
+	data := md.Get(PowShieldProofHeader)
 	if data == nil {
 		return nil, status.Error(codes.InvalidArgument, "missing hashcash data in metadata")
 	}
@@ -87,16 +88,35 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash data")
 	}
 
+	nonceData := md.Get(PowShieldNonceHeader)
+	if data == nil {
+		return nil, status.Error(codes.InvalidArgument,
+			"missing proof of work hashcash-nonce header data in metadata")
+	}
+
+	if len(nonceData) > 1 {
+		return nil, status.Error(codes.InvalidArgument,
+			"wrong format of hashcash-nonce data")
+	}
+
 	accessTokenUUID, ok := ctx.Value(ContextTokenUUIDTag).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash data")
 	}
 
-	return i.validateForSessionFlow(ctx, []byte(data[0]), req, accessTokenUUID, handler)
+	nonce, err := strconv.ParseInt(nonceData[0], 10, 0)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument,
+			"wrong format of hashcash-nonce data")
+	}
+
+	return i.validateForSessionFlow(ctx, []byte(data[0]), nonce,
+		req, accessTokenUUID, handler)
 }
 
 func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.Context,
 	originHash []byte,
+	nonce int64,
 	req any,
 	accessTokenUUID uuid.UUID,
 	unaryHandler grpc.UnaryHandler,
@@ -119,12 +139,17 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return status.Error(codes.InvalidArgument, "pow hash already used")
 		}
 
-		lastSessionIdentities, clbErr := i.walletDataSvc.GetLastWalletSessionIdentityByAccessTokenUUID(txStmtCtx,
+		lastSessionIdentity, clbErr := i.walletDataSvc.GetLastWalletSessionIdentityByAccessTokenUUID(txStmtCtx,
 			accessTokenUUID.String())
 		if clbErr != nil {
 			i.logger.Error("unable to get last wallet session identity", zap.Error(clbErr))
 
 			return status.Error(codes.Internal, "something went wrong")
+		}
+
+		obscurityData := accessTokenUUID
+		if lastSessionIdentity != nil {
+			obscurityData = lastSessionIdentity.SessionUUID
 		}
 
 		protoMsgRawData, clbErr := proto.Marshal(protoMsg)
@@ -134,8 +159,8 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return clbErr
 		}
 
-		isProofDataValid, nonce, clbErr := i.powValidationSvc.FullValidate(txStmtCtx, originHash, protoMsgRawData,
-			lastSessionIdentities.SessionUUID)
+		isProofDataValid, clbErr := i.powValidationSvc.ValidateByObscurityData(txStmtCtx, originHash, nonce,
+			protoMsgRawData, obscurityData)
 		if clbErr != nil {
 			i.logger.Error("unable to validate pow", zap.Error(clbErr))
 
@@ -152,7 +177,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 		currentTime := time.Now()
 		_, clbErr = i.powProofDataSvc.AddNewPowProof(txStmtCtx, &entities.PowProof{
 			UUID:            uuid.NewString(),
-			AccessTokenUUID: lastSessionIdentities.AccessTokeUUID.String(),
+			AccessTokenUUID: accessTokenUUID.String(),
 
 			MessageCheckNonce: nonce,
 			MessageHash:       originHash,
@@ -189,11 +214,13 @@ func newPowShieldFullValidationInterceptor(logger *zap.Logger,
 	powValidationSvc powValidatorService,
 	txStmtSvc transactionalStatementManager,
 ) grpc.UnaryServerInterceptor {
-	return powShieldFullValidationInterceptor{
+	str := powShieldFullValidationInterceptor{
 		logger:           logger,
 		walletDataSvc:    walletSessionDataSvc,
 		powProofDataSvc:  powProofDataSvc,
 		powValidationSvc: powValidationSvc,
 		txStmtSvc:        txStmtSvc,
-	}.Handle
+	}
+
+	return str.Handle
 }

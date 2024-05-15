@@ -29,11 +29,11 @@ package controller
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
 	"testing"
+	"time"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	commonGRPCClient "github.com/crypto-bundle/bc-wallet-common-lib-grpc/pkg/client"
-
 	"github.com/google/uuid"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -44,8 +44,8 @@ func TestHdWalletControllerApiClient_AddNewWallet(t *testing.T) {
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),
-		originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
-		originGRPC.WithChainUnaryInterceptor(commonGRPCClient.DefaultInterceptorsOptions()...),
+		//originGRPC.WithKeepaliveParams(commonGRPCClient.DefaultKeepaliveClientOptions()),
+		//originGRPC.WithChainUnaryInterceptor(commonGRPCClient.DefaultInterceptorsOptions()...),
 	}
 	grpcConn, err := originGRPC.Dial("localhost:8114", options...)
 	if err != nil {
@@ -55,7 +55,22 @@ func TestHdWalletControllerApiClient_AddNewWallet(t *testing.T) {
 	client := NewHdWalletControllerApiClient(grpcConn)
 	ctx := context.Background()
 
-	resp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{})
+	jwtSvc := jwt.NewJWTService("123456")
+	expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
+	claim := jwt.NewTokenClaimBuilder(expiredTime)
+	tokenUUID := uuid.NewString()
+	_ = claim.AddData("token_uuid", tokenUUID)
+	_ = claim.AddData("token_expired_at", expiredTime.Format(time.DateTime))
+	tokenStr, _ := jwtSvc.GenerateJWT(claim)
+
+	resp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{
+		AccessTokens: []*AccessTokenData{
+			{
+				AccessTokenIdentifier: &AccessTokenIdentity{UUID: tokenUUID},
+				AccessTokenData:       []byte(tokenStr),
+			},
+		},
+	})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -27,27 +27,33 @@
 
 package grpc
 
-import "google.golang.org/grpc"
+import (
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+)
 
 type interceptors struct {
 	powProofDataSvc      powProofDataService
 	walletSessionDataSvc walletDataService
 	tokenManagerSvc      accessTokenManagerService
-	txStmtSvc            transactionalStatementManager
 	JWTSvc               jwtService
 	POWValidatorSvc      powValidatorService
+
+	txStmtSvc transactionalStatementManager
 }
 
-func NewInterceptorsList(powProofDataSvc powProofDataService,
+func NewInterceptorsList(logger *zap.Logger,
+	powProofDataSvc powProofDataService,
 	walletSessionDataSvc walletDataService,
-	tokenManagerSvc accessTokenManagerService,
+	tokenDataSvc accessTokenDataService,
 	POWValidatorSvc powValidatorService,
+	jwtService jwtService,
 	txStmtSvc transactionalStatementManager,
 ) []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
-		newAccessTokenInterceptor(tokenManagerSvc),
+		newAccessTokenInterceptor(jwtService, tokenDataSvc),
 		newPowShieldPreValidationInterceptor(POWValidatorSvc),
-		newPowShieldFullValidationInterceptor(walletSessionDataSvc,
+		newPowShieldFullValidationInterceptor(logger, walletSessionDataSvc,
 			powProofDataSvc, POWValidatorSvc, txStmtSvc),
 	}
 }

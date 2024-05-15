@@ -43,8 +43,9 @@ import (
 
 func (s *Service) StartSessionForWallet(ctx context.Context,
 	wallet *entities.MnemonicWallet,
+	accessTokenUUID uuid.UUID,
 ) (*entities.MnemonicWalletSession, error) {
-	session, err := s.startWalletSession(ctx, wallet)
+	session, err := s.startWalletSession(ctx, wallet, accessTokenUUID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,6 +55,7 @@ func (s *Service) StartSessionForWallet(ctx context.Context,
 
 func (s *Service) StartWalletSession(ctx context.Context,
 	walletUUID string,
+	accessTokenUUID uuid.UUID,
 ) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error) {
 	walletItem, err := s.cacheStoreDataSvc.GetMnemonicWalletByUUID(ctx, walletUUID)
 	if err != nil {
@@ -61,7 +63,7 @@ func (s *Service) StartWalletSession(ctx context.Context,
 	}
 
 	if walletItem != nil {
-		session, sessErr := s.startWalletSession(ctx, walletItem)
+		session, sessErr := s.startWalletSession(ctx, walletItem, accessTokenUUID)
 		if sessErr != nil {
 			return nil, nil, sessErr
 		}
@@ -74,7 +76,7 @@ func (s *Service) StartWalletSession(ctx context.Context,
 		return nil, nil, err
 	}
 
-	sessionItem, err := s.startWalletSession(ctx, walletItem)
+	sessionItem, err := s.startWalletSession(ctx, walletItem, accessTokenUUID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -84,6 +86,7 @@ func (s *Service) StartWalletSession(ctx context.Context,
 
 func (s *Service) startWalletSession(ctx context.Context,
 	wallet *entities.MnemonicWallet,
+	accessTokenUUID uuid.UUID,
 ) (*entities.MnemonicWalletSession, error) {
 	var session *entities.MnemonicWalletSession = nil
 	err := s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
@@ -91,9 +94,14 @@ func (s *Service) startWalletSession(ctx context.Context,
 		startedAt := currentTime.Add(s.cfg.GetDefaultWalletSessionDelay())
 		expiredAt := startedAt.Add(wallet.UnloadInterval)
 
+		nextSerialNumber, err := s.mnemonicWalletsDataSvc.GetNextWalletSessionNumberByAccessTokenUUID(txStmtCtx,
+			accessTokenUUID.String())
+		if err != nil {
+			return err
+		}
+
 		sessionToSave := &entities.MnemonicWalletSession{
 			UUID:               uuid.NewString(),
-			AccessTokenUUID:    uuid.NullUUID{}.UUID.String(),
 			MnemonicWalletUUID: wallet.UUID.String(),
 			Status:             types.MnemonicWalletSessionStatusPrepared,
 			StartedAt:          startedAt,
@@ -103,10 +111,26 @@ func (s *Service) startWalletSession(ctx context.Context,
 			UpdatedAt: nil,
 		}
 
+		accessTokenForSession := &entities.AccessTokenWalletSession{
+			SerialNumber:   nextSerialNumber,
+			AccessTokeUUID: accessTokenUUID,
+			SessionUUID:    wallet.UUID,
+			CreatedAt:      currentTime,
+		}
+
 		sessionToSave, clbErr := s.mnemonicWalletsDataSvc.AddNewWalletSession(txStmtCtx,
 			sessionToSave)
 		if clbErr != nil {
 			s.logger.Error("unable to add new wallet session", zap.Error(clbErr),
+				zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
+
+			return clbErr
+		}
+
+		_, clbErr = s.mnemonicWalletsDataSvc.AddNewWalletSessionAccessTokenItem(txStmtCtx,
+			accessTokenForSession)
+		if clbErr != nil {
+			s.logger.Error("unable to add new wallet session token", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
 
 			return clbErr
@@ -139,6 +163,8 @@ func (s *Service) startWalletSession(ctx context.Context,
 	if err != nil {
 		s.logger.Error("unable to update mnemonics wallets status in persistent store", zap.Error(err),
 			zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
+
+		// no return - it's ok
 	}
 
 	err = s.eventPublisher.SendSessionStartEvent(ctx, wallet.UUID.String(), session.UUID)

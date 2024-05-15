@@ -84,6 +84,66 @@ func (s *pgRepository) AddNewAccessToken(ctx context.Context,
 	return result, nil
 }
 
+func (s *pgRepository) AddMultipleAccessTokens(ctx context.Context,
+	bcTxItems []*entities.AccessToken,
+) (count uint, list []*entities.AccessToken, err error) {
+	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		bondedSql, args, queryErr := stmt.BindNamed(`
+			WITH "inserted" AS (
+				INSERT INTO "access_tokens" ("uuid", "wallet_uuid", "raw_data",
+        		"expired_at", "created_at", "updated_at")
+				VALUES(:uuid, :wallet_uuid, :raw_data, :expired_at, :created_at, :updated_at) 
+				ON CONFLICT DO NOTHING
+				RETURNING *
+			)
+			SELECT * FROM "inserted"
+			ORDER BY "id";`, bcTxItems)
+		if queryErr != nil {
+			return queryErr
+		}
+
+		rows, queryErr := stmt.Queryx(bondedSql, args...)
+		if queryErr != nil {
+			return queryErr
+		}
+
+		itemsList := make([]*entities.AccessToken, len(bcTxItems))
+		itemsCount := uint(0)
+
+		defer func() {
+			rows.Close()
+			rows = nil
+			itemsList = nil
+			args = nil
+		}()
+
+		for rows.Next() {
+			itemData := &entities.AccessToken{}
+
+			iterErr := rows.StructScan(itemData)
+			if iterErr != nil {
+				return iterErr
+			}
+
+			itemsList[itemsCount] = itemData
+			itemsCount++
+		}
+
+		if itemsCount == 0 {
+			return nil // returning count = 0, list = nil
+		}
+
+		count = itemsCount
+		list = itemsList
+
+		return nil
+	}); err != nil {
+		return 0, nil, err
+	}
+
+	return
+}
+
 func (s *pgRepository) GetAccessTokenInfoByUUID(ctx context.Context,
 	tokenUUID string,
 ) (*entities.AccessToken, error) {
@@ -101,7 +161,7 @@ func (s *pgRepository) GetAccessTokenInfoByUUID(ctx context.Context,
 		}
 
 		accessToken := &entities.AccessToken{}
-		callbackErr = row.StructScan(&accessToken)
+		callbackErr = row.StructScan(accessToken)
 		if callbackErr != nil {
 			return commonPostgres.EmptyOrError(callbackErr, "unable get access token by uuid")
 		}
