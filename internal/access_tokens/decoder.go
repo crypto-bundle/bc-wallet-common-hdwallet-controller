@@ -37,7 +37,6 @@ import (
 
 var (
 	ErrMissingTokenUUIDIdentity = errors.New("missing uuid in token data")
-	ErrMismatchedUUIDIdentity   = errors.New("token identity mismatched")
 )
 
 const (

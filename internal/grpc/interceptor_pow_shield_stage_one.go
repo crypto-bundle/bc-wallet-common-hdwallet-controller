@@ -29,6 +29,7 @@ package grpc
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -52,10 +53,24 @@ func (i *powShieldPreValidationInterceptor) Handle(ctx context.Context,
 	handler grpc.UnaryHandler,
 ) (resp any, err error) {
 	switch req.(type) {
-	case *pbApi.AddNewWalletRequest, *pbApi.ImportWalletRequest:
-		return handler(ctx, req)
-	default:
+	case *pbApi.StartWalletSessionRequest,
+		*pbApi.GetWalletSessionRequest,
+		*pbApi.GetWalletSessionsRequest,
+		*pbApi.CloseWalletSessionsRequest,
+		*pbApi.GetAccountRequest,
+		*pbApi.GetMultipleAccountRequest,
+		*pbApi.PrepareSignRequestReq,
+		*pbApi.ExecuteSignRequestReq:
 		return i.handle(ctx, req, info, handler)
+	case *pbApi.GetWalletInfoRequest:
+		isSystemToken := ctx.Value(app.ContextIsSystemTokenName).(bool)
+		if isSystemToken {
+			return handler(ctx, req)
+		}
+
+		return i.handle(ctx, req, info, handler)
+	default:
+		return handler(ctx, req)
 	}
 }
 

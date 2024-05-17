@@ -17,6 +17,16 @@
   ],
   "paths": {},
   "definitions": {
+    "AccessTokenDataTokenRole": {
+      "type": "string",
+      "enum": [
+        "TOKE_ROLE_PLACEHOLDER",
+        "TOKE_ROLE_SIGNER",
+        "TOKE_ROLE_FAKE_SIGNER",
+        "TOKE_ROLE_INFORMER"
+      ],
+      "default": "TOKE_ROLE_PLACEHOLDER"
+    },
     "SignRequestDataReqStatus": {
       "type": "string",
       "enum": [
@@ -77,6 +87,9 @@
         "AccessTokenIdentifier": {
           "$ref": "#/definitions/manager_apiAccessTokenIdentity"
         },
+        "Role": {
+          "$ref": "#/definitions/AccessTokenDataTokenRole"
+        },
         "AccessTokenData": {
           "type": "string",
           "format": "byte"
@@ -99,6 +112,12 @@
         },
         "WalletStatus": {
           "$ref": "#/definitions/commonWalletStatus"
+        },
+        "AccessTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/manager_apiAccessTokenData"
+          }
         }
       }
     },

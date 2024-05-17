@@ -45,7 +45,7 @@ import (
 
 func (s *Service) ImportWallet(ctx context.Context,
 	importedData []byte,
-	tokensIterator types.AccessTokenListIterator,
+	requestedAccessTokensCount uint,
 ) (*entities.MnemonicWallet, error) {
 	decryptedData, err := s.transitEncryptorSvc.Decrypt(importedData)
 	if err != nil {
@@ -93,11 +93,11 @@ func (s *Service) ImportWallet(ctx context.Context,
 		UpdatedAt:          nil,
 	}
 
-	accessTokenList, err := s.tokenDataAdapterSvc.Adopt(walletUUID, tokensIterator)
+	accessTokenList, err := s.generateAccessTokens(ctx, walletUUID, requestedAccessTokensCount)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.saveWalletAndToken(ctx, toSaveItem, accessTokenList,
+	return s.saveWalletAndTokens(ctx, toSaveItem, accessTokenList,
 		resp.WalletIdentifier, encryptedMnemonicData)
 }

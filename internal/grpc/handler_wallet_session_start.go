@@ -88,7 +88,7 @@ func (h *StartWalletSessionHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.ResourceExhausted, "wallet disabled")
 	}
 
-	accessTokenUUID, isCasted := ctx.Value(ContextTokenUUIDTag).(uuid.UUID)
+	accessTokenUUID, isCasted := ctx.Value(app.ContextTokenUUIDTag).(uuid.UUID)
 	if !isCasted {
 		h.l.Error("unable get access_token_uuid from request context", zap.Error(ErrMissingTokenUUIDIdentity),
 			zap.String(app.MnemonicWalletUUIDTag, vf.WalletUUID))

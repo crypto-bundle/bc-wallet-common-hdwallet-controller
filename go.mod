@@ -7,7 +7,7 @@ require (
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.5
 	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4
-	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.3
+	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.12
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.8

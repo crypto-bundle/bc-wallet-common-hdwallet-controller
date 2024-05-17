@@ -62,10 +62,24 @@ func (i *powShieldFullValidationInterceptor) Handle(ctx context.Context,
 	handler grpc.UnaryHandler,
 ) (resp any, err error) {
 	switch req.(type) {
-	case *pbApi.AddNewWalletRequest, *pbApi.ImportWalletRequest:
-		return handler(ctx, req)
-	default:
+	case *pbApi.StartWalletSessionRequest,
+		*pbApi.GetWalletSessionRequest,
+		*pbApi.GetWalletSessionsRequest,
+		*pbApi.CloseWalletSessionsRequest,
+		*pbApi.GetAccountRequest,
+		*pbApi.GetMultipleAccountRequest,
+		*pbApi.PrepareSignRequestReq,
+		*pbApi.ExecuteSignRequestReq:
 		return i.handle(ctx, req, info, handler)
+	case *pbApi.GetWalletInfoRequest:
+		isSystemToken := ctx.Value(app.ContextIsSystemTokenName).(bool)
+		if isSystemToken {
+			return handler(ctx, req)
+		}
+
+		return i.handle(ctx, req, info, handler)
+	default:
+		return handler(ctx, req)
 	}
 }
 
@@ -99,7 +113,7 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 			"wrong format of hashcash-nonce data")
 	}
 
-	accessTokenUUID, ok := ctx.Value(ContextTokenUUIDTag).(uuid.UUID)
+	accessTokenUUID, ok := ctx.Value(app.ContextTokenUUIDTag).(uuid.UUID)
 	if !ok {
 		return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash data")
 	}

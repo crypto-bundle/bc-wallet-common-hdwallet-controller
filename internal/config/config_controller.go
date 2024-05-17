@@ -76,6 +76,10 @@ type MangerConfig struct {
 	// must be saved in bc-wallet-<blockchain_name>-hdwallet vault kv bucket,
 	// for example: crypto-bundle/bc-wallet-tron-hdwallet/common
 	VaultApplicationEncryptionKey string `envconfig:"VAULT_APP_ENCRYPTION_KEY" secret:"true"`
+	// System access token
+	// must be saved in bc-wallet-common vault kv bucket,
+	// for example: kv/data/crypto-bundle/bc-wallet-common/jwt
+	SystemAccessTokenHash string `envconfig:"JWT_SYSTEM_ACCESS_TOKEN_HASH" secret:"true"`
 	// GRPCBindRaw port string, default "8080"
 	GRPCBindRaw string `envconfig:"API_GRPC_PORT" default:"8080"`
 	// ----------------------------
@@ -98,6 +102,10 @@ func (c *MangerConfig) GetDefaultWalletUnloadInterval() time.Duration {
 
 func (c *MangerConfig) GetVaultCommonTransit() string {
 	return c.VaultCommonTransitKey
+}
+
+func (c *MangerConfig) GetSystemAccessTokenHash() string {
+	return c.SystemAccessTokenHash
 }
 
 func (c *MangerConfig) GetVaultAppEncryptionKey() string {

@@ -4,6 +4,7 @@ package entities
 
 import (
 	json "encoding/json"
+	types "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	easyjson "github.com/mailru/easyjson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	jwriter "github.com/mailru/easyjson/jwriter"
@@ -43,6 +44,8 @@ func easyjson80b93e8cDecodeGithubComCryptoBundleBcWalletCommonHdwalletController
 			if data := in.UnsafeBytes(); in.Ok() {
 				in.AddError((out.UUID).UnmarshalText(data))
 			}
+		case "role":
+			out.Role = types.AccessTokenRole(in.Uint8())
 		case "wallet_uuid":
 			if data := in.UnsafeBytes(); in.Ok() {
 				in.AddError((out.WalletUUID).UnmarshalText(data))
@@ -97,6 +100,11 @@ func easyjson80b93e8cEncodeGithubComCryptoBundleBcWalletCommonHdwalletController
 		const prefix string = ",\"uuid\":"
 		out.RawString(prefix)
 		out.RawText((in.UUID).MarshalText())
+	}
+	{
+		const prefix string = ",\"role\":"
+		out.RawString(prefix)
+		out.Uint8(uint8(in.Role))
 	}
 	{
 		const prefix string = ",\"wallet_uuid\":"

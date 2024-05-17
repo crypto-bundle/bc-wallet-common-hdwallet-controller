@@ -34,7 +34,7 @@ import (
 )
 
 type ImportWalletForm struct {
-	TokenList *AccessTokenListForm
+	TokensCount uint
 
 	Phrase []byte `valid:"required"`
 }
@@ -42,18 +42,12 @@ type ImportWalletForm struct {
 func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.ImportWalletRequest,
 ) (valid bool, err error) {
-	if len(req.AccessTokens) == 0 {
-		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access tokens list")
+	if req.CreateAccessTokensCount == 0 {
+		return false, fmt.Errorf("%s: %d", "Minimal tokens count", 4)
 	}
 
-	vf := &AccessTokenListForm{}
-	isValid, err := vf.LoadAndValidate(ctx, req.AccessTokens)
-	if err != nil {
-		return false, err
-	}
-
-	if !isValid {
-		return false, nil
+	if req.CreateAccessTokensCount < 4 {
+		f.TokensCount = 4
 	}
 
 	f.Phrase = req.MnemonicPhrase

@@ -30,19 +30,17 @@ package controller
 import (
 	"context"
 	"crypto/sha256"
-	"github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/protobuf/proto"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"math"
 	"math/big"
 	"strconv"
 	"testing"
-	"time"
 
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/google/uuid"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/proto"
 )
 
 func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
@@ -50,6 +48,7 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 		originGRPC.WithTransportCredentials(insecure.NewCredentials()),
 		// grpc.WithContextDialer(Dialer), // use it if u need load balancing via dns
 		originGRPC.WithBlock(),
+		//originGRPC.WithChainUnaryInterceptor(),
 	}
 	grpcConn, err := originGRPC.Dial("localhost:8114", options...)
 	if err != nil {
@@ -59,21 +58,8 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 	client := NewHdWalletControllerApiClient(grpcConn)
 	ctx := context.Background()
 
-	jwtSvc := jwt.NewJWTService("123456")
-	expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
-	claim := jwt.NewTokenClaimBuilder(expiredTime)
-	tokenUUID := uuid.NewString()
-	_ = claim.AddData("token_uuid", tokenUUID)
-	_ = claim.AddData("token_expired_at", expiredTime.Format(time.DateTime))
-	tokenStr, _ := jwtSvc.GenerateJWT(claim)
-
 	createWalletResp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{
-		AccessTokens: []*AccessTokenData{
-			{
-				AccessTokenIdentifier: &AccessTokenIdentity{UUID: tokenUUID},
-				AccessTokenData:       []byte(tokenStr),
-			},
-		},
+		CreateAccessTokensCount: 5,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -82,6 +68,8 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 	if createWalletResp == nil {
 		t.Fatal("add new wallet empty response")
 	}
+
+	tokenStr := string(createWalletResp.AccessTokens[0].AccessTokenData)
 
 	req := &GetWalletInfoRequest{
 		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
@@ -125,8 +113,7 @@ func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 	t.Logf("target str: %x", target.String())
 	t.Logf("pow    str: %x", reqInt.String())
 
-	md := metadata.Pairs(
-		"X-Access-Token", tokenStr,
+	md := metadata.Pairs("X-Access-Token", tokenStr,
 		"X-POW-Hashcash-Proof", reqInt.String(),
 		"X-POW-Hashcash-Nonce", strconv.FormatInt(nonce, 10),
 	)

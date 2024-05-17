@@ -58,7 +58,7 @@ func (s *pgRepository) AddNewAccessToken(ctx context.Context,
 		date := time.Now()
 
 		row := stmt.QueryRowx(`INSERT INTO "access_tokens" ("uuid", "wallet_uuid",
-			 	"raw_data",
+			 	"role", "raw_data",
         		"expired_at", "created_at", "updated_at")
             VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *;`,
 			toSaveItem.UUID, toSaveItem.WalletUUID,
@@ -90,9 +90,9 @@ func (s *pgRepository) AddMultipleAccessTokens(ctx context.Context,
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		bondedSql, args, queryErr := stmt.BindNamed(`
 			WITH "inserted" AS (
-				INSERT INTO "access_tokens" ("uuid", "wallet_uuid", "raw_data",
+				INSERT INTO "access_tokens" ("uuid", "wallet_uuid", "role", "raw_data",
         		"expired_at", "created_at", "updated_at")
-				VALUES(:uuid, :wallet_uuid, :raw_data, :expired_at, :created_at, :updated_at) 
+				VALUES(:uuid, :wallet_uuid, :role, :raw_data, :expired_at, :created_at, :updated_at) 
 				ON CONFLICT DO NOTHING
 				RETURNING *
 			)
@@ -150,8 +150,7 @@ func (s *pgRepository) GetAccessTokenInfoByUUID(ctx context.Context,
 	var result *entities.AccessToken = nil
 
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
-		row := stmt.QueryRowx(`SELECT  "id", "uuid", "wallet_uuid",
-        		"expired_at", "created_at", "updated_at"
+		row := stmt.QueryRowx(`SELECT  *
 	       FROM "access_tokens"
 	       WHERE "uuid" = $1`, tokenUUID)
 

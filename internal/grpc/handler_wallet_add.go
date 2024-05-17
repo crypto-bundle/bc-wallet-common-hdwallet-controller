@@ -52,8 +52,8 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 ) (*pbApi.AddNewWalletResponse, error) {
 	var err error
 
-	validationForm := &AccessTokenListForm{}
-	valid, err := validationForm.LoadAndValidate(ctx, req.AccessTokens)
+	validationForm := &WalletAddForm{}
+	valid, err := validationForm.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))
 
@@ -64,7 +64,7 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	wallet, err := h.walletSvc.AddNewWallet(ctx, validationForm)
+	wallet, err := h.walletSvc.AddNewWallet(ctx, validationForm.TokensCount)
 	if err != nil {
 		h.l.Error("unable to create mnemonic wallet", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())

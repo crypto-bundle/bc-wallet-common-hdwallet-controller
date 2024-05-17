@@ -25,64 +25,20 @@
  *
  */
 
-package wallet_manager
+package controller
 
 import (
-	"bytes"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"context"
 	"github.com/google/uuid"
-	"time"
 )
 
-type accessTokenListAdapter struct {
-	jwtSvc jwtService
+type obscurityDataProvider interface {
+	GetLastObscurityDataIdentifier(ctx context.Context) (uuid.UUID, error)
 }
 
-func (a *accessTokenListAdapter) Adopt(walletUUID uuid.UUID,
-	iterator accessTokenListIterator,
-) ([]*entities.AccessToken, error) {
-	toSaveAccessTokens := make([]*entities.AccessToken, iterator.GetCount())
-	position := 0
-
-	saveTime := time.Now()
-
-	for {
-		tokenUUID, rawData, loopErr := iterator.Next()
-		if loopErr != nil {
-			return nil, loopErr
-		}
-
-		if rawData == nil {
-			break
-		}
-
-		uuidFromJwt, expiredAt, err := a.jwtSvc.ExtractFields(rawData)
-		if err != nil {
-			return nil, err
-		}
-
-		if bytes.Compare(tokenUUID[:], uuidFromJwt[:]) != 0 {
-			return nil, ErrAccessTokenUUIDMismatched
-		}
-
-		tokenItem := &entities.AccessToken{
-			UUID:       *tokenUUID,
-			WalletUUID: walletUUID,
-			RawData:    rawData,
-			CreatedAt:  saveTime,
-			ExpiredAt:  *expiredAt,
-			UpdatedAt:  &saveTime,
-		}
-
-		toSaveAccessTokens[position] = tokenItem
-		position++
-	}
-
-	return toSaveAccessTokens, nil
+type accessTokensDataService interface {
+	GetAccessTokenForWallet(ctx context.Context, walletUUID string) (string, error)
 }
 
-func NewTokenDataAdapter(jwtSvc jwtService) *accessTokenListAdapter {
-	return &accessTokenListAdapter{
-		jwtSvc: jwtSvc,
-	}
+type jwtService interface {
 }

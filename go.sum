@@ -18,8 +18,8 @@ github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4 h1:hnBz0D8iN9nEjmRFE5o
 github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4/go.mod h1:BWjre7F4IbwQUFVJRcCZiWepICzFHH1OsbBEoc++YfU=
 github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4 h1:VHTy4uydhnXiEQwCQZyrHpK5w4FEgc8v82qT8J9a+1I=
 github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4/go.mod h1:/HJHq9ra4o8Yl4ReENRe0yWNRB1iBi6wQ2w9lRElQ7I=
-github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.3 h1:u8NIlOkUzavHcHiHmYr7Dc4YzK80LN9bdOXaAEObZAY=
-github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.3/go.mod h1:BvsEuoUttYQPzJ85gXjeAGQn/T94OsJr4zweKXbYwrY=
+github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4 h1:DkvLs8F7l0pLMV6e58H6KkBqpEhUeigjPXULBuIverQ=
+github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4/go.mod h1:BvsEuoUttYQPzJ85gXjeAGQn/T94OsJr4zweKXbYwrY=
 github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4 h1:bfZ5612q6HVHOmLCwaTMCKHWmYPnhkwMmLaufFvlcNI=
 github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4/go.mod h1:2wRR9pToU3PyC5gk57jWYGW6QykICopVkZwnL3N0wew=
 github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.12 h1:aVt4++pt2Qt7vv6Kgghgj6Lu6WjvcuCBrtmRxqqPVVo=

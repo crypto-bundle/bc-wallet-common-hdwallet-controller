@@ -34,6 +34,24 @@ import (
 	"github.com/google/uuid"
 )
 
+type WalletAddForm struct {
+	TokensCount uint
+}
+
+func (f *WalletAddForm) LoadAndValidate(ctx context.Context,
+	req *pbApi.AddNewWalletRequest,
+) (valid bool, err error) {
+	if req.CreateAccessTokensCount == 0 {
+		return false, fmt.Errorf("%s: %d", "Minimal tokens count", 4)
+	}
+
+	if req.CreateAccessTokensCount < 4 {
+		f.TokensCount = 4
+	}
+
+	return true, nil
+}
+
 type AccessTokenListForm struct {
 	list            []*pbApi.AccessTokenData
 	tokensCount     uint
@@ -58,15 +76,18 @@ func (f *AccessTokenListForm) validateTokenData(
 	pbTokenData *pbApi.AccessTokenData,
 ) (tokenUUID *uuid.UUID, tokenRawData []byte, err error) {
 	if pbTokenData == nil {
-		return nil, nil, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
+		return nil, nil,
+			fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token data")
 	}
 
 	if pbTokenData.AccessTokenIdentifier == nil {
-		return nil, nil, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token identity")
+		return nil, nil,
+			fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token identity")
 	}
 
 	if pbTokenData.AccessTokenData == nil {
-		return nil, nil, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token raw data")
+		return nil, nil,
+			fmt.Errorf("%w:%s", ErrMissedRequiredData, "Access token raw data")
 	}
 
 	tokenUUIDRaw, err := uuid.Parse(pbTokenData.AccessTokenIdentifier.UUID)

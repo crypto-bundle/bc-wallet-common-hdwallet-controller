@@ -29,7 +29,7 @@ option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controll
 import "common.proto";
 import "google/protobuf/any.proto";
 
-enum WalletSessionStatus{
+enum WalletSessionStatus {
   WALLET_SESSION_STATUS_PLACEHOLDER = 0;
   WALLET_SESSION_STATUS_PREPARED = 1;
   WALLET_SESSION_STATUS_CLOSED = 2;
@@ -56,8 +56,16 @@ message SignPurposeIdentity {
 }
 
 message AccessTokenData {
-    AccessTokenIdentity AccessTokenIdentifier = 1;
-    bytes AccessTokenData =2 ;
+  enum TokenRole{
+    TOKE_ROLE_PLACEHOLDER = 0;
+    TOKE_ROLE_SIGNER = 1;
+    TOKE_ROLE_FAKE_SIGNER = 2;
+    TOKE_ROLE_INFORMER = 3;
+  }
+
+  AccessTokenIdentity AccessTokenIdentifier = 1;
+  TokenRole Role = 2;
+  bytes AccessTokenData = 3;
 }
 
 message SignRequestData {
@@ -84,17 +92,29 @@ message GetEnabledWalletsResponse {
 }
 
 message AddNewWalletRequest {
-  repeated AccessTokenData AccessTokens = 1;
+  // AccessTokens - count of access tokens:
+  //  - one for signer access
+  //  - one for "fake signer"
+  //  - other for read-read only
+  // minimal value - 3
+  uint64 CreateAccessTokensCount = 1;
 }
 
 message AddNewWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
   common.WalletStatus WalletStatus = 2;
+
+  repeated AccessTokenData AccessTokens = 3;
 }
 
 message ImportWalletRequest {
-  bytes MnemonicPhrase = 1;
-  repeated AccessTokenData AccessTokens = 2;
+  // AccessTokens - count of access tokens:
+  //  - one for signer access
+  //  - one for "fake signer"
+  //  - other for read-read only
+  // minimal value - 3
+  uint64 CreateAccessTokensCount = 1;
+  bytes MnemonicPhrase = 2;
 }
 
 message ImportWalletResponse {

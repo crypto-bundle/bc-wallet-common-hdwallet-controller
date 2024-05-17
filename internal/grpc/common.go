@@ -30,9 +30,6 @@ package grpc
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
-	"time"
-
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
@@ -76,15 +73,6 @@ type accessTokenDataService interface {
 	) (*entities.AccessToken, error)
 }
 
-type accessTokenManagerService interface {
-	ValidateAccessToken(ctx context.Context,
-		tokenData []byte,
-	) (*uuid.UUID, *time.Time, error)
-	GetAccessTokenByUUID(ctx context.Context,
-		tokenUUID string,
-	) (result *entities.AccessToken, err error)
-}
-
 type walletDataService interface {
 	GetLastWalletSessionIdentityByAccessTokenUUID(ctx context.Context,
 		accessTokenUUID string,
@@ -105,11 +93,11 @@ type powProofDataService interface {
 
 type walletManagerService interface {
 	AddNewWallet(ctx context.Context,
-		tokensIterator types.AccessTokenListIterator,
+		requestedAccessTokensCount uint,
 	) (*entities.MnemonicWallet, error)
 	ImportWallet(ctx context.Context,
 		importedData []byte,
-		tokensIterator types.AccessTokenListIterator,
+		requestedAccessTokensCount uint,
 	) (*entities.MnemonicWallet, error)
 	EnableWalletByUUID(ctx context.Context,
 		walletUUID string,

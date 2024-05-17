@@ -50,7 +50,7 @@ type accessTokenDataService interface {
 type accessTokenListIterator types.AccessTokenListIterator
 
 type jwtService interface {
-	ExtractFields(tokenData []byte) (*uuid.UUID, *time.Time, error)
+	GenerateJWT(expiredAt time.Time, values map[string]string) (string, error)
 }
 
 type tokenDataAdapter interface {

@@ -66,7 +66,7 @@ func (h *ImportWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	wallet, err := h.walletSvc.ImportWallet(ctx, validationForm.Phrase, validationForm.TokenList)
+	wallet, err := h.walletSvc.ImportWallet(ctx, validationForm.Phrase, validationForm.TokensCount)
 	if err != nil {
 		h.l.Error("unable to import mnemonic wallet", zap.Error(err))
 

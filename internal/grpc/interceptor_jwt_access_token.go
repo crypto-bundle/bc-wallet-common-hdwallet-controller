@@ -29,44 +29,39 @@ package grpc
 
 import (
 	"context"
-	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
-	"github.com/google/uuid"
+	"crypto/sha256"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"slices"
 	"time"
 
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+
+	"github.com/google/uuid"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-
-	"google.golang.org/grpc"
 )
 
 const (
 	AccessTokenHeader = "X-Access-Token"
-
-	ContextTokenUUIDTag = "access_token_uuid"
 )
 
 type accessTokenValidationInterceptor struct {
+	systemTokenHash string
+
 	jwtSvc       jwtService
 	tokenDataSvc accessTokenDataService
+
+	readerWalletApprovedRoles []types.AccessTokenRole
+	signApprovedRoles         []types.AccessTokenRole
+	signPrepareApprovedRoles  []types.AccessTokenRole
 }
 
 func (i accessTokenValidationInterceptor) Handle(ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (resp any, err error) {
-	switch req.(type) {
-	case *pbApi.AddNewWalletRequest, *pbApi.ImportWalletRequest:
-		return handler(ctx, req)
-	default:
-		return i.handle(ctx, req, info, handler)
-	}
-}
-
-func (i accessTokenValidationInterceptor) handle(ctx context.Context,
-	req any,
-	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp any, err error) {
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -83,7 +78,68 @@ func (i accessTokenValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument, "wrong format of access token")
 	}
 
-	data, err := i.jwtSvc.GetTokenData(accessTokenData[0])
+	accessToken := accessTokenData[0]
+	hashSum := sha256.New()
+	_, err = hashSum.Write([]byte(accessToken))
+	if err != nil {
+		return false, err
+	}
+
+	accessTokenHash := string(hashSum.Sum(nil))
+
+	switch req.(type) {
+	case *pbApi.AddNewWalletRequest,
+		*pbApi.ImportWalletRequest,
+		*pbApi.EnableWalletRequest,
+		*pbApi.GetEnabledWalletsRequest,
+		*pbApi.DisableWalletRequest,
+		*pbApi.DisableWalletsRequest,
+		*pbApi.EnableWalletsRequest:
+		return i.handleSystemRequest(ctx, req, accessToken, accessTokenHash, info, handler)
+	default:
+		return i.handleWalletRequest(ctx, req, accessToken, accessTokenHash, info, handler)
+	}
+}
+
+func (i accessTokenValidationInterceptor) handleSystemRequest(ctx context.Context,
+	req any,
+	_ string, // access token string
+	accessTokenHash string,
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp any, err error) {
+	if accessTokenHash != i.systemTokenHash {
+		return nil, status.Error(codes.PermissionDenied, "wrong token hash value")
+	}
+
+	return handler(context.WithValue(ctx, app.ContextIsSystemTokenName, true), req)
+}
+
+func (i accessTokenValidationInterceptor) handleWalletRequest(ctx context.Context,
+	req any,
+	accessToken string,
+	accessTokenHash string,
+	_ *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp any, err error) {
+	var requiredRole []types.AccessTokenRole
+
+	switch req.(type) {
+	case *pbApi.PrepareSignRequestReq:
+		requiredRole = i.signPrepareApprovedRoles
+	case *pbApi.ExecuteSignRequestReq:
+		requiredRole = i.signApprovedRoles
+	case *pbApi.GetWalletInfoRequest:
+		if i.systemTokenHash == accessTokenHash {
+			return handler(context.WithValue(ctx, app.ContextIsSystemTokenName, true), req)
+		}
+
+		requiredRole = i.readerWalletApprovedRoles
+	default:
+		requiredRole = i.readerWalletApprovedRoles
+	}
+
+	data, err := i.jwtSvc.GetTokenData(accessToken)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"unable to extract data from JWT-token: %s", err)
@@ -118,29 +174,53 @@ func (i accessTokenValidationInterceptor) handle(ctx context.Context,
 	}
 
 	if accessTokenItem == nil {
-		return nil, status.Errorf(codes.InvalidArgument,
+		return nil, status.Errorf(codes.PermissionDenied,
 			"access token not found")
+	}
+
+	if accessTokenItem.Hash != accessTokenHash {
+		return nil, status.Error(codes.PermissionDenied, "access token hash mismatched")
 	}
 
 	timeDiff := accessTokenItem.ExpiredAt.Sub(expiredAt)
 	if timeDiff != 0 {
-		return nil, status.Error(codes.InvalidArgument, "expired_at wrong value - not equal with expected")
+		return nil, status.Error(codes.PermissionDenied, "expired_at wrong value - not equal with expected")
 	}
 
 	if accessTokenItem.ExpiredAt.Before(time.Now()) {
-		return nil, status.Error(codes.InvalidArgument, "access token already expired")
+		return nil, status.Error(codes.PermissionDenied, "access token already expired")
 	}
 
-	return handler(context.WithValue(ctx, ContextTokenUUIDTag, accessTokenItem.UUID),
+	if slices.Index(requiredRole, accessTokenItem.Role) == -1 {
+		return nil, status.Error(codes.PermissionDenied, "access token has no permission")
+	}
+
+	return handler(context.WithValue(ctx, app.ContextTokenUUIDTag, accessTokenItem.UUID),
 		req)
 }
 
 func newAccessTokenInterceptor(jwtSvc jwtService,
 	tokenDataSvc accessTokenDataService,
+	systemTokenHash string,
 ) grpc.UnaryServerInterceptor {
 	str := accessTokenValidationInterceptor{
+		systemTokenHash: systemTokenHash,
+
 		jwtSvc:       jwtSvc,
 		tokenDataSvc: tokenDataSvc,
+
+		readerWalletApprovedRoles: []types.AccessTokenRole{
+			types.AccessTokenRoleReader,
+			types.AccessTokenRoleSigner,
+			types.AccessTokenRoleFakeSigner,
+		},
+		signApprovedRoles: []types.AccessTokenRole{
+			types.AccessTokenRoleSigner,
+		},
+		signPrepareApprovedRoles: []types.AccessTokenRole{
+			types.AccessTokenRoleSigner,
+			types.AccessTokenRoleFakeSigner,
+		},
 	}
 
 	return str.Handle

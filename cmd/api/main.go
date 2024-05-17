@@ -35,7 +35,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	accessToken "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/access_tokens"
 	accessTtokenData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/access_tokens/pg_store"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/config"
@@ -145,7 +144,6 @@ func main() {
 	mnemonicWalletCacheDataSvc := walletRedisData.NewRedisStore(loggerEntry, appCfg, redisClient)
 
 	accessTokenDataSvc := accessTtokenData.NewPostgresStore(loggerEntry, pgConn)
-	jwtDecoder := accessToken.NewJWTDecoder(loggerEntry, jwtSvc)
 
 	signReqDataSvc := signReqData.NewPostgresStore(loggerEntry, pgConn)
 	powProofDataSvc := powProofData.NewPostgresStore(loggerEntry, pgConn)
@@ -157,11 +155,12 @@ func main() {
 
 	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, transitSvc, encryptorSvc,
 		accessTokenDataSvc, mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
-		jwtDecoder, hdWalletClient, eventPublisher, pgConn)
+		jwtSvc, hdWalletClient, eventPublisher, pgConn)
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 
 	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
-	apiInterceptors := grpcHandlers.NewInterceptorsList(loggerEntry, powProofDataSvc, mnemonicWalletDataSvc,
+	apiInterceptors := grpcHandlers.NewInterceptorsList(loggerEntry, appCfg.GetSystemAccessTokenHash(),
+		powProofDataSvc, mnemonicWalletDataSvc,
 		accessTokenDataSvc, powValidatorSvc, jwtSvc, pgConn)
 
 	GRPCSrv, err := grpcHandlers.NewServer(loggerEntry, appCfg, apiHandlers, apiInterceptors)

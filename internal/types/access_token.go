@@ -33,3 +33,30 @@ type AccessTokenListIterator interface {
 	Next() (tokenIdentifier *uuid.UUID, tokenRawData []byte, err error)
 	GetCount() uint
 }
+
+type AccessTokenRole uint8
+
+const (
+	AccessTokenRoleSignerName = "signer"
+	AccessTokenRoleReaderName = "reader"
+)
+
+const (
+	AccessTokenRolePlaceholder AccessTokenRole = iota
+	AccessTokenRoleSigner
+	AccessTokenRoleFakeSigner
+	AccessTokenRoleReader
+)
+
+func (d AccessTokenRole) String() string {
+	switch d {
+	case AccessTokenRoleSigner:
+		return AccessTokenRoleSignerName
+	case AccessTokenRoleReader:
+		return AccessTokenRoleReaderName
+	case AccessTokenRolePlaceholder:
+		fallthrough
+	default:
+		return ""
+	}
+}

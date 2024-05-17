@@ -26,3 +26,7 @@
  */
 
 package app
+
+const ContextIsSystemTokenName = "access_token_is_system"
+
+const ContextTokenUUIDTag = "access_token_uuid"

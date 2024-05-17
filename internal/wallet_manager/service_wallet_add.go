@@ -44,7 +44,7 @@ import (
 )
 
 func (s *Service) AddNewWallet(ctx context.Context,
-	tokensIterator types.AccessTokenListIterator,
+	requestedAccessTokensCount uint,
 ) (*entities.MnemonicWallet, error) {
 	walletUUID := uuid.New()
 
@@ -79,16 +79,77 @@ func (s *Service) AddNewWallet(ctx context.Context,
 		UpdatedAt:          &saveTime,
 	}
 
-	accessTokenList, err := s.tokenDataAdapterSvc.Adopt(walletUUID, tokensIterator)
+	accessTokenList, err := s.generateAccessTokens(ctx, walletUUID, requestedAccessTokensCount)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.saveWalletAndToken(ctx, toSaveWalletItem, accessTokenList,
+	return s.saveWalletAndTokens(ctx, toSaveWalletItem, accessTokenList,
 		resp.WalletIdentifier, resp.EncryptedMnemonicData)
 }
 
-func (s *Service) saveWalletAndToken(ctx context.Context,
+func (s *Service) generateAccessTokens(ctx context.Context,
+	walletUUID uuid.UUID,
+	requestedAccessTokensCount uint,
+) ([]*entities.AccessToken, error) {
+	createdAt := time.Now()
+	expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
+
+	tokens := make([]*entities.AccessToken, requestedAccessTokensCount)
+
+	roles := []types.AccessTokenRole{
+		types.AccessTokenRoleSigner,
+		types.AccessTokenRoleFakeSigner,
+		types.AccessTokenRoleReader,
+	}
+	rolesCount := uint(len(roles))
+
+	for i := uint(0); i != requestedAccessTokensCount; i++ {
+		var role = types.AccessTokenRoleReader
+		if rolesCount <= i {
+			role = roles[i]
+		}
+
+		token, loopErr := s.generateAccessToken(walletUUID, role, createdAt, expiredTime)
+		if loopErr != nil {
+			return nil, loopErr
+		}
+
+		tokens[i] = token
+	}
+
+	return tokens, nil
+}
+
+func (s *Service) generateAccessToken(walletUUID uuid.UUID,
+	tokenRole types.AccessTokenRole,
+	expiredAt, createdAt time.Time,
+) (*entities.AccessToken, error) {
+	tokenUUID := uuid.New()
+
+	tokenStr, err := s.jwtSvc.GenerateJWT(expiredAt, map[string]string{
+		"token_uuid":       tokenUUID.String(),
+		"token_expired_at": expiredAt.Format(time.DateTime),
+		"token_role":       tokenRole.String(),
+		"wallet_uuid":      walletUUID.String(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &entities.AccessToken{
+		UUID:       tokenUUID,
+		Role:       tokenRole,
+		WalletUUID: walletUUID,
+		RawData:    []byte(tokenStr),
+		Hash:       fmt.Sprintf("%x", sha256.Sum256([]byte(tokenStr))),
+		CreatedAt:  createdAt,
+		ExpiredAt:  expiredAt,
+		UpdatedAt:  &createdAt,
+	}, nil
+}
+
+func (s *Service) saveWalletAndTokens(ctx context.Context,
 	walletItem *entities.MnemonicWallet,
 	tokenItems []*entities.AccessToken,
 	hdWalletInfo *pbCommon.MnemonicWalletIdentity,

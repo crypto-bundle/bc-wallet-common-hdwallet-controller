@@ -51,6 +51,7 @@
     - [WalletSessionEvent](#manager_api.WalletSessionEvent)
     - [WalletSessionIdentity](#manager_api.WalletSessionIdentity)
   
+    - [AccessTokenData.TokenRole](#manager_api.AccessTokenData.TokenRole)
     - [Event.Type](#manager_api.Event.Type)
     - [SignRequestData.ReqStatus](#manager_api.SignRequestData.ReqStatus)
     - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
@@ -79,6 +80,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | AccessTokenIdentifier | [AccessTokenIdentity](#manager_api.AccessTokenIdentity) |  |  |
+| Role | [AccessTokenData.TokenRole](#manager_api.AccessTokenData.TokenRole) |  |  |
 | AccessTokenData | [bytes](#bytes) |  |  |
 
 
@@ -109,7 +111,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
+| CreateAccessTokensCount | [uint64](#uint64) |  | AccessTokens - count of access tokens: - one for signer access - one for &#34;fake signer&#34; - other for read-read only minimal value - 3 |
 
 
 
@@ -126,6 +128,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
+| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 
@@ -607,8 +610,8 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| CreateAccessTokensCount | [uint64](#uint64) |  | AccessTokens - count of access tokens: - one for signer access - one for &#34;fake signer&#34; - other for read-read only minimal value - 3 |
 | MnemonicPhrase | [bytes](#bytes) |  |  |
-| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 
@@ -813,6 +816,20 @@
 
 
  
+
+
+<a name="manager_api.AccessTokenData.TokenRole"></a>
+
+### AccessTokenData.TokenRole
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| TOKE_ROLE_PLACEHOLDER | 0 |  |
+| TOKE_ROLE_SIGNER | 1 |  |
+| TOKE_ROLE_FAKE_SIGNER | 2 |  |
+| TOKE_ROLE_INFORMER | 3 |  |
+
 
 
 <a name="manager_api.Event.Type"></a>
