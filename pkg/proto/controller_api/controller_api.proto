@@ -119,6 +119,9 @@ message ImportWalletRequest {
 
 message ImportWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.WalletStatus WalletStatus = 2;
+
+  repeated AccessTokenData AccessTokens = 3;
 }
 
 message EnableWalletRequest {

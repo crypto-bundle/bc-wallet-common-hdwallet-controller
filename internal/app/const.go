@@ -27,6 +27,10 @@
 
 package app
 
-const ContextIsSystemTokenName = "access_token_is_system"
+const (
+	ContextIsSystemTokenTag = "access_token_is_system"
+	ContextTokenUUIDTag     = "access_token_uuid"
 
-const ContextTokenUUIDTag = "access_token_uuid"
+	JWTTokenUUIDLabel    = "token_uuid"
+	JWTTokenExpiredLabel = "token_expired_at"
+)

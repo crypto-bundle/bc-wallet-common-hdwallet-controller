@@ -320,6 +320,15 @@
       "properties": {
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/commonWalletStatus"
+        },
+        "AccessTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/manager_apiAccessTokenData"
+          }
         }
       }
     },

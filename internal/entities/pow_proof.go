@@ -42,7 +42,7 @@ type PowProof struct {
 	AccessTokenUUID string `db:"access_token_uuid" json:"access_token_uuid"`
 
 	MessageCheckNonce int64  `db:"message_check_nonce" json:"message_check_nonce"`
-	MessageHash       []byte `db:"message_hash" json:"message_hash"`
+	MessageHash       string `db:"message_hash" json:"message_hash"`
 	MessageData       []byte `db:"message_data" json:"message_data"`
 
 	CreatedAt time.Time  `db:"created_at" json:"created_at"`

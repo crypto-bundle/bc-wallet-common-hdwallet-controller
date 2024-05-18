@@ -64,13 +64,13 @@ func (h *AddNewWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	wallet, err := h.walletSvc.AddNewWallet(ctx, validationForm.TokensCount)
+	wallet, accessTokens, err := h.walletSvc.AddNewWallet(ctx, validationForm.TokensCount)
 	if err != nil {
 		h.l.Error("unable to create mnemonic wallet", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return h.marshallerSrv.MarshallCreateWalletData(wallet), nil
+	return h.marshallerSrv.MarshallCreateWalletData(wallet, accessTokens), nil
 }
 
 func MakeAddNewWalletHandler(loggerEntry *zap.Logger,

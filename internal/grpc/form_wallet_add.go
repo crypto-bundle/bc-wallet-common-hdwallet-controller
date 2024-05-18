@@ -45,6 +45,7 @@ func (f *WalletAddForm) LoadAndValidate(ctx context.Context,
 		return false, fmt.Errorf("%s: %d", "Minimal tokens count", 4)
 	}
 
+	f.TokensCount = uint(req.CreateAccessTokensCount)
 	if req.CreateAccessTokensCount < 4 {
 		f.TokensCount = 4
 	}

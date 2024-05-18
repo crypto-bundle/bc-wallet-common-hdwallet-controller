@@ -29,14 +29,12 @@ package controller
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
-	"testing"
-	"time"
-
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	"github.com/google/uuid"
 	originGRPC "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
+	"testing"
 )
 
 func TestHdWalletControllerApiClient_AddNewWallet(t *testing.T) {
@@ -55,21 +53,16 @@ func TestHdWalletControllerApiClient_AddNewWallet(t *testing.T) {
 	client := NewHdWalletControllerApiClient(grpcConn)
 	ctx := context.Background()
 
-	jwtSvc := jwt.NewJWTService("123456")
-	expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
-	claim := jwt.NewTokenClaimBuilder(expiredTime)
-	tokenUUID := uuid.NewString()
-	_ = claim.AddData("token_uuid", tokenUUID)
-	_ = claim.AddData("token_expired_at", expiredTime.Format(time.DateTime))
-	tokenStr, _ := jwtSvc.GenerateJWT(claim)
+	//jwtSvc := jwt.NewJWTService("123123123")
+	//expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
+	tokenStr := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ2YWx1ZXNfbWFwIjp7Imluc3RhbGxtZW50X3V1aWQiOiI5MzBkZTBjMy1mZDVmLTRmYTQtYmNhYS1jZWQwNWE2OGVhZGUiLCJleHBpcmVkX2F0IjoiMjA3NC0wNS0wNiAxNjoxNjowNyJ9fQ.yonSdLs9cZTq2ER4-4y-4kWMHx85J0eRqQFRCXkqhOY"
 
-	resp, err := client.AddNewWallet(ctx, &AddNewWalletRequest{
-		AccessTokens: []*AccessTokenData{
-			{
-				AccessTokenIdentifier: &AccessTokenIdentity{UUID: tokenUUID},
-				AccessTokenData:       []byte(tokenStr),
-			},
-		},
+	newCtx := metadata.AppendToOutgoingContext(ctx, "X-Access-Token", tokenStr)
+
+	accessTokensCount := 5
+
+	resp, err := client.AddNewWallet(newCtx, &AddNewWalletRequest{
+		CreateAccessTokensCount: 5,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -81,6 +74,14 @@ func TestHdWalletControllerApiClient_AddNewWallet(t *testing.T) {
 
 	if resp.WalletIdentifier == nil {
 		t.Fatal("missed wallet identifier")
+	}
+
+	if len(resp.AccessTokens) == 0 {
+		t.Fatal("missed wallet access tokens")
+	}
+
+	if len(resp.AccessTokens) != accessTokensCount {
+		t.Fatal("wrong count of access tokens")
 	}
 
 	_, err = uuid.Parse(resp.WalletIdentifier.WalletUUID)

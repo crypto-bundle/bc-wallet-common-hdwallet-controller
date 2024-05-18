@@ -29,6 +29,7 @@ package grpc
 
 import (
 	"errors"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/google/uuid"
 	"time"
 )
@@ -36,11 +37,6 @@ import (
 var (
 	ErrMissingTokenUUIDIdentity = errors.New("missing uuid in token data")
 	ErrMismatchedUUIDIdentity   = errors.New("token identity mismatched")
-)
-
-const (
-	TokenUUIDLabel    = "token_uuid"
-	TokenExpiredLabel = "token_expired_at"
 )
 
 type accessTokenValidationForm struct {
@@ -53,7 +49,7 @@ func (f *accessTokenValidationForm) Validate(tokenData []byte) (*uuid.UUID, *tim
 		return nil, nil, err
 	}
 
-	tokenUUIDStr, isExist := data[TokenUUIDLabel]
+	tokenUUIDStr, isExist := data[app.JWTTokenUUIDLabel]
 	if !isExist {
 		return nil, nil, ErrMissingTokenUUIDIdentity
 	}
@@ -63,7 +59,7 @@ func (f *accessTokenValidationForm) Validate(tokenData []byte) (*uuid.UUID, *tim
 		return nil, nil, err
 	}
 
-	tokenExpiredAtStr, isExist := data[TokenExpiredLabel]
+	tokenExpiredAtStr, isExist := data[app.JWTTokenExpiredLabel]
 	if !isExist {
 		return nil, nil, ErrMissingTokenUUIDIdentity
 	}

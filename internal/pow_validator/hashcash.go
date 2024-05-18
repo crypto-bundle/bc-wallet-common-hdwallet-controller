@@ -62,7 +62,7 @@ func (v *validatorHashCash) ValidateByObscurityData(ctx context.Context,
 ) (valid bool, err error) {
 	originHashInt := big.NewInt(0).SetBytes(hashData)
 	cmp := v.target.Cmp(originHashInt)
-	if cmp < 1 {
+	if cmp != 1 {
 		return false, nil
 	}
 
@@ -93,7 +93,7 @@ func (v *validatorHashCash) ValidateByObscurityData(ctx context.Context,
 
 func NewValidatorHashCash(logger *zap.Logger) *validatorHashCash {
 	target := big.NewInt(1)
-	target.Lsh(target, uint(256-8))
+	target.Lsh(target, uint(256-4))
 
 	return &validatorHashCash{
 		logger: logger,

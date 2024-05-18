@@ -25,11 +25,40 @@
  *
  */
 
-package controller
+package grpc
 
-type Client struct {
-	originGRPCClient HdWalletControllerApiClient
+import (
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 
-	obscurityDataSvc   obscurityDataProvider
-	accessTokenDataSvc accessTokensDataService
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+)
+
+func (m *grpcMarshaller) MarshallImportWalletData(
+	walletData *entities.MnemonicWallet,
+	accessTokensList []*entities.AccessToken,
+) *pbApi.ImportWalletResponse {
+
+	resp := &pbApi.ImportWalletResponse{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletData.UUID.String(),
+			WalletHash: walletData.MnemonicHash,
+		},
+		WalletStatus: pbCommon.WalletStatus(walletData.Status),
+		AccessTokens: make([]*pbApi.AccessTokenData, len(accessTokensList)),
+	}
+
+	for i := 0; i != len(accessTokensList); i++ {
+		accessToken := accessTokensList[i]
+
+		resp.AccessTokens[i] = &pbApi.AccessTokenData{
+			AccessTokenIdentifier: &pbApi.AccessTokenIdentity{
+				UUID: accessToken.UUID.String(),
+			},
+			Role:            pbApi.AccessTokenData_TokenRole(accessToken.Role),
+			AccessTokenData: accessToken.RawData,
+		}
+	}
+
+	return resp
 }

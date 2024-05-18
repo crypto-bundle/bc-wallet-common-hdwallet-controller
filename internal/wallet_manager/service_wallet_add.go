@@ -45,7 +45,7 @@ import (
 
 func (s *Service) AddNewWallet(ctx context.Context,
 	requestedAccessTokensCount uint,
-) (*entities.MnemonicWallet, error) {
+) (*entities.MnemonicWallet, []*entities.AccessToken, error) {
 	walletUUID := uuid.New()
 
 	resp, err := s.hdWalletClientSvc.GenerateMnemonic(ctx, &hdwallet.GenerateMnemonicRequest{
@@ -57,14 +57,14 @@ func (s *Service) AddNewWallet(ctx context.Context,
 		s.logger.Error("unable to generate new mnemonic", zap.Error(err),
 			zap.String(app.MnemonicWalletUUIDTag, walletUUID.String()))
 
-		return nil, err
+		return nil, nil, err
 	}
 
 	if resp == nil {
 		s.logger.Error("missing resp in generate mnemonic request", zap.Error(ErrMissingHdWalletResp),
 			zap.String(app.MnemonicWalletUUIDTag, walletUUID.String()))
 
-		return nil, ErrMissingHdWalletResp
+		return nil, nil, ErrMissingHdWalletResp
 	}
 
 	saveTime := time.Now()
@@ -81,7 +81,7 @@ func (s *Service) AddNewWallet(ctx context.Context,
 
 	accessTokenList, err := s.generateAccessTokens(ctx, walletUUID, requestedAccessTokensCount)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	return s.saveWalletAndTokens(ctx, toSaveWalletItem, accessTokenList,
@@ -93,7 +93,9 @@ func (s *Service) generateAccessTokens(ctx context.Context,
 	requestedAccessTokensCount uint,
 ) ([]*entities.AccessToken, error) {
 	createdAt := time.Now()
-	expiredTime := time.Now().Add(time.Hour * 24 * 356 * 7)
+	expiredTime := time.Now().
+		Add(time.Hour * 24 * 356 * 7).
+		Truncate(1 * time.Second)
 
 	tokens := make([]*entities.AccessToken, requestedAccessTokensCount)
 
@@ -102,11 +104,11 @@ func (s *Service) generateAccessTokens(ctx context.Context,
 		types.AccessTokenRoleFakeSigner,
 		types.AccessTokenRoleReader,
 	}
-	rolesCount := uint(len(roles))
+	rolesCount := uint(len(roles)) - 1
 
 	for i := uint(0); i != requestedAccessTokensCount; i++ {
 		var role = types.AccessTokenRoleReader
-		if rolesCount <= i {
+		if i <= rolesCount {
 			role = roles[i]
 		}
 
@@ -123,7 +125,7 @@ func (s *Service) generateAccessTokens(ctx context.Context,
 
 func (s *Service) generateAccessToken(walletUUID uuid.UUID,
 	tokenRole types.AccessTokenRole,
-	expiredAt, createdAt time.Time,
+	createdAt, expiredAt time.Time,
 ) (*entities.AccessToken, error) {
 	tokenUUID := uuid.New()
 
@@ -154,7 +156,7 @@ func (s *Service) saveWalletAndTokens(ctx context.Context,
 	tokenItems []*entities.AccessToken,
 	hdWalletInfo *pbCommon.MnemonicWalletIdentity,
 	encryptedData []byte,
-) (wallet *entities.MnemonicWallet, err error) {
+) (wallet *entities.MnemonicWallet, accessTokens []*entities.AccessToken, err error) {
 	err = s.txStmtManager.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		walletItem.MnemonicHash = hdWalletInfo.WalletHash
 		walletItem.VaultEncryptedHash = fmt.Sprintf("%x", sha256.Sum256(encryptedData))
@@ -169,7 +171,7 @@ func (s *Service) saveWalletAndTokens(ctx context.Context,
 			return clbErr
 		}
 
-		_, _, clbErr = s.accessTokenSvc.AddMultipleAccessTokens(txStmtCtx, tokenItems)
+		_, accessTokensList, clbErr := s.accessTokenSvc.AddMultipleAccessTokens(txStmtCtx, tokenItems)
 		if clbErr != nil {
 			s.logger.Error("unable to save wallet access token items in persistent store", zap.Error(clbErr),
 				zap.String(app.MnemonicWalletUUIDTag, walletItem.UUID.String()))
@@ -178,13 +180,14 @@ func (s *Service) saveWalletAndTokens(ctx context.Context,
 		}
 
 		wallet = savedItem
+		accessTokens = accessTokensList
 
 		return nil
 	})
 	if err != nil {
 		s.logger.Error("unable to save new wallet", zap.Error(err))
 
-		return nil, err
+		return nil, nil, err
 	}
 
 	return

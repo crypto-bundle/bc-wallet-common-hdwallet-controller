@@ -29,6 +29,7 @@ package grpc
 
 import (
 	"context"
+	"encoding/hex"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 	"google.golang.org/grpc"
@@ -63,7 +64,7 @@ func (i *powShieldPreValidationInterceptor) Handle(ctx context.Context,
 		*pbApi.ExecuteSignRequestReq:
 		return i.handle(ctx, req, info, handler)
 	case *pbApi.GetWalletInfoRequest:
-		isSystemToken := ctx.Value(app.ContextIsSystemTokenName).(bool)
+		isSystemToken := ctx.Value(app.ContextIsSystemTokenTag).(bool)
 		if isSystemToken {
 			return handler(ctx, req)
 		}
@@ -94,10 +95,16 @@ func (i *powShieldPreValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash data")
 	}
 
-	powProofHash, ok := big.NewInt(0).SetString(data[0], 10)
-	if !ok {
-		return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash value. unable decode sting")
+	decodedHex, err := hex.DecodeString(data[0])
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument,
+			"wrong format of hashcash data - not hex string")
 	}
+
+	powProofHash := big.NewInt(0).SetBytes(decodedHex)
+	//if !ok {
+	//	return nil, status.Error(codes.InvalidArgument, "wrong format of hashcash value. unable decode sting")
+	//}
 
 	isValid := i.powValidationSvc.PreValidate(ctx, powProofHash.Bytes())
 	if !isValid {

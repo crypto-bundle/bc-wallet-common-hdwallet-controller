@@ -627,6 +627,8 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
+| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 

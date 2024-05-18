@@ -46,15 +46,15 @@ import (
 func (s *Service) ImportWallet(ctx context.Context,
 	importedData []byte,
 	requestedAccessTokensCount uint,
-) (*entities.MnemonicWallet, error) {
+) (*entities.MnemonicWallet, []*entities.AccessToken, error) {
 	decryptedData, err := s.transitEncryptorSvc.Decrypt(importedData)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	encryptedMnemonicData, err := s.appEncryptorSvc.Encrypt(decryptedData)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	mnemonicHash := fmt.Sprintf("%x", sha256.Sum256(decryptedData))
@@ -68,18 +68,18 @@ func (s *Service) ImportWallet(ctx context.Context,
 		MnemonicData: encryptedMnemonicData,
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	if resp == nil {
 		s.logger.Error("missing resp in load mnemonic request", zap.Error(ErrMissingHdWalletResp),
 			zap.String(app.MnemonicWalletUUIDTag, walletUUID.String()))
 
-		return nil, ErrMissingHdWalletResp
+		return nil, nil, ErrMissingHdWalletResp
 	}
 
 	if !resp.IsValid {
-		return nil, ErrMnemonicIsNotValid
+		return nil, nil, ErrMnemonicIsNotValid
 	}
 
 	toSaveItem := &entities.MnemonicWallet{
@@ -95,7 +95,7 @@ func (s *Service) ImportWallet(ctx context.Context,
 
 	accessTokenList, err := s.generateAccessTokens(ctx, walletUUID, requestedAccessTokensCount)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	return s.saveWalletAndTokens(ctx, toSaveItem, accessTokenList,

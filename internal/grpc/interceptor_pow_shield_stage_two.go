@@ -29,8 +29,10 @@ package grpc
 
 import (
 	"context"
+	"encoding/hex"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"go.uber.org/zap"
+	"math/big"
 	"strconv"
 	"time"
 
@@ -72,7 +74,7 @@ func (i *powShieldFullValidationInterceptor) Handle(ctx context.Context,
 		*pbApi.ExecuteSignRequestReq:
 		return i.handle(ctx, req, info, handler)
 	case *pbApi.GetWalletInfoRequest:
-		isSystemToken := ctx.Value(app.ContextIsSystemTokenName).(bool)
+		isSystemToken := ctx.Value(app.ContextIsSystemTokenTag).(bool)
 		if isSystemToken {
 			return handler(ctx, req)
 		}
@@ -124,12 +126,12 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 			"wrong format of hashcash-nonce data")
 	}
 
-	return i.validateForSessionFlow(ctx, []byte(data[0]), nonce,
+	return i.validateForSessionFlow(ctx, data[0], nonce,
 		req, accessTokenUUID, handler)
 }
 
 func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.Context,
-	originHash []byte,
+	hashHexString string,
 	nonce int64,
 	req any,
 	accessTokenUUID uuid.UUID,
@@ -140,9 +142,17 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 		return nil, err
 	}
 
+	decodedHex, err := hex.DecodeString(hashHexString)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument,
+			"wrong format of hashcash data - not hex string")
+	}
+
+	powProofHash := big.NewInt(0).SetBytes(decodedHex)
+
 	err = i.txStmtSvc.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
 		powProof, clbErr := i.powProofDataSvc.GetPowProofByMessageHash(txStmtCtx,
-			originHash)
+			hashHexString)
 		if clbErr != nil {
 			i.logger.Error("unable to check pow exist", zap.Error(clbErr))
 
@@ -173,7 +183,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return clbErr
 		}
 
-		isProofDataValid, clbErr := i.powValidationSvc.ValidateByObscurityData(txStmtCtx, originHash, nonce,
+		isProofDataValid, clbErr := i.powValidationSvc.ValidateByObscurityData(txStmtCtx, powProofHash.Bytes(), nonce,
 			protoMsgRawData, obscurityData)
 		if clbErr != nil {
 			i.logger.Error("unable to validate pow", zap.Error(clbErr))
@@ -183,7 +193,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 
 		if !isProofDataValid {
 			i.logger.Warn("pow validation failed",
-				zap.String(app.PowHashTag, string(originHash)))
+				zap.String(app.PowHashTag, hashHexString))
 
 			return status.Error(codes.InvalidArgument, "pow shield validation failed")
 		}
@@ -194,7 +204,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			AccessTokenUUID: accessTokenUUID.String(),
 
 			MessageCheckNonce: nonce,
-			MessageHash:       originHash,
+			MessageHash:       hashHexString,
 			MessageData:       protoMsgRawData,
 
 			CreatedAt: time.Now(),

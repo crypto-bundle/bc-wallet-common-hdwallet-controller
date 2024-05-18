@@ -87,18 +87,18 @@ type powProofDataService interface {
 		toSaveItem *entities.PowProof,
 	) (result *entities.PowProof, err error)
 	GetPowProofByMessageHash(ctx context.Context,
-		messageHash []byte, // hash as big.Int value
+		messageHash string,
 	) (powProof *entities.PowProof, err error)
 }
 
 type walletManagerService interface {
 	AddNewWallet(ctx context.Context,
 		requestedAccessTokensCount uint,
-	) (*entities.MnemonicWallet, error)
+	) (*entities.MnemonicWallet, []*entities.AccessToken, error)
 	ImportWallet(ctx context.Context,
 		importedData []byte,
 		requestedAccessTokensCount uint,
-	) (*entities.MnemonicWallet, error)
+	) (*entities.MnemonicWallet, []*entities.AccessToken, error)
 	EnableWalletByUUID(ctx context.Context,
 		walletUUID string,
 	) (*entities.MnemonicWallet, error)
@@ -171,7 +171,13 @@ type signManagerService interface {
 }
 
 type marshallerService interface {
-	MarshallCreateWalletData(wallet *entities.MnemonicWallet) *pbApi.AddNewWalletResponse
+	MarshallCreateWalletData(wallet *entities.MnemonicWallet,
+		accessTokensList []*entities.AccessToken,
+	) *pbApi.AddNewWalletResponse
+	MarshallImportWalletData(
+		walletData *entities.MnemonicWallet,
+		accessTokensList []*entities.AccessToken,
+	) *pbApi.ImportWalletResponse
 	MarshallGetEnabledWallets([]*entities.MnemonicWallet) *pbApi.GetEnabledWalletsResponse
 	MarshallWalletSessions(
 		sessionsList []*entities.MnemonicWalletSession,

@@ -46,12 +46,7 @@ func easyjsonF60e8083DecodeGithubComCryptoBundleBcWalletCommonHdwalletController
 		case "message_check_nonce":
 			out.MessageCheckNonce = int64(in.Int64())
 		case "message_hash":
-			if in.IsNull() {
-				in.Skip()
-				out.MessageHash = nil
-			} else {
-				out.MessageHash = in.Bytes()
-			}
+			out.MessageHash = string(in.String())
 		case "message_data":
 			if in.IsNull() {
 				in.Skip()
@@ -112,7 +107,7 @@ func easyjsonF60e8083EncodeGithubComCryptoBundleBcWalletCommonHdwalletController
 	{
 		const prefix string = ",\"message_hash\":"
 		out.RawString(prefix)
-		out.Base64Bytes(in.MessageHash)
+		out.String(string(in.MessageHash))
 	}
 	{
 		const prefix string = ",\"message_data\":"

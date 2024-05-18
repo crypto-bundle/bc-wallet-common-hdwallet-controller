@@ -30,6 +30,7 @@ package grpc
 import (
 	"context"
 	"crypto/sha256"
+	"fmt"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"slices"
@@ -79,13 +80,13 @@ func (i accessTokenValidationInterceptor) Handle(ctx context.Context,
 	}
 
 	accessToken := accessTokenData[0]
-	hashSum := sha256.New()
-	_, err = hashSum.Write([]byte(accessToken))
-	if err != nil {
-		return false, err
-	}
+	//hashSum := sha256.New()
+	//_, err = hashSum.Write([]byte(accessToken))
+	//if err != nil {
+	//	return false, err
+	//}
 
-	accessTokenHash := string(hashSum.Sum(nil))
+	accessTokenHash := fmt.Sprintf("%x", sha256.Sum256([]byte(accessToken)))
 
 	switch req.(type) {
 	case *pbApi.AddNewWalletRequest,
@@ -112,7 +113,7 @@ func (i accessTokenValidationInterceptor) handleSystemRequest(ctx context.Contex
 		return nil, status.Error(codes.PermissionDenied, "wrong token hash value")
 	}
 
-	return handler(context.WithValue(ctx, app.ContextIsSystemTokenName, true), req)
+	return handler(context.WithValue(ctx, app.ContextIsSystemTokenTag, true), req)
 }
 
 func (i accessTokenValidationInterceptor) handleWalletRequest(ctx context.Context,
@@ -131,7 +132,7 @@ func (i accessTokenValidationInterceptor) handleWalletRequest(ctx context.Contex
 		requiredRole = i.signApprovedRoles
 	case *pbApi.GetWalletInfoRequest:
 		if i.systemTokenHash == accessTokenHash {
-			return handler(context.WithValue(ctx, app.ContextIsSystemTokenName, true), req)
+			return handler(context.WithValue(ctx, app.ContextIsSystemTokenTag, true), req)
 		}
 
 		requiredRole = i.readerWalletApprovedRoles
@@ -145,7 +146,7 @@ func (i accessTokenValidationInterceptor) handleWalletRequest(ctx context.Contex
 			"unable to extract data from JWT-token: %s", err)
 	}
 
-	tokenUUIDStr, isExist := data[TokenUUIDLabel]
+	tokenUUIDStr, isExist := data[app.JWTTokenUUIDLabel]
 	if !isExist {
 		return nil, status.Errorf(codes.InvalidArgument,
 			"missing token_uuid field: %s", ErrMissingTokenUUIDIdentity)
@@ -157,7 +158,7 @@ func (i accessTokenValidationInterceptor) handleWalletRequest(ctx context.Contex
 			"wrong format of token_uuid value: %s", err)
 	}
 
-	tokenExpiredAtStr, isExist := data[TokenExpiredLabel]
+	tokenExpiredAtStr, isExist := data[app.JWTTokenExpiredLabel]
 	if !isExist {
 		return nil, status.Error(codes.InvalidArgument, "missing expired_at field")
 	}
@@ -195,8 +196,10 @@ func (i accessTokenValidationInterceptor) handleWalletRequest(ctx context.Contex
 		return nil, status.Error(codes.PermissionDenied, "access token has no permission")
 	}
 
-	return handler(context.WithValue(ctx, app.ContextTokenUUIDTag, accessTokenItem.UUID),
-		req)
+	newCtx := context.WithValue(ctx, app.ContextIsSystemTokenTag, false)
+	newCtx = context.WithValue(newCtx, app.ContextTokenUUIDTag, accessTokenItem.UUID)
+
+	return handler(newCtx, req)
 }
 
 func newAccessTokenInterceptor(jwtSvc jwtService,

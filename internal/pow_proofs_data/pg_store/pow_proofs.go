@@ -118,7 +118,7 @@ func (s *pgRepository) GetPowProofByUUID(ctx context.Context,
 }
 
 func (s *pgRepository) GetPowProofByMessageHash(ctx context.Context,
-	messageHash []byte,
+	messageHash string,
 ) (powProof *entities.PowProof, err error) {
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		row := stmt.QueryRowx(`SELECT *
