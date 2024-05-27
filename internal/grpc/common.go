@@ -42,7 +42,8 @@ type configService interface {
 	IsDebug() bool
 	IsLocal() bool
 
-	GetBindPort() string
+	GetManagerApiBindAddress() string
+	GetWalletApiBindAddress() string
 
 	GetProviderName() string
 	GetNetworkName() string

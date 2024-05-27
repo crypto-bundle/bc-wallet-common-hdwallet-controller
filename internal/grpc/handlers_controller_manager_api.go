@@ -38,9 +38,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// grpcServerHandle is wrapper struct for implementation all grpc handlers
-type grpcServerHandle struct {
-	*pbApi.UnimplementedHdWalletControllerApiServer
+// grpcServerMangerApiHandle is wrapper struct for implementation all grpc handlers
+type grpcServerMangerApiHandle struct {
+	*pbApi.UnimplementedHdWalletControllerManagerApiServer
 
 	logger *zap.Logger
 	cfg    *config.MangerConfig
@@ -58,127 +58,72 @@ type grpcServerHandle struct {
 	getWalletInfoHandlerSvc  getWalletHandlerService
 	getEnabledWalletsHandler getEnabledWalletsHandlerService
 
-	startWalletSessionHandlerSvc startWalletSessionHandlerService
-	closeWalletSessionHandlerSvc closeWalletSessionHandlerService
-	getWalletSessionHandleSvc    getWalletSessionHandlerService
-	getWalletSessionsHandleSvc   getWalletSessionsHandlerService
-
-	getAccountHandlerSvc          getAccountHandlerService
-	getMultipleAccountsHandlerSvc getAccountsHandlerService
-
-	prepareSignReqHandlerSvc prepareSignRequestHandlerService
-	executeSignReqHandleSvc  executeSignRequestHandlerService
+	getAccountHandlerSvc getAccountHandlerService
 }
 
 // Wallet management handler
 
-func (h *grpcServerHandle) AddNewWallet(ctx context.Context,
+func (h *grpcServerMangerApiHandle) AddNewWallet(ctx context.Context,
 	req *pbApi.AddNewWalletRequest,
 ) (*pbApi.AddNewWalletResponse, error) {
 	return h.addNewWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) EnableWallet(ctx context.Context,
+func (h *grpcServerMangerApiHandle) EnableWallet(ctx context.Context,
 	req *pbApi.EnableWalletRequest,
 ) (*pbApi.EnableWalletResponse, error) {
 	return h.enableWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) ImportWallet(ctx context.Context,
+func (h *grpcServerMangerApiHandle) ImportWallet(ctx context.Context,
 	req *pbApi.ImportWalletRequest,
 ) (*pbApi.ImportWalletResponse, error) {
 	return h.importWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetWalletInfo(ctx context.Context,
+func (h *grpcServerMangerApiHandle) GetWalletInfo(ctx context.Context,
 	req *pbApi.GetWalletInfoRequest,
 ) (*pbApi.GetWalletInfoResponse, error) {
 	return h.getWalletInfoHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetEnabledWallets(ctx context.Context,
+func (h *grpcServerMangerApiHandle) GetEnabledWallets(ctx context.Context,
 	req *pbApi.GetEnabledWalletsRequest,
 ) (*pbApi.GetEnabledWalletsResponse, error) {
 	return h.getEnabledWalletsHandler.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) DisableWallet(ctx context.Context,
+func (h *grpcServerMangerApiHandle) DisableWallet(ctx context.Context,
 	req *pbApi.DisableWalletRequest,
 ) (*pbApi.DisableWalletResponse, error) {
 	return h.disableWalletHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) DisableWallets(ctx context.Context,
+func (h *grpcServerMangerApiHandle) DisableWallets(ctx context.Context,
 	req *pbApi.DisableWalletsRequest,
 ) (*pbApi.DisableWalletsResponse, error) {
 	return h.disableWalletsHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) EnableWallets(ctx context.Context,
+func (h *grpcServerMangerApiHandle) EnableWallets(ctx context.Context,
 	req *pbApi.EnableWalletsRequest,
 ) (*pbApi.EnableWalletsResponse, error) {
 	return h.enableWalletsHandlerSvc.Handle(ctx, req)
 }
 
-// Wallet sessions handlers
+// Wallet sub-account address handler
 
-func (h *grpcServerHandle) StartWalletSession(ctx context.Context,
-	req *pbApi.StartWalletSessionRequest,
-) (*pbApi.StartWalletSessionResponse, error) {
-	return h.startWalletSessionHandlerSvc.Handle(ctx, req)
-}
-
-func (h *grpcServerHandle) GetWalletSession(ctx context.Context,
-	req *pbApi.GetWalletSessionRequest,
-) (*pbApi.GetWalletSessionResponse, error) {
-	return h.getWalletSessionHandleSvc.Handle(ctx, req)
-}
-
-func (h *grpcServerHandle) GetAllWalletSessions(ctx context.Context,
-	req *pbApi.GetWalletSessionsRequest,
-) (*pbApi.GetWalletSessionsResponse, error) {
-	return h.getWalletSessionsHandleSvc.Handle(ctx, req)
-}
-
-func (h *grpcServerHandle) CloseWalletSession(ctx context.Context,
-	req *pbApi.CloseWalletSessionsRequest,
-) (*pbApi.CloseWalletSessionsResponse, error) {
-	return h.closeWalletSessionHandlerSvc.Handle(ctx, req)
-}
-
-// Wallet derivation address handlers
-
-func (h *grpcServerHandle) GetAccount(ctx context.Context,
+func (h *grpcServerMangerApiHandle) GetAccount(ctx context.Context,
 	req *pbApi.GetAccountRequest,
 ) (*pbApi.GetAccountResponse, error) {
 	return h.getAccountHandlerSvc.Handle(ctx, req)
 }
 
-func (h *grpcServerHandle) GetMultipleAccounts(ctx context.Context,
-	req *pbApi.GetMultipleAccountRequest,
-) (*pbApi.GetMultipleAccountResponse, error) {
-	return h.getMultipleAccountsHandlerSvc.Handle(ctx, req)
-}
-
-// Sign flow handlers
-
-func (h *grpcServerHandle) PrepareSignRequest(ctx context.Context,
-	req *pbApi.PrepareSignRequestReq,
-) (*pbApi.PrepareSignRequestResponse, error) {
-	return h.prepareSignReqHandlerSvc.Handle(ctx, req)
-}
-
-func (h *grpcServerHandle) ExecuteSignRequest(ctx context.Context,
-	req *pbApi.ExecuteSignRequestReq,
-) (*pbApi.ExecuteSignRequestResponse, error) {
-	return h.executeSignReqHandleSvc.Handle(ctx, req)
-}
-
-// New instance of service
-func New(loggerSrv *zap.Logger,
+// NewManagerApiHandler instance of service
+func NewManagerApiHandler(loggerSrv *zap.Logger,
 	walletManagerSvc walletManagerService,
 	signManagerSvc signManagerService,
-) pbApi.HdWalletControllerApiServer {
+) pbApi.HdWalletControllerManagerApiServer {
 
 	l := loggerSrv.Named("grpc.server.handler")
 
@@ -188,9 +133,10 @@ func New(loggerSrv *zap.Logger,
 
 	marshallerSvc := newGRPCMarshaller(loggerSrv, addrRespPool)
 
-	return &grpcServerHandle{
-		UnimplementedHdWalletControllerApiServer: &pbApi.UnimplementedHdWalletControllerApiServer{},
-		logger:                                   l,
+	return &grpcServerMangerApiHandle{
+		UnimplementedHdWalletControllerManagerApiServer: &pbApi.UnimplementedHdWalletControllerManagerApiServer{},
+
+		logger: l,
 
 		marshallerSrv: marshallerSvc,
 		// handlers
@@ -203,16 +149,7 @@ func New(loggerSrv *zap.Logger,
 		disableWalletsHandlerSvc: MakeDisableWalletsHandler(l, walletManagerSvc, signManagerSvc),
 		enableWalletsHandlerSvc:  MakeEnableWalletsHandler(l, walletManagerSvc),
 
-		startWalletSessionHandlerSvc: MakeStartWalletSessionHandler(l, walletManagerSvc),
-		getWalletSessionHandleSvc:    MakeGetWalletSessionHandler(l, walletManagerSvc),
-		getWalletSessionsHandleSvc:   MakeGetWalletSessionsHandler(l, walletManagerSvc, marshallerSvc),
-		closeWalletSessionHandlerSvc: MakeCloseWalletSessionHandler(l, walletManagerSvc, signManagerSvc),
-
 		getAccountHandlerSvc: MakeGetAccountHandler(l, walletManagerSvc,
 			marshallerSvc, addrRespPool),
-		getMultipleAccountsHandlerSvc: MakeGetMultipleAccountsHandler(l, walletManagerSvc,
-			marshallerSvc),
-		prepareSignReqHandlerSvc: MakeSignPrepareHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
-		executeSignReqHandleSvc:  MakeSignTransactionsHandler(l, walletManagerSvc, signManagerSvc, marshallerSvc),
 	}
 }

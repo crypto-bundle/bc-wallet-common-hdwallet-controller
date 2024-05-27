@@ -26,3 +26,30 @@
  */
 
 package controller
+
+func extractWalletUUIDFromReq(req interface{}) (string, error) {
+	var walletUUID string
+
+	switch req.(type) {
+	case *StartWalletSessionRequest:
+		walletUUID = req.(*StartWalletSessionRequest).WalletIdentifier.WalletUUID
+	case *GetWalletSessionRequest:
+		walletUUID = req.(*GetWalletSessionRequest).WalletIdentifier.WalletUUID
+	case *GetWalletSessionsRequest:
+		walletUUID = req.(*GetWalletSessionsRequest).WalletIdentifier.WalletUUID
+	case *CloseWalletSessionsRequest:
+		walletUUID = req.(*CloseWalletSessionsRequest).WalletIdentifier.WalletUUID
+	case *GetAccountRequest:
+		walletUUID = req.(*GetAccountRequest).WalletIdentifier.WalletUUID
+	case GetMultipleAccountRequest:
+		walletUUID = req.(*GetMultipleAccountRequest).WalletIdentifier.WalletUUID
+	case *PrepareSignRequestReq:
+		walletUUID = req.(*PrepareSignRequestReq).WalletIdentifier.WalletUUID
+	case *ExecuteSignRequestReq:
+		walletUUID = req.(*ExecuteSignRequestReq).WalletIdentifier.WalletUUID
+	default:
+		return "", ErrUnsupportedMethodByPOWShield
+	}
+
+	return walletUUID, nil
+}

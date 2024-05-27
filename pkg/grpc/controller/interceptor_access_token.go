@@ -46,7 +46,8 @@ func (i *accessTokenInterceptor) Invoke(ctx context.Context,
 	opts ...grpc.CallOption,
 ) error {
 	switch req.(type) {
-	case *AddNewWalletRequest, *ImportWalletRequest:
+	case *AddNewWalletRequest,
+		*ImportWalletRequest:
 		return invoker(ctx, method, req, reply, cc, opts...)
 	default:
 		return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
@@ -79,13 +80,14 @@ func (i *accessTokenInterceptor) invoke(ctx context.Context,
 		return err
 	}
 
-	md, ok := metadata.FromOutgoingContext(ctx)
-	if !ok {
-		md = metadata.New(make(map[string]string))
+	return invoker(metadata.AppendToOutgoingContext(ctx, "X-Access-Token", accessTokenStr),
+		method, req, reply, cc, opts...)
+}
+
+func newAccessTokenInterceptor(
+	accessTokensDataSvc accessTokensDataService,
+) *accessTokenInterceptor {
+	return &accessTokenInterceptor{
+		accessTokensDataSvc: accessTokensDataSvc,
 	}
-
-	md.Set("X-Access-Token", accessTokenStr)
-
-	return i.invoke(metadata.NewOutgoingContext(ctx, md),
-		method, req, reply, cc, invoker, opts...)
 }

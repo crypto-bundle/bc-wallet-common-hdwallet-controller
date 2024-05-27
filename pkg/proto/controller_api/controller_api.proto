@@ -307,7 +307,7 @@ message SignRequestEvent {
   SignRequestIdentity SignRequestIdentifier = 2;
 }
 
-service HdWalletControllerApi {
+service HdWalletControllerManagerApi {
   rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
   rpc ImportWallet                      (ImportWalletRequest)                returns (ImportWalletResponse) {}
   rpc EnableWallet                      (EnableWalletRequest)                returns (EnableWalletResponse) {}
@@ -316,6 +316,12 @@ service HdWalletControllerApi {
   rpc DisableWallet                      (DisableWalletRequest)                returns (DisableWalletResponse) {}
   rpc DisableWallets                      (DisableWalletsRequest)                returns (DisableWalletsResponse) {}
   rpc EnableWallets                      (EnableWalletsRequest)                returns (EnableWalletsResponse) {}
+
+  rpc GetAccount                (GetAccountRequest)           returns (GetAccountResponse) {}
+}
+
+service HdWalletControllerWalletApi {
+  rpc GetWalletInfo                 (GetWalletInfoRequest)           returns (GetWalletInfoResponse) {}
 
   rpc StartWalletSession                (StartWalletSessionRequest)    returns (StartWalletSessionResponse) {}
   rpc GetWalletSession                  (GetWalletSessionRequest)   returns (GetWalletSessionResponse) {}

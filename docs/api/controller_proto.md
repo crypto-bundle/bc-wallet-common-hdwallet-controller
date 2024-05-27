@@ -58,7 +58,8 @@
     - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
     - [WalletSessionStatus](#manager_api.WalletSessionStatus)
   
-    - [HdWalletControllerApi](#manager_api.HdWalletControllerApi)
+    - [HdWalletControllerManagerApi](#manager_api.HdWalletControllerManagerApi)
+    - [HdWalletControllerWalletApi](#manager_api.HdWalletControllerWalletApi)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -905,9 +906,9 @@
  
 
 
-<a name="manager_api.HdWalletControllerApi"></a>
+<a name="manager_api.HdWalletControllerManagerApi"></a>
 
-### HdWalletControllerApi
+### HdWalletControllerManagerApi
 
 
 | Method Name | Request Type | Response Type | Description |
@@ -920,6 +921,17 @@
 | DisableWallet | [DisableWalletRequest](#manager_api.DisableWalletRequest) | [DisableWalletResponse](#manager_api.DisableWalletResponse) |  |
 | DisableWallets | [DisableWalletsRequest](#manager_api.DisableWalletsRequest) | [DisableWalletsResponse](#manager_api.DisableWalletsResponse) |  |
 | EnableWallets | [EnableWalletsRequest](#manager_api.EnableWalletsRequest) | [EnableWalletsResponse](#manager_api.EnableWalletsResponse) |  |
+| GetAccount | [GetAccountRequest](#manager_api.GetAccountRequest) | [GetAccountResponse](#manager_api.GetAccountResponse) |  |
+
+
+<a name="manager_api.HdWalletControllerWalletApi"></a>
+
+### HdWalletControllerWalletApi
+
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| GetWalletInfo | [GetWalletInfoRequest](#manager_api.GetWalletInfoRequest) | [GetWalletInfoResponse](#manager_api.GetWalletInfoResponse) |  |
 | StartWalletSession | [StartWalletSessionRequest](#manager_api.StartWalletSessionRequest) | [StartWalletSessionResponse](#manager_api.StartWalletSessionResponse) |  |
 | GetWalletSession | [GetWalletSessionRequest](#manager_api.GetWalletSessionRequest) | [GetWalletSessionResponse](#manager_api.GetWalletSessionResponse) |  |
 | GetAllWalletSessions | [GetWalletSessionsRequest](#manager_api.GetWalletSessionsRequest) | [GetWalletSessionsResponse](#manager_api.GetWalletSessionsResponse) |  |

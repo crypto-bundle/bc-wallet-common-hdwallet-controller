@@ -29,47 +29,26 @@ package controller
 
 import (
 	"context"
-	"github.com/google/uuid"
+
+	"google.golang.org/grpc/metadata"
 )
 
-type baseConfigService interface {
-	GetProviderName() string
-	GetNetworkName() string
-}
+func (s *ClientWrapper) AddNewWallet(ctx context.Context,
+	accessToken string,
+	accessTokenCount uint,
+) (*AddNewWalletResponse, error) {
+	newCtx := metadata.AppendToOutgoingContext(ctx, "X-Access-Token", accessToken)
 
-type hdWalletClientConfigService interface {
-	baseConfigService
+	resp, err := s.originGRPCClient.AddNewWallet(newCtx, &AddNewWalletRequest{
+		CreateAccessTokensCount: uint64(accessTokenCount),
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	GetMaxReceiveMessageSize() int
-	GetMaxSendMessageSize() int
-	IsPowShieldEnabled() bool
-	IsAccessTokenShieldEnabled() bool
+	if resp == nil {
+		return nil, ErrMissingResponse
+	}
 
-	GetServerPort() uint
-	GetServerHost() string
-	GetServerBindAddress() string
-}
-
-type obscurityDataProvider interface {
-	GetLastObscurityDataIdentifier(ctx context.Context, walletUUID string) (*uuid.UUID, error)
-	AddLastObscurityDataIdentifier(ctx context.Context,
-		walletUUID string,
-		obscurityUUID string,
-	) error
-}
-
-type accessTokensDataService interface {
-	GetAccessTokenForWallet(ctx context.Context, walletUUID string) (string, error)
-}
-
-type transactionalStatementManager interface {
-	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
-	CommitContextualTxStatement(ctx context.Context) error
-	RollbackContextualTxStatement(ctx context.Context) error
-	BeginTxWithRollbackOnError(ctx context.Context,
-		callback func(txStmtCtx context.Context) error,
-	) error
-}
-
-type jwtService interface {
+	return resp, nil
 }

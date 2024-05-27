@@ -32,7 +32,16 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewInterceptorsList(logger *zap.Logger,
+func NewManagerApiInterceptorsList(systemAccessToken string,
+	tokenDataSvc accessTokenDataService,
+	jwtService jwtService,
+) []grpc.UnaryServerInterceptor {
+	return []grpc.UnaryServerInterceptor{
+		newAccessTokenInterceptor(jwtService, tokenDataSvc, systemAccessToken),
+	}
+}
+
+func NewWalletApiInterceptorsList(logger *zap.Logger,
 	systemAccessToken string,
 	powProofDataSvc powProofDataService,
 	walletSessionDataSvc walletDataService,

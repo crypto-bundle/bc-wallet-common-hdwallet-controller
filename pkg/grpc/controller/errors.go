@@ -27,49 +27,10 @@
 
 package controller
 
-import (
-	"context"
-	"github.com/google/uuid"
+import "errors"
+
+var (
+	ErrMissingResponse              = errors.New("missing response data")
+	ErrUnsupportedMethodByPOWShield = errors.New("unsupported pow-shield method")
+	ErrWrongRequestType             = errors.New("wrong request type")
 )
-
-type baseConfigService interface {
-	GetProviderName() string
-	GetNetworkName() string
-}
-
-type hdWalletClientConfigService interface {
-	baseConfigService
-
-	GetMaxReceiveMessageSize() int
-	GetMaxSendMessageSize() int
-	IsPowShieldEnabled() bool
-	IsAccessTokenShieldEnabled() bool
-
-	GetServerPort() uint
-	GetServerHost() string
-	GetServerBindAddress() string
-}
-
-type obscurityDataProvider interface {
-	GetLastObscurityDataIdentifier(ctx context.Context, walletUUID string) (*uuid.UUID, error)
-	AddLastObscurityDataIdentifier(ctx context.Context,
-		walletUUID string,
-		obscurityUUID string,
-	) error
-}
-
-type accessTokensDataService interface {
-	GetAccessTokenForWallet(ctx context.Context, walletUUID string) (string, error)
-}
-
-type transactionalStatementManager interface {
-	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
-	CommitContextualTxStatement(ctx context.Context) error
-	RollbackContextualTxStatement(ctx context.Context) error
-	BeginTxWithRollbackOnError(ctx context.Context,
-		callback func(txStmtCtx context.Context) error,
-	) error
-}
-
-type jwtService interface {
-}

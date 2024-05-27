@@ -27,9 +27,36 @@
 
 package controller
 
-type Client struct {
-	originGRPCClient HdWalletControllerApiClient
+import (
+	"context"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+	"github.com/google/uuid"
 
-	obscurityDataSvc   obscurityDataProvider
-	accessTokenDataSvc accessTokensDataService
+	"google.golang.org/grpc/metadata"
+)
+
+func (s *ClientWrapper) GetWalletInfo(ctx context.Context,
+	accessToken string,
+	obscurityDataUUID uuid.UUID,
+	walletUUID uuid.UUID,
+) (*GetWalletInfoResponse, error) {
+	req := &GetWalletInfoRequest{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletUUID.String(),
+		},
+	}
+
+	newCtx := metadata.AppendToOutgoingContext(ctx, "X-Access-Token", accessToken)
+
+	s.grpcConn.Invoke()
+	resp, err := s.originGRPCClient.GetWalletInfo(newCtx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp == nil {
+		return nil, ErrMissingResponse
+	}
+
+	return resp, nil
 }

@@ -80,13 +80,16 @@ type MangerConfig struct {
 	// must be saved in bc-wallet-common vault kv bucket,
 	// for example: kv/data/crypto-bundle/bc-wallet-common/jwt
 	SystemAccessTokenHash string `envconfig:"JWT_SYSTEM_ACCESS_TOKEN_HASH" secret:"true"`
-	// GRPCBindRaw port string, default "8080"
-	GRPCBindRaw string `envconfig:"API_GRPC_PORT" default:"8080"`
+	// ManagerApiGRPCBindRaw - address and port string for tcp bind
+	ManagerApiGRPCBindRaw string `envconfig:"MANAGER_API_GRPC_PORT" default:"8080"`
+	// WalletApiGRPCBindRaw - address and port string for tcp bind
+	WalletApiGRPCBindRaw string `envconfig:"WALLET_API_GRPC_PORT" default:"8081"`
 	// ----------------------------
 	// Calculated config parameters
-	GRPCBind         string
-	InstanceUUID     uuid.UUID
-	EventChannelName string
+	ManagerApiGRPCBind string
+	WalletApiGRPCBind  string
+	InstanceUUID       uuid.UUID
+	EventChannelName   string
 	// ----------------------------
 	// Dependencies
 	baseAppCfgSrv baseConfigService
@@ -112,8 +115,12 @@ func (c *MangerConfig) GetVaultAppEncryptionKey() string {
 	return c.VaultApplicationEncryptionKey
 }
 
-func (c *MangerConfig) GetBindPort() string {
-	return c.GRPCBind
+func (c *MangerConfig) GetManagerApiBindAddress() string {
+	return c.ManagerApiGRPCBind
+}
+
+func (c *MangerConfig) GetWalletApiBindAddress() string {
+	return c.WalletApiGRPCBind
 }
 
 func (c *MangerConfig) GetInstanceIdentifier() uuid.UUID {
@@ -132,7 +139,9 @@ func (c *MangerConfig) GetEventChannelBufferSize() int {
 
 // Prepare variables to static configuration
 func (c *MangerConfig) Prepare() error {
-	c.GRPCBind = fmt.Sprintf(":%s", strings.TrimLeft(c.GRPCBindRaw, ":"))
+	c.ManagerApiGRPCBind = fmt.Sprintf(":%s", strings.TrimLeft(c.ManagerApiGRPCBindRaw, ":"))
+	c.WalletApiGRPCBind = fmt.Sprintf(":%s", strings.TrimLeft(c.WalletApiGRPCBindRaw, ":"))
+
 	c.InstanceUUID = uuid.New()
 
 	appName := fmt.Sprintf(ApplicationManagerNameTpl, c.ProcessionEnvironmentConfig.GetNetworkName())

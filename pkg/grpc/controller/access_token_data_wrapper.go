@@ -29,47 +29,40 @@ package controller
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"sync"
 )
 
-type baseConfigService interface {
-	GetProviderName() string
-	GetNetworkName() string
+type accessTokenDataWrapper struct {
+	mu sync.RWMutex
+
+	tokensCache map[string]string
+
+	accessTokenDataSvc accessTokensDataService
 }
 
-type hdWalletClientConfigService interface {
-	baseConfigService
+func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (string, error) {
+	tokenStr, isFound := w.tokensCache[walletUUID]
+	if isFound {
+		return tokenStr, nil
+	}
 
-	GetMaxReceiveMessageSize() int
-	GetMaxSendMessageSize() int
-	IsPowShieldEnabled() bool
-	IsAccessTokenShieldEnabled() bool
+	w.mu.RLock()
+	defer w.mu.RUnlock()
 
-	GetServerPort() uint
-	GetServerHost() string
-	GetServerBindAddress() string
+	tokenStr, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
+	if err != nil {
+		return "", err
+	}
+
+	w.tokensCache[walletUUID] = tokenStr
+
+	return tokenStr, nil
 }
 
-type obscurityDataProvider interface {
-	GetLastObscurityDataIdentifier(ctx context.Context, walletUUID string) (*uuid.UUID, error)
-	AddLastObscurityDataIdentifier(ctx context.Context,
-		walletUUID string,
-		obscurityUUID string,
-	) error
-}
-
-type accessTokensDataService interface {
-	GetAccessTokenForWallet(ctx context.Context, walletUUID string) (string, error)
-}
-
-type transactionalStatementManager interface {
-	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
-	CommitContextualTxStatement(ctx context.Context) error
-	RollbackContextualTxStatement(ctx context.Context) error
-	BeginTxWithRollbackOnError(ctx context.Context,
-		callback func(txStmtCtx context.Context) error,
-	) error
-}
-
-type jwtService interface {
+func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
+	return &accessTokenDataWrapper{
+		mu:                 sync.RWMutex{},
+		tokensCache:        make(map[string]string),
+		accessTokenDataSvc: originDataSvc,
+	}
 }

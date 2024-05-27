@@ -158,15 +158,26 @@ func main() {
 		jwtSvc, hdWalletClient, eventPublisher, pgConn)
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 
-	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
-	apiInterceptors := grpcHandlers.NewInterceptorsList(loggerEntry, appCfg.GetSystemAccessTokenHash(),
+	managerApiHandlers := grpcHandlers.NewManagerApiHandler(loggerEntry, walletSvc, signReqSvc)
+	apiInterceptors := grpcHandlers.NewManagerApiInterceptorsList(appCfg.GetSystemAccessTokenHash(),
+		accessTokenDataSvc, jwtSvc)
+
+	mangerApiGRPCSrv, err := grpcHandlers.NewManagerApiServer(loggerEntry, appCfg, managerApiHandlers, apiInterceptors)
+	if err != nil {
+		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
+			zap.String("bind address", appCfg.GetManagerApiBindAddress()))
+	}
+
+	walletApiHandlers := grpcHandlers.NewWalletApiHandler(loggerEntry, walletSvc, signReqSvc)
+	walletApiInterceptors := grpcHandlers.NewWalletApiInterceptorsList(loggerEntry, appCfg.GetSystemAccessTokenHash(),
 		powProofDataSvc, mnemonicWalletDataSvc,
 		accessTokenDataSvc, powValidatorSvc, jwtSvc, pgConn)
 
-	GRPCSrv, err := grpcHandlers.NewServer(loggerEntry, appCfg, apiHandlers, apiInterceptors)
+	walletApiGRPCSrv, err := grpcHandlers.NewWalletApiServer(loggerEntry, appCfg, walletApiHandlers,
+		walletApiInterceptors)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
 
 	eventWatcher := events.NewEventWatcher(loggerEntry, appCfg, redisConn, natsConnSvc,
@@ -185,10 +196,10 @@ func main() {
 	}
 	loggerEntry.Info("hd-wallet client initiated")
 
-	err = GRPCSrv.Init(ctx)
+	err = mangerApiGRPCSrv.Init(ctx)
 	if err != nil {
 		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
 	loggerEntry.Info("gRPC server initiated")
 
@@ -212,10 +223,16 @@ func main() {
 	//checker.AddStartupProbeUnit(pgConn)
 	//checker.AddStartupProbeUnit(natsConnSvc)
 
-	err = GRPCSrv.ListenAndServe(ctx)
+	err = mangerApiGRPCSrv.ListenAndServe(ctx)
 	if err != nil {
-		loggerEntry.Error("unable to start grpc", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
+		loggerEntry.Error("unable to start manager-api grpc", zap.Error(err),
+			zap.String("bind address", appCfg.GetManagerApiBindAddress()))
+	}
+
+	err = walletApiGRPCSrv.ListenAndServe(ctx)
+	if err != nil {
+		loggerEntry.Error("unable to start wallet-api grpc", zap.Error(err),
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
 
 	err = profiler.ListenAndServe(ctx)
@@ -223,7 +240,7 @@ func main() {
 		loggerEntry.Fatal("unable to init profiler", zap.Error(err))
 	}
 
-	loggerEntry.Info("application started successfully", zap.String(app.GRPCBindPortTag, appCfg.GetBindPort()))
+	loggerEntry.Info("application started successfully")
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

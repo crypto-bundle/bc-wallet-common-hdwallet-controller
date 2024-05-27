@@ -42,12 +42,12 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-type Server struct {
+type ManagerApiServer struct {
 	logger            *zap.Logger
 	grpcServer        *grpc.Server
 	grpcServerOptions []grpc.ServerOption
 
-	handlers         pbApi.HdWalletControllerApiServer
+	handlers         pbApi.HdWalletControllerManagerApiServer
 	interceptorsList []grpc.UnaryServerInterceptor
 
 	config configService
@@ -55,7 +55,7 @@ type Server struct {
 	listener net.Listener
 }
 
-func (s *Server) Init(_ context.Context) error {
+func (s *ManagerApiServer) Init(_ context.Context) error {
 	options := commonGRPCServer.DefaultServeOptions()
 	msgSizeOptions := []grpc.ServerOption{
 		grpc.MaxRecvMsgSize(commonGRPCServer.DefaultServerMaxReceiveMessageSize),
@@ -70,7 +70,7 @@ func (s *Server) Init(_ context.Context) error {
 	return nil
 }
 
-func (s *Server) shutdown() error {
+func (s *ManagerApiServer) shutdown() error {
 	s.logger.Info("start close instances")
 
 	s.grpcServer.GracefulStop()
@@ -84,11 +84,11 @@ func (s *Server) shutdown() error {
 	return nil
 }
 
-func (s *Server) ListenAndServe(ctx context.Context) (err error) {
-	listenConn, err := net.Listen("tcp", s.config.GetBindPort())
+func (s *ManagerApiServer) ListenAndServe(ctx context.Context) (err error) {
+	listenConn, err := net.Listen("tcp", s.config.GetManagerApiBindAddress())
 	if err != nil {
 		s.logger.Error("unable to listen port", zap.Error(err),
-			zap.String("port", s.config.GetBindPort()))
+			zap.String("bind address", s.config.GetManagerApiBindAddress()))
 
 		return err
 	}
@@ -104,15 +104,15 @@ func (s *Server) ListenAndServe(ctx context.Context) (err error) {
 	return nil
 }
 
-func (s *Server) serve(ctx context.Context) {
+func (s *ManagerApiServer) serve(ctx context.Context) {
 	newCtx, causeFunc := context.WithCancelCause(ctx)
-	pbApi.RegisterHdWalletControllerApiServer(s.grpcServer, s.handlers)
+	pbApi.RegisterHdWalletControllerManagerApiServer(s.grpcServer, s.handlers)
 
 	go func() {
 		err := s.grpcServer.Serve(s.listener)
 		if err != nil {
 			s.logger.Error("unable to start serving", zap.Error(err),
-				zap.String("port", s.config.GetBindPort()))
+				zap.String("bind address", s.config.GetManagerApiBindAddress()))
 			causeFunc(err)
 		}
 	}()
@@ -132,14 +132,14 @@ func (s *Server) serve(ctx context.Context) {
 }
 
 // nolint:revive // fixme
-func NewServer(loggerSrv *zap.Logger,
+func NewManagerApiServer(loggerSrv *zap.Logger,
 	cfg configService,
-	handlers pbApi.HdWalletControllerApiServer,
+	handlers pbApi.HdWalletControllerManagerApiServer,
 	interceptorsList []grpc.UnaryServerInterceptor,
-) (*Server, error) {
+) (*ManagerApiServer, error) {
 	l := loggerSrv.Named("grpc.server")
 
-	srv := &Server{
+	srv := &ManagerApiServer{
 		logger: l,
 
 		config: cfg,

@@ -80,12 +80,6 @@ func (i accessTokenValidationInterceptor) Handle(ctx context.Context,
 	}
 
 	accessToken := accessTokenData[0]
-	//hashSum := sha256.New()
-	//_, err = hashSum.Write([]byte(accessToken))
-	//if err != nil {
-	//	return false, err
-	//}
-
 	accessTokenHash := fmt.Sprintf("%x", sha256.Sum256([]byte(accessToken)))
 
 	switch req.(type) {

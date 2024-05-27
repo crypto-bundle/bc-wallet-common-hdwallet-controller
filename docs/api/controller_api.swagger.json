@@ -6,7 +6,10 @@
   },
   "tags": [
     {
-      "name": "HdWalletControllerApi"
+      "name": "HdWalletControllerManagerApi"
+    },
+    {
+      "name": "HdWalletControllerWalletApi"
     }
   ],
   "consumes": [
