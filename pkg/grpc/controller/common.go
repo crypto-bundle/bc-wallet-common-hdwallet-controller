@@ -29,7 +29,11 @@ package controller
 
 import (
 	"context"
-	"github.com/google/uuid"
+)
+
+const (
+	serverAddressTemplate = "BC_WALLET_%s_HDWALLET_SERVICE_HOST"
+	serverPortTemplate    = "BC_WALLET_%s_HDWALLET_SERVICE_PORT"
 )
 
 type baseConfigService interface {
@@ -51,21 +55,18 @@ type hdWalletClientConfigService interface {
 }
 
 type obscurityDataProvider interface {
-	GetLastObscurityDataIdentifier(ctx context.Context, walletUUID string) (*uuid.UUID, error)
-	AddLastObscurityDataIdentifier(ctx context.Context,
+	GetLastObscurityData(ctx context.Context, walletUUID string) ([]byte, error)
+	AddLastObscurityData(ctx context.Context,
 		walletUUID string,
-		obscurityUUID string,
+		obscurityData []byte,
 	) error
 }
 
 type accessTokensDataService interface {
-	GetAccessTokenForWallet(ctx context.Context, walletUUID string) (string, error)
+	GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error)
 }
 
 type transactionalStatementManager interface {
-	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
-	CommitContextualTxStatement(ctx context.Context) error
-	RollbackContextualTxStatement(ctx context.Context) error
 	BeginTxWithRollbackOnError(ctx context.Context,
 		callback func(txStmtCtx context.Context) error,
 	) error

@@ -32,17 +32,21 @@ import (
 	"google.golang.org/grpc"
 )
 
+const (
+	AccessTokenHeader = "X-Access-Token"
+
+	PowShieldProofHeader = "X-POW-Hashcash-Proof"
+	PowShieldNonceHeader = "X-POW-Hashcash-Nonce"
+)
+
 func NewManagerApiInterceptorsList(systemAccessToken string,
-	tokenDataSvc accessTokenDataService,
-	jwtService jwtService,
 ) []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
-		newAccessTokenInterceptor(jwtService, tokenDataSvc, systemAccessToken),
+		newAccessRootTokenInterceptor(systemAccessToken),
 	}
 }
 
 func NewWalletApiInterceptorsList(logger *zap.Logger,
-	systemAccessToken string,
 	powProofDataSvc powProofDataService,
 	walletSessionDataSvc walletDataService,
 	tokenDataSvc accessTokenDataService,
@@ -51,7 +55,7 @@ func NewWalletApiInterceptorsList(logger *zap.Logger,
 	txStmtSvc transactionalStatementManager,
 ) []grpc.UnaryServerInterceptor {
 	return []grpc.UnaryServerInterceptor{
-		newAccessTokenInterceptor(jwtService, tokenDataSvc, systemAccessToken),
+		newAccessTokenInterceptor(jwtService, tokenDataSvc),
 		newPowShieldPreValidationInterceptor(POWValidatorSvc),
 		newPowShieldFullValidationInterceptor(logger, walletSessionDataSvc,
 			powProofDataSvc, POWValidatorSvc, txStmtSvc),

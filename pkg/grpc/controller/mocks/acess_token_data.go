@@ -25,51 +25,25 @@
  *
  */
 
-package controller
+package mocks
 
-import (
-	"context"
-	"strings"
-	"sync"
-)
+import "context"
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
-
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
+type accessTokenDataStore struct {
+	tokens map[string]string
 }
 
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
-
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil {
+func (s *accessTokenDataStore) GetAccessTokenForWallet(ctx context.Context,
+	walletUUID string,
+) (*string, error) {
+	token, isExists := s.tokens[walletUUID]
+	if !isExists {
 		return nil, nil
 	}
 
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
+	return &token, nil
 }
 
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
-	}
+func NewAccessTokenDataStore(tokens map[string]string) *accessTokenDataStore {
+	return &accessTokenDataStore{tokens: tokens}
 }

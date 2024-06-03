@@ -31,6 +31,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"fmt"
+	"github.com/google/uuid"
 	"math"
 	"math/big"
 	"strconv"
@@ -85,13 +86,13 @@ func (i *powShieldInterceptor) Invoke(ctx context.Context,
 func (i *powShieldInterceptor) getObscurityData(ctx context.Context, walletUUID string) ([]byte, error) {
 	var obscurityRawData []byte
 
-	lastIdentity, err := i.obscurityDataSvc.GetLastObscurityDataIdentifier(ctx, walletUUID)
+	lastObscurityData, err := i.obscurityDataSvc.GetLastObscurityData(ctx, walletUUID)
 	if err != nil {
 		return nil, err
 	}
 
-	if lastIdentity != nil {
-		obscurityRawData = lastIdentity[:]
+	if lastObscurityData != nil {
+		obscurityRawData = lastObscurityData[:]
 
 		return obscurityRawData, nil
 	}
@@ -101,7 +102,11 @@ func (i *powShieldInterceptor) getObscurityData(ctx context.Context, walletUUID 
 		return nil, err
 	}
 
-	return []byte(accessTokenStr), nil
+	if accessTokenStr == nil {
+		return nil, ErrMissingAccessToken
+	}
+
+	return []byte(*accessTokenStr), nil
 }
 
 func (i *powShieldInterceptor) invokeSession(ctx context.Context,
@@ -142,8 +147,13 @@ func (i *powShieldInterceptor) invokeSession(ctx context.Context,
 			return ErrMissingResponse
 		}
 
-		clbErr = i.obscurityDataSvc.AddLastObscurityDataIdentifier(txStmtCtx, walletUUID,
-			resp.SessionIdentifier.SessionUUID)
+		sessionUUIDRaw, clbErr := uuid.Parse(resp.SessionIdentifier.SessionUUID)
+		if clbErr != nil {
+			return clbErr
+		}
+
+		clbErr = i.obscurityDataSvc.AddLastObscurityData(txStmtCtx, walletUUID,
+			sessionUUIDRaw[:])
 		if clbErr != nil {
 			return clbErr
 		}
@@ -154,6 +164,7 @@ func (i *powShieldInterceptor) invokeSession(ctx context.Context,
 		return err
 	}
 
+	return nil
 }
 
 func (i *powShieldInterceptor) invoke(ctx context.Context,
@@ -177,7 +188,7 @@ func (i *powShieldInterceptor) invoke(ctx context.Context,
 	var obscurityRawData []byte
 
 	err = i.txStatementSvc.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		lastIdentity, clbErr := i.obscurityDataSvc.GetLastObscurityDataIdentifier(txStmtCtx)
+		lastIdentity, clbErr := i.obscurityDataSvc.GetLastObscurityData(txStmtCtx, walletUUID)
 		if clbErr != nil {
 			return clbErr
 		}
@@ -193,7 +204,11 @@ func (i *powShieldInterceptor) invoke(ctx context.Context,
 			return clbErr
 		}
 
-		obscurityRawData = []byte(accessTokenStr)
+		if accessTokenStr == nil {
+			return ErrMissingAccessToken
+		}
+
+		obscurityRawData = []byte(*accessTokenStr)
 
 		return nil
 	})

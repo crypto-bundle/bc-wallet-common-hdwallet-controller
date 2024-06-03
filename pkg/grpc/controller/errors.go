@@ -33,4 +33,6 @@ var (
 	ErrMissingResponse              = errors.New("missing response data")
 	ErrUnsupportedMethodByPOWShield = errors.New("unsupported pow-shield method")
 	ErrWrongRequestType             = errors.New("wrong request type")
+	ErrUnableDecodeGrpcErrorStatus  = errors.New("unable to decode grpc error status")
+	ErrMissingAccessToken           = errors.New("missing access token - access token not found")
 )

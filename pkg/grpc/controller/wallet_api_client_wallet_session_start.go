@@ -29,47 +29,45 @@ package controller
 
 import (
 	"context"
-	"strings"
-	"sync"
+	"fmt"
+
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
+
+	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
-
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
-}
-
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
+func (s *WalletApiClientWrapper) StartWalletSession(ctx context.Context,
+	walletUUID string,
+) (*StartWalletSessionResponse, error) {
+	req := &StartWalletSessionRequest{
+		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletUUID,
+		},
 	}
 
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
+	resp, err := s.originGRPCClient.StartWalletSession(ctx, req)
 	if err != nil {
-		return nil, err
+		grpcStatus, statusExists := status.FromError(err)
+		if !statusExists {
+			s.logger.Error("unable get status from error", zap.Error(err))
+
+			return nil, fmt.Errorf("%w: %s", ErrUnableDecodeGrpcErrorStatus, err)
+		}
+
+		switch grpcStatus.Code() {
+		case codes.NotFound, codes.ResourceExhausted:
+			return nil, nil
+
+		default:
+			return nil, err
+		}
 	}
 
-	if token == nil {
-		return nil, nil
+	if resp == nil {
+		return nil, ErrMissingResponse
 	}
 
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
-}
-
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
-	}
+	return resp, nil
 }

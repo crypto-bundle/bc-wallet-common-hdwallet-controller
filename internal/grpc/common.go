@@ -118,6 +118,10 @@ type walletManagerService interface {
 		mnemonicUUID string,
 		accountParameters *anypb.Any,
 	) (address *string, err error)
+	GetAccountWithoutSession(ctx context.Context,
+		wallet *entities.MnemonicWallet,
+		parameters *anypb.Any,
+	) (address *string, err error)
 	GetAccounts(ctx context.Context,
 		mnemonicUUID string,
 		accountsParameters *anypb.Any,

@@ -29,47 +29,29 @@ package controller
 
 import (
 	"context"
-	"strings"
-	"sync"
+	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
-
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
-}
-
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
+func (s *ManagerApiClientWrapper) EnableMultipleWallets(ctx context.Context,
+	walletUUIDs []string,
+) (*EnableWalletsResponse, error) {
+	identities := make([]*pbCommon.MnemonicWalletIdentity, len(walletUUIDs))
+	for i, _ := range walletUUIDs {
+		identities[i] = &pbCommon.MnemonicWalletIdentity{
+			WalletUUID: walletUUIDs[i],
+		}
 	}
 
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
+	resp, err := s.originGRPCClient.EnableWallets(ctx, &EnableWalletsRequest{
+		WalletIdentifiers: identities,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if token == nil {
-		return nil, nil
+	if resp == nil {
+		return nil, ErrMissingResponse
 	}
 
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
-}
-
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
-	}
+	return resp, nil
 }

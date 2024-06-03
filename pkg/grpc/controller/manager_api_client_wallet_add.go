@@ -29,47 +29,21 @@ package controller
 
 import (
 	"context"
-	"strings"
-	"sync"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
-
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
-}
-
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
-
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
+func (s *ManagerApiClientWrapper) AddNewWallet(ctx context.Context,
+	accessTokenCount uint,
+) (*AddNewWalletResponse, error) {
+	resp, err := s.originGRPCClient.AddNewWallet(ctx, &AddNewWalletRequest{
+		CreateAccessTokensCount: uint64(accessTokenCount),
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	if token == nil {
-		return nil, nil
+	if resp == nil {
+		return nil, ErrMissingResponse
 	}
 
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
-}
-
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
-	}
+	return resp, nil
 }

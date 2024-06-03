@@ -25,51 +25,49 @@
  *
  */
 
-package controller
+package mocks
 
 import (
+	"bytes"
 	"context"
-	"strings"
 	"sync"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
+type obscurityDataStore struct {
+	mu sync.Mutex
 
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
+	identifierByWallets map[string][]byte
 }
 
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
+func (s *obscurityDataStore) GetLastObscurityData(ctx context.Context,
+	walletUUID string,
+) ([]byte, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil {
+	data, isExists := s.identifierByWallets[walletUUID]
+	if !isExists {
 		return nil, nil
 	}
 
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
+	return data, nil
 }
 
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
+func (s *obscurityDataStore) AddLastObscurityData(ctx context.Context,
+	walletUUID string,
+	obscurityData []byte,
+) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.identifierByWallets[walletUUID] = bytes.Clone(obscurityData)
+
+	return nil
+}
+
+func NewObscurityDataStoreStore(identifiers map[string][]byte) *obscurityDataStore {
+	return &obscurityDataStore{
+		mu:                  sync.Mutex{},
+		identifierByWallets: identifiers,
 	}
 }

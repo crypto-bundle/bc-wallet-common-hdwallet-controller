@@ -29,47 +29,39 @@ package controller
 
 import (
 	"context"
-	"strings"
-	"sync"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
-
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
+type rootAccessTokenInterceptor struct {
+	accessToken string
 }
 
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
-
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil {
-		return nil, nil
-	}
-
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
+func (i *rootAccessTokenInterceptor) Invoke(ctx context.Context,
+	method string,
+	req interface{},
+	reply interface{},
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
 }
 
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
+func (i *rootAccessTokenInterceptor) invoke(ctx context.Context,
+	method string,
+	req interface{},
+	reply interface{},
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	return invoker(metadata.AppendToOutgoingContext(ctx, "X-Access-Token", i.accessToken),
+		method, req, reply, cc, opts...)
+}
+
+func newRootAccessTokenInterceptor(accessToken string) *rootAccessTokenInterceptor {
+	return &rootAccessTokenInterceptor{
+		accessToken: accessToken,
 	}
 }

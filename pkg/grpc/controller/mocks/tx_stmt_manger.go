@@ -25,51 +25,19 @@
  *
  */
 
-package controller
+package mocks
 
-import (
-	"context"
-	"strings"
-	"sync"
-)
+import "context"
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
-
-	tokensCache map[string]string
-
-	accessTokenDataSvc accessTokensDataService
+type txStmtManager struct {
 }
 
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
-
-	w.mu.RLock()
-	defer w.mu.RUnlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil {
-		return nil, nil
-	}
-
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
+func (m txStmtManager) BeginTxWithRollbackOnError(ctx context.Context,
+	_ func(txStmtCtx context.Context) error,
+) error {
+	return nil
 }
 
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
-	}
+func NewTxStmtMock() *txStmtManager {
+	return &txStmtManager{}
 }

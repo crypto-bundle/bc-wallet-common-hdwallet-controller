@@ -159,8 +159,7 @@ func main() {
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 
 	managerApiHandlers := grpcHandlers.NewManagerApiHandler(loggerEntry, walletSvc, signReqSvc)
-	apiInterceptors := grpcHandlers.NewManagerApiInterceptorsList(appCfg.GetSystemAccessTokenHash(),
-		accessTokenDataSvc, jwtSvc)
+	apiInterceptors := grpcHandlers.NewManagerApiInterceptorsList(appCfg.GetSystemAccessTokenHash())
 
 	mangerApiGRPCSrv, err := grpcHandlers.NewManagerApiServer(loggerEntry, appCfg, managerApiHandlers, apiInterceptors)
 	if err != nil {
@@ -169,7 +168,7 @@ func main() {
 	}
 
 	walletApiHandlers := grpcHandlers.NewWalletApiHandler(loggerEntry, walletSvc, signReqSvc)
-	walletApiInterceptors := grpcHandlers.NewWalletApiInterceptorsList(loggerEntry, appCfg.GetSystemAccessTokenHash(),
+	walletApiInterceptors := grpcHandlers.NewWalletApiInterceptorsList(loggerEntry,
 		powProofDataSvc, mnemonicWalletDataSvc,
 		accessTokenDataSvc, powValidatorSvc, jwtSvc, pgConn)
 

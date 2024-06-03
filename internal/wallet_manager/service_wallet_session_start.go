@@ -157,6 +157,8 @@ func (s *Service) startWalletSession(ctx context.Context,
 	if err != nil {
 		s.logger.Error("unable to load mnemonic wallet by hd-wallet service", zap.Error(err),
 			zap.String(app.MnemonicWalletUUIDTag, wallet.UUID.String()))
+
+		// no return - it's ok
 	}
 
 	err = s.cacheStoreDataSvc.SetMnemonicWalletSessionItem(ctx, session)

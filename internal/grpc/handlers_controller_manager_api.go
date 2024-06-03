@@ -111,7 +111,7 @@ func (h *grpcServerMangerApiHandle) EnableWallets(ctx context.Context,
 	return h.enableWalletsHandlerSvc.Handle(ctx, req)
 }
 
-// Wallet sub-account address handler
+// Wallet Sub-account address handler
 
 func (h *grpcServerMangerApiHandle) GetAccount(ctx context.Context,
 	req *pbApi.GetAccountRequest,
@@ -149,7 +149,7 @@ func NewManagerApiHandler(loggerSrv *zap.Logger,
 		disableWalletsHandlerSvc: MakeDisableWalletsHandler(l, walletManagerSvc, signManagerSvc),
 		enableWalletsHandlerSvc:  MakeEnableWalletsHandler(l, walletManagerSvc),
 
-		getAccountHandlerSvc: MakeGetAccountHandler(l, walletManagerSvc,
+		getAccountHandlerSvc: MakeGetAccountSessionLessHandler(l, walletManagerSvc,
 			marshallerSvc, addrRespPool),
 	}
 }

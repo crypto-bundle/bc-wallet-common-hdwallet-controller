@@ -39,11 +39,6 @@ import (
 	"math/big"
 )
 
-const (
-	PowShieldProofHeader = "X-POW-Hashcash-Proof"
-	PowShieldNonceHeader = "X-POW-Hashcash-Nonce"
-)
-
 type powShieldPreValidationInterceptor struct {
 	powValidationSvc powValidatorService
 }
