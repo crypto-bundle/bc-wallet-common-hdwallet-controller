@@ -55,9 +55,12 @@ type hdWalletClientConfigService interface {
 }
 
 type obscurityDataProvider interface {
-	GetLastObscurityData(ctx context.Context, walletUUID string) ([]byte, error)
+	GetLastObscurityData(ctx context.Context,
+		walletUUID string,
+		accessTokenHash string) ([]byte, error)
 	AddLastObscurityData(ctx context.Context,
 		walletUUID string,
+		accessTokenHash string,
 		obscurityData []byte,
 	) error
 }

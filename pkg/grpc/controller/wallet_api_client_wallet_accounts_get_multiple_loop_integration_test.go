@@ -62,7 +62,7 @@ func TestHdWalletControllerApiClient_GetMultipleAccounts_Loop(t *testing.T) {
 	accessTokenData := make(map[string]string)
 
 	walletApiConfig := mocks.NewWalletApiClientConfig("localhost",
-		8114, "tron")
+		8115, "tron")
 
 	walletApiClient := NewWalletApiClientWrapper(logger,
 		mocks.NewObscurityDataStoreStore(make(map[string][]byte)),

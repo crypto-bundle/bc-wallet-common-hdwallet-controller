@@ -197,10 +197,17 @@ func main() {
 
 	err = mangerApiGRPCSrv.Init(ctx)
 	if err != nil {
-		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
+		loggerEntry.Fatal("unable to listen init manager-api gRPC server instance", zap.Error(err),
 			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
-	loggerEntry.Info("gRPC server initiated")
+	loggerEntry.Info("manager-api gRPC server initiated")
+
+	err = walletApiGRPCSrv.Init(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to listen init wallet-api gRPC server instance", zap.Error(err),
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
+	}
+	loggerEntry.Info("wallet-api gRPC server initiated")
 
 	err = hdWalletClient.Dial(ctx)
 	if err != nil {

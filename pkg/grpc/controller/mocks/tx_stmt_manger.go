@@ -33,9 +33,9 @@ type txStmtManager struct {
 }
 
 func (m txStmtManager) BeginTxWithRollbackOnError(ctx context.Context,
-	_ func(txStmtCtx context.Context) error,
+	clb func(txStmtCtx context.Context) error,
 ) error {
-	return nil
+	return clb(ctx)
 }
 
 func NewTxStmtMock() *txStmtManager {

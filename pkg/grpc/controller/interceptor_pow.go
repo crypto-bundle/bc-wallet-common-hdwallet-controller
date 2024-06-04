@@ -36,8 +36,6 @@ import (
 	"math/big"
 	"strconv"
 
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/proto"
@@ -60,7 +58,8 @@ func (i *powShieldInterceptor) Invoke(ctx context.Context,
 	opts ...grpc.CallOption,
 ) error {
 	switch req.(type) {
-	case *GetWalletSessionRequest,
+	case *GetWalletInfoRequest,
+		*GetWalletSessionRequest,
 		*GetWalletSessionsRequest,
 		*CloseWalletSessionsRequest,
 		*GetAccountRequest,
@@ -70,43 +69,36 @@ func (i *powShieldInterceptor) Invoke(ctx context.Context,
 		return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
 	case *StartWalletSessionRequest:
 		return i.invokeSession(ctx, method, req, reply, cc, invoker, opts...)
-	case *GetWalletInfoRequest:
-		isSystemToken := ctx.Value(app.ContextIsSystemTokenTag).(bool)
-		if isSystemToken {
-			return invoker(ctx, method, req, reply, cc, opts...)
-		}
-
-		return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
 
 	default:
 		return invoker(ctx, method, req, reply, cc, opts...)
 	}
 }
 
-func (i *powShieldInterceptor) getObscurityData(ctx context.Context, walletUUID string) ([]byte, error) {
-	var obscurityRawData []byte
-
-	lastObscurityData, err := i.obscurityDataSvc.GetLastObscurityData(ctx, walletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	if lastObscurityData != nil {
-		obscurityRawData = lastObscurityData[:]
-
-		return obscurityRawData, nil
-	}
-
+func (i *powShieldInterceptor) getObscurityData(ctx context.Context,
+	walletUUID string,
+) (accessTokenHash string, obscurityRawData []byte, err error) {
 	accessTokenStr, err := i.accessTokensDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	if accessTokenStr == nil {
-		return nil, ErrMissingAccessToken
+		return "", nil, ErrMissingAccessToken
 	}
 
-	return []byte(*accessTokenStr), nil
+	accessTokenHash = fmt.Sprintf("%x", sha256.Sum256([]byte(*accessTokenStr)))
+	obscurityRawData, err = i.obscurityDataSvc.GetLastObscurityData(ctx, walletUUID,
+		accessTokenHash)
+	if err != nil {
+		return "", nil, err
+	}
+
+	if obscurityRawData == nil {
+		obscurityRawData = []byte(*accessTokenStr)
+	}
+
+	return
 }
 
 func (i *powShieldInterceptor) invokeSession(ctx context.Context,
@@ -128,7 +120,10 @@ func (i *powShieldInterceptor) invokeSession(ctx context.Context,
 	}
 
 	err = i.txStatementSvc.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		obscurityRawData, clbErr := i.getObscurityData(txStmtCtx, walletUUID)
+		accessTokenHash, obscurityRawData, clbErr := i.getObscurityData(txStmtCtx, walletUUID)
+		if clbErr != nil {
+			return clbErr
+		}
 
 		proofNonce, proofInt := calcPOWProof(i.powTarget, reqRaw, obscurityRawData)
 		nonceStr := strconv.FormatInt(proofNonce, 10)
@@ -152,7 +147,7 @@ func (i *powShieldInterceptor) invokeSession(ctx context.Context,
 			return clbErr
 		}
 
-		clbErr = i.obscurityDataSvc.AddLastObscurityData(txStmtCtx, walletUUID,
+		clbErr = i.obscurityDataSvc.AddLastObscurityData(txStmtCtx, walletUUID, accessTokenHash,
 			sessionUUIDRaw[:])
 		if clbErr != nil {
 			return clbErr
@@ -188,27 +183,12 @@ func (i *powShieldInterceptor) invoke(ctx context.Context,
 	var obscurityRawData []byte
 
 	err = i.txStatementSvc.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
-		lastIdentity, clbErr := i.obscurityDataSvc.GetLastObscurityData(txStmtCtx, walletUUID)
+		_, obscurityData, clbErr := i.getObscurityData(txStmtCtx, walletUUID)
 		if clbErr != nil {
 			return clbErr
 		}
 
-		if lastIdentity != nil {
-			obscurityRawData = lastIdentity[:]
-
-			return nil
-		}
-
-		accessTokenStr, clbErr := i.accessTokensDataSvc.GetAccessTokenForWallet(txStmtCtx, walletUUID)
-		if clbErr != nil {
-			return clbErr
-		}
-
-		if accessTokenStr == nil {
-			return ErrMissingAccessToken
-		}
-
-		obscurityRawData = []byte(*accessTokenStr)
+		obscurityRawData = obscurityData
 
 		return nil
 	})
@@ -233,9 +213,10 @@ func calcPOWProof(powTarget *big.Int,
 	proofNonce := int64(0)
 	var reqInt *big.Int = big.NewInt(0)
 
+	data := append(protoMsg[:], obscurityData...)
+
 	for proofNonce != math.MaxInt64 {
-		concatRaw := append(protoMsg[:], obscurityData[:]...)
-		concatRaw = append(concatRaw, byte(proofNonce))
+		concatRaw := append(data, byte(proofNonce))
 
 		hash := sha256.Sum256(concatRaw)
 		reqInt.SetBytes(hash[:])
@@ -256,7 +237,7 @@ func newPowShieldInterceptor(
 	txStatementSvc transactionalStatementManager,
 ) *powShieldInterceptor {
 	powTarget := big.NewInt(1)
-	powTarget = powTarget.Lsh(powTarget, uint(256-8))
+	powTarget = powTarget.Lsh(powTarget, uint(256-4))
 
 	return &powShieldInterceptor{
 		obscurityDataSvc:    obscurityDataSvc,

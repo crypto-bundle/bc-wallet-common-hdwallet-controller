@@ -82,7 +82,8 @@ func (i accessRootTokenValidationInterceptor) Handle(ctx context.Context,
 		*pbApi.DisableWalletRequest,
 		*pbApi.DisableWalletsRequest,
 		*pbApi.EnableWalletsRequest,
-		*pbApi.GetWalletInfoRequest:
+		*pbApi.GetWalletInfoRequest,
+		*pbApi.GetAccountRequest:
 		return i.handleSystemRequest(ctx, req, accessToken, accessTokenHash, info, handler)
 	default:
 		return nil, status.Errorf(codes.PermissionDenied, "root token cant call method: %s",

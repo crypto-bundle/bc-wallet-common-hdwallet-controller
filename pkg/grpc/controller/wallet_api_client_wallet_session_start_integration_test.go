@@ -75,7 +75,7 @@ func TestHdWalletControllerApiClient_StartWalletSession(t *testing.T) {
 	accessTokenData[createWalletResp.WalletIdentifier.WalletUUID] = string(createRuleToken.AccessTokenData)
 
 	walletApiConfig := mocks.NewWalletApiClientConfig("localhost",
-		8114, "tron")
+		8115, "tron")
 
 	walletApiClient := NewWalletApiClientWrapper(logger,
 		mocks.NewObscurityDataStoreStore(make(map[string][]byte)),

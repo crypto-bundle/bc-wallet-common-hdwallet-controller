@@ -17,10 +17,10 @@ CREATE TABLE pow_proofs
 CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__uuid_idx ON pow_proofs (
     "uuid"
 );
-CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__access_token_uuid__idx ON pow_proofs (
+CREATE INDEX IF NOT EXISTS pow_proofs__access_token_uuid__idx ON pow_proofs (
     "access_token_uuid"
 );
-CREATE UNIQUE INDEX IF NOT EXISTS pow_proofs__message_hash__idx ON pow_proofs (
+CREATE INDEX IF NOT EXISTS pow_proofs__message_hash__idx ON pow_proofs (
     "message_hash"
 );
 -- +goose StatementEnd

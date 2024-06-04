@@ -94,14 +94,16 @@ func (s *Service) startWalletSession(ctx context.Context,
 		startedAt := currentTime.Add(s.cfg.GetDefaultWalletSessionDelay())
 		expiredAt := startedAt.Add(wallet.UnloadInterval)
 
-		nextSerialNumber, err := s.mnemonicWalletsDataSvc.GetNextWalletSessionNumberByAccessTokenUUID(txStmtCtx,
+		nextSerialNumber, clbErr := s.mnemonicWalletsDataSvc.GetNextWalletSessionNumberByAccessTokenUUID(txStmtCtx,
 			accessTokenUUID.String())
-		if err != nil {
-			return err
+		if clbErr != nil {
+			return clbErr
 		}
 
+		sessionUUID := uuid.New()
+
 		sessionToSave := &entities.MnemonicWalletSession{
-			UUID:               uuid.NewString(),
+			UUID:               sessionUUID.String(),
 			MnemonicWalletUUID: wallet.UUID.String(),
 			Status:             types.MnemonicWalletSessionStatusPrepared,
 			StartedAt:          startedAt,
@@ -114,11 +116,11 @@ func (s *Service) startWalletSession(ctx context.Context,
 		accessTokenForSession := &entities.AccessTokenWalletSession{
 			SerialNumber:   nextSerialNumber,
 			AccessTokeUUID: accessTokenUUID,
-			SessionUUID:    wallet.UUID,
+			SessionUUID:    sessionUUID,
 			CreatedAt:      currentTime,
 		}
 
-		sessionToSave, clbErr := s.mnemonicWalletsDataSvc.AddNewWalletSession(txStmtCtx,
+		sessionToSave, clbErr = s.mnemonicWalletsDataSvc.AddNewWalletSession(txStmtCtx,
 			sessionToSave)
 		if clbErr != nil {
 			s.logger.Error("unable to add new wallet session", zap.Error(clbErr),

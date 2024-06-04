@@ -45,13 +45,7 @@ func (i *accessTokenInterceptor) Invoke(ctx context.Context,
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,
 ) error {
-	switch req.(type) {
-	case *AddNewWalletRequest,
-		*ImportWalletRequest:
-		return invoker(ctx, method, req, reply, cc, opts...)
-	default:
-		return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
-	}
+	return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
 }
 
 func (i *accessTokenInterceptor) invoke(ctx context.Context,
@@ -62,17 +56,9 @@ func (i *accessTokenInterceptor) invoke(ctx context.Context,
 	invoker grpc.UnaryInvoker,
 	opts ...grpc.CallOption,
 ) error {
-	var walletUUID string
-	switch req.(type) {
-	case *GetWalletInfoRequest:
-		walletUUID = req.(*GetWalletInfoRequest).WalletIdentifier.WalletUUID
-	case *EnableWalletsRequest:
-		walletUUID = req.(*EnableWalletRequest).WalletIdentifier.WalletUUID
-	case *StartWalletSessionRequest:
-		walletUUID = req.(*StartWalletSessionRequest).WalletIdentifier.WalletUUID
-
-	default:
-		return i.invoke(ctx, method, req, reply, cc, invoker, opts...)
+	walletUUID, err := extractWalletUUIDFromReq(req)
+	if err != nil {
+		return err
 	}
 
 	accessTokenStr, err := i.accessTokensDataSvc.GetAccessTokenForWallet(ctx, walletUUID)

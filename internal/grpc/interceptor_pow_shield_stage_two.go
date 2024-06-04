@@ -68,20 +68,15 @@ func (i *powShieldFullValidationInterceptor) Handle(ctx context.Context,
 		*pbApi.GetWalletSessionRequest,
 		*pbApi.GetWalletSessionsRequest,
 		*pbApi.CloseWalletSessionsRequest,
+		*pbApi.GetWalletInfoRequest,
 		*pbApi.GetAccountRequest,
 		*pbApi.GetMultipleAccountRequest,
 		*pbApi.PrepareSignRequestReq,
 		*pbApi.ExecuteSignRequestReq:
 		return i.handle(ctx, req, info, handler)
-	case *pbApi.GetWalletInfoRequest:
-		isSystemToken := ctx.Value(app.ContextIsSystemTokenTag).(bool)
-		if isSystemToken {
-			return handler(ctx, req)
-		}
-
-		return i.handle(ctx, req, info, handler)
 	default:
-		return handler(ctx, req)
+		return nil, status.Errorf(codes.PermissionDenied, "token cant call method: %s",
+			info.FullMethod)
 	}
 }
 
@@ -105,7 +100,7 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 	}
 
 	nonceData := md.Get(PowShieldNonceHeader)
-	if data == nil {
+	if nonceData == nil {
 		return nil, status.Error(codes.InvalidArgument,
 			"missing proof of work hashcash-nonce header data in metadata")
 	}
@@ -114,6 +109,17 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 		return nil, status.Error(codes.InvalidArgument,
 			"wrong format of hashcash-nonce data")
 	}
+
+	accessTokenData := md.Get(AccessTokenHeader)
+	if accessTokenData == nil {
+		return nil, status.Error(codes.InvalidArgument, "missing access token in metadata")
+	}
+
+	if len(accessTokenData) > 1 {
+		return nil, status.Error(codes.InvalidArgument, "wrong format of access token")
+	}
+
+	accessToken := accessTokenData[0]
 
 	accessTokenUUID, ok := ctx.Value(app.ContextTokenUUIDTag).(uuid.UUID)
 	if !ok {
@@ -127,13 +133,14 @@ func (i *powShieldFullValidationInterceptor) handle(ctx context.Context,
 	}
 
 	return i.validateForSessionFlow(ctx, data[0], nonce,
-		req, accessTokenUUID, handler)
+		req, accessToken, accessTokenUUID, handler)
 }
 
 func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.Context,
-	hashHexString string,
-	nonce int64,
+	powHashHexString string,
+	powNonce int64,
 	req any,
+	accessToken string,
 	accessTokenUUID uuid.UUID,
 	unaryHandler grpc.UnaryHandler,
 ) (resp any, err error) {
@@ -142,7 +149,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 		return nil, err
 	}
 
-	decodedHex, err := hex.DecodeString(hashHexString)
+	decodedHex, err := hex.DecodeString(powHashHexString)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument,
 			"wrong format of hashcash data - not hex string")
@@ -150,9 +157,9 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 
 	powProofHash := big.NewInt(0).SetBytes(decodedHex)
 
-	err = i.txStmtSvc.BeginTxWithRollbackOnError(ctx, func(txStmtCtx context.Context) error {
+	err = i.txStmtSvc.BeginTxWithRollbackOnError(context.Background(), func(txStmtCtx context.Context) error {
 		powProof, clbErr := i.powProofDataSvc.GetPowProofByMessageHash(txStmtCtx,
-			hashHexString)
+			powHashHexString)
 		if clbErr != nil {
 			i.logger.Error("unable to check pow exist", zap.Error(clbErr))
 
@@ -171,10 +178,18 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return status.Error(codes.Internal, "something went wrong")
 		}
 
-		obscurityData := accessTokenUUID
+		obscurityData := []byte(accessToken)
 		if lastSessionIdentity != nil {
-			obscurityData = lastSessionIdentity.SessionUUID
+			//sessionUUID = lastSessionIdentity.SessionUUID.String()
+			obscurityData = lastSessionIdentity.SessionUUID[:]
 		}
+
+		//i.logger.Info("data",
+		//	zap.String("access_token_uuid", accessTokenUUID.String()),
+		//	zap.String("access_token_hash", fmt.Sprintf("%x", sha256.Sum256([]byte(accessToken)))),
+		//	zap.String("obsc_data", string(obscurityData)),
+		//	zap.String("session_uuid", sessionUUID),
+		//)
 
 		protoMsgRawData, clbErr := proto.Marshal(protoMsg)
 		if clbErr != nil {
@@ -183,7 +198,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return clbErr
 		}
 
-		isProofDataValid, clbErr := i.powValidationSvc.ValidateByObscurityData(txStmtCtx, powProofHash.Bytes(), nonce,
+		isProofDataValid, clbErr := i.powValidationSvc.ValidateByObscurityData(txStmtCtx, powProofHash.Bytes(), powNonce,
 			protoMsgRawData, obscurityData)
 		if clbErr != nil {
 			i.logger.Error("unable to validate pow", zap.Error(clbErr))
@@ -193,7 +208,7 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 
 		if !isProofDataValid {
 			i.logger.Warn("pow validation failed",
-				zap.String(app.PowHashTag, hashHexString))
+				zap.String(app.PowHashTag, powHashHexString))
 
 			return status.Error(codes.InvalidArgument, "pow shield validation failed")
 		}
@@ -203,11 +218,11 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			UUID:            uuid.NewString(),
 			AccessTokenUUID: accessTokenUUID.String(),
 
-			MessageCheckNonce: nonce,
-			MessageHash:       hashHexString,
+			MessageCheckNonce: powNonce,
+			MessageHash:       powHashHexString,
 			MessageData:       protoMsgRawData,
 
-			CreatedAt: time.Now(),
+			CreatedAt: currentTime,
 			UpdatedAt: &currentTime,
 		})
 		if clbErr != nil {
@@ -216,20 +231,20 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return status.Error(codes.Internal, "something went wrong")
 		}
 
-		handlerResp, clbErr := unaryHandler(ctx, req)
-		if clbErr != nil { // in this case clbErr already content status.Error
-			return clbErr
-		}
-
-		resp = handlerResp
-
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return resp, nil
+	//handlerResp, err := unaryHandler(ctx, req)
+	//if err != nil { // in this case clbErr already content status.Error
+	//	return nil, err
+	//}
+	//
+	//resp = handlerResp
+
+	return unaryHandler(ctx, req)
 }
 
 func newPowShieldFullValidationInterceptor(logger *zap.Logger,

@@ -57,7 +57,7 @@ type powValidatorService interface {
 		hashData []byte,
 		nonce int64,
 		message []byte,
-		obscurityItemUUID uuid.UUID,
+		obscurityItemUUID []byte,
 	) (valid bool, err error)
 }
 

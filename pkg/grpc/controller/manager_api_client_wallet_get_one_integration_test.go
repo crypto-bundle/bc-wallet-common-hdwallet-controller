@@ -37,7 +37,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func TestHdWalletControllerApiClient_GetWalletInfo_SystemToken(t *testing.T) {
+func TestHdWalletControllerApiClient_GetWalletInfo(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	clientCfg, err := mocks.NewManagerApiClientConfig("localhost",
 		8114, "tron", "./test_case_data/root_token_data.json")

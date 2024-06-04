@@ -78,7 +78,7 @@ func TestHdWalletControllerApiClient_GetAllWalletSessions(t *testing.T) {
 	accessTokenData[createWalletResp.WalletIdentifier.WalletUUID] = string(createRuleToken.AccessTokenData)
 
 	walletApiConfig := mocks.NewWalletApiClientConfig("localhost",
-		8114, "tron")
+		8115, "tron")
 
 	walletApiClient := NewWalletApiClientWrapper(logger,
 		mocks.NewObscurityDataStoreStore(make(map[string][]byte)),
@@ -139,6 +139,9 @@ func TestHdWalletControllerApiClient_GetAllWalletSessions(t *testing.T) {
 		createdSessions[i] = startSessionResp.SessionIdentifier
 		createdSessionsMap[startSessionResp.SessionIdentifier.SessionUUID] = startSessionResp.SessionIdentifier
 		createdSessionsFoundMap[startSessionResp.SessionIdentifier.SessionUUID] = false
+
+		t.Logf("created new wallet session: %d, %s", i,
+			startSessionResp.SessionIdentifier.SessionUUID)
 	}
 
 	getSessionResp, err := walletApiClient.GetActiveWalletSessions(ctx,

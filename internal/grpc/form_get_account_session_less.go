@@ -25,51 +25,50 @@
  *
  */
 
-package mocks
+package grpc
 
 import (
-	"bytes"
 	"context"
-	"sync"
+	"fmt"
+	"google.golang.org/protobuf/types/known/anypb"
+
+	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+
+	"github.com/asaskevich/govalidator"
+	"github.com/google/uuid"
 )
 
-type obscurityDataStore struct {
-	mu sync.Mutex
+type GetAccountSessionLessForm struct {
+	MnemonicWalletUUID    string `valid:"type(string),uuid,required"`
+	MnemonicWalletUUIDRaw uuid.UUID
 
-	identifierByWallets map[string][]byte
+	AccountParameters *anypb.Any `valid:"required"`
 }
 
-func (s *obscurityDataStore) GetLastObscurityData(ctx context.Context,
-	walletUUID string,
-	accessTokenHash string,
-) ([]byte, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+func (f *GetAccountSessionLessForm) LoadAndValidate(ctx context.Context,
+	req *pbApi.GetAccountRequest,
+) (valid bool, err error) {
 
-	data, isExists := s.identifierByWallets[accessTokenHash]
-	if !isExists {
-		return nil, nil
+	if req.WalletIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "MnemonicWallet identity")
+	}
+	f.MnemonicWalletUUID = req.WalletIdentifier.WalletUUID
+
+	if req.AccountIdentifier == nil {
+		return false, fmt.Errorf("%w:%s", ErrMissedRequiredData, "Account identity")
+	}
+	f.AccountParameters = req.AccountIdentifier.Parameters
+
+	_, err = govalidator.ValidateStruct(f)
+	if err != nil {
+		return false, err
 	}
 
-	return data, nil
-}
-
-func (s *obscurityDataStore) AddLastObscurityData(ctx context.Context,
-	walletUUID string,
-	accessTokenHash string,
-	obscurityData []byte,
-) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.identifierByWallets[accessTokenHash] = bytes.Clone(obscurityData)
-
-	return nil
-}
-
-func NewObscurityDataStoreStore(identifiers map[string][]byte) *obscurityDataStore {
-	return &obscurityDataStore{
-		mu:                  sync.Mutex{},
-		identifierByWallets: identifiers,
+	mnemonicWalletUUIDRaw, err := uuid.Parse(f.MnemonicWalletUUID)
+	if err != nil {
+		return false, err
 	}
+	f.MnemonicWalletUUIDRaw = mnemonicWalletUUIDRaw
+
+	return true, nil
 }

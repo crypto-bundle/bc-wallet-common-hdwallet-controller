@@ -43,9 +43,11 @@ func (s *pgRepository) AddNewWalletSessionAccessTokenItem(ctx context.Context,
 	if err = s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		date := time.Now()
 
-		row := stmt.QueryRowx(`INSERT INTO "wallet_sessions_access_tokens" ("token_uuid", "wallet_session_uuid",
+		row := stmt.QueryRowx(`INSERT INTO "wallet_sessions_access_tokens" ("serial_number", "token_uuid",
+				 "wallet_session_uuid",
 				 "created_at")
-            VALUES($1, $2, $3) RETURNING *;`,
+            VALUES($1, $2, $3, $4) RETURNING *;`,
+			toSaveItem.SerialNumber,
 			toSaveItem.AccessTokeUUID, toSaveItem.SessionUUID,
 			date)
 
@@ -152,7 +154,7 @@ func (s *pgRepository) GetNextWalletSessionNumberByAccessTokenUUID(ctx context.C
 	accessTokenUUID string,
 ) (nextSerialNumber uint64, err error) {
 	if err = s.pgConn.MustWithTransaction(ctx, func(stmt *sqlx.Tx) error {
-		row := stmt.QueryRowx(`SELECT coalesce(max("serial_number")+1, -1) 
+		row := stmt.QueryRowx(`SELECT coalesce(max("serial_number")+1, -1) AS "next_number" 
 			FROM (
 				SELECT "serial_number"
 				FROM "wallet_sessions_access_tokens"
@@ -167,7 +169,7 @@ func (s *pgRepository) GetNextWalletSessionNumberByAccessTokenUUID(ctx context.C
 		}
 
 		var number int64
-		clbErr = row.Scan(number)
+		clbErr = row.Scan(&number)
 		if clbErr != nil {
 			return commonPostgres.EmptyOrError(clbErr,
 				"unable get last wallet session number")
@@ -175,6 +177,8 @@ func (s *pgRepository) GetNextWalletSessionNumberByAccessTokenUUID(ctx context.C
 
 		if number >= 0 {
 			nextSerialNumber = uint64(number)
+
+			return nil
 		}
 
 		nextSerialNumber = 0

@@ -39,9 +39,11 @@ func extractWalletUUIDFromReq(req interface{}) (string, error) {
 		walletUUID = req.(*GetWalletSessionsRequest).WalletIdentifier.WalletUUID
 	case *CloseWalletSessionsRequest:
 		walletUUID = req.(*CloseWalletSessionsRequest).WalletIdentifier.WalletUUID
+	case *GetWalletInfoRequest:
+		walletUUID = req.(*GetWalletInfoRequest).WalletIdentifier.WalletUUID
 	case *GetAccountRequest:
 		walletUUID = req.(*GetAccountRequest).WalletIdentifier.WalletUUID
-	case GetMultipleAccountRequest:
+	case *GetMultipleAccountRequest:
 		walletUUID = req.(*GetMultipleAccountRequest).WalletIdentifier.WalletUUID
 	case *PrepareSignRequestReq:
 		walletUUID = req.(*PrepareSignRequestReq).WalletIdentifier.WalletUUID

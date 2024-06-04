@@ -58,7 +58,7 @@ func (h *GetAccountSessionLessHandler) Handle(ctx context.Context,
 ) (*pbApi.GetAccountResponse, error) {
 	var err error
 
-	vf := &GetAccountForm{}
+	vf := &GetAccountSessionLessForm{}
 	valid, err := vf.LoadAndValidate(ctx, req)
 	if err != nil {
 		h.l.Error("unable load and validate request values", zap.Error(err))

@@ -78,9 +78,6 @@ func (s *ManagerApiClientWrapper) Init(_ context.Context, cfg hdWalletClientConf
 
 	s.dialOptions = options
 
-	//s.powTarget = big.NewInt(1).
-	//	Lsh(s.powTarget, uint(256-8))
-
 	return nil
 }
 

@@ -30,8 +30,6 @@ package pow_validator
 import (
 	"context"
 	"crypto/sha256"
-
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"math/big"
 )
@@ -58,7 +56,7 @@ func (v *validatorHashCash) ValidateByObscurityData(ctx context.Context,
 	hashData []byte,
 	nonce int64,
 	message []byte,
-	obscurityItemUUID uuid.UUID,
+	obscurityData []byte,
 ) (valid bool, err error) {
 	originHashInt := big.NewInt(0).SetBytes(hashData)
 	cmp := v.target.Cmp(originHashInt)
@@ -66,7 +64,7 @@ func (v *validatorHashCash) ValidateByObscurityData(ctx context.Context,
 		return false, nil
 	}
 
-	message = append(message, obscurityItemUUID[:]...)
+	message = append(message, obscurityData...)
 	message = append(message, byte(nonce))
 
 	hashSum := sha256.New()
