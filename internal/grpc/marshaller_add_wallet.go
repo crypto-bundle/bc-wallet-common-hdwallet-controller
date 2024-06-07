@@ -36,6 +36,7 @@ import (
 
 func (m *grpcMarshaller) MarshallCreateWalletData(
 	walletData *entities.MnemonicWallet,
+	accessTokensList []*entities.AccessToken,
 ) *pbApi.AddNewWalletResponse {
 
 	resp := &pbApi.AddNewWalletResponse{
@@ -44,6 +45,19 @@ func (m *grpcMarshaller) MarshallCreateWalletData(
 			WalletHash: walletData.MnemonicHash,
 		},
 		WalletStatus: pbCommon.WalletStatus(walletData.Status),
+		AccessTokens: make([]*pbApi.AccessTokenData, len(accessTokensList)),
+	}
+
+	for i := 0; i != len(accessTokensList); i++ {
+		accessToken := accessTokensList[i]
+
+		resp.AccessTokens[i] = &pbApi.AccessTokenData{
+			AccessTokenIdentifier: &pbApi.AccessTokenIdentity{
+				UUID: accessToken.UUID.String(),
+			},
+			Role:            pbApi.AccessTokenData_TokenRole(accessToken.Role),
+			AccessTokenData: accessToken.RawData,
+		}
 	}
 
 	return resp

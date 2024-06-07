@@ -30,6 +30,7 @@ package wallet_manager
 import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+	"go.uber.org/zap"
 )
 
 func (s *Service) GetWalletSessionsByWalletUUID(ctx context.Context,
@@ -37,6 +38,8 @@ func (s *Service) GetWalletSessionsByWalletUUID(ctx context.Context,
 ) (*entities.MnemonicWallet, []*entities.MnemonicWalletSession, error) {
 	walletItem, sessionsList, err := s.cacheStoreDataSvc.GetMnemonicWalletInfoByUUID(ctx, walletUUID)
 	if err != nil {
+		s.logger.Error("unable get wallet and wallet sessions from cache storage", zap.Error(err))
+		// no return - it's ok
 		return nil, nil, err
 	}
 

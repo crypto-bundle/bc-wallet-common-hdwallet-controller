@@ -31,10 +31,10 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
-	"google.golang.org/protobuf/types/known/anypb"
-
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
+
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 type configService interface {
@@ -42,50 +42,64 @@ type configService interface {
 	IsDebug() bool
 	IsLocal() bool
 
-	GetBindPort() string
+	GetManagerApiBindAddress() string
+	GetWalletApiBindAddress() string
 
 	GetProviderName() string
 	GetNetworkName() string
 }
 
-type mnemonicWalletsDataService interface {
-	AddNewMnemonicWallet(ctx context.Context, wallet *entities.MnemonicWallet) (*entities.MnemonicWallet, error)
-	AddNewMnemonicWallets(ctx context.Context,
-		walletsList []*entities.MnemonicWallet,
-	) (uint32, []*entities.MnemonicWallet, error)
-	GetMnemonicWalletByHash(ctx context.Context, hash string) (*entities.MnemonicWallet, error)
-	GetMnemonicWalletUUID(ctx context.Context, walletUUID uuid.UUID) (*entities.MnemonicWallet, error)
-	GetMnemonicWalletsByUUIDList(ctx context.Context,
-		UUIDList []string,
-	) ([]*entities.MnemonicWallet, error)
-	GetAllHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
-	GetAllNonHotMnemonicWallets(ctx context.Context) ([]*entities.MnemonicWallet, error)
+type powValidatorService interface {
+	PreValidate(ctx context.Context,
+		hashInt []byte,
+	) bool
+	ValidateByObscurityData(ctx context.Context,
+		hashData []byte,
+		nonce int64,
+		message []byte,
+		obscurityItemUUID []byte,
+	) (valid bool, err error)
 }
 
-type walletSessionDataService interface {
-	AddNewWalletSession(ctx context.Context,
-		sessionItem *entities.MnemonicWalletSession,
-	) (*entities.MnemonicWalletSession, error)
-	GetAllActiveSessions(ctx context.Context,
-	) (uint, []*entities.MnemonicWalletSession, error)
-	GetAllActiveSessionsClb(ctx context.Context,
-		onItemCallBack func(item *entities.MnemonicWalletSession) error,
-	) (uint, []*entities.MnemonicWalletSession, error)
-	GetWalletActiveSessions(ctx context.Context,
-		walletUUID string,
-	) (uint, []*entities.MnemonicWalletSession, error)
-	GetWalletActiveSessionsClb(ctx context.Context,
-		walletUUID string,
-		onItemCallBack func(item *entities.MnemonicWalletSession) error,
-	) (uint, []*entities.MnemonicWalletSession, error)
-	GetWalletSessionByUUID(ctx context.Context,
-		sessionUUID string,
-	) (*entities.MnemonicWalletSession, error)
+type jwtService interface {
+	GetTokenData(accessToken string) (map[string]string, error)
+}
+
+type accessTokenDataService interface {
+	AddNewAccessToken(ctx context.Context,
+		toSaveItem *entities.AccessToken,
+	) (result *entities.AccessToken, err error)
+	GetAccessTokenInfoByUUID(ctx context.Context,
+		tokenUUID string,
+	) (*entities.AccessToken, error)
+}
+
+type walletDataService interface {
+	GetLastWalletSessionIdentityByAccessTokenUUID(ctx context.Context,
+		accessTokenUUID string,
+	) (resultItem *entities.AccessTokenWalletSession, err error)
+}
+
+type powProofDataService interface {
+	GetPowProofByUUID(ctx context.Context,
+		uuid string,
+	) (powProof *entities.PowProof, err error)
+	AddNewPowProof(ctx context.Context,
+		toSaveItem *entities.PowProof,
+	) (result *entities.PowProof, err error)
+	GetPowProofByMessageHash(ctx context.Context,
+		messageHash string,
+	) (powProof *entities.PowProof, err error)
 }
 
 type walletManagerService interface {
-	AddNewWallet(ctx context.Context) (*entities.MnemonicWallet, error)
-	ImportWallet(ctx context.Context, mnemonicData []byte) (*entities.MnemonicWallet, error)
+	AddNewWallet(ctx context.Context,
+		requestedAccessTokensCount uint,
+	) (*entities.MnemonicWallet, []*entities.AccessToken, error)
+	ImportWallet(ctx context.Context,
+		importedData []byte,
+		requestedAccessTokensCount uint,
+	) (*entities.MnemonicWallet, []*entities.AccessToken, error)
 	EnableWalletByUUID(ctx context.Context,
 		walletUUID string,
 	) (*entities.MnemonicWallet, error)
@@ -104,15 +118,21 @@ type walletManagerService interface {
 		mnemonicUUID string,
 		accountParameters *anypb.Any,
 	) (address *string, err error)
+	GetAccountWithoutSession(ctx context.Context,
+		wallet *entities.MnemonicWallet,
+		parameters *anypb.Any,
+	) (address *string, err error)
 	GetAccounts(ctx context.Context,
 		mnemonicUUID string,
 		accountsParameters *anypb.Any,
 	) (count uint64, list []*pbCommon.AccountIdentity, err error)
 	StartWalletSession(ctx context.Context,
 		walletUUID string,
+		accessTokenUUID uuid.UUID,
 	) (*entities.MnemonicWallet, *entities.MnemonicWalletSession, error)
 	StartSessionForWallet(ctx context.Context,
 		wallet *entities.MnemonicWallet,
+		accessTokenUUID uuid.UUID,
 	) (*entities.MnemonicWalletSession, error)
 	CloseWalletSession(ctx context.Context,
 		walletUUID string,
@@ -156,11 +176,26 @@ type signManagerService interface {
 }
 
 type marshallerService interface {
-	MarshallCreateWalletData(wallet *entities.MnemonicWallet) *pbApi.AddNewWalletResponse
+	MarshallCreateWalletData(wallet *entities.MnemonicWallet,
+		accessTokensList []*entities.AccessToken,
+	) *pbApi.AddNewWalletResponse
+	MarshallImportWalletData(
+		walletData *entities.MnemonicWallet,
+		accessTokensList []*entities.AccessToken,
+	) *pbApi.ImportWalletResponse
 	MarshallGetEnabledWallets([]*entities.MnemonicWallet) *pbApi.GetEnabledWalletsResponse
 	MarshallWalletSessions(
 		sessionsList []*entities.MnemonicWalletSession,
 	) []*pbApi.SessionInfo
+}
+
+type transactionalStatementManager interface {
+	BeginContextualTxStatement(ctx context.Context) (context.Context, error)
+	CommitContextualTxStatement(ctx context.Context) error
+	RollbackContextualTxStatement(ctx context.Context) error
+	BeginTxWithRollbackOnError(ctx context.Context,
+		callback func(txStmtCtx context.Context) error,
+	) error
 }
 
 type addWalletHandlerService interface {

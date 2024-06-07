@@ -6,7 +6,10 @@
   },
   "tags": [
     {
-      "name": "HdWalletControllerApi"
+      "name": "HdWalletControllerManagerApi"
+    },
+    {
+      "name": "HdWalletControllerWalletApi"
     }
   ],
   "consumes": [
@@ -17,6 +20,16 @@
   ],
   "paths": {},
   "definitions": {
+    "AccessTokenDataTokenRole": {
+      "type": "string",
+      "enum": [
+        "TOKE_ROLE_PLACEHOLDER",
+        "TOKE_ROLE_SIGNER",
+        "TOKE_ROLE_FAKE_SIGNER",
+        "TOKE_ROLE_INFORMER"
+      ],
+      "default": "TOKE_ROLE_PLACEHOLDER"
+    },
     "SignRequestDataReqStatus": {
       "type": "string",
       "enum": [
@@ -71,6 +84,29 @@
       ],
       "default": "WALLET_STATUS_PLACEHOLDER"
     },
+    "manager_apiAccessTokenData": {
+      "type": "object",
+      "properties": {
+        "AccessTokenIdentifier": {
+          "$ref": "#/definitions/manager_apiAccessTokenIdentity"
+        },
+        "Role": {
+          "$ref": "#/definitions/AccessTokenDataTokenRole"
+        },
+        "AccessTokenData": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "manager_apiAccessTokenIdentity": {
+      "type": "object",
+      "properties": {
+        "UUID": {
+          "type": "string"
+        }
+      }
+    },
     "manager_apiAddNewWalletResponse": {
       "type": "object",
       "properties": {
@@ -79,6 +115,12 @@
         },
         "WalletStatus": {
           "$ref": "#/definitions/commonWalletStatus"
+        },
+        "AccessTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/manager_apiAccessTokenData"
+          }
         }
       }
     },
@@ -281,6 +323,15 @@
       "properties": {
         "WalletIdentifier": {
           "$ref": "#/definitions/commonMnemonicWalletIdentity"
+        },
+        "WalletStatus": {
+          "$ref": "#/definitions/commonWalletStatus"
+        },
+        "AccessTokens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/manager_apiAccessTokenData"
+          }
         }
       }
     },

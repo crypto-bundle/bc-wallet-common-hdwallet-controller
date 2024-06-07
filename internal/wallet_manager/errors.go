@@ -34,4 +34,5 @@ var (
 	ErrMnemonicIsNotValid           = errors.New("mnemonic wallet is not valid")
 	ErrUnableDecodeGrpcErrorStatus  = errors.New("unable to decode grpc error status")
 	ErrUpdatedCountNotEqualExpected = errors.New("updated count not equal expected count")
+	ErrAccessTokenUUIDMismatched    = errors.New("access token uuid mismatched")
 )

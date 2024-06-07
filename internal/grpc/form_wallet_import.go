@@ -29,23 +29,28 @@ package grpc
 
 import (
 	"context"
-	"github.com/asaskevich/govalidator"
+	"fmt"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 )
 
 type ImportWalletForm struct {
+	TokensCount uint
+
 	Phrase []byte `valid:"required"`
 }
 
 func (f *ImportWalletForm) LoadAndValidate(ctx context.Context,
 	req *pbApi.ImportWalletRequest,
 ) (valid bool, err error) {
-	f.Phrase = req.MnemonicPhrase
-
-	_, err = govalidator.ValidateStruct(f)
-	if err != nil {
-		return false, err
+	if req.CreateAccessTokensCount == 0 {
+		return false, fmt.Errorf("%s: %d", "Minimal tokens count", 4)
 	}
+
+	if req.CreateAccessTokensCount < 4 {
+		f.TokensCount = 4
+	}
+
+	f.Phrase = req.MnemonicPhrase
 
 	return true, nil
 }

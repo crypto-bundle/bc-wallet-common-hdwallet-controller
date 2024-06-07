@@ -26,3 +26,22 @@
  */
 
 package access_tokens
+
+import (
+	"context"
+
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+)
+
+type jwtService interface {
+	GetTokenData(accessToken string) (map[string]string, error)
+}
+
+type accessTokenDataService interface {
+	AddNewAccessToken(ctx context.Context,
+		toSaveItem *entities.AccessToken,
+	) (result *entities.AccessToken, err error)
+	GetAccessTokenInfoByUUID(ctx context.Context,
+		tokenUUID string,
+	) (*entities.AccessToken, error)
+}

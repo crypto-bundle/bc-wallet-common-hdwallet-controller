@@ -28,6 +28,7 @@
 package entities
 
 import (
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
 	"github.com/google/uuid"
 	"time"
 )
@@ -40,9 +41,13 @@ type AccessToken struct {
 	ID   uint32    `db:"id" json:"id"`
 	UUID uuid.UUID `db:"uuid" json:"uuid"`
 
+	Role types.AccessTokenRole `db:"role" json:"role"`
+
 	WalletUUID uuid.UUID `db:"wallet_uuid" json:"wallet_uuid"`
+	RawData    []byte    `db:"raw_data" json:"raw_data,omitempty"`
+	Hash       string    `db:"hash" json:"hash"`
 
 	CreatedAt time.Time  `db:"created_at" json:"created_at"`
-	ExpiredAt *time.Time `db:"expired_at" json:"expired_at"`
+	ExpiredAt time.Time  `db:"expired_at" json:"expired_at"`
 	UpdatedAt *time.Time `db:"updated_at" json:"updated_at"`
 }

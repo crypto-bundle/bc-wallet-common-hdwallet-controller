@@ -148,4 +148,36 @@ Start of big application refactoring
 * Fixed bug in shutdown flow of controller-api gRPC server
 ### Changed
 * Changed vault transit key config - now names of transit keys loaded from vault
-* Added task in Makefile for building migration container 
+* Added task in Makefile for building migration container
+
+## [v0.0.28] 07.06.2024
+### Added
+* Added PoW-shield to wallet-api request
+  * Added pow_proofs database table
+* Added Access-token shield 
+  * Added access_tokens database table
+  * Added wallet_sessions_access_tokens database table
+### Changed
+* Controller-API divided into two parts - ManagerApi, WalletAPI
+  * ManagerAPI require common system JWT-token for access
+  * ManagerAPI now contains next methods:
+    * AddNewWallet
+    * ImportWallet
+    * EnableWallet
+    * GetWalletInfo
+    * GetEnabledWallets
+    * DisableWallet
+    * DisableWallets
+    * EnableWallets
+    * GetAccount
+  * WalletAPI require wallet-level JWT access token, which will be created in AddNewWallet method
+  * WalletAPI now contains next methods:
+    * GetWalletInfo
+    * StartWalletSession
+    * GetWalletSession
+    * GetAllWalletSessions
+    * CloseWalletSession
+    * GetAccount
+    * GetMultipleAccounts
+    * PrepareSignRequest
+    * ExecuteSignRequest

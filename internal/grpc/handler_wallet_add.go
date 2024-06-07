@@ -48,17 +48,29 @@ type AddNewWalletHandler struct {
 
 // nolint:funlen // fixme
 func (h *AddNewWalletHandler) Handle(ctx context.Context,
-	_ *pbApi.AddNewWalletRequest,
+	req *pbApi.AddNewWalletRequest,
 ) (*pbApi.AddNewWalletResponse, error) {
 	var err error
 
-	wallet, err := h.walletSvc.AddNewWallet(ctx)
+	validationForm := &WalletAddForm{}
+	valid, err := validationForm.LoadAndValidate(ctx, req)
+	if err != nil {
+		h.l.Error("unable load and validate request values", zap.Error(err))
+
+		if !valid {
+			return nil, status.Error(codes.InvalidArgument, err.Error())
+		}
+
+		return nil, status.Error(codes.Internal, "something went wrong")
+	}
+
+	wallet, accessTokens, err := h.walletSvc.AddNewWallet(ctx, validationForm.TokensCount)
 	if err != nil {
 		h.l.Error("unable to create mnemonic wallet", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return h.marshallerSrv.MarshallCreateWalletData(wallet), nil
+	return h.marshallerSrv.MarshallCreateWalletData(wallet, accessTokens), nil
 }
 
 func MakeAddNewWalletHandler(loggerEntry *zap.Logger,

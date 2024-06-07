@@ -16,15 +16,55 @@ Third part - target blockchain plugin. For example:
 * [bc-wallet-bitcoin-hdwallet](https://github.com/crypto-bundle/bc-wallet-bitcoin-hdwallet)
 
 ## Api
-Service has two types of API:
-* gRPC-API
-  * API documentation [here](docs/api/controller_proto.md)
+Service has three types of API:
+* Controller Manager gRPC-API
+  * API documentation [here](docs/api/controller_proto.md#hdwalletcontrollermanagerapi)
+  * Protobuf descriptions [/pkg/proto/controller_api](/pkg/proto/controller_api)
+* Controller Wallet gRPC-API
+  * API documentation [here](docs/api/controller_proto.md#hdwalletcontrollerwalletapi)
   * Protobuf descriptions [/pkg/proto/controller_api](/pkg/proto/controller_api)
 * NatsRPC API
 
+### Controller MangerAPI
+Main purpose of ManagerAPI of bc-wallet-common-hdwallet-controller application is:
+  * Limited access to HDWallet controller gRPC and nats-RPC methods
+  * High-level wallet control - create or disable wallets, getting wallet info.
+  * Getting information about HDWallet accounts
+
+#### ManagerAPI Protection
+
+ManagerAPI protected by JWT access token - common token for whole crypto-bundle system. 
+You must provide SHA-256 hash of system token to application via Vault secrets - 
+value of `JWT_SYSTEM_ACCESS_TOKEN_HASH` key from crypto-bundle/bc-wallet-common/jwt bucket
+
+### Controller WalletAPI
+Main purpose of WalletAPI of bc-wallet-common-hdwallet-controller application is:
+* Limited access to wallet-level gRPC method
+* Getting information about wallet
+* Getting information about wallet sessions
+* Start, close wallet sessions
+* Getting information about HDWallet accounts
+* Prepare and execute sign requests
+
+#### WalletAPI Protection
+
+WalletAPI **protected by JWT access-token**. New access token will be created after execution of AddNewWallet or ImportWallet method.
+WalletAPI access tokens have access roles:
+* Reader role - can execute all gRPC methods except PrepareSignRequest, ExecuteSignReques
+* Signed role - can execute all gRPC methods
+* Fake signer - can execute all gRPC methods except ExecuteSignRequest
+
+Also, WalletAPI **protected by PoW-shield**. Algorithm used for Proof of Work shield is **_Hashcash_**.
+Data for proof calculation:
+* Protobuf message body
+* Obscurity data (Last WalletSession UUID or content of JWT-token for first proof of wallet)
+* Nonce 
+
+Example of PoW-shield calculation - [pkg/grpc/controller/interceptor_pow.go](./pkg/grpc/controller/interceptor_pow.go)
+
 ### Integration
 
-Example of gRPC integration with hdwallet-controller application you can see in integration test [/pkg/grpc/controller](/pkg/grpc/controller)
+Example of gRPC integration with HDWallet-controller application you can see in integration test [/pkg/grpc/controller](/pkg/grpc/controller)
 
 ## Infrastructure dependencies
 
@@ -82,6 +122,9 @@ vault token create -display-name bc-wallet-tron-hdwallet-controller
 ```
 
 Buckets:
+* crypto-bundle/bc-wallet-common/jwt
+  * JWT_SECRET_KEY - Application level JWT secret key
+  * JWT_SYSTEM_ACCESS_TOKEN_HASH - SHA-256 hash of common crypto-bundle system JWT-token 
 * crypto-bundle/bc-wallet-common/transit
   * VAULT_COMMON_TRANSIT_KEY
 * crypto-bundle/bc-wallet-tron-hdwallet/common

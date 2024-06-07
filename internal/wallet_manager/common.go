@@ -31,8 +31,33 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"github.com/google/uuid"
 	"time"
 )
+
+type accessTokenDataService interface {
+	GetAccessTokenInfoByUUID(ctx context.Context,
+		tokenUUID string,
+	) (*entities.AccessToken, error)
+	AddNewAccessToken(ctx context.Context,
+		toSaveItem *entities.AccessToken,
+	) (result *entities.AccessToken, err error)
+	AddMultipleAccessTokens(ctx context.Context,
+		bcTxItems []*entities.AccessToken,
+	) (count uint, list []*entities.AccessToken, err error)
+}
+
+type accessTokenListIterator types.AccessTokenListIterator
+
+type jwtService interface {
+	GenerateJWT(expiredAt time.Time, values map[string]string) (string, error)
+}
+
+type tokenDataAdapter interface {
+	Adopt(walletUUID uuid.UUID,
+		iterator accessTokenListIterator,
+	) ([]*entities.AccessToken, error)
+}
 
 type configService interface {
 	GetDefaultWalletSessionDelay() time.Duration
@@ -136,6 +161,19 @@ type mnemonicWalletsDataService interface {
 	GetActiveWalletSessionsByWalletUUID(ctx context.Context, walletUUID string) (
 		count uint, list []*entities.MnemonicWalletSession, err error,
 	)
+
+	AddNewWalletSessionAccessTokenItem(ctx context.Context,
+		toSaveItem *entities.AccessTokenWalletSession,
+	) (result *entities.AccessTokenWalletSession, err error)
+	GetWalletSessionAccessTokenItemsByTokenUUID(ctx context.Context,
+		tokenUUID string,
+	) (count uint, list []*entities.AccessTokenWalletSession, err error)
+	GetLastWalletSessionNumberByAccessTokenUUID(ctx context.Context,
+		accessTokenUUID string,
+	) (serialNumber uint64, err error)
+	GetNextWalletSessionNumberByAccessTokenUUID(ctx context.Context,
+		accessTokenUUID string,
+	) (nextSerialNumber uint64, err error)
 }
 
 type signRequestDataService interface {

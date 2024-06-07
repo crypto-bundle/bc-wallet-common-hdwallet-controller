@@ -42,8 +42,6 @@ func easyjson5eca2d97DecodeGithubComCryptoBundleBcWalletCommonHdwalletController
 			out.ID = uint32(in.Uint32())
 		case "uuid":
 			out.UUID = string(in.String())
-		case "access_token_uuid":
-			out.AccessTokenUUID = string(in.String())
 		case "mnemonic_wallet_uuid":
 			out.MnemonicWalletUUID = string(in.String())
 		case "status":
@@ -95,11 +93,6 @@ func easyjson5eca2d97EncodeGithubComCryptoBundleBcWalletCommonHdwalletController
 		const prefix string = ",\"uuid\":"
 		out.RawString(prefix)
 		out.String(string(in.UUID))
-	}
-	{
-		const prefix string = ",\"access_token_uuid\":"
-		out.RawString(prefix)
-		out.String(string(in.AccessTokenUUID))
 	}
 	{
 		const prefix string = ",\"mnemonic_wallet_uuid\":"

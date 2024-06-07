@@ -31,12 +31,14 @@ import (
 	"context"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/types"
+	"go.uber.org/zap"
 )
 
 func (s *Service) GetEnabledWallets(ctx context.Context) ([]*entities.MnemonicWallet, error) {
 	items, err := s.cacheStoreDataSvc.GetAllWallets(ctx)
 	if err != nil {
-		return nil, err
+		s.logger.Error("unable get enabled wallets from cache storage", zap.Error(err))
+		// no return - it's ok
 	}
 
 	if items != nil {

@@ -14,10 +14,10 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// HdWalletControllerApiClient is the client API for HdWalletControllerApi service.
+// HdWalletControllerManagerApiClient is the client API for HdWalletControllerManagerApi service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type HdWalletControllerApiClient interface {
+type HdWalletControllerManagerApiClient interface {
 	AddNewWallet(ctx context.Context, in *AddNewWalletRequest, opts ...grpc.CallOption) (*AddNewWalletResponse, error)
 	ImportWallet(ctx context.Context, in *ImportWalletRequest, opts ...grpc.CallOption) (*ImportWalletResponse, error)
 	EnableWallet(ctx context.Context, in *EnableWalletRequest, opts ...grpc.CallOption) (*EnableWalletResponse, error)
@@ -26,6 +26,374 @@ type HdWalletControllerApiClient interface {
 	DisableWallet(ctx context.Context, in *DisableWalletRequest, opts ...grpc.CallOption) (*DisableWalletResponse, error)
 	DisableWallets(ctx context.Context, in *DisableWalletsRequest, opts ...grpc.CallOption) (*DisableWalletsResponse, error)
 	EnableWallets(ctx context.Context, in *EnableWalletsRequest, opts ...grpc.CallOption) (*EnableWalletsResponse, error)
+	GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error)
+}
+
+type hdWalletControllerManagerApiClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewHdWalletControllerManagerApiClient(cc grpc.ClientConnInterface) HdWalletControllerManagerApiClient {
+	return &hdWalletControllerManagerApiClient{cc}
+}
+
+func (c *hdWalletControllerManagerApiClient) AddNewWallet(ctx context.Context, in *AddNewWalletRequest, opts ...grpc.CallOption) (*AddNewWalletResponse, error) {
+	out := new(AddNewWalletResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/AddNewWallet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) ImportWallet(ctx context.Context, in *ImportWalletRequest, opts ...grpc.CallOption) (*ImportWalletResponse, error) {
+	out := new(ImportWalletResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/ImportWallet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) EnableWallet(ctx context.Context, in *EnableWalletRequest, opts ...grpc.CallOption) (*EnableWalletResponse, error) {
+	out := new(EnableWalletResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/EnableWallet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) GetWalletInfo(ctx context.Context, in *GetWalletInfoRequest, opts ...grpc.CallOption) (*GetWalletInfoResponse, error) {
+	out := new(GetWalletInfoResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/GetWalletInfo", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) GetEnabledWallets(ctx context.Context, in *GetEnabledWalletsRequest, opts ...grpc.CallOption) (*GetEnabledWalletsResponse, error) {
+	out := new(GetEnabledWalletsResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/GetEnabledWallets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) DisableWallet(ctx context.Context, in *DisableWalletRequest, opts ...grpc.CallOption) (*DisableWalletResponse, error) {
+	out := new(DisableWalletResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/DisableWallet", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) DisableWallets(ctx context.Context, in *DisableWalletsRequest, opts ...grpc.CallOption) (*DisableWalletsResponse, error) {
+	out := new(DisableWalletsResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/DisableWallets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) EnableWallets(ctx context.Context, in *EnableWalletsRequest, opts ...grpc.CallOption) (*EnableWalletsResponse, error) {
+	out := new(EnableWalletsResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/EnableWallets", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *hdWalletControllerManagerApiClient) GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error) {
+	out := new(GetAccountResponse)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerManagerApi/GetAccount", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// HdWalletControllerManagerApiServer is the server API for HdWalletControllerManagerApi service.
+// All implementations must embed UnimplementedHdWalletControllerManagerApiServer
+// for forward compatibility
+type HdWalletControllerManagerApiServer interface {
+	AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error)
+	ImportWallet(context.Context, *ImportWalletRequest) (*ImportWalletResponse, error)
+	EnableWallet(context.Context, *EnableWalletRequest) (*EnableWalletResponse, error)
+	GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error)
+	GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error)
+	DisableWallet(context.Context, *DisableWalletRequest) (*DisableWalletResponse, error)
+	DisableWallets(context.Context, *DisableWalletsRequest) (*DisableWalletsResponse, error)
+	EnableWallets(context.Context, *EnableWalletsRequest) (*EnableWalletsResponse, error)
+	GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error)
+	mustEmbedUnimplementedHdWalletControllerManagerApiServer()
+}
+
+// UnimplementedHdWalletControllerManagerApiServer must be embedded to have forward compatible implementations.
+type UnimplementedHdWalletControllerManagerApiServer struct {
+}
+
+func (UnimplementedHdWalletControllerManagerApiServer) AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddNewWallet not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) ImportWallet(context.Context, *ImportWalletRequest) (*ImportWalletResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ImportWallet not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) EnableWallet(context.Context, *EnableWalletRequest) (*EnableWalletResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnableWallet not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWalletInfo not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetEnabledWallets not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) DisableWallet(context.Context, *DisableWalletRequest) (*DisableWalletResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DisableWallet not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) DisableWallets(context.Context, *DisableWalletsRequest) (*DisableWalletsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DisableWallets not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) EnableWallets(context.Context, *EnableWalletsRequest) (*EnableWalletsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EnableWallets not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
+}
+func (UnimplementedHdWalletControllerManagerApiServer) mustEmbedUnimplementedHdWalletControllerManagerApiServer() {
+}
+
+// UnsafeHdWalletControllerManagerApiServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to HdWalletControllerManagerApiServer will
+// result in compilation errors.
+type UnsafeHdWalletControllerManagerApiServer interface {
+	mustEmbedUnimplementedHdWalletControllerManagerApiServer()
+}
+
+func RegisterHdWalletControllerManagerApiServer(s grpc.ServiceRegistrar, srv HdWalletControllerManagerApiServer) {
+	s.RegisterService(&HdWalletControllerManagerApi_ServiceDesc, srv)
+}
+
+func _HdWalletControllerManagerApi_AddNewWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddNewWalletRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).AddNewWallet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/AddNewWallet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).AddNewWallet(ctx, req.(*AddNewWalletRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_ImportWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ImportWalletRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).ImportWallet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/ImportWallet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).ImportWallet(ctx, req.(*ImportWalletRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_EnableWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnableWalletRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).EnableWallet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/EnableWallet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).EnableWallet(ctx, req.(*EnableWalletRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_GetWalletInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWalletInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).GetWalletInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/GetWalletInfo",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).GetWalletInfo(ctx, req.(*GetWalletInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_GetEnabledWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetEnabledWalletsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).GetEnabledWallets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/GetEnabledWallets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).GetEnabledWallets(ctx, req.(*GetEnabledWalletsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_DisableWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DisableWalletRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).DisableWallet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/DisableWallet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).DisableWallet(ctx, req.(*DisableWalletRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_DisableWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DisableWalletsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).DisableWallets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/DisableWallets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).DisableWallets(ctx, req.(*DisableWalletsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_EnableWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EnableWalletsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).EnableWallets(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/EnableWallets",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).EnableWallets(ctx, req.(*EnableWalletsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _HdWalletControllerManagerApi_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAccountRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HdWalletControllerManagerApiServer).GetAccount(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/manager_api.HdWalletControllerManagerApi/GetAccount",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HdWalletControllerManagerApiServer).GetAccount(ctx, req.(*GetAccountRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// HdWalletControllerManagerApi_ServiceDesc is the grpc.ServiceDesc for HdWalletControllerManagerApi service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var HdWalletControllerManagerApi_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "manager_api.HdWalletControllerManagerApi",
+	HandlerType: (*HdWalletControllerManagerApiServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "AddNewWallet",
+			Handler:    _HdWalletControllerManagerApi_AddNewWallet_Handler,
+		},
+		{
+			MethodName: "ImportWallet",
+			Handler:    _HdWalletControllerManagerApi_ImportWallet_Handler,
+		},
+		{
+			MethodName: "EnableWallet",
+			Handler:    _HdWalletControllerManagerApi_EnableWallet_Handler,
+		},
+		{
+			MethodName: "GetWalletInfo",
+			Handler:    _HdWalletControllerManagerApi_GetWalletInfo_Handler,
+		},
+		{
+			MethodName: "GetEnabledWallets",
+			Handler:    _HdWalletControllerManagerApi_GetEnabledWallets_Handler,
+		},
+		{
+			MethodName: "DisableWallet",
+			Handler:    _HdWalletControllerManagerApi_DisableWallet_Handler,
+		},
+		{
+			MethodName: "DisableWallets",
+			Handler:    _HdWalletControllerManagerApi_DisableWallets_Handler,
+		},
+		{
+			MethodName: "EnableWallets",
+			Handler:    _HdWalletControllerManagerApi_EnableWallets_Handler,
+		},
+		{
+			MethodName: "GetAccount",
+			Handler:    _HdWalletControllerManagerApi_GetAccount_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "controller_api.proto",
+}
+
+// HdWalletControllerWalletApiClient is the client API for HdWalletControllerWalletApi service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type HdWalletControllerWalletApiClient interface {
+	GetWalletInfo(ctx context.Context, in *GetWalletInfoRequest, opts ...grpc.CallOption) (*GetWalletInfoResponse, error)
 	StartWalletSession(ctx context.Context, in *StartWalletSessionRequest, opts ...grpc.CallOption) (*StartWalletSessionResponse, error)
 	GetWalletSession(ctx context.Context, in *GetWalletSessionRequest, opts ...grpc.CallOption) (*GetWalletSessionResponse, error)
 	GetAllWalletSessions(ctx context.Context, in *GetWalletSessionsRequest, opts ...grpc.CallOption) (*GetWalletSessionsResponse, error)
@@ -36,170 +404,100 @@ type HdWalletControllerApiClient interface {
 	ExecuteSignRequest(ctx context.Context, in *ExecuteSignRequestReq, opts ...grpc.CallOption) (*ExecuteSignRequestResponse, error)
 }
 
-type hdWalletControllerApiClient struct {
+type hdWalletControllerWalletApiClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewHdWalletControllerApiClient(cc grpc.ClientConnInterface) HdWalletControllerApiClient {
-	return &hdWalletControllerApiClient{cc}
+func NewHdWalletControllerWalletApiClient(cc grpc.ClientConnInterface) HdWalletControllerWalletApiClient {
+	return &hdWalletControllerWalletApiClient{cc}
 }
 
-func (c *hdWalletControllerApiClient) AddNewWallet(ctx context.Context, in *AddNewWalletRequest, opts ...grpc.CallOption) (*AddNewWalletResponse, error) {
-	out := new(AddNewWalletResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/AddNewWallet", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) ImportWallet(ctx context.Context, in *ImportWalletRequest, opts ...grpc.CallOption) (*ImportWalletResponse, error) {
-	out := new(ImportWalletResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/ImportWallet", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) EnableWallet(ctx context.Context, in *EnableWalletRequest, opts ...grpc.CallOption) (*EnableWalletResponse, error) {
-	out := new(EnableWalletResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/EnableWallet", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) GetWalletInfo(ctx context.Context, in *GetWalletInfoRequest, opts ...grpc.CallOption) (*GetWalletInfoResponse, error) {
+func (c *hdWalletControllerWalletApiClient) GetWalletInfo(ctx context.Context, in *GetWalletInfoRequest, opts ...grpc.CallOption) (*GetWalletInfoResponse, error) {
 	out := new(GetWalletInfoResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetWalletInfo", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/GetWalletInfo", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetEnabledWallets(ctx context.Context, in *GetEnabledWalletsRequest, opts ...grpc.CallOption) (*GetEnabledWalletsResponse, error) {
-	out := new(GetEnabledWalletsResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetEnabledWallets", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) DisableWallet(ctx context.Context, in *DisableWalletRequest, opts ...grpc.CallOption) (*DisableWalletResponse, error) {
-	out := new(DisableWalletResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/DisableWallet", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) DisableWallets(ctx context.Context, in *DisableWalletsRequest, opts ...grpc.CallOption) (*DisableWalletsResponse, error) {
-	out := new(DisableWalletsResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/DisableWallets", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) EnableWallets(ctx context.Context, in *EnableWalletsRequest, opts ...grpc.CallOption) (*EnableWalletsResponse, error) {
-	out := new(EnableWalletsResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/EnableWallets", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *hdWalletControllerApiClient) StartWalletSession(ctx context.Context, in *StartWalletSessionRequest, opts ...grpc.CallOption) (*StartWalletSessionResponse, error) {
+func (c *hdWalletControllerWalletApiClient) StartWalletSession(ctx context.Context, in *StartWalletSessionRequest, opts ...grpc.CallOption) (*StartWalletSessionResponse, error) {
 	out := new(StartWalletSessionResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/StartWalletSession", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/StartWalletSession", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetWalletSession(ctx context.Context, in *GetWalletSessionRequest, opts ...grpc.CallOption) (*GetWalletSessionResponse, error) {
+func (c *hdWalletControllerWalletApiClient) GetWalletSession(ctx context.Context, in *GetWalletSessionRequest, opts ...grpc.CallOption) (*GetWalletSessionResponse, error) {
 	out := new(GetWalletSessionResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetWalletSession", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/GetWalletSession", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetAllWalletSessions(ctx context.Context, in *GetWalletSessionsRequest, opts ...grpc.CallOption) (*GetWalletSessionsResponse, error) {
+func (c *hdWalletControllerWalletApiClient) GetAllWalletSessions(ctx context.Context, in *GetWalletSessionsRequest, opts ...grpc.CallOption) (*GetWalletSessionsResponse, error) {
 	out := new(GetWalletSessionsResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetAllWalletSessions", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/GetAllWalletSessions", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) CloseWalletSession(ctx context.Context, in *CloseWalletSessionsRequest, opts ...grpc.CallOption) (*CloseWalletSessionsResponse, error) {
+func (c *hdWalletControllerWalletApiClient) CloseWalletSession(ctx context.Context, in *CloseWalletSessionsRequest, opts ...grpc.CallOption) (*CloseWalletSessionsResponse, error) {
 	out := new(CloseWalletSessionsResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/CloseWalletSession", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/CloseWalletSession", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error) {
+func (c *hdWalletControllerWalletApiClient) GetAccount(ctx context.Context, in *GetAccountRequest, opts ...grpc.CallOption) (*GetAccountResponse, error) {
 	out := new(GetAccountResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetAccount", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/GetAccount", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) GetMultipleAccounts(ctx context.Context, in *GetMultipleAccountRequest, opts ...grpc.CallOption) (*GetMultipleAccountResponse, error) {
+func (c *hdWalletControllerWalletApiClient) GetMultipleAccounts(ctx context.Context, in *GetMultipleAccountRequest, opts ...grpc.CallOption) (*GetMultipleAccountResponse, error) {
 	out := new(GetMultipleAccountResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/GetMultipleAccounts", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/GetMultipleAccounts", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) PrepareSignRequest(ctx context.Context, in *PrepareSignRequestReq, opts ...grpc.CallOption) (*PrepareSignRequestResponse, error) {
+func (c *hdWalletControllerWalletApiClient) PrepareSignRequest(ctx context.Context, in *PrepareSignRequestReq, opts ...grpc.CallOption) (*PrepareSignRequestResponse, error) {
 	out := new(PrepareSignRequestResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/PrepareSignRequest", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/PrepareSignRequest", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *hdWalletControllerApiClient) ExecuteSignRequest(ctx context.Context, in *ExecuteSignRequestReq, opts ...grpc.CallOption) (*ExecuteSignRequestResponse, error) {
+func (c *hdWalletControllerWalletApiClient) ExecuteSignRequest(ctx context.Context, in *ExecuteSignRequestReq, opts ...grpc.CallOption) (*ExecuteSignRequestResponse, error) {
 	out := new(ExecuteSignRequestResponse)
-	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerApi/ExecuteSignRequest", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/manager_api.HdWalletControllerWalletApi/ExecuteSignRequest", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// HdWalletControllerApiServer is the server API for HdWalletControllerApi service.
-// All implementations must embed UnimplementedHdWalletControllerApiServer
+// HdWalletControllerWalletApiServer is the server API for HdWalletControllerWalletApi service.
+// All implementations must embed UnimplementedHdWalletControllerWalletApiServer
 // for forward compatibility
-type HdWalletControllerApiServer interface {
-	AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error)
-	ImportWallet(context.Context, *ImportWalletRequest) (*ImportWalletResponse, error)
-	EnableWallet(context.Context, *EnableWalletRequest) (*EnableWalletResponse, error)
+type HdWalletControllerWalletApiServer interface {
 	GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error)
-	GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error)
-	DisableWallet(context.Context, *DisableWalletRequest) (*DisableWalletResponse, error)
-	DisableWallets(context.Context, *DisableWalletsRequest) (*DisableWalletsResponse, error)
-	EnableWallets(context.Context, *EnableWalletsRequest) (*EnableWalletsResponse, error)
 	StartWalletSession(context.Context, *StartWalletSessionRequest) (*StartWalletSessionResponse, error)
 	GetWalletSession(context.Context, *GetWalletSessionRequest) (*GetWalletSessionResponse, error)
 	GetAllWalletSessions(context.Context, *GetWalletSessionsRequest) (*GetWalletSessionsResponse, error)
@@ -208,432 +506,258 @@ type HdWalletControllerApiServer interface {
 	GetMultipleAccounts(context.Context, *GetMultipleAccountRequest) (*GetMultipleAccountResponse, error)
 	PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error)
 	ExecuteSignRequest(context.Context, *ExecuteSignRequestReq) (*ExecuteSignRequestResponse, error)
-	mustEmbedUnimplementedHdWalletControllerApiServer()
+	mustEmbedUnimplementedHdWalletControllerWalletApiServer()
 }
 
-// UnimplementedHdWalletControllerApiServer must be embedded to have forward compatible implementations.
-type UnimplementedHdWalletControllerApiServer struct {
+// UnimplementedHdWalletControllerWalletApiServer must be embedded to have forward compatible implementations.
+type UnimplementedHdWalletControllerWalletApiServer struct {
 }
 
-func (UnimplementedHdWalletControllerApiServer) AddNewWallet(context.Context, *AddNewWalletRequest) (*AddNewWalletResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddNewWallet not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) ImportWallet(context.Context, *ImportWalletRequest) (*ImportWalletResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ImportWallet not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) EnableWallet(context.Context, *EnableWalletRequest) (*EnableWalletResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EnableWallet not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) GetWalletInfo(context.Context, *GetWalletInfoRequest) (*GetWalletInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWalletInfo not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetEnabledWallets(context.Context, *GetEnabledWalletsRequest) (*GetEnabledWalletsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetEnabledWallets not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) DisableWallet(context.Context, *DisableWalletRequest) (*DisableWalletResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DisableWallet not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) DisableWallets(context.Context, *DisableWalletsRequest) (*DisableWalletsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DisableWallets not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) EnableWallets(context.Context, *EnableWalletsRequest) (*EnableWalletsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method EnableWallets not implemented")
-}
-func (UnimplementedHdWalletControllerApiServer) StartWalletSession(context.Context, *StartWalletSessionRequest) (*StartWalletSessionResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) StartWalletSession(context.Context, *StartWalletSessionRequest) (*StartWalletSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartWalletSession not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetWalletSession(context.Context, *GetWalletSessionRequest) (*GetWalletSessionResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) GetWalletSession(context.Context, *GetWalletSessionRequest) (*GetWalletSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWalletSession not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetAllWalletSessions(context.Context, *GetWalletSessionsRequest) (*GetWalletSessionsResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) GetAllWalletSessions(context.Context, *GetWalletSessionsRequest) (*GetWalletSessionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllWalletSessions not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) CloseWalletSession(context.Context, *CloseWalletSessionsRequest) (*CloseWalletSessionsResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) CloseWalletSession(context.Context, *CloseWalletSessionsRequest) (*CloseWalletSessionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CloseWalletSession not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) GetAccount(context.Context, *GetAccountRequest) (*GetAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAccount not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) GetMultipleAccounts(context.Context, *GetMultipleAccountRequest) (*GetMultipleAccountResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) GetMultipleAccounts(context.Context, *GetMultipleAccountRequest) (*GetMultipleAccountResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMultipleAccounts not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) PrepareSignRequest(context.Context, *PrepareSignRequestReq) (*PrepareSignRequestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PrepareSignRequest not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) ExecuteSignRequest(context.Context, *ExecuteSignRequestReq) (*ExecuteSignRequestResponse, error) {
+func (UnimplementedHdWalletControllerWalletApiServer) ExecuteSignRequest(context.Context, *ExecuteSignRequestReq) (*ExecuteSignRequestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteSignRequest not implemented")
 }
-func (UnimplementedHdWalletControllerApiServer) mustEmbedUnimplementedHdWalletControllerApiServer() {}
+func (UnimplementedHdWalletControllerWalletApiServer) mustEmbedUnimplementedHdWalletControllerWalletApiServer() {
+}
 
-// UnsafeHdWalletControllerApiServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to HdWalletControllerApiServer will
+// UnsafeHdWalletControllerWalletApiServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to HdWalletControllerWalletApiServer will
 // result in compilation errors.
-type UnsafeHdWalletControllerApiServer interface {
-	mustEmbedUnimplementedHdWalletControllerApiServer()
+type UnsafeHdWalletControllerWalletApiServer interface {
+	mustEmbedUnimplementedHdWalletControllerWalletApiServer()
 }
 
-func RegisterHdWalletControllerApiServer(s grpc.ServiceRegistrar, srv HdWalletControllerApiServer) {
-	s.RegisterService(&HdWalletControllerApi_ServiceDesc, srv)
+func RegisterHdWalletControllerWalletApiServer(s grpc.ServiceRegistrar, srv HdWalletControllerWalletApiServer) {
+	s.RegisterService(&HdWalletControllerWalletApi_ServiceDesc, srv)
 }
 
-func _HdWalletControllerApi_AddNewWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNewWalletRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).AddNewWallet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/AddNewWallet",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).AddNewWallet(ctx, req.(*AddNewWalletRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_ImportWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ImportWalletRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).ImportWallet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/ImportWallet",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).ImportWallet(ctx, req.(*ImportWalletRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_EnableWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EnableWalletRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).EnableWallet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/EnableWallet",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).EnableWallet(ctx, req.(*EnableWalletRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_GetWalletInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_GetWalletInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetWalletInfoRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetWalletInfo(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).GetWalletInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetWalletInfo",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/GetWalletInfo",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetWalletInfo(ctx, req.(*GetWalletInfoRequest))
+		return srv.(HdWalletControllerWalletApiServer).GetWalletInfo(ctx, req.(*GetWalletInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetEnabledWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetEnabledWalletsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetEnabledWallets(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetEnabledWallets",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetEnabledWallets(ctx, req.(*GetEnabledWalletsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_DisableWallet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DisableWalletRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).DisableWallet(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/DisableWallet",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).DisableWallet(ctx, req.(*DisableWalletRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_DisableWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DisableWalletsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).DisableWallets(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/DisableWallets",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).DisableWallets(ctx, req.(*DisableWalletsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_EnableWallets_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(EnableWalletsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).EnableWallets(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/EnableWallets",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).EnableWallets(ctx, req.(*EnableWalletsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _HdWalletControllerApi_StartWalletSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_StartWalletSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartWalletSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).StartWalletSession(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).StartWalletSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/StartWalletSession",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/StartWalletSession",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).StartWalletSession(ctx, req.(*StartWalletSessionRequest))
+		return srv.(HdWalletControllerWalletApiServer).StartWalletSession(ctx, req.(*StartWalletSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetWalletSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_GetWalletSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetWalletSessionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetWalletSession(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).GetWalletSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetWalletSession",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/GetWalletSession",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetWalletSession(ctx, req.(*GetWalletSessionRequest))
+		return srv.(HdWalletControllerWalletApiServer).GetWalletSession(ctx, req.(*GetWalletSessionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetAllWalletSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_GetAllWalletSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetWalletSessionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetAllWalletSessions(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).GetAllWalletSessions(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetAllWalletSessions",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/GetAllWalletSessions",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetAllWalletSessions(ctx, req.(*GetWalletSessionsRequest))
+		return srv.(HdWalletControllerWalletApiServer).GetAllWalletSessions(ctx, req.(*GetWalletSessionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_CloseWalletSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_CloseWalletSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CloseWalletSessionsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).CloseWalletSession(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).CloseWalletSession(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/CloseWalletSession",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/CloseWalletSession",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).CloseWalletSession(ctx, req.(*CloseWalletSessionsRequest))
+		return srv.(HdWalletControllerWalletApiServer).CloseWalletSession(ctx, req.(*CloseWalletSessionsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_GetAccount_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetAccount(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).GetAccount(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetAccount",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/GetAccount",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetAccount(ctx, req.(*GetAccountRequest))
+		return srv.(HdWalletControllerWalletApiServer).GetAccount(ctx, req.(*GetAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_GetMultipleAccounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_GetMultipleAccounts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMultipleAccountRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).GetMultipleAccounts(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).GetMultipleAccounts(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/GetMultipleAccounts",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/GetMultipleAccounts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).GetMultipleAccounts(ctx, req.(*GetMultipleAccountRequest))
+		return srv.(HdWalletControllerWalletApiServer).GetMultipleAccounts(ctx, req.(*GetMultipleAccountRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_PrepareSignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_PrepareSignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PrepareSignRequestReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).PrepareSignRequest(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).PrepareSignRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/PrepareSignRequest",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/PrepareSignRequest",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).PrepareSignRequest(ctx, req.(*PrepareSignRequestReq))
+		return srv.(HdWalletControllerWalletApiServer).PrepareSignRequest(ctx, req.(*PrepareSignRequestReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _HdWalletControllerApi_ExecuteSignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _HdWalletControllerWalletApi_ExecuteSignRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExecuteSignRequestReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(HdWalletControllerApiServer).ExecuteSignRequest(ctx, in)
+		return srv.(HdWalletControllerWalletApiServer).ExecuteSignRequest(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/manager_api.HdWalletControllerApi/ExecuteSignRequest",
+		FullMethod: "/manager_api.HdWalletControllerWalletApi/ExecuteSignRequest",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(HdWalletControllerApiServer).ExecuteSignRequest(ctx, req.(*ExecuteSignRequestReq))
+		return srv.(HdWalletControllerWalletApiServer).ExecuteSignRequest(ctx, req.(*ExecuteSignRequestReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// HdWalletControllerApi_ServiceDesc is the grpc.ServiceDesc for HdWalletControllerApi service.
+// HdWalletControllerWalletApi_ServiceDesc is the grpc.ServiceDesc for HdWalletControllerWalletApi service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var HdWalletControllerApi_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "manager_api.HdWalletControllerApi",
-	HandlerType: (*HdWalletControllerApiServer)(nil),
+var HdWalletControllerWalletApi_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "manager_api.HdWalletControllerWalletApi",
+	HandlerType: (*HdWalletControllerWalletApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddNewWallet",
-			Handler:    _HdWalletControllerApi_AddNewWallet_Handler,
-		},
-		{
-			MethodName: "ImportWallet",
-			Handler:    _HdWalletControllerApi_ImportWallet_Handler,
-		},
-		{
-			MethodName: "EnableWallet",
-			Handler:    _HdWalletControllerApi_EnableWallet_Handler,
-		},
-		{
 			MethodName: "GetWalletInfo",
-			Handler:    _HdWalletControllerApi_GetWalletInfo_Handler,
-		},
-		{
-			MethodName: "GetEnabledWallets",
-			Handler:    _HdWalletControllerApi_GetEnabledWallets_Handler,
-		},
-		{
-			MethodName: "DisableWallet",
-			Handler:    _HdWalletControllerApi_DisableWallet_Handler,
-		},
-		{
-			MethodName: "DisableWallets",
-			Handler:    _HdWalletControllerApi_DisableWallets_Handler,
-		},
-		{
-			MethodName: "EnableWallets",
-			Handler:    _HdWalletControllerApi_EnableWallets_Handler,
+			Handler:    _HdWalletControllerWalletApi_GetWalletInfo_Handler,
 		},
 		{
 			MethodName: "StartWalletSession",
-			Handler:    _HdWalletControllerApi_StartWalletSession_Handler,
+			Handler:    _HdWalletControllerWalletApi_StartWalletSession_Handler,
 		},
 		{
 			MethodName: "GetWalletSession",
-			Handler:    _HdWalletControllerApi_GetWalletSession_Handler,
+			Handler:    _HdWalletControllerWalletApi_GetWalletSession_Handler,
 		},
 		{
 			MethodName: "GetAllWalletSessions",
-			Handler:    _HdWalletControllerApi_GetAllWalletSessions_Handler,
+			Handler:    _HdWalletControllerWalletApi_GetAllWalletSessions_Handler,
 		},
 		{
 			MethodName: "CloseWalletSession",
-			Handler:    _HdWalletControllerApi_CloseWalletSession_Handler,
+			Handler:    _HdWalletControllerWalletApi_CloseWalletSession_Handler,
 		},
 		{
 			MethodName: "GetAccount",
-			Handler:    _HdWalletControllerApi_GetAccount_Handler,
+			Handler:    _HdWalletControllerWalletApi_GetAccount_Handler,
 		},
 		{
 			MethodName: "GetMultipleAccounts",
-			Handler:    _HdWalletControllerApi_GetMultipleAccounts_Handler,
+			Handler:    _HdWalletControllerWalletApi_GetMultipleAccounts_Handler,
 		},
 		{
 			MethodName: "PrepareSignRequest",
-			Handler:    _HdWalletControllerApi_PrepareSignRequest_Handler,
+			Handler:    _HdWalletControllerWalletApi_PrepareSignRequest_Handler,
 		},
 		{
 			MethodName: "ExecuteSignRequest",
-			Handler:    _HdWalletControllerApi_ExecuteSignRequest_Handler,
+			Handler:    _HdWalletControllerWalletApi_ExecuteSignRequest_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

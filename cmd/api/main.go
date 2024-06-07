@@ -29,22 +29,26 @@ package main
 
 import (
 	"context"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/pow_validator"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	accessTtokenData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/access_tokens/pg_store"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/app"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/config"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/events"
 	grpcHandlers "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/grpc"
 	walletData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/pg_store"
 	walletRedisData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/redis_store"
+	powProofData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/pow_proofs_data/pg_store"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/sign_manager"
 	signReqData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/sign_request_data/postgres"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
+	commonJWT "github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
@@ -134,26 +138,45 @@ func main() {
 	redisClient := redisConn.GetClient()
 	loggerEntry.Info("redis connected")
 
+	jwtSvc := commonJWT.NewJWTService(appCfg.JWTConfig.Key)
+
 	mnemonicWalletDataSvc := walletData.NewPostgresStore(loggerEntry, pgConn)
 	mnemonicWalletCacheDataSvc := walletRedisData.NewRedisStore(loggerEntry, appCfg, redisClient)
 
+	accessTokenDataSvc := accessTtokenData.NewPostgresStore(loggerEntry, pgConn)
+
 	signReqDataSvc := signReqData.NewPostgresStore(loggerEntry, pgConn)
+	powProofDataSvc := powProofData.NewPostgresStore(loggerEntry, pgConn)
+	powValidatorSvc := pow_validator.NewValidatorHashCash(loggerEntry)
 
 	hdWalletClient := hdwallet.NewClient(appCfg)
 
 	eventPublisher := events.NewEventsBroadcaster(appCfg, natsConnSvc, redisConn)
 
 	walletSvc := wallet_manager.NewService(loggerEntry, appCfg, transitSvc, encryptorSvc,
-		mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
-		hdWalletClient, eventPublisher, pgConn)
+		accessTokenDataSvc, mnemonicWalletDataSvc, mnemonicWalletCacheDataSvc, signReqDataSvc,
+		jwtSvc, hdWalletClient, eventPublisher, pgConn)
 	signReqSvc := sign_manager.NewService(loggerEntry, signReqDataSvc, hdWalletClient, eventPublisher, pgConn)
 
-	apiHandlers := grpcHandlers.New(loggerEntry, walletSvc, signReqSvc)
+	managerApiHandlers := grpcHandlers.NewManagerApiHandler(loggerEntry, walletSvc, signReqSvc)
+	apiInterceptors := grpcHandlers.NewManagerApiInterceptorsList(appCfg.GetSystemAccessTokenHash())
 
-	GRPCSrv, err := grpcHandlers.NewServer(loggerEntry, appCfg, apiHandlers)
+	mangerApiGRPCSrv, err := grpcHandlers.NewManagerApiServer(loggerEntry, appCfg, managerApiHandlers, apiInterceptors)
 	if err != nil {
 		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
+			zap.String("bind address", appCfg.GetManagerApiBindAddress()))
+	}
+
+	walletApiHandlers := grpcHandlers.NewWalletApiHandler(loggerEntry, walletSvc, signReqSvc)
+	walletApiInterceptors := grpcHandlers.NewWalletApiInterceptorsList(loggerEntry,
+		powProofDataSvc, mnemonicWalletDataSvc,
+		accessTokenDataSvc, powValidatorSvc, jwtSvc, pgConn)
+
+	walletApiGRPCSrv, err := grpcHandlers.NewWalletApiServer(loggerEntry, appCfg, walletApiHandlers,
+		walletApiInterceptors)
+	if err != nil {
+		loggerEntry.Fatal("unable to create grpc server instance", zap.Error(err),
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
 
 	eventWatcher := events.NewEventWatcher(loggerEntry, appCfg, redisConn, natsConnSvc,
@@ -172,12 +195,19 @@ func main() {
 	}
 	loggerEntry.Info("hd-wallet client initiated")
 
-	err = GRPCSrv.Init(ctx)
+	err = mangerApiGRPCSrv.Init(ctx)
 	if err != nil {
-		loggerEntry.Fatal("unable to listen init grpc server instance", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
+		loggerEntry.Fatal("unable to listen init manager-api gRPC server instance", zap.Error(err),
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
-	loggerEntry.Info("gRPC server initiated")
+	loggerEntry.Info("manager-api gRPC server initiated")
+
+	err = walletApiGRPCSrv.Init(ctx)
+	if err != nil {
+		loggerEntry.Fatal("unable to listen init wallet-api gRPC server instance", zap.Error(err),
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
+	}
+	loggerEntry.Info("wallet-api gRPC server initiated")
 
 	err = hdWalletClient.Dial(ctx)
 	if err != nil {
@@ -199,10 +229,16 @@ func main() {
 	//checker.AddStartupProbeUnit(pgConn)
 	//checker.AddStartupProbeUnit(natsConnSvc)
 
-	err = GRPCSrv.ListenAndServe(ctx)
+	err = mangerApiGRPCSrv.ListenAndServe(ctx)
 	if err != nil {
-		loggerEntry.Error("unable to start grpc", zap.Error(err),
-			zap.String("port", appCfg.GetBindPort()))
+		loggerEntry.Error("unable to start manager-api grpc", zap.Error(err),
+			zap.String("bind address", appCfg.GetManagerApiBindAddress()))
+	}
+
+	err = walletApiGRPCSrv.ListenAndServe(ctx)
+	if err != nil {
+		loggerEntry.Error("unable to start wallet-api grpc", zap.Error(err),
+			zap.String("bind address", appCfg.GetWalletApiBindAddress()))
 	}
 
 	err = profiler.ListenAndServe(ctx)
@@ -210,7 +246,7 @@ func main() {
 		loggerEntry.Fatal("unable to init profiler", zap.Error(err))
 	}
 
-	loggerEntry.Info("application started successfully", zap.String(app.GRPCBindPortTag, appCfg.GetBindPort()))
+	loggerEntry.Info("application started successfully")
 
 	c := make(chan os.Signal, 2)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)

@@ -30,7 +30,6 @@ package grpc
 import (
 	"context"
 
-	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 	pbApi "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller"
 
 	"go.uber.org/zap"
@@ -66,19 +65,14 @@ func (h *ImportWalletHandler) Handle(ctx context.Context,
 		return nil, status.Error(codes.Internal, "something went wrong")
 	}
 
-	wallet, err := h.walletSvc.ImportWallet(ctx, validationForm.Phrase)
+	wallet, accessTokens, err := h.walletSvc.ImportWallet(ctx, validationForm.Phrase, validationForm.TokensCount)
 	if err != nil {
 		h.l.Error("unable to import mnemonic wallet", zap.Error(err))
 
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pbApi.ImportWalletResponse{
-		WalletIdentifier: &pbCommon.MnemonicWalletIdentity{
-			WalletUUID: wallet.UUID.String(),
-			WalletHash: wallet.MnemonicHash,
-		},
-	}, nil
+	return h.marshallerSrv.MarshallImportWalletData(wallet, accessTokens), nil
 }
 
 func MakeImportWalletHandler(loggerEntry *zap.Logger,

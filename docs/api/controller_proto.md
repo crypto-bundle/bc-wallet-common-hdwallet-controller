@@ -4,6 +4,8 @@
 ## Table of Contents
 
 - [controller_api.proto](#controller_api.proto)
+    - [AccessTokenData](#manager_api.AccessTokenData)
+    - [AccessTokenIdentity](#manager_api.AccessTokenIdentity)
     - [AddNewWalletRequest](#manager_api.AddNewWalletRequest)
     - [AddNewWalletResponse](#manager_api.AddNewWalletResponse)
     - [AppInstanceIdentity](#manager_api.AppInstanceIdentity)
@@ -49,13 +51,15 @@
     - [WalletSessionEvent](#manager_api.WalletSessionEvent)
     - [WalletSessionIdentity](#manager_api.WalletSessionIdentity)
   
+    - [AccessTokenData.TokenRole](#manager_api.AccessTokenData.TokenRole)
     - [Event.Type](#manager_api.Event.Type)
     - [SignRequestData.ReqStatus](#manager_api.SignRequestData.ReqStatus)
     - [SignRequestEvent.Type](#manager_api.SignRequestEvent.Type)
     - [WalletSessionEvent.Type](#manager_api.WalletSessionEvent.Type)
     - [WalletSessionStatus](#manager_api.WalletSessionStatus)
   
-    - [HdWalletControllerApi](#manager_api.HdWalletControllerApi)
+    - [HdWalletControllerManagerApi](#manager_api.HdWalletControllerManagerApi)
+    - [HdWalletControllerWalletApi](#manager_api.HdWalletControllerWalletApi)
   
 - [Scalar Value Types](#scalar-value-types)
 
@@ -68,10 +72,47 @@
 
 
 
+<a name="manager_api.AccessTokenData"></a>
+
+### AccessTokenData
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| AccessTokenIdentifier | [AccessTokenIdentity](#manager_api.AccessTokenIdentity) |  |  |
+| Role | [AccessTokenData.TokenRole](#manager_api.AccessTokenData.TokenRole) |  |  |
+| AccessTokenData | [bytes](#bytes) |  |  |
+
+
+
+
+
+
+<a name="manager_api.AccessTokenIdentity"></a>
+
+### AccessTokenIdentity
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| UUID | [string](#string) |  |  |
+
+
+
+
+
+
 <a name="manager_api.AddNewWalletRequest"></a>
 
 ### AddNewWalletRequest
 
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| CreateAccessTokensCount | [uint64](#uint64) |  | AccessTokens - count of access tokens: - one for signer access - one for &#34;fake signer&#34; - other for read-read only minimal value - 3 |
 
 
 
@@ -88,6 +129,7 @@
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
 | WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
+| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 
@@ -569,6 +611,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| CreateAccessTokensCount | [uint64](#uint64) |  | AccessTokens - count of access tokens: - one for signer access - one for &#34;fake signer&#34; - other for read-read only minimal value - 3 |
 | MnemonicPhrase | [bytes](#bytes) |  |  |
 
 
@@ -585,6 +628,8 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | WalletIdentifier | [common.MnemonicWalletIdentity](#common.MnemonicWalletIdentity) |  |  |
+| WalletStatus | [common.WalletStatus](#common.WalletStatus) |  |  |
+| AccessTokens | [AccessTokenData](#manager_api.AccessTokenData) | repeated |  |
 
 
 
@@ -776,6 +821,20 @@
  
 
 
+<a name="manager_api.AccessTokenData.TokenRole"></a>
+
+### AccessTokenData.TokenRole
+
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| TOKE_ROLE_PLACEHOLDER | 0 |  |
+| TOKE_ROLE_SIGNER | 1 |  |
+| TOKE_ROLE_FAKE_SIGNER | 2 |  |
+| TOKE_ROLE_INFORMER | 3 |  |
+
+
+
 <a name="manager_api.Event.Type"></a>
 
 ### Event.Type
@@ -847,9 +906,9 @@
  
 
 
-<a name="manager_api.HdWalletControllerApi"></a>
+<a name="manager_api.HdWalletControllerManagerApi"></a>
 
-### HdWalletControllerApi
+### HdWalletControllerManagerApi
 
 
 | Method Name | Request Type | Response Type | Description |
@@ -862,6 +921,17 @@
 | DisableWallet | [DisableWalletRequest](#manager_api.DisableWalletRequest) | [DisableWalletResponse](#manager_api.DisableWalletResponse) |  |
 | DisableWallets | [DisableWalletsRequest](#manager_api.DisableWalletsRequest) | [DisableWalletsResponse](#manager_api.DisableWalletsResponse) |  |
 | EnableWallets | [EnableWalletsRequest](#manager_api.EnableWalletsRequest) | [EnableWalletsResponse](#manager_api.EnableWalletsResponse) |  |
+| GetAccount | [GetAccountRequest](#manager_api.GetAccountRequest) | [GetAccountResponse](#manager_api.GetAccountResponse) |  |
+
+
+<a name="manager_api.HdWalletControllerWalletApi"></a>
+
+### HdWalletControllerWalletApi
+
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| GetWalletInfo | [GetWalletInfoRequest](#manager_api.GetWalletInfoRequest) | [GetWalletInfoResponse](#manager_api.GetWalletInfoResponse) |  |
 | StartWalletSession | [StartWalletSessionRequest](#manager_api.StartWalletSessionRequest) | [StartWalletSessionResponse](#manager_api.StartWalletSessionResponse) |  |
 | GetWalletSession | [GetWalletSessionRequest](#manager_api.GetWalletSessionRequest) | [GetWalletSessionResponse](#manager_api.GetWalletSessionResponse) |  |
 | GetAllWalletSessions | [GetWalletSessionsRequest](#manager_api.GetWalletSessionsRequest) | [GetWalletSessionsResponse](#manager_api.GetWalletSessionsResponse) |  |

@@ -30,10 +30,14 @@ package app
 const (
 	BlockChainNameTag = "blockchain_name"
 
+	AccessTokenUUIDTag = "access_token_uuid"
+
 	WalletUUIDTag                = "wallet_uuid"
 	MnemonicWalletUUIDTag        = "mnemonic_wallet_uuid"
 	MnemonicWalletSessionUUIDTag = "mnemonic_wallet_session_uuid"
 	MnemonicWalletHashTag        = "mnemonic_wallet_hash"
+
+	PowHashTag = "proof_of_work_hash"
 
 	SignRequestUUIDTag = "sign_request_uuid"
 	GRPCBindPortTag    = "grpc_bind_port"

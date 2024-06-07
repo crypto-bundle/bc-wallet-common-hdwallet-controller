@@ -29,13 +29,17 @@ option go_package = "github.com/crypto-bundle/bc-wallet-common-hdwallet-controll
 import "common.proto";
 import "google/protobuf/any.proto";
 
-enum WalletSessionStatus{
+enum WalletSessionStatus {
   WALLET_SESSION_STATUS_PLACEHOLDER = 0;
   WALLET_SESSION_STATUS_PREPARED = 1;
   WALLET_SESSION_STATUS_CLOSED = 2;
 }
 
 message AppInstanceIdentity {
+  string UUID = 1;
+}
+
+message AccessTokenIdentity {
   string UUID = 1;
 }
 
@@ -49,6 +53,19 @@ message SignRequestIdentity {
 
 message SignPurposeIdentity {
   string UUID = 1;
+}
+
+message AccessTokenData {
+  enum TokenRole{
+    TOKE_ROLE_PLACEHOLDER = 0;
+    TOKE_ROLE_SIGNER = 1;
+    TOKE_ROLE_FAKE_SIGNER = 2;
+    TOKE_ROLE_INFORMER = 3;
+  }
+
+  AccessTokenIdentity AccessTokenIdentifier = 1;
+  TokenRole Role = 2;
+  bytes AccessTokenData = 3;
 }
 
 message SignRequestData {
@@ -75,19 +92,36 @@ message GetEnabledWalletsResponse {
 }
 
 message AddNewWalletRequest {
+  // AccessTokens - count of access tokens:
+  //  - one for signer access
+  //  - one for "fake signer"
+  //  - other for read-read only
+  // minimal value - 3
+  uint64 CreateAccessTokensCount = 1;
 }
 
 message AddNewWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
   common.WalletStatus WalletStatus = 2;
+
+  repeated AccessTokenData AccessTokens = 3;
 }
 
 message ImportWalletRequest {
-  bytes MnemonicPhrase = 1;
+  // AccessTokens - count of access tokens:
+  //  - one for signer access
+  //  - one for "fake signer"
+  //  - other for read-read only
+  // minimal value - 3
+  uint64 CreateAccessTokensCount = 1;
+  bytes MnemonicPhrase = 2;
 }
 
 message ImportWalletResponse {
   common.MnemonicWalletIdentity WalletIdentifier = 1;
+  common.WalletStatus WalletStatus = 2;
+
+  repeated AccessTokenData AccessTokens = 3;
 }
 
 message EnableWalletRequest {
@@ -273,7 +307,7 @@ message SignRequestEvent {
   SignRequestIdentity SignRequestIdentifier = 2;
 }
 
-service HdWalletControllerApi {
+service HdWalletControllerManagerApi {
   rpc AddNewWallet                      (AddNewWalletRequest)                returns (AddNewWalletResponse) {}
   rpc ImportWallet                      (ImportWalletRequest)                returns (ImportWalletResponse) {}
   rpc EnableWallet                      (EnableWalletRequest)                returns (EnableWalletResponse) {}
@@ -282,6 +316,12 @@ service HdWalletControllerApi {
   rpc DisableWallet                      (DisableWalletRequest)                returns (DisableWalletResponse) {}
   rpc DisableWallets                      (DisableWalletsRequest)                returns (DisableWalletsResponse) {}
   rpc EnableWallets                      (EnableWalletsRequest)                returns (EnableWalletsResponse) {}
+
+  rpc GetAccount                (GetAccountRequest)           returns (GetAccountResponse) {}
+}
+
+service HdWalletControllerWalletApi {
+  rpc GetWalletInfo                 (GetWalletInfoRequest)           returns (GetWalletInfoResponse) {}
 
   rpc StartWalletSession                (StartWalletSessionRequest)    returns (StartWalletSessionResponse) {}
   rpc GetWalletSession                  (GetWalletSessionRequest)   returns (GetWalletSessionResponse) {}

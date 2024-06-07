@@ -18,6 +18,8 @@ github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4 h1:hnBz0D8iN9nEjmRFE5o
 github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4/go.mod h1:BWjre7F4IbwQUFVJRcCZiWepICzFHH1OsbBEoc++YfU=
 github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4 h1:VHTy4uydhnXiEQwCQZyrHpK5w4FEgc8v82qT8J9a+1I=
 github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4/go.mod h1:/HJHq9ra4o8Yl4ReENRe0yWNRB1iBi6wQ2w9lRElQ7I=
+github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4 h1:DkvLs8F7l0pLMV6e58H6KkBqpEhUeigjPXULBuIverQ=
+github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4/go.mod h1:BvsEuoUttYQPzJ85gXjeAGQn/T94OsJr4zweKXbYwrY=
 github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4 h1:bfZ5612q6HVHOmLCwaTMCKHWmYPnhkwMmLaufFvlcNI=
 github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4/go.mod h1:2wRR9pToU3PyC5gk57jWYGW6QykICopVkZwnL3N0wew=
 github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.12 h1:aVt4++pt2Qt7vv6Kgghgj6Lu6WjvcuCBrtmRxqqPVVo=
@@ -62,6 +64,8 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/go-test/deep v1.0.2 h1:onZX1rnHT3Wv6cqNgYyFOOlgVKJrksuCMCRvJStbMYw=
 github.com/go-test/deep v1.0.2/go.mod h1:wGDj63lr65AM2AQyKZd/NYHGb0R+1RLqB8NKt3aSFNA=
 github.com/gogo/protobuf v1.3.2/go.mod h1:P1XiOD3dCwIKUDQYPy72D8LYyHL2YPYrpS2s69NZV8Q=
+github.com/golang-jwt/jwt/v4 v4.5.0 h1:7cYmW1XlMY7h7ii7UhUyChSgS5wUJEnm9uZVTGqOWzg=
+github.com/golang-jwt/jwt/v4 v4.5.0/go.mod h1:m21LjoU+eqJr34lmDMbreY2eSTRJ1cv77w39/MY0Ch0=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/mock v1.1.1/go.mod h1:oTYuIxOrZwtPieC+H1uAHpcLFnEyAGVDL/k47Jfbm0A=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=

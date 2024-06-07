@@ -7,6 +7,7 @@ require (
 	github.com/crypto-bundle/bc-wallet-common-lib-config v0.0.5
 	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.4
+	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.12
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.8
@@ -32,6 +33,7 @@ require (
 	github.com/go-jose/go-jose/v4 v4.0.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect

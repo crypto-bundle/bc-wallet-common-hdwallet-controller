@@ -48,13 +48,13 @@ func (s *pgRepository) AddNewWalletSession(ctx context.Context,
 	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
 		var sessionID uint32
 		row := stmt.QueryRowx(`INSERT INTO "mnemonic_wallet_sessions" ("uuid", 
-				"access_token_uuid", "mnemonic_wallet_uuid",
+				"mnemonic_wallet_uuid",
 				"status",
 			  	"started_at", "expired_at",           
        			"created_at", "updated_at")
-            VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id;`,
+            VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id;`,
 			sessionItem.UUID,
-			sessionItem.AccessTokenUUID, sessionItem.MnemonicWalletUUID,
+			sessionItem.MnemonicWalletUUID,
 			sessionItem.Status,
 			sessionItem.StartedAt, sessionItem.ExpiredAt,
 			sessionItem.CreatedAt, sessionItem.UpdatedAt)
