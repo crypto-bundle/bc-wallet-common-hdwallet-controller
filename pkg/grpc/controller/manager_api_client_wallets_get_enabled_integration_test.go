@@ -72,8 +72,8 @@ func TestHdWalletControllerApiClient_GetEnabledWallets(t *testing.T) {
 		}
 
 		walletEnableResp, loopErr := client.EnableWallet(ctx, createWalletResp.WalletIdentifier.WalletUUID)
-		if err != nil {
-			t.Fatal(err)
+		if loopErr != nil {
+			t.Fatal(loopErr)
 		}
 
 		if walletEnableResp == nil {
