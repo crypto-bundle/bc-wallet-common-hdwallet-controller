@@ -181,3 +181,7 @@ Start of big application refactoring
     * GetMultipleAccounts
     * PrepareSignRequest
     * ExecuteSignRequest
+
+## [v0.0.29] 08.06.2024
+### Changed
+Changed MIT License to NON-AI MIT

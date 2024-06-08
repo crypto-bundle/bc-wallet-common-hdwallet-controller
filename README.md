@@ -188,4 +188,4 @@ You can see example of HELM-chart deployment application in next repositories:
 
 ## Licence
 
-**bc-wallet-common-hdwallet-controller** is licensed under the [MIT](./LICENSE) License.
+**bc-wallet-common-hdwallet-controller** is licensed under the [MIT NON-AI](./LICENSE) License.
