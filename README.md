@@ -186,6 +186,9 @@ You can see example of HELM-chart deployment application in next repositories:
 * [bc-wallet-tron-hdwallet-api/deploy/helm/hdwallet](https://github.com/crypto-bundle/bc-wallet-tron-hdwallet/tree/develop/deploy/helm/hdwallet)
 * [bc-wallet-ethereum-hdwallet-api/deploy/helm/hdwallet](https://github.com/crypto-bundle/bc-wallet-ethereum-hdwallet/tree/develop/deploy/helm/hdwallet)
 
+## Contributors
+* Author and maintainer - [@gudron (Alex V Kotelnikov)](https://github.com/gudron)
+
 ## Licence
 
 **bc-wallet-common-hdwallet-controller** is licensed under the [MIT NON-AI](./LICENSE) License.

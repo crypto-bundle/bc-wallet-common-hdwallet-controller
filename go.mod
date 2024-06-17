@@ -14,7 +14,7 @@ require (
 	github.com/crypto-bundle/bc-wallet-common-lib-profiler v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.7
 	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.4
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.14
+	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.15
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
@@ -34,7 +34,6 @@ require (
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
-	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
