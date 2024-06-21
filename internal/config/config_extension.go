@@ -67,73 +67,77 @@ package config
 import "time"
 
 func (c *MangerConfig) GetHostName() string {
-	return c.baseAppCfgSrv.GetHostName()
+	return c.baseAppCfgSvc.GetHostName()
 }
-
 func (c *MangerConfig) GetEnvironmentName() string {
-	return c.baseAppCfgSrv.GetEnvironmentName()
+	return c.baseAppCfgSvc.GetEnvironmentName()
 }
-
 func (c *MangerConfig) IsProd() bool {
-	return c.baseAppCfgSrv.IsProd()
+	return c.baseAppCfgSvc.IsProd()
 }
-
 func (c *MangerConfig) IsStage() bool {
-	return c.baseAppCfgSrv.IsStage()
+	return c.baseAppCfgSvc.IsStage()
 }
-
 func (c *MangerConfig) IsTest() bool {
-	return c.baseAppCfgSrv.IsTest()
+	return c.baseAppCfgSvc.IsTest()
 }
-
 func (c *MangerConfig) IsDev() bool {
-	return c.baseAppCfgSrv.IsDev()
+	return c.baseAppCfgSvc.IsDev()
 }
-
 func (c *MangerConfig) IsDebug() bool {
-	return c.baseAppCfgSrv.IsDebug()
+	return c.baseAppCfgSvc.IsDebug()
 }
-
 func (c *MangerConfig) IsLocal() bool {
-	return c.baseAppCfgSrv.IsLocal()
+	return c.baseAppCfgSvc.IsLocal()
 }
-
 func (c *MangerConfig) GetStageName() string {
-	return c.baseAppCfgSrv.GetStageName()
+	return c.baseAppCfgSvc.GetStageName()
 }
-
 func (c *MangerConfig) GetApplicationPID() int {
-	return c.baseAppCfgSrv.GetApplicationPID()
+	return c.baseAppCfgSvc.GetApplicationPID()
 }
-
 func (c *MangerConfig) GetApplicationName() string {
-	return c.baseAppCfgSrv.GetApplicationName()
+	return c.baseAppCfgSvc.GetApplicationName()
 }
-
 func (c *MangerConfig) SetApplicationName(appName string) {
-	c.baseAppCfgSrv.SetApplicationName(appName)
+	c.baseAppCfgSvc.SetApplicationName(appName)
 }
 
 func (c *MangerConfig) GetReleaseTag() string {
-	return c.baseAppCfgSrv.GetReleaseTag()
+	return c.baseAppCfgSvc.GetReleaseTag()
 }
-
 func (c *MangerConfig) GetCommitID() string {
-	return c.baseAppCfgSrv.GetCommitID()
+	return c.baseAppCfgSvc.GetCommitID()
 }
-
 func (c *MangerConfig) GetShortCommitID() string {
-	return c.baseAppCfgSrv.GetShortCommitID()
+	return c.baseAppCfgSvc.GetShortCommitID()
 }
-
 func (c *MangerConfig) GetBuildNumber() uint64 {
-	return c.baseAppCfgSrv.GetBuildNumber()
+	return c.baseAppCfgSvc.GetBuildNumber()
 }
-
 func (c *MangerConfig) GetBuildDateTS() int64 {
-	return c.baseAppCfgSrv.GetBuildDateTS()
+	return c.baseAppCfgSvc.GetBuildDateTS()
+}
+func (c *MangerConfig) GetBuildDate() time.Time {
+	return c.baseAppCfgSvc.GetBuildDate()
 }
 
-func (c *MangerConfig) GetBuildDate() time.Time {
-	return c.baseAppCfgSrv.GetBuildDate()
+func (c *MangerConfig) GetMinimalLogLevel() string {
+	return c.loggerCfgSvc.GetMinimalLogLevel()
+}
+func (c *MangerConfig) IsStacktraceEnabled() bool {
+	return c.loggerCfgSvc.IsStacktraceEnabled()
+}
+func (c *MangerConfig) GetSkipBuildInfo() bool {
+	return c.loggerCfgSvc.GetSkipBuildInfo()
+}
+
+// GetProviderName is for getting event filter by processing provider
+func (c *MangerConfig) GetProviderName() string {
+	return c.processingEnvCfgSvc.GetProviderName()
+}
+
+// GetNetworkName is for getting event filter by processing network
+func (c *MangerConfig) GetNetworkName() string {
+	return c.processingEnvCfgSvc.GetNetworkName()
 }

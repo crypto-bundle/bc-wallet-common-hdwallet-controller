@@ -1,9 +1,12 @@
 # Change Log
 
-## [v0.0.30] 18.06.2024
+## [v0.0.30] 21.06.2024
 ### Changed
-* Bump common-lib-vault version - bc-wallet-common-lib-vault v0.0.15
+* Changed config init flow
+* Bump common-lib-vault version - bc-wallet-common-lib-vault v0.0.17
   * Added new environment variable VAULT_AUTH_TOKEN_FILE_PATH to *-example.env files
+  * Implemented new vault client init flow
+* Bump common-lib-postgres version - bc-wallet-common-lib-postgres v0.0.9
 
 ## [v0.0.29] 08.06.2024
 ### Changed

@@ -10,11 +10,11 @@ require (
 	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.4
 	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.12
-	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.8
+	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.9
 	github.com/crypto-bundle/bc-wallet-common-lib-profiler v0.0.2
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.7
 	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.4
-	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.15
+	github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.17
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.6.0
 	github.com/jmoiron/sqlx v1.4.0
