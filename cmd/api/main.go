@@ -66,7 +66,6 @@ package main
 
 import (
 	"context"
-	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/pow_validator"
 	"log"
 	"os"
 	"os/signal"
@@ -80,6 +79,7 @@ import (
 	walletData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/pg_store"
 	walletRedisData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/mnemonic_wallet_data/redis_store"
 	powProofData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/pow_proofs_data/pg_store"
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/pow_validator"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/sign_manager"
 	signReqData "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/sign_request_data/postgres"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/wallet_manager"
@@ -130,9 +130,22 @@ func main() {
 	var err error
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
-	appCfg, vaultSvc, err := config.Prepare(ctx, ReleaseTag,
+	wrappedBaseCfg, err := config.PrepareBaseConfig(ctx, ReleaseTag,
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS)
+	if err != nil {
+		log.Fatal(err.Error(), err)
+	}
+
+	loggerSvc, err := commonLogger.NewService(wrappedBaseCfg)
+	if err != nil {
+		log.Fatal(err.Error(), err)
+	}
+	loggerEntry := loggerSvc.NewLoggerEntry("main").
+		With(zap.String(app.BlockChainNameTag, wrappedBaseCfg.GetNetworkName()))
+
+	appCfg, vaultSvc, err := config.PrepareAppCfg(ctx, wrappedBaseCfg,
+		zap.NewStdLog(loggerEntry))
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
@@ -140,16 +153,9 @@ func main() {
 	transitSvc := commonVault.NewEncryptService(vaultSvc, appCfg.GetVaultCommonTransit())
 	encryptorSvc := commonVault.NewEncryptService(vaultSvc, appCfg.GetVaultCommonTransit())
 
-	loggerSrv, err := commonLogger.NewService(appCfg)
-	if err != nil {
-		log.Fatal(err.Error(), err)
-	}
-	loggerEntry := loggerSrv.NewLoggerEntry("main").
-		With(zap.String(app.BlockChainNameTag, appCfg.GetNetworkName()))
-
 	profiler := commonProfiler.NewHTTPServer(loggerEntry, appCfg.ProfilerConfig)
 
-	pgConn := commonPostgres.NewConnection(ctx, appCfg, loggerEntry)
+	pgConn := commonPostgres.NewConnection(ctx, appCfg, zap.NewStdLog(loggerEntry))
 	_, err = pgConn.Connect()
 	if err != nil {
 		loggerEntry.Fatal("unable to connect to postgresql", zap.Error(err))

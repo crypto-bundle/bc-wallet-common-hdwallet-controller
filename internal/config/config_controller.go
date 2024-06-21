@@ -71,10 +71,8 @@ import (
 
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
-	commonConfig "github.com/crypto-bundle/bc-wallet-common-lib-config/pkg/config"
 	commonHealthcheck "github.com/crypto-bundle/bc-wallet-common-lib-healthcheck/pkg/healthcheck"
 	commonJWT "github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
-	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
 	commonPostgres "github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
 	commonProfiler "github.com/crypto-bundle/bc-wallet-common-lib-profiler/pkg/profiler"
@@ -88,8 +86,6 @@ type MangerConfig struct {
 	// -------------------
 	// External common configs
 	// -------------------
-	*commonConfig.BaseConfig
-	*commonLogger.LoggerConfig
 	*commonHealthcheck.HealthcheckHTTPConfig
 	*VaultWrappedConfig
 	*commonPostgres.PostgresConfig
@@ -98,7 +94,6 @@ type MangerConfig struct {
 	*commonProfiler.ProfilerConfig
 	*commonJWT.JWTConfig
 	*hdwallet.HdWalletClientConfig
-	*ProcessionEnvironmentConfig
 	// -------------------
 	// Internal configs
 	// -------------------
@@ -129,7 +124,9 @@ type MangerConfig struct {
 	EventChannelName   string
 	// ----------------------------
 	// Dependencies
-	baseAppCfgSrv baseConfigService
+	baseAppCfgSvc       baseConfigService
+	loggerCfgSvc        loggerCfgService
+	processingEnvCfgSvc processingEnvironmentConfigService
 }
 
 func (c *MangerConfig) GetDefaultWalletSessionDelay() time.Duration {
@@ -181,9 +178,9 @@ func (c *MangerConfig) Prepare() error {
 
 	c.InstanceUUID = uuid.New()
 
-	appName := fmt.Sprintf(ApplicationManagerNameTpl, c.ProcessionEnvironmentConfig.GetNetworkName())
+	appName := fmt.Sprintf(ApplicationManagerNameTpl, c.processingEnvCfgSvc.GetNetworkName())
 
-	c.baseAppCfgSrv.SetApplicationName(appName)
+	c.baseAppCfgSvc.SetApplicationName(appName)
 
 	c.EventChannelName = strings.ToUpper(fmt.Sprintf("%s__%s__%s__%s", c.GetStageName(),
 		c.GetApplicationName(), c.GetProviderName(), c.GetNetworkName()))
@@ -195,7 +192,11 @@ func (c *MangerConfig) PrepareWith(cfgSvcList ...interface{}) error {
 	for _, cfgSrv := range cfgSvcList {
 		switch castedCfg := cfgSrv.(type) {
 		case baseConfigService:
-			c.baseAppCfgSrv = castedCfg
+			c.baseAppCfgSvc = castedCfg
+		case processingEnvironmentConfigService:
+			c.processingEnvCfgSvc = castedCfg
+		case loggerCfgService:
+			c.loggerCfgSvc = castedCfg
 		default:
 			continue
 		}

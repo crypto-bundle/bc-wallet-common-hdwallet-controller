@@ -10,6 +10,8 @@
 .env
 env-*.env
 !env-*-example.env
+# vault token file ingnore
+*.token
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
