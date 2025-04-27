@@ -85,6 +85,7 @@ import (
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/wallet_manager"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/hdwallet"
 
+	commonErrFmt "github.com/crypto-bundle/bc-wallet-common-lib-errors/pkg/errformatter"
 	commonJWT "github.com/crypto-bundle/bc-wallet-common-lib-jwt/pkg/jwt"
 	commonLogger "github.com/crypto-bundle/bc-wallet-common-lib-logger/pkg/logger"
 	commonNats "github.com/crypto-bundle/bc-wallet-common-lib-nats-queue/pkg/nats"
@@ -130,46 +131,56 @@ func main() {
 	var err error
 	ctx, cancelCtxFunc := context.WithCancel(context.Background())
 
-	wrappedBaseCfg, err := config.PrepareBaseConfig(ctx, ReleaseTag,
+	cfgErrFmtSvc := commonErrFmt.NewErrorFormatter()
+	wrappedBaseCfg, err := config.PrepareBaseConfig(ctx, cfgErrFmtSvc,
+		ReleaseTag,
 		CommitID, ShortCommitID,
 		BuildNumber, BuildDateTS)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
 
-	loggerSvc, err := commonLogger.NewService(wrappedBaseCfg)
+	loggerBuilderSvc, err := commonLogger.NewService(wrappedBaseCfg,
+		commonErrFmt.NewErrorBasicFormatter())
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
-	loggerEntry := loggerSvc.NewLoggerEntry("main").
+	loggerEntry := loggerBuilderSvc.NewZapNamedLoggerEntry("main").
 		With(zap.String(app.BlockChainNameTag, wrappedBaseCfg.GetNetworkName()))
 
-	appCfg, vaultSvc, err := config.PrepareAppCfg(ctx, wrappedBaseCfg,
-		zap.NewStdLog(loggerEntry))
+	appCfg, vaultSvc, err := config.PrepareAppCfg(ctx, cfgErrFmtSvc, wrappedBaseCfg,
+		loggerBuilderSvc)
 	if err != nil {
 		log.Fatal(err.Error(), err)
 	}
 
-	transitSvc := commonVault.NewEncryptService(vaultSvc, appCfg.GetVaultCommonTransit())
-	encryptorSvc := commonVault.NewEncryptService(vaultSvc, appCfg.GetVaultCommonTransit())
+	transitSvc := commonVault.NewEncryptService(cfgErrFmtSvc, vaultSvc, appCfg.GetVaultCommonTransit())
+	encryptorSvc := commonVault.NewEncryptService(cfgErrFmtSvc, vaultSvc, appCfg.GetVaultCommonTransit())
 
-	profiler := commonProfiler.NewHTTPServer(loggerEntry, appCfg.ProfilerConfig)
+	profiler := commonProfiler.NewHTTPServer(loggerBuilderSvc,
+		commonErrFmt.NewScopedErrorFormatter("profiler"),
+		appCfg.ProfilerConfig)
 
-	pgConn := commonPostgres.NewConnection(ctx, appCfg, zap.NewStdLog(loggerEntry))
+	pgConn := commonPostgres.NewConnection(loggerBuilderSvc,
+		commonErrFmt.NewScopedErrorFormatter("lib-postgres"),
+		appCfg)
 	_, err = pgConn.Connect()
 	if err != nil {
 		loggerEntry.Fatal("unable to connect to postgresql", zap.Error(err))
 	}
 	loggerEntry.Info("postgresql connected")
 
-	natsConnSvc := commonNats.NewConnection(ctx, appCfg, loggerEntry)
+	natsConnSvc := commonNats.NewConnection(appCfg, loggerBuilderSvc,
+		commonErrFmt.NewScopedErrorFormatter("lib-nats-queue"))
 	err = natsConnSvc.Connect()
 	if err != nil {
 		loggerEntry.Fatal("unable to connect to nats", zap.Error(err))
 	}
 	loggerEntry.Info("nats connected")
 
-	redisSvc := commonRedis.NewConnection(ctx, appCfg, loggerEntry)
+	redisSvc := commonRedis.NewConnection(loggerBuilderSvc,
+		commonErrFmt.NewScopedErrorFormatter("lib-redis"),
+		appCfg)
 	if err != nil {
 		loggerEntry.Fatal("unable create redis connection", zap.Error(err))
 	}
@@ -181,7 +192,8 @@ func main() {
 	redisClient := redisConn.GetClient()
 	loggerEntry.Info("redis connected")
 
-	jwtSvc := commonJWT.NewJWTService(appCfg.JWTConfig.Key)
+	jwtSvc := commonJWT.NewJWTService(commonErrFmt.NewScopedErrorFormatter("lib-jwt"),
+		appCfg.JWTConfig.Key)
 
 	mnemonicWalletDataSvc := walletData.NewPostgresStore(loggerEntry, pgConn)
 	mnemonicWalletCacheDataSvc := walletRedisData.NewRedisStore(loggerEntry, appCfg, redisClient)
@@ -292,7 +304,7 @@ func main() {
 	loggerEntry.Info("application started successfully")
 
 	c := make(chan os.Signal, 2)
-	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(c, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-c
 	loggerEntry.Warn("shutdown application")
 	cancelCtxFunc()

@@ -205,12 +205,10 @@ type mnemonicWalletsDataService interface {
 	GetWalletSessionAccessTokenItemsByTokenUUID(ctx context.Context,
 		tokenUUID string,
 	) (count uint, list []*entities.AccessTokenWalletSession, err error)
-	GetLastWalletSessionNumberByAccessTokenUUID(ctx context.Context,
-		accessTokenUUID string,
-	) (serialNumber uint64, err error)
-	GetNextWalletSessionNumberByAccessTokenUUID(ctx context.Context,
-		accessTokenUUID string,
-	) (nextSerialNumber uint64, err error)
+
+	GetNextWalletSessionCounterValue(ctx context.Context,
+		tokenIdentifier uuid.UUID,
+	) (int32, error)
 }
 
 type signRequestDataService interface {

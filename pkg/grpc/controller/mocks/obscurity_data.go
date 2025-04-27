@@ -35,11 +35,14 @@ package mocks
 import (
 	"bytes"
 	"context"
+	"go.uber.org/zap"
 	"sync"
 )
 
 type obscurityDataStore struct {
 	mu sync.Mutex
+
+	logger *zap.Logger
 
 	identifierByWallets map[string][]byte
 }
@@ -56,6 +59,8 @@ func (s *obscurityDataStore) GetLastObscurityData(ctx context.Context,
 		return nil, nil
 	}
 
+	s.logger.Info("powhash", zap.String("data", string(data)))
+
 	return data, nil
 }
 
@@ -69,12 +74,17 @@ func (s *obscurityDataStore) AddLastObscurityData(ctx context.Context,
 
 	s.identifierByWallets[accessTokenHash] = bytes.Clone(obscurityData)
 
+	s.logger.Info("save powhash", zap.String("saved data", string(s.identifierByWallets[accessTokenHash])))
+
 	return nil
 }
 
-func NewObscurityDataStoreStore(identifiers map[string][]byte) *obscurityDataStore {
+func NewObscurityDataStoreStore(logger *zap.Logger,
+	identifiers map[string][]byte,
+) *obscurityDataStore {
 	return &obscurityDataStore{
 		mu:                  sync.Mutex{},
+		logger:              logger,
 		identifierByWallets: identifiers,
 	}
 }

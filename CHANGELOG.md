@@ -1,5 +1,27 @@
 # Change Log
 
+## [v0.0.31] 27.04.2025
+### Fixed
+* Fixed bug with reservation of next `serial_number` for access_token wallet_sessions list
+  * Added migration
+  * Changed integration test
+    * Added async logic of "Start new wallet session" flow
+* Changed /x/crypto vulnerable version - v0.31.0 -> v0.35.0
+### Changed
+* Bump common-libs versions
+  * bc-wallet-common-lib-config v0.0.8
+  * bc-wallet-common-lib-errors v0.0.10
+  * bc-wallet-common-lib-grpc v0.0.5
+  * bc-wallet-common-lib-healthcheck v0.0.9
+  * bc-wallet-common-lib-jwt v0.0.5
+  * bc-wallet-common-lib-logger v0.0.12
+  * bc-wallet-common-lib-nats-queue v0.1.14
+  * bc-wallet-common-lib-postgres v0.0.11
+  * bc-wallet-common-lib-profiler v0.0.3
+  * bc-wallet-common-lib-redis v0.0.10
+  * bc-wallet-common-lib-tracer v0.0.5
+  * bc-wallet-common-lib-vault v0.0.20
+
 ## [v0.0.30] 21.06.2024
 ### Changed
 * Changed config init flow

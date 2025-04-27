@@ -83,7 +83,7 @@ func TestHdWalletWalletApiClient_GetWalletInfo(t *testing.T) {
 		8115, "tron")
 
 	walletApiClient := NewWalletApiClientWrapper(logger,
-		mocks.NewObscurityDataStoreStore(make(map[string][]byte)),
+		mocks.NewObscurityDataStoreStore(logger, make(map[string][]byte)),
 		mocks.NewAccessTokenDataStore(accessTokenData),
 		mocks.NewTxStmtMock())
 

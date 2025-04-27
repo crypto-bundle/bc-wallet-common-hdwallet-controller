@@ -32,17 +32,24 @@
 
 package mocks
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
 type txStmtManager struct {
+	mu sync.Mutex
 }
 
-func (m txStmtManager) BeginTxWithRollbackOnError(ctx context.Context,
+func (m *txStmtManager) BeginTxWithRollbackOnError(ctx context.Context,
 	clb func(txStmtCtx context.Context) error,
 ) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	return clb(ctx)
 }
 
 func NewTxStmtMock() *txStmtManager {
-	return &txStmtManager{}
+	return &txStmtManager{mu: sync.Mutex{}}
 }

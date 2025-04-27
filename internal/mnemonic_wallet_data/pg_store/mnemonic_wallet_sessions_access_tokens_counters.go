@@ -3,7 +3,7 @@
  *
  * MIT NON-AI License
  *
- * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ * Copyright (c) 2022-2025 Aleksei Kotelnikov(gudron2s@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of the software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -30,51 +30,78 @@
  *
  */
 
-package controller
+package pg_store
 
 import (
 	"context"
-	"strings"
-	"sync"
+
+	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/internal/entities"
+
+	"github.com/crypto-bundle/bc-wallet-common-lib-postgres/pkg/postgres"
+
+	"github.com/google/uuid"
+	"github.com/jmoiron/sqlx"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
+func (s *pgRepository) GetCurrentAccessTokenCounterValue(ctx context.Context,
+	tokenIdentifier uuid.UUID,
+) (*entities.AccessTokenWalletSessionCounter, error) {
+	var result *entities.AccessTokenWalletSessionCounter
 
-	tokensCache map[string]string
+	if err := s.pgConn.TryWithTransaction(ctx, func(stmt sqlx.Ext) error {
+		const q = `
+			SELECT * FROM "wallet_sessions_access_tokens_counters"
+			WHERE "token_uuid" = $1
+			FOR UPDATE;`
 
-	accessTokenDataSvc accessTokensDataService
-}
+		row := stmt.QueryRowx(q, tokenIdentifier)
 
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
+		item := &entities.AccessTokenWalletSessionCounter{}
+		clbErr := row.StructScan(item)
+		if clbErr != nil {
+			return postgres.EmptyOrError(clbErr, "failed to select last counter values")
+		}
 
-	w.mu.Lock()
-	defer w.mu.Unlock()
+		result = item
 
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
-	if err != nil {
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 
-	if token == nil {
-		return nil, nil
-	}
-
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
+	return result, nil
 }
 
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
+func (s *pgRepository) GetNextWalletSessionCounterValue(ctx context.Context,
+	tokenIdentifier uuid.UUID,
+) (int32, error) {
+	var nextNonce int32
+
+	err := s.pgConn.MustWithTransaction(ctx, func(stmt *sqlx.Tx) error {
+		var tmp int32
+
+		q := `
+			INSERT INTO wallet_sessions_access_tokens_counters (token_uuid, counter_value)
+				VALUES ($1, 0)
+			ON CONFLICT (token_uuid) 
+				DO UPDATE
+					SET counter_value = wallet_sessions_access_tokens_counters.counter_value + 1
+			RETURNING counter_value`
+
+		row := stmt.QueryRowx(q, tokenIdentifier)
+		clbErr := row.Scan(&tmp)
+		if clbErr != nil {
+			return clbErr
+		}
+
+		nextNonce = tmp
+
+		return nil
+	})
+
+	if err != nil {
+		return -1, err
 	}
+
+	return nextNonce, nil
 }

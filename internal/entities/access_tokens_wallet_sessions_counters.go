@@ -3,7 +3,7 @@
  *
  * MIT NON-AI License
  *
- * Copyright (c) 2022-2024 Aleksei Kotelnikov(gudron2s@gmail.com)
+ * Copyright (c) 2022-2025 Aleksei Kotelnikov(gudron2s@gmail.com)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of the software and associated documentation files (the "Software"),
  * to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
@@ -30,51 +30,20 @@
  *
  */
 
-package controller
+package entities
 
 import (
-	"context"
-	"strings"
-	"sync"
+	"github.com/google/uuid"
 )
 
-type accessTokenDataWrapper struct {
-	mu sync.RWMutex
+//go:generate easyjson access_tokens_wallet_sessions_counters.go
 
-	tokensCache map[string]string
+// AccessTokenWalletSessionCounter struct for storing in pg database
+// easyjson:json
+type AccessTokenWalletSessionCounter struct {
+	ID uint64 `db:"id" json:"id"`
 
-	accessTokenDataSvc accessTokensDataService
-}
+	AccessTokeUUID uuid.UUID `db:"token_uuid" json:"token_uuid"`
 
-func (w *accessTokenDataWrapper) GetAccessTokenForWallet(ctx context.Context, walletUUID string) (*string, error) {
-	tokenStr, isFound := w.tokensCache[walletUUID]
-	if isFound {
-		result := strings.Clone(tokenStr)
-		return &result, nil
-	}
-
-	w.mu.Lock()
-	defer w.mu.Unlock()
-
-	token, err := w.accessTokenDataSvc.GetAccessTokenForWallet(ctx, walletUUID)
-	if err != nil {
-		return nil, err
-	}
-
-	if token == nil {
-		return nil, nil
-	}
-
-	w.tokensCache[walletUUID] = *token
-	result := strings.Clone(*token)
-
-	return &result, nil
-}
-
-func newAccessTokenDataWrapper(originDataSvc accessTokensDataService) *accessTokenDataWrapper {
-	return &accessTokenDataWrapper{
-		mu:                 sync.RWMutex{},
-		tokensCache:        make(map[string]string),
-		accessTokenDataSvc: originDataSvc,
-	}
+	CounterValue uint64 `db:"counter_value" json:"counter_value"`
 }

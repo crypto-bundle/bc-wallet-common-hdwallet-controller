@@ -34,14 +34,19 @@ package controller
 
 import (
 	"context"
+	"crypto/sha256"
+	"fmt"
 	"github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/controller/mocks"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
+	"sync"
 	"testing"
 
 	pbCommon "github.com/crypto-bundle/bc-wallet-common-hdwallet-controller/pkg/grpc/common"
 )
 
-func TestHdWalletControllerApiClient_GetWalletSession(t *testing.T) {
+func TestHdWalletControllerApiClient_StartWalletSessionLoop(t *testing.T) {
 	logger := zaptest.NewLogger(t)
 	clientCfg, err := mocks.NewManagerApiClientConfig("localhost",
 		8114, "tron", "./test_case_data/root_token_data.json")
@@ -81,9 +86,13 @@ func TestHdWalletControllerApiClient_GetWalletSession(t *testing.T) {
 	walletApiConfig := mocks.NewWalletApiClientConfig("localhost",
 		8115, "tron")
 
+	accessTokenHash := fmt.Sprintf("%x", sha256.Sum256(createRuleToken.AccessTokenData))
+
 	walletApiClient := NewWalletApiClientWrapper(logger,
 		mocks.NewObscurityDataStoreStore(logger,
-			make(map[string][]byte)),
+			map[string][]byte{
+				accessTokenHash: createRuleToken.AccessTokenData,
+			}),
 		mocks.NewAccessTokenDataStore(accessTokenData),
 		mocks.NewTxStmtMock())
 
@@ -111,52 +120,49 @@ func TestHdWalletControllerApiClient_GetWalletSession(t *testing.T) {
 			walletEnableResp.WalletStatus, pbCommon.WalletStatus_WALLET_STATUS_ENABLED)
 	}
 
-	startWalletSessionResp, loopErr := walletApiClient.StartWalletSession(ctx,
-		walletEnableResp.WalletIdentifier.WalletUUID)
-	if loopErr != nil {
-		t.Fatal(loopErr)
+	const triesCount = 50
+
+	wg := sync.WaitGroup{}
+	wg.Add(triesCount)
+
+	for i := 0; i != triesCount; i++ {
+		go func() {
+			defer wg.Done()
+
+			startWalletSessionResp, loopErr := walletApiClient.StartWalletSession(ctx,
+				walletEnableResp.WalletIdentifier.WalletUUID)
+			if loopErr != nil {
+				logger.Info("hash", zap.String("hash", "test"))
+				t.Fatal(loopErr)
+			}
+
+			if startWalletSessionResp == nil {
+				t.Fatal("missing start wallet session response")
+			}
+
+			if startWalletSessionResp.WalletIdentifier == nil {
+				t.Fatal("missing wallet identifier in start wallet session resp")
+			}
+
+			if startWalletSessionResp.WalletIdentifier.WalletUUID != walletEnableResp.WalletIdentifier.WalletUUID {
+				t.Fatal("missing wallet identifier in start wallet session resp")
+			}
+
+			if startWalletSessionResp.SessionIdentifier == nil {
+				t.Fatal("missing session identifier in start wallet session resp")
+			}
+
+			_, loopErr = uuid.Parse(startWalletSessionResp.SessionIdentifier.SessionUUID)
+			if loopErr != nil {
+				t.Fatal("wrong session identity format, not uuid", loopErr)
+			}
+
+			if startWalletSessionResp.SessionStatus != WalletSessionStatus_WALLET_SESSION_STATUS_PREPARED {
+				t.Fatalf("%s: curent:%s, expected: %s", "wrong wallet session status",
+					startWalletSessionResp.SessionStatus, WalletSessionStatus_WALLET_SESSION_STATUS_PREPARED)
+			}
+		}()
 	}
 
-	if startWalletSessionResp == nil {
-		t.Fatal("missing start wallet session response")
-	}
-
-	if startWalletSessionResp.WalletIdentifier == nil {
-		t.Fatal("missing wallet identifier in start wallet session resp")
-	}
-
-	if startWalletSessionResp.SessionIdentifier == nil {
-		t.Fatal("missing wallet session identifier in start wallet session resp")
-	}
-
-	if startWalletSessionResp.WalletIdentifier.WalletUUID != walletEnableResp.WalletIdentifier.WalletUUID {
-		t.Fatal("missing wallet identifier in start wallet session resp")
-	}
-
-	getWalletSessionResp, err := walletApiClient.GetWalletSessionInfo(ctx,
-		walletEnableResp.WalletIdentifier.WalletUUID,
-		startWalletSessionResp.SessionIdentifier.SessionUUID,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if getWalletSessionResp == nil {
-		t.Fatal("missing start wallet session response")
-	}
-
-	if getWalletSessionResp.WalletIdentifier == nil {
-		t.Fatal("missing wallet identifier in get wallet session response")
-	}
-
-	if getWalletSessionResp.Session == nil || getWalletSessionResp.Session.SessionIdentifier == nil {
-		t.Fatal("missing session identifier in get wallet session response")
-	}
-
-	if startWalletSessionResp.SessionStatus != getWalletSessionResp.Session.SessionStatus {
-		t.Fatalf("%s: curent:%s, expected: %s", "wrong wallet session status",
-			getWalletSessionResp.Session.SessionStatus,
-			startWalletSessionResp.SessionStatus)
-	}
-
+	wg.Wait()
 }

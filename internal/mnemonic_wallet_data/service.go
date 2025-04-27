@@ -281,10 +281,7 @@ func NewService(logger *zap.Logger,
 	l := logger.Named("mnemonic_wallet_data.service")
 	persistentStoreSrv := pg_store.NewPostgresStore(logger, pgConn)
 
-	redisStore, err := redis_store.NewRedisStore(logger, configSvc, redisClient)
-	if err != nil {
-		return nil, err
-	}
+	redisStore := redis_store.NewRedisStore(logger, configSvc, redisClient)
 
 	natsJetSteamContext, err := natsConn.GetConnection().JetStream()
 	if err != nil {

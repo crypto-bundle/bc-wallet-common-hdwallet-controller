@@ -131,13 +131,20 @@ func (s *Service) startWalletSession(ctx context.Context,
 		startedAt := currentTime.Add(s.cfg.GetDefaultWalletSessionDelay())
 		expiredAt := startedAt.Add(wallet.UnloadInterval)
 
-		nextSerialNumber, clbErr := s.mnemonicWalletsDataSvc.GetNextWalletSessionNumberByAccessTokenUUID(txStmtCtx,
-			accessTokenUUID.String())
+		sessionUUID, clbErr := uuid.NewV7()
 		if clbErr != nil {
 			return clbErr
 		}
 
-		sessionUUID := uuid.New()
+		nextSerialNumber, clbErr := s.mnemonicWalletsDataSvc.GetNextWalletSessionCounterValue(txStmtCtx,
+			accessTokenUUID)
+		if clbErr != nil {
+			return clbErr
+		}
+
+		if nextSerialNumber <= 0 {
+			nextSerialNumber = 0
+		}
 
 		sessionToSave := &entities.MnemonicWalletSession{
 			UUID:               sessionUUID.String(),
@@ -151,7 +158,7 @@ func (s *Service) startWalletSession(ctx context.Context,
 		}
 
 		accessTokenForSession := &entities.AccessTokenWalletSession{
-			SerialNumber:   nextSerialNumber,
+			SerialNumber:   uint64(nextSerialNumber),
 			AccessTokeUUID: accessTokenUUID,
 			SessionUUID:    sessionUUID,
 			CreatedAt:      currentTime,
