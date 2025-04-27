@@ -11,6 +11,7 @@
   * Changed /x/net vulnerable version - v0.33.0 -> v0.38.0
   * Changed lib-jwt version v0.0.5 -> v0.0.6
 ### Changed
+* Changed copyright year in LICENSE file and in licence banner in *.go files
 * Bump common-libs versions
   * bc-wallet-common-lib-config v0.0.8
   * bc-wallet-common-lib-errors v0.0.10

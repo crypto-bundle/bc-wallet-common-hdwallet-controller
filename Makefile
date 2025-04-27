@@ -5,6 +5,9 @@
 #  go get -d github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 #  go get -d github.com/pseudomuto/protoc-gen-doc/cmd/protoc-gen-doc
 
+
+proto: common_proto hdwallet_proto controller_proto
+
 common_proto:
 	protoc -I ./pkg/proto/common/ \
 		--go_out=./pkg/grpc/common/ \
