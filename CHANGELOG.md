@@ -1,6 +1,6 @@
 # Change Log
 
-## [v0.0.31, v0.0.32, v0.0.33] 27.04.2025
+## [v0.0.31, v0.0.32, v0.0.33, v0.0.34] 27.04.2025
 ### Fixed
 * Fixed bug with reservation of next `serial_number` for access_token wallet_sessions list
   * Added migration
@@ -26,7 +26,7 @@
   * bc-wallet-common-lib-profiler v0.0.3
   * bc-wallet-common-lib-redis v0.0.10
   * bc-wallet-common-lib-tracer v0.0.5
-  * bc-wallet-common-lib-vault v0.0.20
+  * bc-wallet-common-lib-vault v0.0.21
 
 ## [v0.0.30] 21.06.2024
 ### Changed
