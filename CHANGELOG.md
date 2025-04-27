@@ -6,6 +6,7 @@
   * Added migration
   * Changed integration test
     * Added async logic of "Start new wallet session" flow
+* Changed /x/crypto vulnerable version - v0.31.0 -> v0.35.0
 ### Changed
 * Bump common-libs versions
   * bc-wallet-common-lib-config v0.0.8
