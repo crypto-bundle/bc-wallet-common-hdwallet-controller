@@ -1,6 +1,6 @@
 # Change Log
 
-## [v0.0.31, v0.0.32] 27.04.2025
+## [v0.0.31, v0.0.32, v0.0.33] 27.04.2025
 ### Fixed
 * Fixed bug with reservation of next `serial_number` for access_token wallet_sessions list
   * Added migration
@@ -15,7 +15,9 @@
 * Bump common-libs versions
   * bc-wallet-common-lib-config v0.0.8
   * bc-wallet-common-lib-errors v0.0.10
-  * bc-wallet-common-lib-grpc v0.0.5
+  * bc-wallet-common-lib-grpc v0.0.6
+    * google.golang.org/grpc
+    * google.golang.org/protobuf
   * bc-wallet-common-lib-healthcheck v0.0.9
   * bc-wallet-common-lib-jwt v0.0.5
   * bc-wallet-common-lib-logger v0.0.12
