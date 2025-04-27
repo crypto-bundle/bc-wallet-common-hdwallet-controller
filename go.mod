@@ -8,7 +8,7 @@ require (
 	github.com/crypto-bundle/bc-wallet-common-lib-errors v0.0.10
 	github.com/crypto-bundle/bc-wallet-common-lib-grpc v0.0.5
 	github.com/crypto-bundle/bc-wallet-common-lib-healthcheck v0.0.9
-	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.5
+	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.6
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.12
 	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.14
 	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.11
@@ -35,7 +35,7 @@ require (
 	github.com/go-jose/go-jose/v4 v4.0.1 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -59,10 +59,10 @@ require (
 	go.opentelemetry.io/otel/metric v1.25.0 // indirect
 	go.opentelemetry.io/otel/trace v1.25.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.35.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/crypto v0.36.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240227224415-6ceb2ff114de // indirect
 )
