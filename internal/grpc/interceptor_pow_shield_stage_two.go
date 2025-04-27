@@ -207,8 +207,20 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			return status.Error(codes.InvalidArgument, "pow hash already used")
 		}
 
-		lastSessionIdentity, clbErr := i.walletDataSvc.GetLastWalletSessionIdentityByAccessTokenUUID(txStmtCtx,
-			accessTokenUUID.String())
+		currentCounterInfo, clbErr := i.walletDataSvc.GetCurrentAccessTokenCounterValue(txStmtCtx, accessTokenUUID)
+		if clbErr != nil {
+			i.logger.Error("unable to get current access token counter value", zap.Error(clbErr))
+
+			return status.Error(codes.Internal, "something went wrong")
+		}
+
+		var counterValue uint64
+		if currentCounterInfo != nil {
+			counterValue = currentCounterInfo.CounterValue
+		}
+
+		lastSessionIdentity, clbErr := i.walletDataSvc.GetWalletSessionBySerialNumberAndAccessTokenUUID(txStmtCtx,
+			accessTokenUUID.String(), counterValue)
 		if clbErr != nil {
 			i.logger.Error("unable to get last wallet session identity", zap.Error(clbErr))
 
@@ -220,13 +232,6 @@ func (i *powShieldFullValidationInterceptor) validateForSessionFlow(ctx context.
 			//sessionUUID = lastSessionIdentity.SessionUUID.String()
 			obscurityData = lastSessionIdentity.SessionUUID[:]
 		}
-
-		//i.logger.Info("data",
-		//	zap.String("access_token_uuid", accessTokenUUID.String()),
-		//	zap.String("access_token_hash", fmt.Sprintf("%x", sha256.Sum256([]byte(accessToken)))),
-		//	zap.String("obsc_data", string(obscurityData)),
-		//	zap.String("session_uuid", sessionUUID),
-		//)
 
 		protoMsgRawData, clbErr := proto.Marshal(protoMsg)
 		if clbErr != nil {

@@ -112,8 +112,12 @@ type accessTokenDataService interface {
 }
 
 type walletDataService interface {
-	GetLastWalletSessionIdentityByAccessTokenUUID(ctx context.Context,
+	GetCurrentAccessTokenCounterValue(ctx context.Context,
+		tokenIdentifier uuid.UUID,
+	) (*entities.AccessTokenWalletSessionCounter, error)
+	GetWalletSessionBySerialNumberAndAccessTokenUUID(ctx context.Context,
 		accessTokenUUID string,
+		serialNumber uint64,
 	) (resultItem *entities.AccessTokenWalletSession, err error)
 }
 
