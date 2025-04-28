@@ -30,8 +30,8 @@ github.com/crypto-bundle/bc-wallet-common-lib-tinyerrors v0.0.3 h1:H5dKcgNd7Kg2Z
 github.com/crypto-bundle/bc-wallet-common-lib-tinyerrors v0.0.3/go.mod h1:3t59AYrSY9xto1cC3phlkHk6SioZQzP7wIDX7tq1J9M=
 github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.5 h1:bgJ3pIT7N2m40z3gWuFzbhjqzLpbfDnkhBZNxmRFDTA=
 github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.5/go.mod h1:EzRJ4Oq8oM3HZgH9mrsOSpX+GHjS6RY0DDxi/ucqh1E=
-github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.21 h1:CpY6ey2sJh36QaLcWU/Zvf2a88hECfVzGE7aJX/KPPk=
-github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.21/go.mod h1:WR0PNFuG7LdIxX5Zux+GK9gnYRBPqgGLjkRZ/mCU424=
+github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.22 h1:9dKtvlscHBj/NrWiDLV3q3OAVFJxHf7YPv5EmyXZgpE=
+github.com/crypto-bundle/bc-wallet-common-lib-vault v0.0.22/go.mod h1:b5GAleX3g3b02Yx39kXcLiD/yiI8xxvjh8duoMUiuZs=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f h1:lO4WD4F/rVNCu3HqELle0jiPLLBs70cWOduZpkS1E78=

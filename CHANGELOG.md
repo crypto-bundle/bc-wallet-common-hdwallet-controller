@@ -1,5 +1,10 @@
 # Change Log
 
+## [v0.0.35] 28.04.2025
+### Changed
+* Bump common-libs versions
+  * bc-wallet-common-lib-vault v0.0.21
+
 ## [v0.0.31, v0.0.32, v0.0.33, v0.0.34] 27.04.2025
 ### Fixed
 * Fixed bug with reservation of next `serial_number` for access_token wallet_sessions list
