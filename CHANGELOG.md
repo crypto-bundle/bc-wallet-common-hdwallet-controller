@@ -1,5 +1,11 @@
 # Change Log
 
+## [v0.0.36] 30.04.2025
+### Changed
+* Bump common-libs versions
+  * bc-wallet-common-lib-vault v0.0.22
+  * bc-wallet-common-lib-config v0.0.9
+
 ## [v0.0.35] 28.04.2025
 ### Changed
 * Bump common-libs versions
