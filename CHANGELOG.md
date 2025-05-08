@@ -1,6 +1,6 @@
 # Change Log
 
-## [v0.0.37] 06.05.2025
+## [v0.0.37] 08.05.2025
 ### Changed
 * Bump dependencies versions:
   * Dockerfile parent image - `golang:1.23-alpine` as build-layer image
