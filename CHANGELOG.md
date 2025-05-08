@@ -1,5 +1,11 @@
 # Change Log
 
+## [v0.0.37] 06.05.2025
+### Changed
+* Bump dependencies versions:
+  * Dockerfile parent image - `golang:1.23-alpine` as build-layer image
+  * bc-wallet-common-lib-postgres v0.0.12
+
 ## [v0.0.36] 30.04.2025
 ### Changed
 * Bump common-libs versions

@@ -64,11 +64,13 @@ func PrepareVault(ctx context.Context,
 	loggerBuilderSvc loggerFactoryService,
 ) (*commonVault.Service, error) {
 	cfgPreparerSrv := commonConfig.NewConfigManager(errFmtSvc)
+
 	vaultCfg := &VaultWrappedConfig{
 		BaseConfig: &commonVault.BaseConfig{},
 		AuthConfig: &commonVaultTokenClient.AuthConfig{},
 	}
-	err := cfgPreparerSrv.PrepareTo(vaultCfg).With(baseCfgSrv).Do(ctx)
+
+	err := cfgPreparerSrv.PrepareTo(vaultCfg).With(baseCfgSrv, errFmtSvc).Do(ctx)
 	if err != nil {
 		return nil, err
 	}

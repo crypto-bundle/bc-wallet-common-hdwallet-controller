@@ -20,8 +20,8 @@ github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.12 h1:HiRnQ9Yq4bIufWzj
 github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.12/go.mod h1:XKJBnm9VxL/1gfWzeV32tb1bhjmYg1e9PV8WUvYUZ/k=
 github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.14 h1:3DfPgUtgMd5tBJWAF7trCB+QIh5Wlox5T0rfrsulscc=
 github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.14/go.mod h1:pDEKJZb7mFiSD/DVHIjJSKo23alOAOw2WOk9MPc7WgA=
-github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.11 h1:B6zzXyDZDzDQ+TqM6kbgzWrx2XX/05x+BvjuOib1fLw=
-github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.11/go.mod h1:Clp6WVV2AZSXgAe08OKB+eO0qG2Mo0wnw/2tlpWiTAY=
+github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.12 h1:if5IaLXCsDUo2cM4Jld+Q3U9kduNY7yw4yMb+1FYwrc=
+github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.12/go.mod h1:Clp6WVV2AZSXgAe08OKB+eO0qG2Mo0wnw/2tlpWiTAY=
 github.com/crypto-bundle/bc-wallet-common-lib-profiler v0.0.3 h1:OR9vh9xCfkqZrSG7pFj8KEn8XkJ0rJj6y6t0ZooObKE=
 github.com/crypto-bundle/bc-wallet-common-lib-profiler v0.0.3/go.mod h1:PPrQErZNYtRvNpo3AVfIYHIz8uTO2F8dV2AiGeXQSbw=
 github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.10 h1:C0ZP4fqNBopdWOMY4UpYeKs2SzIQhlidiqpJ9n7wfPM=

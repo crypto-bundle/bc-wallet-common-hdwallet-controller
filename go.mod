@@ -11,7 +11,7 @@ require (
 	github.com/crypto-bundle/bc-wallet-common-lib-jwt v0.0.6
 	github.com/crypto-bundle/bc-wallet-common-lib-logger v0.0.12
 	github.com/crypto-bundle/bc-wallet-common-lib-nats-queue v0.1.14
-	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.11
+	github.com/crypto-bundle/bc-wallet-common-lib-postgres v0.0.12
 	github.com/crypto-bundle/bc-wallet-common-lib-profiler v0.0.3
 	github.com/crypto-bundle/bc-wallet-common-lib-redis v0.0.10
 	github.com/crypto-bundle/bc-wallet-common-lib-tracer v0.0.5
